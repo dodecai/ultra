@@ -1,2 +1,1 @@
-# ultra
-Ultra Spectrum
+# Ultra Spectrum
