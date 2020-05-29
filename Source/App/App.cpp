@@ -1,6 +1,16 @@
-﻿#include "../Ultra.h"
+﻿#include <Ultra.h>
+#include <Omnia/EntryPoint.h>
 
-int main() {
-	std::cout << "Welcome to Ultra!" << std::endl;
-	return 0;
+class Sandbox: public Omnia::Application {
+public:
+	Sandbox() {
+	}
+
+	~Sandbox() {
+	}
+};
+
+
+Omnia::Application *Omnia::CreateApplication() {
+	return new Sandbox();
 }
