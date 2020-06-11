@@ -1,16 +1,38 @@
 ﻿#include <Ultra.h>
-#include <Omnia/EntryPoint.h>
 
-class Sandbox: public Omnia::Application {
+// Applicaton
+namespace Ultra {
+
+class MainLayer: public Layer {
 public:
-	Sandbox() {
+	MainLayer():
+		Layer{ "Main" } {
 	}
 
-	~Sandbox() {
-	}
+	void Event(void *event) {}
+	void Update() override {}
 };
 
+class App: public Application {
+public:
+	void Create() {
+		// Preparation
+		applog <<  "Welcome to " << AppCaption << "!" << std::endl;
+		PushLayer(new MainLayer());
+		PushOverlay(new GuiLayer());
+	}
 
-Omnia::Application *Omnia::CreateApplication() {
-	return new Sandbox();
+	void Destroy() {}
+	void Update() {}
+
+	//void KeyboardEvent(KeyboardEventData data) {}
+	//void MouseEvent(MouseEventData data) {}
+	//void WindowEvent(WindowEventData data) {}
+};
+
+}
+
+// Application Entry-Point
+Ultra::Application *CreateApplication() {
+	return new Ultra::App();
 }

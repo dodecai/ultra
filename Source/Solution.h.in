@@ -1,0 +1,14 @@
+﻿#pragma once
+
+// Configuration
+#include "@PROJECT_NAME@.settings"
+
+// Library
+#include <Omnia.h>
+#include <Omnia/EntryPoint.h>
+
+namespace @PROJECT_NAME@ {
+
+using namespace Omnia;
+
+}

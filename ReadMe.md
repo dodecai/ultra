@@ -20,9 +20,12 @@
 This projects mirrors my desire to get into game engine development since I was a child. As everyone knows, this is a task which will take some years, but as long as I have fun while coding, it doesn't realy matter.
 
 ## Project Goal ##
+
 - A game engine which runs on any platform and with any api.
 - A designer which fullfills anyones needs.
 - Not a Unity, Unreal, etc replacement, rather like something which can coexist for "have-fun" projects.
+
+> If you are interested in my odyssey feel free to follow it.
 
 ## Features ##
 > Note: Windows implementation will be the first implemented.
@@ -34,8 +37,7 @@ This projects mirrors my desire to get into game engine development since I was 
 - [Application Layer Library](https://github.com/larioteo/omnia.git)
 
 ###### Planned (...) ######
-- RendererAPI
-- Renderer
+- Renderer (API/2D/3D)
 - Designer
 - Entity-Component-System
 - Physics

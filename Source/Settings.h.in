@@ -1,0 +1,24 @@
+#pragma once
+
+// Properties
+extern "C" {
+	__declspec(dllexport) unsigned long NvOptimusEnablement = 0x1;
+	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+
+namespace @PROJECT_NAME@ {
+
+// Information
+constexpr auto AppCaption = "@AppCaption@";
+constexpr auto AppDescription = "@AppDescription@";
+constexpr auto AppRelease = "@AppRelease@";
+constexpr auto AppVersion = "@AppVersion@";
+constexpr auto AppVersionMajor = "@AppVersionMajor@";
+constexpr auto AppVersionMinor = "@AppVersionMinor@";
+constexpr auto AppVersionPatch = "@AppVersionPatch@";
+
+// Switches
+static inline constexpr bool DebugMode = @DebugMode@;
+static inline constexpr bool VerboseMode = @VerboseMode@;
+
+}

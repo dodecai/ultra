@@ -1,25 +1,43 @@
-﻿# Projects
-add_subdirectory(App)
-add_subdirectory(Library)
-
-if(MSVC)
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-endif()
-
-configure_file(${PROJECT_NAME}.h.in ${CMAKE_BINARY_DIR}/Source/Generated/${PROJECT_NAME}.h)
+﻿#■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+# ☰ Projects
+#■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# ☲ Properties
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+# ☷ Directories
+#‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+set(App3rdPartySource "${SolutionSourceRoot}/3rd-Party")
+set(AppBinarySource "${SolutionSourceRoot}/App")
+set(AppDemoSource "${SolutionSourceRoot}/Demo")
+set(AppDesignerSource "${SolutionSourceRoot}/Designer")
+set(AppEngineSource "${SolutionSourceRoot}/Engine")
+set(AppLibrarySource  "${SolutionSourceRoot}/Library")
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# ☲ Process
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+# ☷ Configuration
+#‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 configure_file(Settings.h.in ${CMAKE_BINARY_DIR}/Source/Generated/${PROJECT_NAME}.settings)
-
+configure_file(Solution.h.in ${CMAKE_BINARY_DIR}/Source/Generated/${PROJECT_NAME}.h)
+#‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+# ☷ Sources
+#‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+message("  ҉ Scanning Sources")
+message("################################################################################################")
+add_subdirectoryX(App)
+message("------------------------------------------------------------------------------------------------")
+add_subdirectoryX(Library)
+message("################################################################################################")
+#‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+# ☷ Verbose Information
+#‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+message("------------------------------------------------------------------------------------------------")
 message("✶ Verbose Information")
-message("Current='${PROJECT_NAME}'")
-set(VALUES "")
-get_property(VALUES TARGET ${PROJECT_NAME} PROPERTY INCLUDE_DIRECTORIES)
-foreach(VALUE ${VALUES})
-	message(" - Property[INCLUDE_DIRECTORIES]: ${VALUE}")
-endforeach()
-
-message("Current='Omnia'")
-set(VALUES "")
-get_property(VALUES TARGET Omnia PROPERTY INCLUDE_DIRECTORIES)
-foreach(VALUE ${VALUES})
-	message(" - Property[INCLUDE_DIRECTORIES]: ${VALUE}")
-endforeach()
+message("------------------------------------------------------------------------------------------------")
+if(${VerboseMode})
+	message_property(${PROJECT_NAME} INCLUDE_DIRECTORIES)
+	message_property(Omnia INCLUDE_DIRECTORIES)
+endif()
+#■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
