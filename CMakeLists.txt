@@ -132,9 +132,9 @@ message("✶ Process")
 # ☷ Data
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 #message("  ҉ Copying Data: '${CMAKE_SOURCE_DIR}/Build/${CMAKE_BUILD_TYPE}/'")
-#install(DIRECTORY Assets/ DESTINATION Assets)
+install(DIRECTORY Assets/ DESTINATION Assets)
 #install(DIRECTORY Data/ DESTINATION Data)
-#file(COPY "Assets" DESTINATION "${CMAKE_SOURCE_DIR}/Build/${CMAKE_BUILD_TYPE}/")
+file(COPY "Assets" DESTINATION "${CMAKE_SOURCE_DIR}/Build/${CMAKE_BUILD_TYPE}/")
 #file(COPY "Data" DESTINATION "${CMAKE_SOURCE_DIR}/Build/${CMAKE_BUILD_TYPE}/")
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ Sources
