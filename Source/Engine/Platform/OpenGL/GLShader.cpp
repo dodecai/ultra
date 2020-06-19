@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include <Omnia/System/FSO.h>
 
 namespace Ultra {
@@ -128,6 +130,11 @@ void GLShader::Bind() const {
 
 void GLShader::Unbind() const {
 	glUseProgram(0);
+}
+
+void GLShader::UploadaUniformMat4(const std::string &name, const glm::mat4 &matrix) const {
+	auto location = glGetUniformLocation(RendererID, name.c_str());
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
 }

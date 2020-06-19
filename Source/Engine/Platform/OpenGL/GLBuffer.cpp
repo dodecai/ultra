@@ -4,7 +4,7 @@
 namespace Ultra {
 
 // Vertex Buffer
-GLVertexBuffer::GLVertexBuffer(float *vertices, uint32_t size) {
+GLVertexBuffer::GLVertexBuffer(float *vertices, size_t size) {
 	glCreateBuffers(1, &RendererID);
 	glBindBuffer(GL_ARRAY_BUFFER, RendererID);
 	glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);

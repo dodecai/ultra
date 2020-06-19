@@ -1,17 +1,26 @@
 #pragma once
 
+#include "RenderCommand.h"
+
+#include "Camera.h"
+#include "Shader.h"
+
 namespace Ultra {
 
-enum class RendererAPI {
-	Null		= 0x0,
-	OpenGL		= 0x1,
-};
-
 class Renderer {
-	static RendererAPI sRendererAPI;
+	struct SceneData {
+		glm::mat4 ViewProjectionMatrix;
+	};
+
+	static SceneData *mSceneData;
 
 public:
-	inline static RendererAPI GetAPI() { return sRendererAPI; }
+	static void BeginScene(OrthographicCamera &camera);
+	static void EndScene();
+
+	static void Submit(const std::shared_ptr<Shader> &shader, const std::shared_ptr<VertexArray> &vertexArray);
+
+	inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
 };
 
 }

@@ -6,7 +6,9 @@
 // Library
 #include <Omnia.h>
 #include <Omnia/EntryPoint.h>
+#include <Engine.h>
 
+// Wrap library in solution namespace
 namespace @PROJECT_NAME@ {
 
 using namespace Omnia;

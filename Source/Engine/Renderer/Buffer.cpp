@@ -7,17 +7,17 @@ namespace Ultra {
 
 VertexBuffer *VertexBuffer::Create(float *vertices, size_t size) {
 	switch (Renderer::GetAPI()) {
-		case RendererAPI::Null:		{ return nullptr; }
-		case RendererAPI::OpenGL:	{ return new GLVertexBuffer(vertices, size); }
+		case RendererAPI::API::Null:		{ return nullptr; }
+		case RendererAPI::API::OpenGL:		{ return new GLVertexBuffer(vertices, size); }
 	}
 	// Unknown RendererAPI
 	return nullptr;
 }
 
-IndexBuffer *IndexBuffer::Create(uint32_t *indices, size_t size) {
+IndexBuffer *IndexBuffer::Create(uint32_t *indices, uint32_t size) {
 	switch (Renderer::GetAPI()) {
-		case RendererAPI::Null:		{ return nullptr; }
-		case RendererAPI::OpenGL:	{ return new GLIndexBuffer(indices, size); }
+		case RendererAPI::API::Null:		{ return nullptr; }
+		case RendererAPI::API::OpenGL:		{ return new GLIndexBuffer(indices, size); }
 	}
 	// Unknown RendererAPI
 	return nullptr;

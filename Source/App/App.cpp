@@ -1,109 +1,123 @@
 ﻿#include <Ultra.h>
 
-// Engine
-#include "Engine.h"
-
-// Applicaton
+// Application
 namespace Ultra {
 
-static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type) {
-	switch (type) {
-		case ShaderDataType::Bool:			return GL_BOOL;
-		case ShaderDataType::Float:			return GL_FLOAT;
-		case ShaderDataType::Float2:		return GL_FLOAT;
-		case ShaderDataType::Float3:		return GL_FLOAT;
-		case ShaderDataType::Float4:		return GL_FLOAT;
-		case ShaderDataType::Int:			return GL_INT;
-		case ShaderDataType::Int2:			return GL_INT;
-		case ShaderDataType::Int3:			return GL_INT;
-		case ShaderDataType::Int4:			return GL_INT;
-		case ShaderDataType::Mat3:			return GL_FLOAT;
-		case ShaderDataType::Mat4:			return GL_FLOAT;
-		default:							return 0;
-	}
-}
+class DemoLayer: public Layer {
+	shared_ptr<Shader> BasicShader;
+	shared_ptr<VertexArray> SquareVertexArray;
+	shared_ptr<VertexArray> TriangleVertexArray;
 
-
-class MainLayer: public Layer {
-public:
-	MainLayer():
-		Layer{ "Main" } {
-	}
-
-	void Event(void *event) {}
-	void Update() override {}
-};
-
-class App: public Application {
-	// Test
-	uint32_t VertexArray = 0;
-
-	unique_ptr<Ultra::Shader> BasicShader;
-	unique_ptr<Ultra::VertexBuffer> VBO;
-	unique_ptr<Ultra::IndexBuffer> IBO;
+	OrthographicCamera Camera;
+	glm::vec3 CameraPosition;
+	float CameraMoveSpeed = 1.0f;
+	float CameraRotation = 0.1f;
+	float CameraRotationSpeed = 90.0f;
 
 public:
-	void Create() {
-		// Preparation
-		applog <<  "Welcome to " << AppCaption << "!" << std::endl;
-		PushLayer(new MainLayer());
+	DemoLayer():
+		Layer("Main"),
+		Camera(-1.0f, 1.0f, -1.0f, 1.0f),
+		CameraPosition(0.0f) {
+		// Properties
+		Gfx::SetVSync(false);
+	}
 
-		// Test
-		gladLoadGL();
-
-		BasicShader.reset(Ultra::Shader::Create("./Assets/Shaders/Basic.vert", "./Assets/Shaders/Basic.frag"));
-
-		glGenVertexArrays(1, &VertexArray);
-		glBindVertexArray(VertexArray);
-
-		float vertices[3 * 7] = {
-			-0.5f,  -0.5f,  0.0f,	0.8f, 0.2f, 0.2f, 1.0f,
-			 0.5f,  -0.5f,  0.0f,	0.2f, 0.8f, 0.2f, 1.0f,
-			 0.0f,   0.5f,  0.0f,	0.2f, 0.2f, 0.8f, 1.0f
-		};
-		VBO.reset(Ultra::VertexBuffer::Create(vertices, sizeof(vertices)));
-
+	void Create() override {
+		// Shader
+		BasicShader.reset(Shader::Create("./Assets/Shaders/Basic.vert", "./Assets/Shaders/Basic.frag"));
 		BufferLayout layout = {
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color" }
 		};
 
-		VBO->SetLayout(layout);
+		// Triangle
+		TriangleVertexArray.reset(VertexArray::Create());
 
-		uint32_t index = 0;
-		for (const auto &element : VBO->GetLayout()) {
-			glEnableVertexAttribArray(index);
-			glVertexAttribPointer(index,
-								  element.GetComponentCount(),
-								  ShaderDataTypeToOpenGLBaseType(element.Type),
-								  element.Normalized ? GL_TRUE : GL_FALSE,
-								  VBO->GetLayout().GetStride(),
-								  (const void *)(uint64_t)element.Offset
-			);
-			index++;
+		float triangleVertices[7 * 3] = {
+			-0.5f,  -0.5f,  0.0f,	0.8f, 0.2f, 0.2f, 1.0f,
+			0.5f,  -0.5f,  0.0f,	0.2f, 0.8f, 0.2f, 1.0f,
+			0.0f,   0.5f,  0.0f,	0.2f, 0.2f, 0.8f, 1.0f
+		};
+		std::shared_ptr<VertexBuffer> triangleVB;
+		triangleVB.reset(VertexBuffer::Create(triangleVertices, sizeof(triangleVertices)));
+		triangleVB->SetLayout(layout);
+		TriangleVertexArray->AddVertexBuffer(triangleVB);
+
+		uint32_t indicesTrianlge[3] = { 0, 1, 2 };
+		std::shared_ptr<IndexBuffer> triangleIB;
+		triangleIB.reset(IndexBuffer::Create(indicesTrianlge, sizeof(indicesTrianlge) / sizeof(uint32_t)));
+		TriangleVertexArray->SetIndexBuffer(triangleIB);
+
+		// Square
+		SquareVertexArray.reset(VertexArray::Create());
+
+		float suareVertices[7 * 4] = {
+			-0.5f,  -0.5f,  0.0f,	0.8f, 0.2f, 0.2f, 1.0f,
+			0.5f,  -0.5f,  0.0f,	0.2f, 0.8f, 0.2f, 1.0f,
+			0.5f,   0.5f,  0.0f,	0.2f, 0.2f, 0.8f, 1.0f,
+			-0.5f,   0.5f,  0.0f,	0.5f, 0.5f, 0.5f, 1.0f
+		};
+		std::shared_ptr<VertexBuffer> squareVB;
+		squareVB.reset(VertexBuffer::Create(suareVertices, sizeof(suareVertices)));
+		squareVB->SetLayout(layout);
+		SquareVertexArray->AddVertexBuffer(squareVB);
+
+		uint32_t squreIndices[6] = { 0, 1, 2, 2, 3, 0 };
+		std::shared_ptr<IndexBuffer> squareIB;
+		squareIB.reset(IndexBuffer::Create(squreIndices, sizeof(squreIndices) / sizeof(uint32_t)));
+		SquareVertexArray->SetIndexBuffer(squareIB);
+	}
+
+	void Update(Timestep deltaTime) override {
+		// Inputs
+		if (Input::GetKeyState(KeyCode::KeyA)) {
+			CameraPosition.x -= CameraMoveSpeed * deltaTime;
+		} else if (Input::GetKeyState(KeyCode::KeyD)) {
+			CameraPosition.x += CameraMoveSpeed * deltaTime;
+		}
+		if (Input::GetKeyState(KeyCode::KeyW)) {
+			CameraPosition.y += CameraMoveSpeed * deltaTime;
+		} else if (Input::GetKeyState(KeyCode::KeyS)) {
+			CameraPosition.y -= CameraMoveSpeed * deltaTime;
 		}
 
-		uint32_t indices[3] = { 0, 1, 2 };
-		IBO.reset(Ultra::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+		if (Input::GetKeyState(KeyCode::KeyQ)) {
+			CameraRotation -= CameraRotationSpeed * deltaTime;
+		} else if (Input::GetKeyState(KeyCode::KeyE)) {
+			CameraRotation += CameraRotationSpeed * deltaTime;
+		}
+
+		// Render
+		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+		RenderCommand::Clear();
+		
+		Camera.SetPosition(CameraPosition);
+		Camera.SetRotation(CameraRotation);
+
+		Renderer::BeginScene(Camera);
+		Renderer::Submit(BasicShader, SquareVertexArray);
+		Renderer::Submit(BasicShader, TriangleVertexArray);
+		Renderer::EndScene();
+	}
+};
+
+class App: public Omnia::Application {
+public:
+	void Create() override {
+		PushLayer(new DemoLayer());
 	}
 
-	void Destroy() {
+	void Destroy() override {
 	}
 
-	void Update() {
-		BasicShader->Bind();
-		glBindVertexArray(VertexArray);
-		glDrawElements(GL_TRIANGLES, IBO->GetCount(), GL_UNSIGNED_INT, nullptr);
+	void Update(Timestep deltaTime) override {
 	}
-
-	//void KeyboardEvent(KeyboardEventData data) {}
-	//void MouseEvent(MouseEventData data) {}
-	//void WindowEvent(WindowEventData data) {}
 };
 
 }
 
 // Application Entry-Point
-Ultra::Application *CreateApplication() {
+Omnia::Application *CreateApplication() {
 	return new Ultra::App();
 }

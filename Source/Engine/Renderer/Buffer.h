@@ -126,7 +126,7 @@ class IndexBuffer {
 public:
 	virtual ~IndexBuffer() {}
 
-	static IndexBuffer *Create(uint32_t *indices, size_t size);
+	static IndexBuffer *Create(uint32_t *indices, uint32_t size);
 
 	virtual void Bind() const = 0;
 	virtual void Unbind() const = 0;

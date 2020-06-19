@@ -10,6 +10,10 @@
 include(CMakeSources.cmake)
 add_library(Engine SHARED ${ENGINE_HEADERS} ${ENGINE_SOURCES})
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+# ☷ Compiler
+#‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+add_compile_definitions(APP_SHARED_LIBRARY)
+#‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ IDE
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 set_property(TARGET Engine PROPERTY FOLDER Library)
@@ -17,6 +21,7 @@ set_property(TARGET Engine PROPERTY FOLDER Library)
 # ☷ Linker
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 target_include_directories(Engine PRIVATE ${CMAKE_BINARY_DIR}/Source/Generated)
+target_include_directories(Engine PRIVATE ${CMAKE_SOURCE_DIR}/Source/3rd-Party/.Library)
 target_include_directories(Engine PRIVATE ${CMAKE_SOURCE_DIR}/Source/Library/Source)
 target_include_directories(Engine PRIVATE ${CMAKE_SOURCE_DIR}/Source/Library/3rd-Party/.Library)
 target_include_directories(Engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

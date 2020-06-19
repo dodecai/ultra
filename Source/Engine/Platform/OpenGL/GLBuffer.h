@@ -9,7 +9,7 @@ class GLVertexBuffer: public VertexBuffer {
 	BufferLayout mLayout;
 
 public:
-	GLVertexBuffer(float *vertices, uint32_t size);
+	GLVertexBuffer(float *vertices, size_t size);
 	virtual ~GLVertexBuffer();
 
 	virtual const BufferLayout &GetLayout() const override;
