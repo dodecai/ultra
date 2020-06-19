@@ -1,5 +1,7 @@
 ﻿#include <Ultra.h>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 // Application
 namespace Ultra {
 
@@ -14,13 +16,24 @@ class DemoLayer: public Layer {
 	float CameraRotation = 0.1f;
 	float CameraRotationSpeed = 90.0f;
 
+	glm::vec3 TrianglePosition;
+	glm::vec3 SquarePosition;
+	float TriangleMoveSpeed = 1.0f;
+
 public:
 	DemoLayer():
 		Layer("Main"),
 		Camera(-1.0f, 1.0f, -1.0f, 1.0f),
-		CameraPosition(0.0f) {
+		CameraPosition(0.0f),
+		TrianglePosition(0.0f),
+		SquarePosition(0.0f) {
 		// Properties
+		gladLoadGL();
 		Gfx::SetVSync(false);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glEnable(GL_DEPTH_TEST);  // enable depth-testing
+		glDepthFunc(GL_LESS);	  // depth-testing interprets a smaller value as "closer"
+		glEnable(GL_MULTISAMPLE);
 	}
 
 	void Create() override {
@@ -70,7 +83,7 @@ public:
 	}
 
 	void Update(Timestep deltaTime) override {
-		// Inputs
+		// Camera Input
 		if (Input::GetKeyState(KeyCode::KeyA)) {
 			CameraPosition.x -= CameraMoveSpeed * deltaTime;
 		} else if (Input::GetKeyState(KeyCode::KeyD)) {
@@ -81,11 +94,22 @@ public:
 		} else if (Input::GetKeyState(KeyCode::KeyS)) {
 			CameraPosition.y -= CameraMoveSpeed * deltaTime;
 		}
-
 		if (Input::GetKeyState(KeyCode::KeyQ)) {
 			CameraRotation -= CameraRotationSpeed * deltaTime;
 		} else if (Input::GetKeyState(KeyCode::KeyE)) {
 			CameraRotation += CameraRotationSpeed * deltaTime;
+		}
+
+		// Object Input
+		if (Input::GetKeyState(KeyCode::Left)) {
+			TrianglePosition.x -= TriangleMoveSpeed * deltaTime;
+		} else if (Input::GetKeyState(KeyCode::Right)) {
+			TrianglePosition.x += TriangleMoveSpeed * deltaTime;
+		}
+		if (Input::GetKeyState(KeyCode::Up)) {
+			TrianglePosition.y += TriangleMoveSpeed * deltaTime;
+		} else if (Input::GetKeyState(KeyCode::Down)) {
+			TrianglePosition.y -= TriangleMoveSpeed * deltaTime;
 		}
 
 		// Render
@@ -95,9 +119,20 @@ public:
 		Camera.SetPosition(CameraPosition);
 		Camera.SetRotation(CameraRotation);
 
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), TrianglePosition);
+
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+
 		Renderer::BeginScene(Camera);
-		Renderer::Submit(BasicShader, SquareVertexArray);
-		Renderer::Submit(BasicShader, TriangleVertexArray);
+		for (int y = 0; y < 25; y++) {
+			for (int x = 0; x < 100; x++) {
+				glm::vec3 position(x * 0.11f, y * 0.11f, 0.0f);
+				glm::mat4 transformS = glm::translate(glm::mat4(1.0f), position) * scale;
+
+				Renderer::Submit(BasicShader, SquareVertexArray, transformS);
+			}
+		}
+		Renderer::Submit(BasicShader, TriangleVertexArray, transform);
 		Renderer::EndScene();
 	}
 };
