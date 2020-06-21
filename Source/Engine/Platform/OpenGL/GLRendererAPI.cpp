@@ -3,6 +3,16 @@
 
 namespace Ultra {
 
+void GLRendererAPI::Load() {
+	gladLoadGL();
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glEnable(GL_DEPTH_TEST);  // enable depth-testing
+	//glDepthFunc(GL_LESS);	  // depth-testing interprets a smaller value as "closer"
+	//glEnable(GL_MULTISAMPLE);
+}
+
 void GLRendererAPI::Clear() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

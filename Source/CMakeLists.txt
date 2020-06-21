@@ -26,13 +26,10 @@ configure_file(Solution.h.in ${CMAKE_BINARY_DIR}/Source/Generated/${PROJECT_NAME
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 message("  ҉ Scanning Sources")
 message("################################################################################################")
-add_subdirectoryX(App)
-message("------------------------------------------------------------------------------------------------")
-add_subdirectoryX("${App3rdPartySource}")
-message("------------------------------------------------------------------------------------------------")
-add_subdirectoryX(Library)
-message("------------------------------------------------------------------------------------------------")
-add_subdirectoryX(Engine)
+add_subdirectoryX(${AppBinarySource})
+add_subdirectoryX(${App3rdPartySource})
+add_subdirectoryX(${AppLibrarySource})
+add_subdirectoryX(${AppEngineSource})
 message("################################################################################################")
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ Verbose Information

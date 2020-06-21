@@ -15,31 +15,34 @@
 [![CMake-Image]][CMake-Url]
 [![License][License-Image]][License-Url]
 
-> Attention: Currently under construction and in an early-stage.
+> Attention: Currently under construction, heavy-development and in an early-stage.
 
-This projects mirrors my desire to get into game engine development since I was a child. As everyone knows, this is a task which will take some years, but as long as I have fun while coding, it doesn't realy matter.
+This projects mirrors my odyssey to get into game engine development since I was a child. As everyone knows, this is a task which will take some years, anyways as long as I have fun while coding, it doesn't realy matter.
 
 ## Project Goal ##
+This project currently serves primarily for educational purposes.
 
-- A game engine which runs on any platform and with any api.
-- A designer which fullfills anyones needs.
-- Not a Unity, Unreal, etc replacement, rather like something which can coexist for "have-fun" projects.
-
-> If you are interested in my odyssey feel free to follow it.
+- A game engine which runs on nearly any platform and with any API.
+- A game designer which fullfills anyones needs.
+- Not an Unity, Unreal, etc replacement, rather like something which can coexist for "have-fun" projects.
 
 ## Features ##
-> Note: Windows implementation will be the first implemented.
+> Note: The main development platform is Windows, therefore everything will be implemented there first.
 
 ###### Available ######
-- \-
+- Barebone Renderer
 
 ###### Development ######
-- [Application Layer Library](https://github.com/larioteo/omnia.git)
+- [Omnia Library](https://github.com/larioteo/omnia.git) | Sub-Project
 
 ###### Planned (...) ######
-- Renderer (API/2D/3D)
+- Abtract Renderer (API/2D/3D)
+- Abstract Sound-System
 - Designer
 - Entity-Component-System
 - Physics
 - Scripting
 - BuildSystem
+
+# Disclaimer
+This project uses several [third-party](Source/3rd-Party/ReadMe.md "3rd-Party") libraries and sources.

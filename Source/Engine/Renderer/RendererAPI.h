@@ -20,6 +20,8 @@ private:
 public:
 	static RendererAPI *Create();
 
+	virtual void Load() = 0;
+
 	virtual void Clear() = 0;
 	virtual void DrawIndexed(const std::shared_ptr<VertexArray> &vertexArray) = 0;
 

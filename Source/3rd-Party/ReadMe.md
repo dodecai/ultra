@@ -9,10 +9,10 @@
 | Project | License | Release | Version |
 | :------ | :-----: | :-----: | :------ |
 | [OpenGL Mathematics](https://github.com/g-truc/glm.git "glm")                 | MIT           | 2020-05-02 | commit\{23e0701c0483283440d4d1bcd17eb7070fa8eb75} |
+| [Sean's Tool Box](https://github.com/nothings/stb.git "stb")                  | MIT           | 2020-02-05 | commit\{f54acd4e13430c5122cab4ca657705c84aa61b08} |
 
 <!-- These are leftovers which where used in the prototype, left them here, cause maybe they will be needed again.
 | [Open Asset Import Library](https://github.com/assimp/assimp.git "assimp")    | BSD-3-Clause  | 2020-05-21 | commit\{a6d554f6452dc217e9e7a2c6869f01db006c1240} |
-| [Sean's Tool Box](https://github.com/nothings/stb.git "stb")                  | MIT           | 2020-02-05 | commit\{f54acd4e13430c5122cab4ca657705c84aa61b08} |
 -->
 
 ## Inspiration ##

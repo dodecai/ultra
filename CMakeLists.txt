@@ -15,7 +15,7 @@
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Specify the minimum supported build system version and the main project information.
 cmake_minimum_required(VERSION 3.15)
-project("Ultra" VERSION 0.0.1 DESCRIPTION "Ultra Spectrum Engine" LANGUAGES C CXX)
+project("Ultra" VERSION 0.0.16 DESCRIPTION "Ultra Spectrum Engine" LANGUAGES C CXX)
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # Build System Extensions
 set(PROJECT_RELEASE 2020-07-12)
@@ -37,15 +37,15 @@ message(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # Here should be everything defined, to help developers to customize their builds.
 message("✶ Properties")
-set(DebugMode false CACHE BOOL "Enable additional information which should help finding errors faster, but they will slow down the code." FORCE)
-set(OptimizedMode false CACHE BOOL "Should the compiler optimize our code?" FORCE)
-set(TestMode true CACHE BOOL "Special mode which speeds up development (additional console window, etc)." FORCE)
-set(VerboseMode true CACHE BOOL "Enable as much information as possible, more logging means also slower code." FORCE)
+set(DebugMode		false	CACHE BOOL "Enable additional information which should help finding errors faster, but they will slow down the code." FORCE)
+set(OptimizedMode	false	CACHE BOOL "Should the compiler optimize our code?" FORCE)
+set(TestMode		true	CACHE BOOL "Special mode which speeds up development (additional console window, etc)." FORCE)
+set(VerboseMode		true	CACHE BOOL "Enable as much information as possible, more logging means also slower code." FORCE)
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
-message("  ○ DebugMode: ${DebugMode}")
+message("  ○ DebugMode:     ${DebugMode}")
 message("  ○ OptimizedMode: ${OptimizedMode}")
-message("  ○ TestMode: ${TestMode}")
-message("  ○ VerboseMode: ${VerboseMode}")
+message("  ○ TestMode:      ${TestMode}")
+message("  ○ VerboseMode:   ${VerboseMode}")
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ Build
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐

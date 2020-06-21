@@ -15,6 +15,8 @@ class Renderer {
 	static SceneData *mSceneData;
 
 public:
+	static void Load();
+
 	static void BeginScene(OrthographicCamera &camera);
 	static void EndScene();
 

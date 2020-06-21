@@ -13,6 +13,10 @@ public:
 		return s_RendererAPI;
 	}
 
+	static void Load() {
+		s_RendererAPI->Load();
+	}
+
 	static void Clear() {
 		s_RendererAPI->Clear();
 	};

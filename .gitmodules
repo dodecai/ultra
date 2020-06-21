@@ -4,3 +4,6 @@
 [submodule "Source/3rd-Party/glm"]
 	path = Source/3rd-Party/glm
 	url = https://github.com/g-truc/glm
+[submodule "Source/3rd-Party/stb"]
+	path = Source/3rd-Party/stb
+	url = https://github.com/nothings/stb

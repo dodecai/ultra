@@ -6,6 +6,8 @@ namespace Ultra {
 
 class GLRendererAPI: public RendererAPI {
 public:
+	virtual void Load() override;
+
 	virtual void Clear() override;
 	virtual void DrawIndexed(const std::shared_ptr<VertexArray> &vertexArray) override;
 

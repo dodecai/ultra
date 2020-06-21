@@ -1,7 +1,9 @@
 ﻿
 # Simple 'add_subdirectory' extension with a nice message bevore
 macro(add_subdirectoryX argument)
-	message("✶ Directory: ${argument}")
+	message("------------------------------------------------------------------------------------------------")
+	message("Project: ${argument}")
+	message("------------------------------------------------------------------------------------------------")
 	add_subdirectory(${argument})
 endmacro()
 

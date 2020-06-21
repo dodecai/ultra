@@ -1,4 +1,5 @@
 # Directories
 .vs/
+.vscode/
 [Bb]uild/
 [Cc]ache/
