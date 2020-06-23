@@ -27,9 +27,11 @@ configure_file(Solution.h.in ${CMAKE_BINARY_DIR}/Source/Generated/${PROJECT_NAME
 message("  ҉ Scanning Sources")
 message("################################################################################################")
 add_subdirectoryX(${AppBinarySource})
-add_subdirectoryX(${App3rdPartySource})
-add_subdirectoryX(${AppLibrarySource})
+add_subdirectoryX(${AppDemoSource})
+add_subdirectoryX(${AppDesignerSource})
 add_subdirectoryX(${AppEngineSource})
+add_subdirectoryX(${AppLibrarySource})
+add_subdirectoryX(${App3rdPartySource})
 message("################################################################################################")
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ Verbose Information

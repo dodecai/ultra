@@ -28,5 +28,9 @@ public:
 	static void SetClearColor(const glm::vec4 &color) {
 		s_RendererAPI->SetClearColor(color);
 	};
+
+	static void SetViewport(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) {
+		s_RendererAPI->SetViewport(x, y, width, height);
+	};
 };
 }

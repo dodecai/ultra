@@ -9,6 +9,8 @@ class GLShader: public Shader {
 	uint32_t RendererID;
 	std::string ShaderName;
 
+	mutable std::unordered_map<std::string, int32_t> UniformLocationCache;
+
 public:
 	GLShader(const string &source);
 	GLShader(const string &vertexSource, const string &fragmentSource);
@@ -18,6 +20,7 @@ public:
 	virtual void Unbind() const override;
 
 	virtual const std::string GetName() const override;
+
 
 	virtual void UploadaUniformInt(const std::string &name, int values) const override;
 
@@ -32,6 +35,8 @@ public:
 private:
 	void Compile(std::unordered_map<unsigned int, std::string> sources);
 	std::unordered_map<unsigned int, std::string> Prepare(std::string &source);
+
+	int32_t GetUniformLocation(const string &name) const;
 };
 
 }

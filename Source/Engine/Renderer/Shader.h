@@ -24,6 +24,8 @@ public:
 
 	virtual const std::string GetName() const = 0;
 
+	virtual void SetInteger(const string &name, int value) {}
+
 	virtual void UploadaUniformInt(const std::string &name, int values) const = 0;
 
 	virtual void UploadaUniformFloat(const std::string &name, float values) const = 0;

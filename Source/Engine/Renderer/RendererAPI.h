@@ -26,6 +26,7 @@ public:
 	virtual void DrawIndexed(const std::shared_ptr<VertexArray> &vertexArray) = 0;
 
 	virtual void SetClearColor(const glm::vec4 &color) = 0;
+	virtual void SetViewport(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) = 0;
 
 	inline static API GetAPI() { return s_API; };
 };

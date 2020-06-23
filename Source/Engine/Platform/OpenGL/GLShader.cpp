@@ -167,39 +167,54 @@ std::unordered_map<GLenum, std::string> GLShader::Prepare(std::string &source) {
 	return shaderSources;
 }
 
+int32_t GLShader::GetUniformLocation(const string &name) const {
+	auto location = glGetUniformLocation(RendererID, name.c_str());
+	return location;
+
+	// ToDo: Runs very slow that you can easily see it, the question is why?
+	//if (UniformLocationCache.find(name) != UniformLocationCache.end()) return UniformLocationCache[name];
+	//auto location = glGetUniformLocation(RendererID, name.c_str());
+	//if (location == -1) {
+	//	// Uniform not found!
+	//	return location;
+	//}
+	//UniformLocationCache[name] = location;
+	//return location;
+}
+
 
 void GLShader::UploadaUniformInt(const std::string &name, int values) const {
-	auto location = glGetUniformLocation(RendererID, name.c_str());
+	auto location = GetUniformLocation(name);
 	glUniform1i(location, values);
 }
 
 void GLShader::UploadaUniformFloat(const std::string &name, float values) const {
-	auto location = glGetUniformLocation(RendererID, name.c_str());
+	auto location = GetUniformLocation(name);
 	glUniform1f(location, values);
 }
 
 void GLShader::UploadaUniformFloat2(const std::string &name, const glm::vec2 &values) const {
-	auto location = glGetUniformLocation(RendererID, name.c_str());
+	auto location = GetUniformLocation(name);
 	glUniform2f(location, values.x, values.y);
 }
 
 void GLShader::UploadaUniformFloat3(const std::string &name, const glm::vec3 &values) const {
-	auto location = glGetUniformLocation(RendererID, name.c_str());
+	auto location = GetUniformLocation(name);
 	glUniform3f(location, values.x, values.y, values.z);
 }
 
 void GLShader::UploadaUniformFloat4(const std::string &name, const glm::vec4 &values) const {
-	auto location = glGetUniformLocation(RendererID, name.c_str());
+	auto location = GetUniformLocation(name);
 	glUniform4f(location, values.x, values.y, values.z, values.w);
 }
 
 void GLShader::UploadaUniformMat3(const std::string &name, const glm::mat3 &matrix) const {
-	auto location = glGetUniformLocation(RendererID, name.c_str());
+	auto location = GetUniformLocation(name);
 	glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
 void GLShader::UploadaUniformMat4(const std::string &name, const glm::mat4 &matrix) const {
-	auto location = glGetUniformLocation(RendererID, name.c_str());
+	auto location = GetUniformLocation(name);
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 

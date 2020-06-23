@@ -22,6 +22,7 @@ public:
 	const glm::vec3 &GetPosition(const glm::vec3 &position) const { return Position; }
 	const float &GetRotation(const float rotation) const { return Rotation; }
 
+	void SetProjection(float left, float right, float buttom, float top);
 	void SetPosition(const glm::vec3 &position) { Position = position; CalculateViewMatrix(); }
 	void SetRotation(const float rotation) { Rotation = rotation; CalculateViewMatrix(); }
 	

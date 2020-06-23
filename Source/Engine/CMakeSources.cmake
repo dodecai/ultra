@@ -16,6 +16,7 @@ list(APPEND ENGINE_SOURCES ${ENGINE_DEFAULT_SOURCES})
 set(ENGINE_RENDERER_HEADERS
 	"Renderer/Buffer.h"
 	"Renderer/Camera.h"
+	"Renderer/CameraController.h"
 	"Renderer/Shader.h"
 	"Renderer/Texture.h"
 	"Renderer/VertexArray.h"
@@ -34,6 +35,7 @@ list(APPEND ENGINE_HEADERS ${ENGINE_RENDERER_HEADERS})
 set(ENGINE_RENDERER_SOURCES
 	"Renderer/Buffer.cpp"
 	"Renderer/Camera.cpp"
+	"Renderer/CameraController.cpp"
 	"Renderer/Shader.cpp"
 	"Renderer/Texture.cpp"
 	"Renderer/VertexArray.cpp"

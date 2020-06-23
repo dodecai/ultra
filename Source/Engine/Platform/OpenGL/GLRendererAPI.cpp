@@ -25,4 +25,8 @@ void GLRendererAPI::SetClearColor(const glm::vec4 &color) {
 	glClearColor(color.r, color.g, color.b, color.a);
 }
 
+void GLRendererAPI::SetViewport(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) {
+	glViewport(x, y, width, height);
+}
+
 }
