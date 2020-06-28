@@ -85,11 +85,11 @@ static void SetStyle(ColorPalette primaryPalette= ColorPalette::BlueGray, ColorP
 	//style.CurveTessellationTol		= 1.25f;
 	style.FramePadding				= { 6.0f, 6.0f };;
 	style.FrameRounding				= 4.0f;
-	//style.FrameBorderSize			= 0.5f;
+	style.FrameBorderSize			= 0.5f;
 	style.MouseCursorScale			= 3.0f;
 
 	// Window
-	//style.WindowBorderSize			= 0.5f;
+	style.WindowBorderSize			= 0.5f;
 	//style.WindowMenuButtonPosition	= ImGuiDir_None;
 	//style.WindowMinSize				= { 32.0f, 32.0f };
 	style.WindowPadding				= { 12.0f, 12.0f };
@@ -97,7 +97,7 @@ static void SetStyle(ColorPalette primaryPalette= ColorPalette::BlueGray, ColorP
 	//style.WindowTitleAlign			= { 0.0f, 0.5f };
 	//style.ChildBorderSize			= 0.5f;
 	//style.ChildRounding				= 1.0f;
-	//style.PopupBorderSize			= 0.5f;
+	style.PopupBorderSize			= 0.5f;
 	//style.PopupRounding				= 1.0f;
 
 	// Controls

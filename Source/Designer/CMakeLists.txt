@@ -9,12 +9,13 @@ set(ProjectName "Spectra")
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ Build
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+include(CMakeSources.cmake)
 if(${TestMode})
 	# Shows console window and application window
-	add_executable(${ProjectName} "Designer.cpp")
+	add_executable(${ProjectName} ${DESIGNER_HEADERS} ${DESIGNER_SOURCES})
 else()
 	# Shows only application window
-	add_executable(${ProjectName} WIN32 "Designer.cpp")
+	add_executable(${ProjectName} WIN32 ${DESINGER_HEADERS} ${DESIGNER_SOURCES})
 endif()
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ IDE

@@ -1,0 +1,17 @@
+App:
+  Caption: "Ultra"
+  Library: "v1.0.0"
+  Version: "v1.0.0"
+
+Variables:
+  Custom: "User-defined variables can be used anywhere in the engine."
+
+Settings:
+  Designer:
+    Camera: "Scene"
+    Resolution: "1024x768"
+  Engine:
+    Resolution: "1024x768"
+    VSync: true
+  Global:
+    Test: "Test data from config file."

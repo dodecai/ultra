@@ -9,12 +9,13 @@ set(ProjectName "App")
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ Build
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+include(CMakeSources.cmake)
 if(${TestMode})
 	# Shows console window and application window
-	add_executable(${ProjectName} "App.cpp")
+	add_executable(${ProjectName} ${APP_HEADERS} ${APP_SOURCES})
 else()
 	# Shows only application window
-	add_executable(${ProjectName} WIN32 "App.cpp")
+	add_executable(${ProjectName} WIN32 ${APP_HEADERS} ${APP_SOURCES})
 endif()
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ IDE

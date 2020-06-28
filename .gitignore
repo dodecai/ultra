@@ -1,4 +1,7 @@
-# Compiler and Linker Cache
+# Backup
+[Bb]ackup/
+
+# Build
 [Bb]uild/
 [Cc]ache/
 

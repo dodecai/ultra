@@ -1,8 +1,6 @@
 ﻿#include <Ultra.h>
 
-
-// Import Layers
-#include "CoreLayer.cpp"
+#include "Layer.cpp"
 
 // Application
 namespace Ultra {
@@ -17,7 +15,7 @@ public:
 	}
 
 	void Create() override {
-		PushLayer(new Ultra::CoreLayer());
+		PushLayer(new Ultra::MainLayer());
 	}
 
 	void Destroy() override {}

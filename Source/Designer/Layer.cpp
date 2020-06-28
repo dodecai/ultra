@@ -1,4 +1,6 @@
-#include <Ultra.h>
+#pragma once
+
+#include "Ultra.h"
 
 #include "Style/Styles.h"
 #include "Menu/Menues.h"
@@ -6,7 +8,7 @@
 
 namespace Ultra {
 
-class CoreLayer: public Layer {
+class MainLayer: public Layer {
     Reference<Texture2D> Viewport;
     Reference<Framebuffer> ViewportBuffer;
 
@@ -18,14 +20,14 @@ class CoreLayer: public Layer {
 
     bool UseFrameBuffer = true;
 public:
-	CoreLayer():
-		Layer("Core"),
+    MainLayer():
+        Layer("Core"),
         ClearColor(0.1f, 0.1f, 0.1f, 1.0f),
         GridColor(0.8f, 0.8f, 0.2f, 0.72f),
         SceneCamera(1.33f, true) {
-	}
+    }
 
-	void Create() override {
+    void Create() override {
         FramebufferProperties fbProperties;
         auto [width, height] = Application::Get().GetWindow().GetDisplaySize();
         fbProperties.Width = width;
@@ -42,7 +44,7 @@ public:
         SetRayTeakStyle();
     }
 
-	void GuiUpdate() override {
+    void GuiUpdate() override {
         static bool alwaysOpen = true;
         static bool DockSpace = true;
         static bool opt_fullscreen_persistant = true;
@@ -94,7 +96,7 @@ public:
         }
 
         /**
-         * @brief Views
+        * @brief Views
         */
         // Browser
         ImGui::Begin("Browser");
@@ -146,9 +148,9 @@ public:
         //ImGui::ShowDemoWindow(&alwaysOpen);
 
         ImGui::End();
-	}
+    }
 
-	void Update(Timestamp deltaTime) override {
+    void Update(Timestamp deltaTime) override {
 
         Renderer2D::ResetStatistics();
         if(UseFrameBuffer) ViewportBuffer->Bind();
@@ -183,7 +185,7 @@ public:
         Renderer2D::EndScene();
         if(UseFrameBuffer) ViewportBuffer->Unbind();
     }
-    
+
     void MouseEvent(MouseEventData data) override {
         if (data.Action == MouseAction::Wheel) {
             SceneCamera.MouseEvent(data);

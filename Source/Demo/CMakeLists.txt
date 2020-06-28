@@ -9,12 +9,13 @@ set(ProjectName "${PROJECT_NAME}-Demo")
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ Build
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+include(CMakeSources.cmake)
 if(${TestMode})
 	# Shows console window and application window
-	add_executable(${ProjectName} "Demo.cpp")
+	add_executable(${ProjectName} ${DEMO_HEADERS} ${DEMO_SOURCES})
 else()
 	# Shows only application window
-	add_executable(${ProjectName} WIN32 "Demo.cpp")
+	add_executable(${ProjectName} WIN32 ${DEMO_HEADERS} ${DEMO_SOURCES})
 endif()
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ IDE

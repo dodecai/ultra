@@ -1,0 +1,49 @@
+# Preparation
+set (DESIGNER_HEADERS "")
+set (DESIGNER_SOURCES "")
+
+# Default
+set(DESIGNER_DEFAULT_HEADERS )
+set(DESIGNER_DEFAULT_SOURCES
+	"Designer.cpp"
+)
+list(APPEND DESIGNER_HEADERS ${DESIGNER_DEFAULT_HEADERS})
+list(APPEND DESIGNER_SOURCES ${DESIGNER_DEFAULT_SOURCES})
+
+# Menues
+set(DESIGNER_MENU_HEADERS
+	"Menu/Menues.h"
+	"Menu/File.h"
+	"Menu/Edit.h"
+	"Menu/View.h"
+	"Menu/Tools.h"
+	"Menu/Help.h"
+)
+set(DESIGNER_MENU_SOURCES
+)
+list(APPEND DESIGNER_HEADERS ${DESIGNER_MENU_HEADERS})
+list(APPEND DESIGNER_SOURCES ${DESIGNER_MENU_SOURCES})
+
+# Menues
+set(DESIGNER_VIEW_HEADERS
+	"View/Views.h"
+	"View/Console.h"
+	"View/StyleEditor.h"
+	"View/TextEditor.h"
+	"View/Viewport.h"
+)
+set(DESIGNER_VIEW_SOURCES
+	"View/TextEditor.cpp"
+)
+list(APPEND DESIGNER_HEADERS ${DESIGNER_VIEW_HEADERS})
+list(APPEND DESIGNER_SOURCES ${DESIGNER_VIEW_SOURCES})
+
+# Styles
+set(DESIGNER_STYLE_HEADERS
+	"Style/MaterialDesign.h"
+	"Style/Styles.h"
+)
+set(DESIGNER_STYLE_SOURCES
+)
+list(APPEND DESIGNER_HEADERS ${DESIGNER_STYLE_HEADERS})
+list(APPEND DESIGNER_SOURCES ${DESIGNER_STYLE_SOURCES})
