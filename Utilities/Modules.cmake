@@ -18,14 +18,14 @@ endmacro()
 
 # Simple 'message' extension to output property list of the given target
 macro(message_property project property)
-	message("✶ ${project}: Property[${property}]")
+	message("  ○ Property [${property}]")
 
 	set(counter 1)
 	set(values "")
 	
 	get_property(values TARGET ${project} PROPERTY ${property})
 	foreach(value ${values})
-		message("  - ${counter}: ${value}")
+		message("    - ${counter}: ${value}")
 		MATH(EXPR counter "${counter}+1")
 	endforeach()
 endmacro()

@@ -3,6 +3,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <chrono>
+
 namespace Ultra {
 
 // 3D Renderer Test
@@ -40,7 +42,7 @@ public:
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float2, "a_TextCoord" },
 		};
-		GridVertexArray.reset(VertexArray::Create());
+		GridVertexArray = VertexArray::Create();
 
 		Reference<VertexBuffer> gridVB;
 		float gridVertices[5 * 4] = {
@@ -49,13 +51,13 @@ public:
 			0.5f,   0.5f,  0.0f,	1.0f, 1.0f,
 			-0.5f,   0.5f,  0.0f,	0.0f, 1.0f,
 		};
-		gridVB.reset(VertexBuffer::Create(gridVertices, sizeof(gridVertices)));
+		gridVB = VertexBuffer::Create(gridVertices, sizeof(gridVertices));
 		gridVB->SetLayout(gridLayout);
 		GridVertexArray->AddVertexBuffer(gridVB);
 
 		Reference<IndexBuffer> gridIB;
 		uint32_t gridIndices[6] = { 0, 1, 2, 2, 3, 0 };
-		gridIB.reset(IndexBuffer::Create(gridIndices, sizeof(gridIndices) / sizeof(uint32_t)));
+		gridIB = IndexBuffer::Create(gridIndices, sizeof(gridIndices) / sizeof(uint32_t));
 		GridVertexArray->SetIndexBuffer(gridIB);
 
 		// Player
@@ -63,7 +65,7 @@ public:
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color" },
 		};
-		PlayerVertexArray.reset(VertexArray::Create());
+		PlayerVertexArray = VertexArray::Create();
 
 		Reference<VertexBuffer> playerVB;
 		float playerVertices[7 * 3] = {
@@ -71,20 +73,20 @@ public:
 			0.5f,  -0.5f,  0.0f,	0.2f, 0.8f, 0.2f, 1.0f,
 			0.0f,   0.5f,  0.0f,	0.2f, 0.2f, 0.8f, 1.0f
 		};
-		playerVB.reset(VertexBuffer::Create(playerVertices, sizeof(playerVertices)));
+		playerVB = VertexBuffer::Create(playerVertices, sizeof(playerVertices));
 		playerVB->SetLayout(playerLayout);
 		PlayerVertexArray->AddVertexBuffer(playerVB);
 
 		Reference<IndexBuffer> playerIB;
 		uint32_t playerIndices[3] = { 0, 1, 2 };
-		playerIB.reset(IndexBuffer::Create(playerIndices, sizeof(playerIndices) / sizeof(uint32_t)));
+		playerIB = IndexBuffer::Create(playerIndices, sizeof(playerIndices) / sizeof(uint32_t));
 		PlayerVertexArray->SetIndexBuffer(playerIB);
 
 		// Texture Test
-		TextureBase.reset(Texture2D::Create("./Assets/Textures/Checkerboard.png"));
-		TextureLogo.reset(Texture2D::Create("./Assets/Textures/AlphaChannel.png"));
+		TextureBase = Texture2D::Create("./Assets/Textures/Checkerboard.png");
+		TextureLogo = Texture2D::Create("./Assets/Textures/AlphaChannel.png");
 		Shaders.Get("Texture")->Bind();
-		Shaders.Get("Texture")->UploadaUniformInt("u_Texture", 0);
+		Shaders.Get("Texture")->SetInt("u_Texture", 0);
 	}
 
 	void GuiUpdate() override {
@@ -155,75 +157,102 @@ public:
 
 // 2D Renderer Test
 class TestLayer2D: public Layer {
-	glm::vec4 ClearColor;
-
 	OrthographicCameraController SceneCamera;
-	ShaderLibrary Shaders;
-
-	Reference<VertexArray> GridVertexArray;
+	glm::vec4 ClearColor;
 	glm::vec4 GridColor;
+
+	Reference<Texture2D> GridTexture;
+
+	ParticleProperties Particle;
+	ParticleSystem Particles;
+
 public:
 	TestLayer2D(): Layer("Test"),
 		ClearColor(0.1f, 0.1f, 0.1f, 1.0f),
-		GridColor(0.8f, 0.2f, 0.8f, 0.5f),
+		GridColor(0.8f, 0.8f, 0.2f, 0.72f),
 		SceneCamera(1.33f, true) {
 	}
 	virtual ~TestLayer2D() = default;
 
 	void Create() override {
-		// Shaders
-		Shaders.Load("./Assets/Shaders/FlatColor.glsl");
+		GridTexture = Texture2D::Create("./Assets/Textures/Checkerboard.png");
 
-		// Objects
-		// Grid
-		GridVertexArray.reset(VertexArray::Create());
-
-		Reference<VertexBuffer> gridVB;
-		float gridVertices[5 * 4] = {
-			-0.5f,  -0.5f,  0.0f,
-			 0.5f,  -0.5f,  0.0f,
-			 0.5f,   0.5f,  0.0f,
-			-0.5f,   0.5f,  0.0f,
-		};
-		gridVB.reset(VertexBuffer::Create(gridVertices, sizeof(gridVertices)));
-		gridVB->SetLayout({
-			{ ShaderDataType::Float3, "a_Position" },
-		});
-		GridVertexArray->AddVertexBuffer(gridVB);
-
-		Reference<IndexBuffer> gridIB;
-		uint32_t gridIndices[6] = { 0, 1, 2, 2, 3, 0 };
-		gridIB.reset(IndexBuffer::Create(gridIndices, sizeof(gridIndices) / sizeof(uint32_t)));
-		GridVertexArray->SetIndexBuffer(gridIB);
+		Particle.ColorBegin = { 254 / 255.0f, 212 / 255.0f, 123 / 255.0f, 1.0f };
+		Particle.ColorEnd = { 254 / 255.0f, 109 / 255.0f, 41 / 255.0f, 1.0f };
+		Particle.SizeBegin = 0.5f;
+		Particle.SizeVariation = 0.3f;
+		Particle.SizeEnd = 0.0f;
+		Particle.LifeTime = 10.0f;
+		Particle.Velocity = { 0.0f, 0.0f };
+		Particle.VelocityVariation = { 3.0f, 1.0f };
+		Particle.Position = { 0.0f, 0.0f };
 	}
 
 	void GuiUpdate() override {
-		//ImGui::Begin("Settings");
-		//ImGui::ColorEdit4("Clear Color", glm::value_ptr(ClearColor));
-		//ImGui::ColorEdit4("Grid Color", glm::value_ptr(GridColor));
-		//ImGui::End();
+		ImGui::Begin("Settings");
+		ImGui::ColorEdit4("Clear Color", glm::value_ptr(ClearColor));
+		ImGui::ColorEdit4("Grid Color", glm::value_ptr(GridColor));
+		ImGui::End();
+
+		ImGui::Begin("Statistics");
+		ImGui::Text("2D Renderer");
+		ImGui::Text("DrawCalls: %d", Renderer2D::GetStatistics().DrawCalls);
+		ImGui::Text("Triangles: %d", Renderer2D::GetStatistics().QuadCount * 2);
+		ImGui::Text("Vertices: %d", Renderer2D::GetStatistics().GetTotalVertexCount());
+		ImGui::Text("Indices: %d", Renderer2D::GetStatistics().GetTotalIndexCount());
+		ImGui::End();
 	}
 
 	void Update(Timestamp deltaTime) override {
+		Renderer2D::ResetStatistics();
+
+		// Preparation
 		// Camera
 		SceneCamera.Update(deltaTime);
-
-		// Render
+		// Renderer
 		RenderCommand::SetClearColor(ClearColor);
 		RenderCommand::Clear();
-		Renderer::BeginScene(SceneCamera.GetCamera());
 		
-		Shaders.Get("FlatColor")->Bind();
-		Shaders.Get("FlatColor")->UploadaUniformFloat4("u_Color", GridColor);
-		Renderer::Submit(Shaders.Get("FlatColor"), GridVertexArray, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		static float rotation = 0.0f;
+		rotation += 1.0f;
 
-		//~Renderer
-		Renderer::EndScene();
+		// Draw
+		Renderer2D::BeginScene(SceneCamera.GetCamera());
+
+		Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 32.0f, 32.0f }, GridTexture);
+
+		// Low performance Grid
+		float steps = 0.27f;
+		for (float y = -5; y < +5; y += steps) {
+			for (float x = -5; x < +5; x += steps) {
+				glm::vec4 color = { (x + 5.0f) / 10.f, 0.2f, (y +5.0f) / 10.0f, 0.72f };
+				Renderer2D::DrawQuad({ x, y, -0.05f }, { steps * 0.72f, steps * 0.72f }, color);
+			}
+		}
+
+		Renderer2D::DrawQuad({ -0.2f, -0.2f }, { 0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+		Renderer2D::DrawQuad({ 0.2f, 0.2f }, { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f });
+		Renderer2D::DrawRotatedQuad({ 0.0f, 0.0f, 1.0f }, { 0.2f, 0.2f }, glm::radians(rotation), { 0.0f, 1.0f, 0.0f, 0.72f });
+		Renderer2D::EndScene();
+
+		// Particle Tests
+		if (Input::GetMouseButtonState(MouseButton::Left)) {
+			auto [x, y] = Input::GetMousePosition();
+			auto [width, height] = Ultra::Application::Get().GetWindow().GetDisplaySize();
+			auto bounds = SceneCamera.GetBounds();
+			auto pos = SceneCamera.GetCamera().GetPosition();
+			
+			x = (x / width) * bounds.GetWidth() - bounds.GetWidth() * 0.5f;
+			y = bounds.GetHeight() * 0.5f - (y / height) * bounds.GetHeight();
+			Particle.Position = { x + pos.x, y + pos.y };
+			for (int i = 0; i < 10; i++) Particles.Emit(Particle);
+
+		}
+		Particles.Update(deltaTime);
+		Particles.Render(SceneCamera.GetCamera());
 	}
 
-	void Destroy() override {
-
-	}
+	void Destroy() override {	}
 
 	void KeyboardEvent(KeyboardEventData data) override {
 		SceneCamera.KeyboardEvent(data);

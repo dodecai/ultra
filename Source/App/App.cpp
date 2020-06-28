@@ -21,7 +21,6 @@ public:
 	}
 
 	void Destroy() override {}
-
 	void Update(Timestamp deltaTime) override {}
 };
 

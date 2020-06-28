@@ -11,7 +11,7 @@ set(App3rdPartySource "${SolutionSourceRoot}/3rd-Party")
 set(AppBinarySource "${SolutionSourceRoot}/App")
 set(AppDemoSource "${SolutionSourceRoot}/Demo")
 set(AppDesignerSource "${SolutionSourceRoot}/Designer")
-set(AppEngineSource "${SolutionSourceRoot}/Engine")
+set(AppEngineSource "${SolutionSourceRoot}/Ultra")
 set(AppLibrarySource  "${SolutionSourceRoot}/Library")
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # ☲ Process
@@ -21,6 +21,10 @@ set(AppLibrarySource  "${SolutionSourceRoot}/Library")
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 configure_file(Settings.h.in ${CMAKE_BINARY_DIR}/Source/Generated/${PROJECT_NAME}.settings)
 configure_file(Solution.h.in ${CMAKE_BINARY_DIR}/Source/Generated/${PROJECT_NAME}.h)
+#‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+# ☷ Linker
+#‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+include_directories($<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/Source/Generated> $<INSTALL_INTERFACE:${PROJECT_NAME}/>)
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ Sources
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
@@ -33,15 +37,4 @@ add_subdirectoryX(${AppEngineSource})
 add_subdirectoryX(${AppLibrarySource})
 add_subdirectoryX(${App3rdPartySource})
 message("################################################################################################")
-#‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
-# ☷ Verbose Information
-#‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
-message("------------------------------------------------------------------------------------------------")
-message("✶ Verbose Information")
-message("------------------------------------------------------------------------------------------------")
-if(${VerboseMode})
-	message_property(${PROJECT_NAME} INCLUDE_DIRECTORIES)
-	message_property(Omnia INCLUDE_DIRECTORIES)
-	message_property(Engine INCLUDE_DIRECTORIES)
-endif()
 #■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
