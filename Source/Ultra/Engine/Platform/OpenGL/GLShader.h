@@ -15,7 +15,7 @@ public:
 	GLShader(const string &vertexSource, const string &fragmentSource);
 	virtual ~GLShader();
 
-	virtual void Bind() const override;
+	virtual void Bind() const override; // Activate
 	virtual void Unbind() const override;
 
 	virtual const string GetName() const override;

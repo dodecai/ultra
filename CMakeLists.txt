@@ -15,7 +15,7 @@
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Specify the minimum supported build system version and the main project information.
 cmake_minimum_required(VERSION 3.15)
-project("Ultra" VERSION 0.0.16 DESCRIPTION "Ultra Spectrum Engine" LANGUAGES C CXX)
+project("Ultra" VERSION 0.0.16 DESCRIPTION "Ultra Spectra" LANGUAGES C CXX)
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # Build System Extensions
 set(PROJECT_RELEASE 2020-07-12)

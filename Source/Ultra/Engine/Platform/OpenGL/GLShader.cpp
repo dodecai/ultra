@@ -58,6 +58,24 @@ void GLShader::SetFloat4(const string &name, const glm::vec4 &values) { UploadaU
 void GLShader::SetMat4(const string &name, const glm::mat4 &values) { UploadaUniformMat4(name, values); }
 
 
+static void CheckCompileErrors(GLuint shader, std::string type) {
+	GLint success;
+	GLchar infoLog[1024];
+	if(type != "PROGRAM") {
+		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+		if(!success) {
+			glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+			std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+		}
+	} else {
+		glGetProgramiv(shader, GL_LINK_STATUS, &success);
+		if(!success) {
+			glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+			std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+		}
+	}
+}
+
 void GLShader::Compile(std::unordered_map<GLenum, std::string> sources) {
 
 	// Vertex and fragment shaders are successfully compiled.
@@ -82,6 +100,7 @@ void GLShader::Compile(std::unordered_map<GLenum, std::string> sources) {
 		GLint isCompiled = 0;
 
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
+		//CheckCompileErrors(id, "VERTEX");
 		if(isCompiled == GL_FALSE)
 		{
 			GLint maxLength = 0;

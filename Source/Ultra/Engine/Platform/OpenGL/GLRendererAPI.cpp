@@ -11,7 +11,19 @@ void GLRendererAPI::Load() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//glEnable(GL_MULTISAMPLE);
+	//glEnable(GL_MULTISAMPLE);	// Information
+	const uint8_t *vendor = glGetString(GL_VENDOR);
+	const uint8_t *renderer = glGetString(GL_RENDERER);
+	const uint8_t *version = glGetString(GL_VERSION);  // version as a string
+	const uint8_t *slv = glGetString(GL_SHADING_LANGUAGE_VERSION);
+	const uint8_t *extensions = glGetStringi(GL_EXTENSIONS, 0);
+	const uint8_t *extensions2 = glGetStringi(GL_EXTENSIONS, 1);
+	applog << Log::Info << "Vendor: " << vendor << "\n";
+	applog << Log::Info << "Renderer: " << renderer << "\n";
+	applog << Log::Info << "Version: " << version << "\n";
+	applog << Log::Info << "Shader Version: " << slv << "\n";
+	applog << Log::Info << "Extensions: " << extensions << "\t" << extensions2 << "\n";
+
 }
 
 void GLRendererAPI::Clear() {

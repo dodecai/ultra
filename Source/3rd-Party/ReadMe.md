@@ -21,7 +21,7 @@
 
 | Project | License | Release | Version |
 | :------ | :-----: | :-----: | :------ |
-| [Hazel-Engine](https://github.com/TheCherno/Hazel.git "Hazel")      | Apache-2.0    | 2020-06-09 | commit\{cc54dbe9f3efba356f2d7dcc7246fedb16888660} |
+| [Hazel-Engine](https://github.com/TheCherno/Hazel.git "Hazel")    | Apache-2.0    | 2020-06-09 | commit\{cc54dbe9f3efba356f2d7dcc7246fedb16888660} |
 
 ## Story
 You wonder why I choose exactly them over the thousend available sources out there?
@@ -34,5 +34,4 @@ In my opinion the developer of Hazel known as "TheCherno" is one of the best tea
 | [acid game engine](https://github.com/EQMG/Acid.git "Acid")       | MIT                   | 2020-05-11    | commit\{7b4414d234d00140cafb9e0a66dbe3f50c0c9d6b} |
 | [bs::framework](https://github.com/GameFoundry/bsf.git "bsf")     | MIT                   | 2019-10-26    | commit\{41e122d24a286413f81acaaa83f8430979cc56e1} |
 | [Godot Engine](https://github.com/godotengine/godot.git "godot")  | MIT                   | 2020-05-17    | commit\{57d21ebeda8460036efac1f70cd9ecd0896de517} |
-| [Hazel Engine](https://github.com/TheCherno/Hazel.git "Hazel")    | Apache License 2.0    | 2020-05-19    | commit\{cfc41823b4214efc3c0b42c7c46037a89fe14166} |
 -->
