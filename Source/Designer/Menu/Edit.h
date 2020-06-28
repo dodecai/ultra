@@ -1,3 +1,4 @@
+#pragma once
 
 static void ShowMenuEdit() {
 	if (ImGui::BeginMenu("Edit")) {

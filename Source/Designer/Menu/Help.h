@@ -1,3 +1,4 @@
+#pragma once
 
 static bool showAbout = false;
 

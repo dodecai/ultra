@@ -1,5 +1,8 @@
+#pragma once
+
 // Designer Menu
 namespace Menu {
+
 // Properties
 static bool show_demo_window = false;
 static bool show_another_window = false;
