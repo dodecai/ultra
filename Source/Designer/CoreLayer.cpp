@@ -1,5 +1,9 @@
 #include <Ultra.h>
 
+#include "Menu/Menues.h"
+#include "Style/Styles.h"
+#include "View/Views.h"
+
 namespace Ultra {
 
 class CoreLayer: public Layer {
@@ -30,18 +34,23 @@ public:
 
         Viewport = Texture2D::Create("./Assets/Textures/Checkerboard.png");
         GridTexture = Texture2D::Create("./Assets/Textures/Checkerboard.png");
+
+        SetDefaultStyle();
     }
 
 	void GuiUpdate() override {
-    
-        static bool dockspaceShow = true;
+        static bool alwaysOpen = true;
+        static bool DockSpace = true;
         static bool opt_fullscreen_persistant = true;
         bool opt_fullscreen = opt_fullscreen_persistant;
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
 
-        // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-        // because it would be confusing to have two docking targets within each others.
+        // Disabling fullscreen would allow the window to be moved to the front of other windows,  which we can't undo at the moment without finer window depth/z control.
+        //ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
+
+        // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,  because it would be confusing to have two docking targets within each others.
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+        ImGuiWindowFlags flagsViewport = ImGuiWindowFlags_NoScrollbar;
         if (opt_fullscreen) {
             ImGuiViewport* viewport = ImGui::GetMainViewport();
             ImGui::SetNextWindowPos(viewport->GetWorkPos());
@@ -53,57 +62,81 @@ public:
             window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
         }
 
-        // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
-        // and handle the pass-thru hole, so we ask Begin() to not render a background.
-        if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-            window_flags |= ImGuiWindowFlags_NoBackground;
-
-        // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-        // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-        // all active windows docked into it will lose their parent and become undocked.
-        // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
-        // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+        // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
+        if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode) window_flags |= ImGuiWindowFlags_NoBackground;
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-        ImGui::Begin("DockSpace Demo", &dockspaceShow, window_flags);
-        ImGui::PopStyleVar();
 
-        if (opt_fullscreen)
-            ImGui::PopStyleVar(2);
+
+
+        //    ImGuiWindowFlags_NoTitleBar             = 1 << 0,   // Disable title-bar
+        //    ImGuiWindowFlags_NoResize               = 1 << 1,   // Disable user resizing with the lower-right grip
+        //    ImGuiWindowFlags_NoMove                 = 1 << 2,   // Disable user moving the window
+        //    ImGuiWindowFlags_NoScrollbar            = 1 << 3,   // Disable scrollbars (window can still scroll with mouse or programmatically)
+        //    ImGuiWindowFlags_NoScrollWithMouse      = 1 << 4,   // Disable user vertically scrolling with mouse wheel. On child window, mouse wheel will be forwarded to the parent unless NoScrollbar is also set.
+        //    ImGuiWindowFlags_NoCollapse             = 1 << 5,   // Disable user collapsing window by double-clicking on it. Also referred to as "window menu button" within a docking node.
+        //    ImGuiWindowFlags_AlwaysAutoResize       = 1 << 6,   // Resize every window to its content every frame
+        //    ImGuiWindowFlags_NoBackground           = 1 << 7,   // Disable drawing background color (WindowBg, etc.) and outside border. Similar as using SetNextWindowBgAlpha(0.0f).
+        //    ImGuiWindowFlags_NoSavedSettings        = 1 << 8,   // Never load/save settings in .ini file
+        //    ImGuiWindowFlags_NoMouseInputs          = 1 << 9,   // Disable catching mouse, hovering test with pass through.
+        //    ImGuiWindowFlags_MenuBar                = 1 << 10,  // Has a menu-bar
+        //    ImGuiWindowFlags_HorizontalScrollbar    = 1 << 11,  // Allow horizontal scrollbar to appear (off by default). You may use SetNextWindowContentSize(ImVec2(width,0.0f)); prior to calling Begin() to specify width. Read code in imgui_demo in the "Horizontal Scrolling" section.
+        //    ImGuiWindowFlags_NoFocusOnAppearing     = 1 << 12,  // Disable taking focus when transitioning from hidden to visible state
+        //    ImGuiWindowFlags_NoBringToFrontOnFocus  = 1 << 13,  // Disable bringing window to front when taking focus (e.g. clicking on it or programmatically giving it focus)
+        //    ImGuiWindowFlags_AlwaysVerticalScrollbar= 1 << 14,  // Always show vertical scrollbar (even if ContentSize.y < Size.y)
+        //    ImGuiWindowFlags_AlwaysHorizontalScrollbar=1<< 15,  // Always show horizontal scrollbar (even if ContentSize.x < Size.x)
+        //    ImGuiWindowFlags_AlwaysUseWindowPadding = 1 << 16,  // Ensure child windows without border uses style.WindowPadding (ignored by default for non-bordered child windows, because more convenient)
+        //    ImGuiWindowFlags_NoNavInputs            = 1 << 18,  // No gamepad/keyboard navigation within the window
+        //    ImGuiWindowFlags_NoNavFocus             = 1 << 19,  // No focusing toward this window with gamepad/keyboard navigation (e.g. skipped by CTRL+TAB)
+        //    ImGuiWindowFlags_UnsavedDocument        = 1 << 20,  // Append '*' to title without affecting the ID, as a convenience to avoid using the ### operator. When used in a tab/docking context, tab is selected on closure and closure is deferred by one frame to allow code to cancel the closure (with a confirmation popup, etc.) without flicker.
+        //    ImGuiWindowFlags_NoDocking              = 1 << 21,  // Disable docking of this window
+
+        //    ImGuiWindowFlags_NoNav                  = ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus,
+        //    ImGuiWindowFlags_NoDecoration           = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse,
+        //    ImGuiWindowFlags_NoInputs               = ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus,
+
+        //    // [Internal]
+        //    ImGuiWindowFlags_NavFlattened           = 1 << 23,  // [BETA] Allow gamepad/keyboard navigation to cross over parent border to this child (only use on child that have no scrolling!)
+        //    ImGuiWindowFlags_ChildWindow            = 1 << 24,  // Don't use! For internal use by BeginChild()
+        //    ImGuiWindowFlags_Tooltip                = 1 << 25,  // Don't use! For internal use by BeginTooltip()
+        //    ImGuiWindowFlags_Popup                  = 1 << 26,  // Don't use! For internal use by BeginPopup()
+        //    ImGuiWindowFlags_Modal                  = 1 << 27,  // Don't use! For internal use by BeginPopupModal()
+        //    ImGuiWindowFlags_ChildMenu              = 1 << 28,  // Don't use! For internal use by BeginMenu()
+        //    ImGuiWindowFlags_DockNodeHost           = 1 << 29   // Don't use! For internal use by Begin()/NewFrame()
+
 
         // DockSpace
+        ImGui::Begin("DockSpace", &DockSpace, window_flags);
+        ImGui::PopStyleVar();
+        if (opt_fullscreen) ImGui::PopStyleVar(2);
+
         ImGuiIO& io = ImGui::GetIO();
         if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
             ImGuiID dockspace_id = ImGui::GetID("DockSpace");
             ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
         }
 
+        // Menus
         if (ImGui::BeginMenuBar()) {
-            if (ImGui::BeginMenu("File")) {
-                if (ImGui::MenuItem("Exit")) Application::Get().Exit();
-
-                // Disabling fullscreen would allow the window to be moved to the front of other windows,
-                // which we can't undo at the moment without finer window depth/z control.
-                //ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
-
-                //if (ImGui::MenuItem("Flag: NoSplit",                "", (dockspace_flags & ImGuiDockNodeFlags_NoSplit) != 0))                 dockspace_flags ^= ImGuiDockNodeFlags_NoSplit;
-                //if (ImGui::MenuItem("Flag: NoResize",               "", (dockspace_flags & ImGuiDockNodeFlags_NoResize) != 0))                dockspace_flags ^= ImGuiDockNodeFlags_NoResize;
-                //if (ImGui::MenuItem("Flag: NoDockingInCentralNode", "", (dockspace_flags & ImGuiDockNodeFlags_NoDockingInCentralNode) != 0))  dockspace_flags ^= ImGuiDockNodeFlags_NoDockingInCentralNode;
-                //if (ImGui::MenuItem("Flag: PassthruCentralNode",    "", (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode) != 0))     dockspace_flags ^= ImGuiDockNodeFlags_PassthruCentralNode;
-                //if (ImGui::MenuItem("Flag: AutoHideTabBar",         "", (dockspace_flags & ImGuiDockNodeFlags_AutoHideTabBar) != 0))          dockspace_flags ^= ImGuiDockNodeFlags_AutoHideTabBar;
-                //ImGui::Separator();
-                //if (ImGui::MenuItem("Close DockSpace", NULL, false, dockspaceShow != NULL))
-                //    dockspaceShow = false;
-                ImGui::EndMenu();
-            }
-
+            Menu::ShowMenuFile();
+            Menu::ShowMenuEdit();
+            Menu::ShowMenuView();
+            Menu::ShowMenuTools();
+            Menu::ShowMenuHelp();
             ImGui::EndMenuBar();
         }
 
-        ImGui::Begin("Viewport");
+        // Views
+        View::ShowExampleAppConsole(&alwaysOpen);
+        View::ShowViewport(&alwaysOpen);
+        ImGui::Begin("Viewport", &alwaysOpen, flagsViewport);
         uint32_t rendererID = ViewportBuffer->GetColorAttachmentRendererID();
-        ImGui::Image((void*)rendererID, ImGui::GetWindowContentRegionMax(), ImVec2(0,1), ImVec2(1,0));
+        // ToDo: GetContentRegionMax returns to high y value
+        ImVec2 contentRegion = ImGui::GetContentRegionMax();
+        contentRegion.y -= 32;
+        ImGui::Image((void*)rendererID, contentRegion, ImVec2(0,1), ImVec2(1,0));
         ImGui::End();
 
+        // Statistics
         ImGui::Begin("Statistics");
         ImGui::Text("2D Renderer");
         ImGui::Text("DrawCalls: %d", Renderer2D::GetStatistics().DrawCalls);
@@ -111,6 +144,7 @@ public:
         ImGui::Text("Vertices: %d", Renderer2D::GetStatistics().GetTotalVertexCount());
         ImGui::Text("Indices: %d", Renderer2D::GetStatistics().GetTotalIndexCount());
         ImGui::End();
+
         ImGui::End();
 	}
 
