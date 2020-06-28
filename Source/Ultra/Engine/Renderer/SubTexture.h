@@ -3,13 +3,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <Omnia/Core.h>
+#include "Ultra.pch"
+#include "Core.h"
 
 #include "Texture.h"
 
 namespace Ultra {
-
-using namespace Omnia;
 
 class SubTexture2D {
     Reference<Texture2D> mTexture;

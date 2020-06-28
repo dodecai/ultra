@@ -1,7 +1,5 @@
 #include "RendererAPI.h"
-
 #include "Engine/Platform/OpenGL/GLRendererAPI.h"
-
 
 namespace Ultra {
 

@@ -1,13 +1,10 @@
 #include "GLShader.h"
+
 #include <glad/glad.h>
-
-#include <vector>
-
 #include <glm/gtc/type_ptr.hpp>
 
-#include <Omnia/Log.h>
 #include <Omnia/System/FileSystem.h>
-using namespace Omnia;
+
 
 namespace Ultra {
 

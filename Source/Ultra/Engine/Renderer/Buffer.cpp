@@ -1,7 +1,7 @@
 #include "Buffer.h"
-#include "Renderer.h"
-
 #include "Engine/Platform/OpenGL/GLBuffer.h"
+
+#include "Renderer.h"
 
 namespace Ultra {
 

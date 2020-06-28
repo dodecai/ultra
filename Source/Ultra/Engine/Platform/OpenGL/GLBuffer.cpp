@@ -1,4 +1,5 @@
 #include "GLBuffer.h"
+
 #include <glad/glad.h>
 
 namespace Ultra {

@@ -1,12 +1,11 @@
 #pragma once
 
-#include <Omnia/Core.h>
+#include "Ultra.pch"
+#include "Core.h"
 
 #include "Buffer.h"
 
 namespace Ultra {
-
-using namespace Omnia;
 
 class VertexArray {
 public:

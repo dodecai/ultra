@@ -2,15 +2,14 @@
 
 #include <glm/glm.hpp>
 
-#include <Omnia/Core.h>
+#include "Ultra.pch"
+#include "Core.h"
 
 #include "Camera.h"
 #include "Texture.h"
 #include "SubTexture.h"
 
 namespace Ultra {
-
-using namespace Omnia;
 
 class Renderer2D {
 public:

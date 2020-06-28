@@ -1,5 +1,4 @@
 #pragma once
 
+// We are using the complete Omnia Library and its precompiled header.
 #include <Omnia/Omnia.pch>
-
-

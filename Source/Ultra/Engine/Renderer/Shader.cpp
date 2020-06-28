@@ -1,8 +1,7 @@
 #include "Shader.h"
+#include "Engine/Platform/OpenGL/GLShader.h"
 
 #include "Renderer.h"
-
-#include "Engine/Platform/OpenGL/GLShader.h"
 
 namespace Ultra {
 

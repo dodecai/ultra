@@ -1,13 +1,9 @@
 #pragma once
 
-#include <memory>
-#include <unordered_map>
-#include <string>
-using std::string;
-
-#include <Omnia/Core.h>
-
 #include <glm/glm.hpp>
+
+#include "Ultra.pch"
+#include "Core.h"
 
 namespace Ultra {
 

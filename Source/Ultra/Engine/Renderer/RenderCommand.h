@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Omnia/Core.h"
+#include "Ultra.pch"
+#include "Core.h"
+
 #include "RendererAPI.h"
 
 namespace Ultra {

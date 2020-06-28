@@ -2,6 +2,9 @@
 
 #include "RenderCommand.h"
 
+#include "Ultra.pch"
+#include "Core.h"
+
 #include "Camera.h"
 #include "Shader.h"
 

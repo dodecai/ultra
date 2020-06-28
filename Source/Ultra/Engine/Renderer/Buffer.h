@@ -1,14 +1,9 @@
 #pragma once
 
-#include <cstdint>
-#include <vector>
-#include <string>
-
-#include <Omnia/Core.h>
+#include "Ultra.pch"
+#include "Core.h"
 
 namespace Ultra {
-
-using namespace Omnia;
 
 enum class ShaderDataType: uint8_t {
 	Null		= 0x00,

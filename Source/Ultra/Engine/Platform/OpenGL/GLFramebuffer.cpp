@@ -2,8 +2,6 @@
 
 #include <glad/glad.h>
 
-#include <Omnia/Log.h>
-
 namespace Ultra {
 
 GLFramebuffer::GLFramebuffer(const FramebufferProperties &properties):

@@ -1,8 +1,7 @@
 #include "VertexArray.h"
+#include "Engine/Platform/OpenGL/GLVertexArray.h"
 
 #include "Renderer.h"
-
-#include "Engine/Platform/OpenGL/GLVertexArray.h"
 
 namespace Ultra {
 

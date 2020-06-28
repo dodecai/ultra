@@ -1,13 +1,14 @@
 #pragma once
 
+#include "Ultra.pch"
+#include "Core.h"
+
 #include <Omnia/UI/Event.h>
 #include <Omnia/Utility/Timer.h>
 
 #include "Engine/Renderer/Camera.h"
 
 namespace Ultra {
-
-using namespace Omnia;
 
 struct OrthographicCameraBounds
 {

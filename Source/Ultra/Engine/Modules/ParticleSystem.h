@@ -2,8 +2,10 @@
 
 #include <glm/glm.hpp>
 
-#include <Omnia/Core.h>
 #include <Omnia/Utility/Timer.h>
+
+#include "Ultra.pch"
+#include "Core.h"
 
 #include "Engine/Renderer/Camera.h"
 

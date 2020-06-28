@@ -1,9 +1,7 @@
 #include "Renderer.h"
-
-#include <memory>
-#include "Engine/Platform/OpenGL/GLShader.h"
-
 #include "Renderer2D.h"
+
+#include "Engine/Platform/OpenGL/GLShader.h"
 
 namespace Ultra {
 

@@ -1,6 +1,6 @@
 #include "Texture.h"
-
 #include "Engine/Platform/OpenGL/GLTexture.h"
+
 #include "Renderer.h"
 
 namespace Ultra {

@@ -1,7 +1,9 @@
 #pragma once
 
-#include <memory>
 #include <glm/glm.hpp>
+
+#include "Ultra.pch"
+#include "Core.h"
 
 #include "VertexArray.h"
 

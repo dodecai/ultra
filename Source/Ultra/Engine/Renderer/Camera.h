@@ -2,6 +2,9 @@
 
 #include <glm/glm.hpp>
 
+#include "Ultra.pch"
+#include "Core.h"
+
 namespace Ultra {
 
 class OrthographicCamera {

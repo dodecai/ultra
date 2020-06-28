@@ -5,8 +5,8 @@
 namespace Ultra {
 
 class GLVertexArray: public VertexArray {
-	std::vector<std::shared_ptr<VertexBuffer>> mVertexBuffers;
-	std::shared_ptr<IndexBuffer> mIndexBuffer;
+	vector<std::shared_ptr<VertexBuffer>> mVertexBuffers;
+	shared_ptr<IndexBuffer> mIndexBuffer;
 	uint32_t mRendererID;
 
 public:

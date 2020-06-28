@@ -1,10 +1,9 @@
 #pragma once
 
-#include <Omnia/Core.h>
+#include "Ultra.pch"
+#include "Core.h"
 
 namespace Ultra {
-
-using namespace Omnia;
 
 class Texture {
 public:
