@@ -45,9 +45,9 @@ void GLRendererAPI::Load() {
 	const uint8_t *extensions2 = glGetStringi(GL_EXTENSIONS, 1);
 	applog << Log::Info << "Vendor: " << vendor << "\n";
 	applog << Log::Info << "Renderer: " << renderer << "\n";
-	applog << Log::Info << "Version: " << version << "\n";
-	applog << Log::Info << "Shader Version: " << slv << "\n";
-	applog << Log::Info << "Extensions: " << extensions << "\t" << extensions2 << "\n";
+	applog << Log::Debug << "Version: " << version << "\n";
+	applog << Log::Debug << "Shader Version: " << slv << "\n";
+	applog << Log::Trace << "Extensions: " << extensions << "\t" << extensions2 << "\n";
 
 }
 
