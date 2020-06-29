@@ -4,7 +4,32 @@
 
 namespace Ultra {
 
+void OpenGLMessageCallback(
+	unsigned source,
+	unsigned type,
+	unsigned id,
+	unsigned severity,
+	int length,
+	const char* message,
+	const void* userParam) {
+	switch (severity)
+	{
+		case GL_DEBUG_SEVERITY_HIGH:         APP_LOG_CRITICAL(message); return;
+		case GL_DEBUG_SEVERITY_MEDIUM:       APP_LOG_ERROR(message); return;
+		case GL_DEBUG_SEVERITY_LOW:          APP_LOG_WARN(message); return;
+		case GL_DEBUG_SEVERITY_NOTIFICATION: APP_LOG_TRACE(message); return;
+	}
+
+	//HZ_CORE_ASSERT(false, "Unknown severity level!");
+}
 void GLRendererAPI::Load() {
+	#ifdef APP_MODE_DEBUG
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		glDebugMessageCallback(OpenGLMessageCallback, nullptr);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
+	#endif
+
 	gladLoadGL();
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);

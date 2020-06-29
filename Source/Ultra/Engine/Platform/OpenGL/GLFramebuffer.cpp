@@ -21,6 +21,14 @@ void GLFramebuffer::Unbind() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void GLFramebuffer::Resize(uint32_t width, uint32_t height)
+{
+    Properties.Width = width;
+    Properties.Height = height;
+
+    Invalidate();
+}
+
 uint32_t GLFramebuffer::GetColorAttachmentRendererID() const {
     return ColorAttachment;
 }
