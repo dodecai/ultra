@@ -10,7 +10,7 @@
 set(App3rdPartySource "${SolutionSourceRoot}/3rd-Party")
 set(AppBinarySource "${SolutionSourceRoot}/App")
 set(AppDemoSource "${SolutionSourceRoot}/Demo")
-set(AppDesignerSource "${SolutionSourceRoot}/Designer")
+set(AppDesignerSource "${SolutionSourceRoot}/Spectra")
 set(AppEngineSource "${SolutionSourceRoot}/Ultra")
 set(AppLibrarySource  "${SolutionSourceRoot}/Library")
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
