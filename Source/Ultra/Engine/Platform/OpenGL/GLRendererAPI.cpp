@@ -35,20 +35,20 @@ void GLRendererAPI::Load() {
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//glEnable(GL_MULTISAMPLE);	// Information
+
+	// Information
 	const uint8_t *vendor = glGetString(GL_VENDOR);
-	const uint8_t *renderer = glGetString(GL_RENDERER);
+	const uint8_t *model = glGetString(GL_RENDERER);
 	const uint8_t *version = glGetString(GL_VERSION);  // version as a string
 	const uint8_t *slv = glGetString(GL_SHADING_LANGUAGE_VERSION);
 	const uint8_t *extensions = glGetStringi(GL_EXTENSIONS, 0);
 	const uint8_t *extensions2 = glGetStringi(GL_EXTENSIONS, 1);
-	applog << Log::Info << "Vendor: " << vendor << "\n";
-	applog << Log::Info << "Renderer: " << renderer << "\n";
-	applog << Log::Debug << "Version: " << version << "\n";
-	applog << Log::Debug << "Shader Version: " << slv << "\n";
-	applog << Log::Trace << "Extensions: " << extensions << "\t" << extensions2 << "\n";
-
+	AppLogInfo("[Renderer] Vendor:  '", vendor, "'");
+	AppLogInfo("[Renderer] Model:   '", model, "'");
+	AppLogInfo("[Renderer] Version: '", version, "'");
+	AppLogDebug("[Renderer] Shader Version: '", slv, "'");
+	AppLogTrace("[Renderer] Extensions: '", extensions, " | ", extensions2, "'");
 }
 
 void GLRendererAPI::Clear() {
@@ -67,6 +67,14 @@ void GLRendererAPI::SetClearColor(const glm::vec4 &color) {
 
 void GLRendererAPI::SetViewport(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) {
 	glViewport(x, y, width, height);
+}
+
+void GLRendererAPI::SetWireframeMode(bool status) {
+	if (status) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	} else {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
 }
 
 }

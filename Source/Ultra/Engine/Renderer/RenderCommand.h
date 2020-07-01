@@ -34,5 +34,9 @@ public:
 	static void SetViewport(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) {
 		s_RendererAPI->SetViewport(x, y, width, height);
 	};
+
+	static void SetWireframeMode(bool status) {
+		s_RendererAPI->SetWireframeMode(status);
+	}
 };
 }

@@ -14,6 +14,7 @@ static void ShowMenuTools() {
 			}
 			ImGui::EndMenu();
 		}
+
 		static int style = 0;
 		if (ImGui::Combo("Accent Color", &style, "Default\0Red\0Pink\0Purple\0DeepPurple\0Indigo\0Blue\0LightBlue\0Cyan\0Teal\0Green\0LightGreen\0Lime\0Yellow\0Orange\0DeepOrange\0Brown\0Gray\0Amber\0\0")) {
 			switch (style) {
@@ -40,6 +41,19 @@ static void ShowMenuTools() {
 		}
 		static bool check = true;
 		ImGui::Checkbox("Check", &check);
+
+		ImGui::Separator();
+		if (ImGui::BeginMenu("Renderer Settings")) {
+			static bool wireframeMode = false;
+			static bool verticalSync = false;
+			if (ImGui::Checkbox("Wireframe", &wireframeMode)) {
+				Ultra::RenderCommand::SetWireframeMode(wireframeMode);
+			}
+			if (ImGui::Checkbox("VSync", &verticalSync)) {
+				Ultra::Gfx::SetVSync(verticalSync);
+			}
+			ImGui::EndMenu();
+		}
 
 		ImGui::EndMenu();
 	}
