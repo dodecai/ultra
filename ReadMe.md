@@ -45,8 +45,8 @@ This project currently serves primarily for educational purposes.
 - BuildSystem
 
 ###### Preview ######
-![Ultra#Console](https://github.com/larioteo/ultra/tree/master/Help/Ultra#Console.png)
-![Spectra#UI](https://github.com/larioteo/ultra/tree/master/Help/Spectra#UI.png)
+![Ultra#Console](https://github.com/larioteo/ultra/blob/master/Help/Ultra%23Console.png)
+![Spectra#UI](/https://github.com/larioteo/ultra/blob/master/Help/Spectra%23UI.png)
 
 # Disclaimer
 This project uses several [third-party](Source/3rd-Party/ReadMe.md "3rd-Party") libraries and sources.
