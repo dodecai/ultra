@@ -29,7 +29,7 @@ public:
 
     void Create() override {
         FramebufferProperties fbProperties;
-        auto [width, height] = Application::Get().GetWindow().GetDisplaySize();
+        auto [width, height] = Application::GetWindow().GetDisplaySize();
         fbProperties.Width = width;
         fbProperties.Height = height;
         ViewportBuffer = Framebuffer::Create(fbProperties);

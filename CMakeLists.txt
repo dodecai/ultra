@@ -86,7 +86,7 @@ if(MSVC)
 	# ToDo: Assimp crashes if module support is activated.
 	string (REPLACE ";" " " CompilerArgumentsMSVC ${CompilerArgumentsMSVC})
 	message("  ○ CompileOptions: '/bigobj /nologo /std:c++latest /utf-8 [ToDo: ${CompilerArgumentsMSVC} /experimental:module /Zc:preprocessor]'")
-	add_compile_options(/bigobj /nologo /std:c++latest /utf-8) # /experimental:module /Zc:preprocessor ?? /experimental:source_location??
+	add_compile_options(/bigobj /nologo /std:c++latest /utf-8 /arch:AVX2 /fp:fast) # /experimental:module /Zc:preprocessor ?? /experimental:source_location??
 else()
 endif()
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐

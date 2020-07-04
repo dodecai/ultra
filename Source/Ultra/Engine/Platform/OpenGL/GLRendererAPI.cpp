@@ -66,6 +66,10 @@ void GLRendererAPI::SetClearColor(const glm::vec4 &color) {
 }
 
 void GLRendererAPI::SetViewport(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) {
+	if (!(width == 0) || !(height == 0)) {
+		// ToDo: Prevent sizes above imagination
+		return;
+	}
 	glViewport(x, y, width, height);
 }
 

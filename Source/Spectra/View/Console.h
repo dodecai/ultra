@@ -190,16 +190,16 @@ public:
 	void Clear() {
 		Items.clear();
 	}
-	void Insert(const std::string &format, ...) IM_FMTARGS(2) {
-		//// FIXME-OPT
-		//char buf[1024];
-		//va_list args;
-		//va_start(args, fmt);
-		//vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
-		//buf[IM_ARRAYSIZE(buf) - 1] = 0;
-		//va_end(args);
-		//Items.push_back(Strdup(buf));
-	}
+	//void Insert(const std::string &format, ...) IM_FMTARGS(2) {
+	//	//// FIXME-OPT
+	//	//char buf[1024];
+	//	//va_list args;
+	//	//va_start(args, fmt);
+	//	//vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
+	//	//buf[IM_ARRAYSIZE(buf) - 1] = 0;
+	//	//va_end(args);
+	//	//Items.push_back(Strdup(buf));
+	//}
 };
 
 struct AppConsole {

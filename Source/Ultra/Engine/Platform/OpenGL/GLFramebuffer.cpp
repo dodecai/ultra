@@ -1,5 +1,7 @@
 #include "GLFramebuffer.h"
 
+#include "Core.h"
+
 #include <glad/glad.h>
 
 namespace Ultra {
@@ -60,7 +62,7 @@ void GLFramebuffer::Invalidate() {
 
     // ToDo: Replace with assert
     if (!glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
-        APP_LOG_ERROR("Failed to create the framebuffer");
+        //APP_ASSERT(nullptr, "Failed to create the framebuffer");
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

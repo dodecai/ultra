@@ -9,8 +9,8 @@ class Designer: public Application {
 public:
 	Designer(): Application("Spectra") {
 		// Properties
-		gladLoadGL();
-		Gfx::SetVSync(false);
+		//gladLoadGL();
+		//Gfx::SetVSync(false);
 		Renderer::Load();
 	}
 

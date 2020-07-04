@@ -50,7 +50,7 @@ static void ShowMenuTools() {
 				Ultra::RenderCommand::SetWireframeMode(wireframeMode);
 			}
 			if (ImGui::Checkbox("VSync", &verticalSync)) {
-				Ultra::Gfx::SetVSync(verticalSync);
+				//Ultra::Gfx::SetVSync(verticalSync);
 			}
 			ImGui::EndMenu();
 		}
