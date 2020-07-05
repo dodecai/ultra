@@ -59,15 +59,15 @@ struct ColorSwatch {
 	uint32_t sA500	= 0x00000000;
 	uint32_t sA700	= 0x00000000;
 	uint32_t white	= 0xFFFFFFFF;
-
-	uint32_t text		= 0xFFFFFFFF;
-	uint32_t disabled	= 0x646464FF;
+	
+	uint32_t text		= 0xE0E0E8FF;
+	uint32_t disabled	= 0x646472FF;
 
 	ColorSwatch() = default;
 	virtual ~ColorSwatch() = default;
 };
 
-// Colors
+// Accent Colors
 struct RedSwatch: ColorSwatch {
 	RedSwatch() {
 		ColorSwatch::base = 0xFFEBEEFF;
@@ -436,6 +436,40 @@ struct BlueGraySwatch: ColorSwatch {
 	virtual ~BlueGraySwatch() = default;
 };
 
+// Themes
+enum ColorThemes {
+	Dark,
+	Light
+};
+
+struct ColorTheme {
+	uint32_t background	= 0x000000FF;
+	uint32_t surface	= 0x000000FF;
+	uint32_t text		= 0x000000FF;
+	uint32_t disabled	= 0x000000FF;
+};
+
+struct DarkTheme: public ColorTheme {
+	DarkTheme() {
+		//style.Colors[ImGuiCol_TitleBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+		ColorTheme::background	= 0x0D0F12FF;
+		ColorTheme::surface		= 0x1A171EFF;
+		ColorTheme::text		= 0xE0E0E8FF;
+		ColorTheme::disabled	= 0x646472FF;
+	}
+	virtual ~DarkTheme() = default;
+};
+
+struct LightTheme: public ColorTheme {
+	LightTheme() {
+		ColorTheme::background	= 0xFFFFFFFF;
+		ColorTheme::surface		= 0xE5E8E1FF;
+		ColorTheme::text		= 0x060606FF;
+		ColorTheme::disabled	= 0x646472FF;
+	}
+	virtual ~LightTheme() = default;
+};
+
 
 // Utilities
 static std::shared_ptr<ColorSwatch> GetColorPalette(ColorPalette color) {
@@ -463,6 +497,16 @@ static std::shared_ptr<ColorSwatch> GetColorPalette(ColorPalette color) {
 	}
 	return result;
 }
+
+static std::shared_ptr<ColorTheme> GetColorTheme(ColorThemes theme) {
+	std::shared_ptr<ColorTheme> result;
+	switch (theme) {
+		case ColorThemes::Dark:			{ result = std::make_shared<DarkTheme>();			break; }
+		case ColorThemes::Light:		{ result = std::make_shared<LightTheme>();			break; }
+	}
+	return result;
+}
+
 
 static ColorRgba ConvertColorRgba(uint32_t value, float customAlpha = 1.0f) {
 	ColorRgba result;

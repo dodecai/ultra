@@ -39,6 +39,7 @@ public:
     struct Statistics
     {
         uint32_t DrawCalls = 0;
+        uint32_t Triangles = 0;
         uint32_t QuadCount = 0;
 
         uint32_t GetTotalVertexCount() { return QuadCount * 4; }

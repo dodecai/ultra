@@ -2,123 +2,144 @@
 
 #include "MaterialDesign.h"
 
-static void SetStyle(ColorPalette primaryPalette= ColorPalette::BlueGray, ColorPalette accentPalette = ColorPalette::Blue, ColorPalette warnPalette = ColorPalette::Red) {
+static void SetStyle(ColorThemes theme = ColorThemes::Dark, ColorPalette accentPalette = ColorPalette::Blue, ColorPalette warnPalette = ColorPalette::Red) {
 	// Preparation
 	ImGuiStyle &style = ImGui::GetStyle();
 	ImVec4 *colors = style.Colors;
 
-	std::shared_ptr<ColorSwatch> primary = GetColorPalette(primaryPalette);
+	std::shared_ptr<ColorTheme> appTheme = GetColorTheme(theme);
+	std::shared_ptr<ColorSwatch> primary = GetColorPalette(ColorPalette::BlueGray);
 	std::shared_ptr<ColorSwatch> accent = GetColorPalette(accentPalette);
 	std::shared_ptr<ColorSwatch> warn = GetColorPalette(warnPalette);
 
 	/**
-		Colors
+	 *	Styles
 	*/
-	// Global
-	colors[ImGuiCol_Text]					= ConvertColorRgbaVec(accent->text);
-	colors[ImGuiCol_TextDisabled]			= ConvertColorRgbaVec(accent->disabled);
-	colors[ImGuiCol_TextSelectedBg]			= ConvertColorRgbaVec(accent->s500, 0.72f);
+	ImVec4 test = ConvertColorRgbaVec(appTheme->text);
 
-	colors[ImGuiCol_Border]					= ConvertColorRgbaVec(primary->s900);
-	colors[ImGuiCol_BorderShadow]			= ConvertColorRgbaVec(accent->s900);
-	colors[ImGuiCol_FrameBg]				= ConvertColorRgbaVec(primary->s700);
-	colors[ImGuiCol_FrameBgHovered]			= ConvertColorRgbaVec(accent->s700);
-	colors[ImGuiCol_FrameBgActive]			= ConvertColorRgbaVec(accent->s900);
-	colors[ImGuiCol_ModalWindowDimBg]		= ConvertColorRgbaVec(primary->black, 0.72f);
-	colors[ImGuiCol_ModalWindowDarkening]	= ConvertColorRgbaVec(primary->black, 0.32f);
+	/* Colors */
+	// Global
+	colors[ImGuiCol_Text]					= ConvertColorRgbaVec(appTheme->text);
+	colors[ImGuiCol_TextDisabled]			= ConvertColorRgbaVec(appTheme->disabled);
+	colors[ImGuiCol_TextSelectedBg]			= ConvertColorRgbaVec(accent->s200, 0.32f);
+	colors[ImGuiCol_Border]					= ConvertColorRgbaVec(accent->s200);
+	colors[ImGuiCol_BorderShadow]			= ConvertColorRgbaVec(accent->s500);
+	colors[ImGuiCol_FrameBg]				= ConvertColorRgbaVec(appTheme->surface);
+	colors[ImGuiCol_FrameBgHovered]			= ConvertColorRgbaVec(accent->s200, 0.32f);
+	colors[ImGuiCol_FrameBgActive]			= ConvertColorRgbaVec(accent->s300, 0.32f);
+	colors[ImGuiCol_ModalWindowDimBg]		= ConvertColorRgbaVec(appTheme->background, 0.72f);
+	colors[ImGuiCol_ModalWindowDarkening]	= ConvertColorRgbaVec(appTheme->background, 0.72f);
 
 	// Window
-	colors[ImGuiCol_WindowBg]				= ConvertColorRgbaVec(primary->s900, 0.92f);
-	colors[ImGuiCol_MenuBarBg]				= ConvertColorRgbaVec(primary->s900, 0.92f);
-	colors[ImGuiCol_ChildBg]				= ConvertColorRgbaVec(primary->s900, 0.92f);
-	colors[ImGuiCol_PopupBg]				= ConvertColorRgbaVec(primary->s900, 0.92f);
-	colors[ImGuiCol_DragDropTarget]			= ConvertColorRgbaVec(primary->s900, 0.92f);
+	colors[ImGuiCol_WindowBg]				= ConvertColorRgbaVec(appTheme->background, 0.92f);
+	colors[ImGuiCol_MenuBarBg]				= ConvertColorRgbaVec(appTheme->surface);
+	colors[ImGuiCol_ChildBg]				= ConvertColorRgbaVec(appTheme->background, 0.92f);
+	colors[ImGuiCol_PopupBg]				= ConvertColorRgbaVec(appTheme->background, 0.92f);
+	colors[ImGuiCol_DragDropTarget]			= ConvertColorRgbaVec(appTheme->background, 0.72f);
 	#ifdef IMGUI_HAS_DOCK
-		colors[ImGuiCol_DockingEmptyBg] =	{ 0.0f, 0.0f, 0.0f, 0.0f };
-		colors[ImGuiCol_DockingPreview] =	{ 0.92f, 0.92f, 0.92f, 0.32f };
+		colors[ImGuiCol_DockingEmptyBg]		= { 0.0f, 0.0f, 0.0f, 0.0f };
+		colors[ImGuiCol_DockingPreview]		= ConvertColorRgbaVec(accent->s200, 0.72f);
 	#endif
-	colors[ImGuiCol_TitleBg]				= ConvertColorRgbaVec(primary->s900);
-	colors[ImGuiCol_TitleBgActive]			= ConvertColorRgbaVec(primary->s700);
-	colors[ImGuiCol_TitleBgCollapsed]		= ConvertColorRgbaVec(primary->s500, 0.32f);
-	colors[ImGuiCol_Tab]					= ConvertColorRgbaVec(primary->s700);
-	colors[ImGuiCol_TabHovered]				= ConvertColorRgbaVec(accent->s700);
-	colors[ImGuiCol_TabActive]				= ConvertColorRgbaVec(accent->s900);
-	colors[ImGuiCol_TabUnfocused]			= ConvertColorRgbaVec(primary->s700);
-	colors[ImGuiCol_TabUnfocusedActive]		= ConvertColorRgbaVec(primary->s700);
-	
+	colors[ImGuiCol_TitleBg]				= ConvertColorRgbaVec(appTheme->surface);
+	colors[ImGuiCol_TitleBgActive]			= ConvertColorRgbaVec(accent->s200, 0.32f);
+	colors[ImGuiCol_TitleBgCollapsed]		= ConvertColorRgbaVec(appTheme->surface, 0.72f);
+	colors[ImGuiCol_Tab]					= ConvertColorRgbaVec(accent->s500, 0.32f);
+	colors[ImGuiCol_TabHovered]				= ConvertColorRgbaVec(accent->s200, 0.32f);
+	colors[ImGuiCol_TabActive]				= ConvertColorRgbaVec(accent->s500, 0.32f);
+	colors[ImGuiCol_TabUnfocused]			= ConvertColorRgbaVec(accent->s300, 0.32f);
+	colors[ImGuiCol_TabUnfocusedActive]		= ConvertColorRgbaVec(accent->s500, 0.32f);
+
 	// Controls
-	colors[ImGuiCol_Header]					= ConvertColorRgbaVec(primary->s700);
-	colors[ImGuiCol_HeaderHovered]			= ConvertColorRgbaVec(accent->s700);
-	colors[ImGuiCol_HeaderActive]			= ConvertColorRgbaVec(accent->s900);
+	colors[ImGuiCol_Header]					= ConvertColorRgbaVec(appTheme->surface);
+	colors[ImGuiCol_HeaderHovered]			= ConvertColorRgbaVec(accent->s200, 0.32f);
+	colors[ImGuiCol_HeaderActive]			= ConvertColorRgbaVec(accent->s500);
 	colors[ImGuiCol_CheckMark]				= ConvertColorRgbaVec(accent->s500);
 	colors[ImGuiCol_SliderGrab]				= ConvertColorRgbaVec(accent->s500);
 	colors[ImGuiCol_SliderGrabActive]		= ConvertColorRgbaVec(accent->s700);
-	colors[ImGuiCol_Button]					= ConvertColorRgbaVec(primary->s700);
-	colors[ImGuiCol_ButtonHovered]			= ConvertColorRgbaVec(accent->s700);
-	colors[ImGuiCol_ButtonActive]			= ConvertColorRgbaVec(accent->s900);
+	// ToDo: Check alternatives...
+	colors[ImGuiCol_Button]					= ConvertColorRgbaVec(appTheme->surface);
+	colors[ImGuiCol_ButtonHovered]			= ConvertColorRgbaVec(accent->s200, 0.32f);
+	colors[ImGuiCol_ButtonActive]			= ConvertColorRgbaVec(accent->s300, 0.32f);
+	//~
 	colors[ImGuiCol_NavHighlight]			= ConvertColorRgbaVec(primary->s700);
 	colors[ImGuiCol_NavWindowingHighlight]	= ConvertColorRgbaVec(primary->s700);
-	colors[ImGuiCol_NavWindowingDimBg]		= ConvertColorRgbaVec(primary->black, 0.72f);
-	colors[ImGuiCol_ScrollbarBg]			= ConvertColorRgbaVec(primary->s700);
-	colors[ImGuiCol_ScrollbarGrab]			= ConvertColorRgbaVec(primary->s200);
-	colors[ImGuiCol_ScrollbarGrabHovered]	= ConvertColorRgbaVec(primary->s500);
-	colors[ImGuiCol_ScrollbarGrabActive]	= ConvertColorRgbaVec(primary->s700);
-	colors[ImGuiCol_Separator]				= ConvertColorRgbaVec(accent->s700);
-	colors[ImGuiCol_SeparatorHovered]		= ConvertColorRgbaVec(accent->s500);
-	colors[ImGuiCol_SeparatorActive]		= ConvertColorRgbaVec(accent->s900);
-	colors[ImGuiCol_PlotLines]				= ConvertColorRgbaVec(accent->s700);
-	colors[ImGuiCol_PlotLinesHovered]		= ConvertColorRgbaVec(accent->s500);
-	colors[ImGuiCol_PlotHistogram]			= ConvertColorRgbaVec(accent->s900);
+	colors[ImGuiCol_NavWindowingDimBg]		= ConvertColorRgbaVec(appTheme->background, 0.72f);
+	
+	colors[ImGuiCol_ScrollbarBg]			= ConvertColorRgbaVec(appTheme->surface);
+	colors[ImGuiCol_ScrollbarGrab]			= ConvertColorRgbaVec(accent->s500);
+	colors[ImGuiCol_ScrollbarGrabHovered]	= ConvertColorRgbaVec(accent->s300);
+	colors[ImGuiCol_ScrollbarGrabActive]	= ConvertColorRgbaVec(accent->s700);
+	colors[ImGuiCol_Separator]				= ConvertColorRgbaVec(appTheme->surface);
+	colors[ImGuiCol_SeparatorHovered]		= ConvertColorRgbaVec(accent->s200, 0.32f);
+	colors[ImGuiCol_SeparatorActive]		= ConvertColorRgbaVec(accent->s300, 0.32f);
+	colors[ImGuiCol_PlotLines]				= ConvertColorRgbaVec(accent->s500);
+	colors[ImGuiCol_PlotLinesHovered]		= ConvertColorRgbaVec(accent->s700);
+	colors[ImGuiCol_PlotHistogram]			= ConvertColorRgbaVec(accent->s500);
 	colors[ImGuiCol_PlotHistogramHovered]	= ConvertColorRgbaVec(accent->s700);
-	colors[ImGuiCol_ResizeGrip]				= ConvertColorRgbaVec(primary->black, 0.92f);
-	colors[ImGuiCol_ResizeGripHovered]		= ConvertColorRgbaVec(primary->s700);
-	colors[ImGuiCol_ResizeGripActive]		= ConvertColorRgbaVec(accent->s900);
+	colors[ImGuiCol_ResizeGrip]				= ConvertColorRgbaVec(appTheme->surface);
+	colors[ImGuiCol_ResizeGripHovered]		= ConvertColorRgbaVec(accent->s200, 0.32f);
+	colors[ImGuiCol_ResizeGripActive]		= ConvertColorRgbaVec(accent->s300, 0.32f);
+	
+	// ToDo: Missing
+	//style->Colors[ImGuiCol_ComboBg] = ImVec4(0.19f, 0.18f, 0.21f, 1.00f);
+	//style.Colors[ImGuiCol_Column] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+	//style.Colors[ImGuiCol_ColumnHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+	//style.Colors[ImGuiCol_ColumnActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+	//style->Colors[ImGuiCol_CloseButton] = ImVec4(0.40f, 0.39f, 0.38f, 0.16f);
+	//style->Colors[ImGuiCol_CloseButtonHovered] = ImVec4(0.40f, 0.39f, 0.38f, 0.39f);
+	//style->Colors[ImGuiCol_CloseButtonActive] = ImVec4(0.40f, 0.39f, 0.38f, 1.00f);
 
-	/**
-		Styles
-	*/
-	// Global
-	//style.Alpha						= 1.0f;
-	//style.AntiAliasedLines			= true;
-	//style.AntiAliasedFill			= true;
-	//style.CircleSegmentMaxError		= 1.60f;
-	//style.CurveTessellationTol		= 1.25f;
-	style.FramePadding				= { 6.0f, 6.0f };;
-	style.FrameRounding				= 4.0f;
-	style.FrameBorderSize			= 0.5f;
-	style.MouseCursorScale			= 3.0f;
+	/* Rendering */
+	style.AntiAliasedLines			= true;
+	style.AntiAliasedFill			= true;
+	style.CurveTessellationTol		= 1.25f;
+	style.CircleSegmentMaxError		= 1.60f;
+	style.Alpha						= 1.0f;
 
-	// Window
-	style.WindowBorderSize			= 0.5f;
-	//style.WindowMenuButtonPosition	= ImGuiDir_None;
-	//style.WindowMinSize				= { 32.0f, 32.0f };
+	/* Sizes */
+	// Main
 	style.WindowPadding				= { 12.0f, 12.0f };
-	style.WindowRounding			= 6.0f;
-	//style.WindowTitleAlign			= { 0.0f, 0.5f };
-	//style.ChildBorderSize			= 0.5f;
-	//style.ChildRounding				= 1.0f;
-	style.PopupBorderSize			= 0.5f;
-	//style.PopupRounding				= 1.0f;
-
-	// Controls
-	style.IndentSpacing				= 24.0f;
+	style.FramePadding				= { 6.0f, 6.0f };;
 	style.ItemSpacing				= { 12.0f, 8.0f };
-	style.ItemInnerSpacing			= { 8.0f, 6.0f };
-	//style.TouchExtraPadding			= { 6, 6 };
-	//style.ColumnsMinSpacing			= 6.0f;
+	style.ItemInnerSpacing			= { 6.0f, 6.0f };
+	style.TouchExtraPadding			= { 0, 0 };
+	style.IndentSpacing				= 24.0f;
 	style.ScrollbarSize				= 12.0f;
-	style.ScrollbarRounding			= 9.0f;
+	style.GrabMinSize				= 12.0f;
 
-	style.GrabMinSize				= 6.0f;
-	style.GrabRounding				= 3.0f;
-	//style.TabRounding				= 1.0f;
-	//style.TabBorderSize				= 0.5f;
-	//style.TabMinWidthForUnselectedCloseButton	= 0.0f;
-	//style.ColorButtonPosition		= ImGuiDir_Left;
-	//style.ButtonTextAlign			= { 0.5f, 0.5f };
-	//style.SelectableTextAlign		= { 0.0f, 0.0f };
+	// Borders
+	style.WindowBorderSize			= 1.0f;
+	style.ChildBorderSize			= 0.0f;
+	style.PopupBorderSize			= 1.0f;
+	style.FrameBorderSize			= 0.0f;
+	style.TabBorderSize				= 0.0f;
+
+	// Rounding
+	style.WindowRounding			= 2.0f;
+	style.ChildRounding				= 2.0f;
+	style.FrameRounding				= 4.0f;
+	style.PopupRounding				= 2.0f;
+	style.ScrollbarRounding			= 9.0f;
+	style.GrabRounding				= 4.0f;
+	style.TabRounding				= 2.0f;
+
+	// Alignment
+	style.WindowTitleAlign			= { 0.0f, 0.5f };
+	style.WindowMenuButtonPosition	= ImGuiDir_Left; // ToDo: ImGuiDir_None: Not working as expected, the button is behind the text and can be clicked...
+	style.ColorButtonPosition		= ImGuiDir_Left;
+	style.ButtonTextAlign			= { 0.5f, 0.5f };
+	style.SelectableTextAlign		= { 0.0f, 0.0f };
+	
+	// Miscellaneous
 	//style.DisplayWindowPadding		= { 19.0f, 19.0f };
-	//style.DisplaySafeAreaPadding	= { 6, 6 };
+	style.DisplaySafeAreaPadding	= { 0.0f, 0.0f };
+	//style.ColumnsMinSpacing			= 6.0f;
+	//style.TabMinWidthForUnselectedCloseButton	= 0.0f;
+
+
+	// Global
+	style.MouseCursorScale			= 3.0f;
+	//style.WindowMinSize				= { 32.0f, 32.0f };
 
 	// Scaling
 	style.ScaleAllSizes(1.0f);

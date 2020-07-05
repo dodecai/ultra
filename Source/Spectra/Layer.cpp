@@ -19,6 +19,7 @@ class MainLayer: public Layer {
     Reference<Texture2D> GridTexture;
 
     bool UseFrameBuffer = true;
+    bool ViewportActive = true;
 public:
     MainLayer():
         Layer("Core"),
@@ -40,8 +41,8 @@ public:
         //SetDefaultStyle();
         //SetStyle(ColorPalette::BlueGray, ColorPalette::Blue, ColorPalette::Red);
         //SetDefaultStyle();
-        //SetStyle();
-        SetRayTeakStyle();
+        //SetRayTeakStyle();
+        SetStyle();
     }
 
     void GuiUpdate() override {
@@ -50,6 +51,8 @@ public:
         static bool opt_fullscreen_persistant = true;
         bool opt_fullscreen = opt_fullscreen_persistant;
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+
+        static ImVec4 accentTextColor = { 1.0f, 1.0f, 0.0f, 1.0f };
 
         // Disabling fullscreen would allow the window to be moved to the front of other windows,  which we can't undo at the moment without finer window depth/z control.
         //ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
@@ -112,6 +115,7 @@ public:
         // Viewport
         View::ShowViewport(&alwaysOpen);
         ImGui::Begin("Viewport", &alwaysOpen, flagsViewport);
+        ViewportActive = ImGui::IsWindowFocused() ? true : false;
         uint32_t rendererID = ViewportBuffer->GetColorAttachmentRendererID();
         // ToDo: GetContentRegionMax returns to high y value
         ImVec2 contentRegion = ImGui::GetContentRegionMax();
@@ -122,30 +126,38 @@ public:
         // Statistics
         ImGui::Begin("Statistics");
         ImGui::Text("2D Renderer");
+        ImGui::Separator();
         ImGui::Text("DrawCalls: ");
         ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_Text, accentTextColor);
         ImGui::Text("%d", Renderer2D::GetStatistics().DrawCalls);
         ImGui::PopStyleColor();
         ImGui::Text("Triangles: ");
         ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
-        ImGui::Text("%d", Renderer2D::GetStatistics().QuadCount * 2);
+        ImGui::PushStyleColor(ImGuiCol_Text, accentTextColor);
+        ImGui::Text("%d", Renderer2D::GetStatistics().Triangles);
         ImGui::PopStyleColor();
         ImGui::Text("Vertices:  ");
         ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_Text, accentTextColor);
         ImGui::Text("%d", Renderer2D::GetStatistics().GetTotalVertexCount());
         ImGui::PopStyleColor();
         ImGui::Text("Indices:   ");
         ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_Text, accentTextColor);
         ImGui::Text("%d", Renderer2D::GetStatistics().GetTotalIndexCount());
         ImGui::PopStyleColor();
-        ImGui::End();
+        ImGui::Separator();
+        ImGui::Text("... thereof Quads: ");
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, accentTextColor);
+        ImGui::Text("%d", Renderer2D::GetStatistics().QuadCount);
+        ImGui::PopStyleColor();
 
-        // Test
-        //ImGui::ShowDemoWindow(&alwaysOpen);
+        ImGui::PlotLines("Sin", [](void *data, int idx) { return idx*0.2f; }, NULL, 100);
+
+        UI::Label("Label: %d", 0);
+        ImGui::End();
 
         ImGui::End();
     }
@@ -157,7 +169,7 @@ public:
 
         // Preparation
         // Camera
-        SceneCamera.Update(deltaTime);
+        if (ViewportActive) SceneCamera.Update(deltaTime);
         // Renderer
         RenderCommand::SetClearColor(ClearColor);
         RenderCommand::Clear();

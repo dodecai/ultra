@@ -171,6 +171,7 @@ void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, cons
     }
 
     sData.QIndexCount += 6;
+    sData.Stats.Triangles += 2;
     sData.Stats.QuadCount++;
 }
 
@@ -218,6 +219,7 @@ void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, cons
     }
 
     sData.QIndexCount += 6;
+    sData.Stats.Triangles += 2;
     sData.Stats.QuadCount++;
 }
 
@@ -261,6 +263,7 @@ void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, cons
     }
 
     sData.QIndexCount += 6;
+    sData.Stats.Triangles += 2;
     sData.Stats.QuadCount++;
 }
 
@@ -293,6 +296,7 @@ void Renderer2D::DrawRotatedQuad(const glm::vec3 &position, const glm::vec2 &siz
     }
 
     sData.QIndexCount += 6;
+    sData.Stats.Triangles += 2;
     sData.Stats.QuadCount++;
 }
 
@@ -336,6 +340,7 @@ void Renderer2D::DrawRotatedQuad(const glm::vec3 &position, const glm::vec2 &siz
     }
 
     sData.QIndexCount += 6;
+    sData.Stats.Triangles += 2;
     sData.Stats.QuadCount++;
 }
 
@@ -380,6 +385,7 @@ void Renderer2D::DrawRotatedQuad(const glm::vec3 &position, const glm::vec2 &siz
     }
 
     sData.QIndexCount += 6;
+    sData.Stats.Triangles += 2;
     sData.Stats.QuadCount++;
 }
 
