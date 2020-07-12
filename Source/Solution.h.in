@@ -5,7 +5,6 @@
 
 // Library
 #include <Omnia.h>
-#include <Omnia/Core/EntryPoint.h>
 #include <Engine/Engine.h>
 
 // Wrap library in solution namespace

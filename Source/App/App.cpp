@@ -1,4 +1,5 @@
 ﻿#include <Ultra.h>
+#include <EntryPoint.h>
 
 // Import Layers
 #include "Test.cpp"
@@ -10,8 +11,8 @@ class App: public Application {
 public:
 	App(): Application("Ultra") {
 		// Properties
-		gladLoadGL();
-		Gfx::SetVSync(false);
+		//gladLoadGL();
+		//Gfx::SetVSync(false);
 		Renderer::Load();
 	}
 

@@ -1,4 +1,5 @@
 ﻿#include <Ultra.h>
+#include <EntryPoint.h>
 
 #include "Layer.cpp"
 

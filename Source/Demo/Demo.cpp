@@ -1,4 +1,5 @@
 ﻿#include <Ultra.h>
+#include <EntryPoint.h>
 
 #include "Game2D.cpp"
 
@@ -9,8 +10,8 @@ class Demo: public Application {
 public:
 	Demo(): Application("Ultra-Demo") {
 		// Properties
-		gladLoadGL();
-		Gfx::SetVSync(false);
+		//gladLoadGL();
+		//Gfx::SetVSync(false);
 		Renderer::Load();
 	}
 	void Create() override {
