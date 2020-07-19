@@ -28,22 +28,12 @@ list(APPEND DESIGNER_SOURCES ${DESIGNER_MENU_SOURCES})
 set(DESIGNER_VIEW_HEADERS
 	"View/Views.h"
 	"View/Console.h"
+	"View/Scene.h"
 	"View/StyleEditor.h"
 	"View/TextEditor.h"
-	"View/Viewport.h"
 )
 set(DESIGNER_VIEW_SOURCES
 	"View/TextEditor.cpp"
 )
 list(APPEND DESIGNER_HEADERS ${DESIGNER_VIEW_HEADERS})
 list(APPEND DESIGNER_SOURCES ${DESIGNER_VIEW_SOURCES})
-
-# Styles
-set(DESIGNER_STYLE_HEADERS
-	"Style/MaterialDesign.h"
-	"Style/Styles.h"
-)
-set(DESIGNER_STYLE_SOURCES
-)
-list(APPEND DESIGNER_HEADERS ${DESIGNER_STYLE_HEADERS})
-list(APPEND DESIGNER_SOURCES ${DESIGNER_STYLE_SOURCES})

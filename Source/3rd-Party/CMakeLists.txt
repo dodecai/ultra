@@ -8,7 +8,11 @@
 # ☷ Modules
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 include("Library#glm.cmake")
+include("Library#entt.cmake")
+include("Library#Ogg.cmake")
+include("Library#OpenAL.cmake")
 include("Library#stb.cmake")
+include("Library#Vorbis.cmake")
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # These are leftovers which where used in the prototype, left them here, cause maybe they will be needed again.
 #include("Library#assimp.cmake")

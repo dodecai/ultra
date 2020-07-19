@@ -5,13 +5,16 @@
 #include "Menu/Menues.h"
 #include "View/Views.h"
 
+#include "Engine/Audio/Audio.h"
+
 namespace Ultra {
 
 class MainLayer: public Layer {
     Reference<Texture2D> Viewport;
     Reference<Framebuffer> ViewportBuffer;
 
-    OrthographicCameraController SceneCamera;
+    CameraController SceneCamera;
+    //OrthographicCameraController SceneCamera;
     glm::vec4 ClearColor;
     glm::vec4 GridColor;
 
@@ -28,12 +31,14 @@ class MainLayer: public Layer {
 
     float RoatationSpeed = 5.0f;
 
+    Ultra::Audio::Source BackgroundMusic = {};
+
 public:
     MainLayer():
         Layer("Core"),
         ClearColor(1.0f, 1.01f, 1.0f, 0.0f),
         GridColor(0.8f, 0.8f, 0.2f, 0.72f),
-        SceneCamera(1.33f, true) {
+        SceneCamera(1.33f) {
     }
 
     void Create() override {
@@ -46,56 +51,18 @@ public:
         Viewport = Texture2D::Create("./Assets/Textures/Checkerboard.png");
         GridTexture = Texture2D::Create("./Assets/Textures/Checkerboard.png");
 
-        //SetDefaultStyle();
-        //SetStyle(ColorPalette::BlueGray, ColorPalette::Blue, ColorPalette::Red);
-        //SetDefaultStyle();
-        //SetRayTeakStyle();
         SetStyle();
+
+
+        Ultra::Audio::Player::Initialize();
+        BackgroundMusic = Ultra::Audio::Source::LoadFromFile("Assets/Audio/Intergalactic Odyssey.ogg");
+        BackgroundMusic.SetRepeat(true);
+        Ultra::Audio::Player::Play(BackgroundMusic);
     }
 
     void GuiUpdate() override {
-        ImVec4 defaultHighlightColor = ImTextColorHighlight;
-        ImVec4 defaultHighlightWarnColor = ImTextColorHighlightWarn;
-
-        UseFrameBuffer = Menu::ViewportRender;
-
         static bool alwaysOpen = true;
-        static bool DockSpace = true;
-        static bool opt_fullscreen_persistant = true;
-        bool opt_fullscreen = opt_fullscreen_persistant;
-        static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
-
-        // Disabling fullscreen would allow the window to be moved to the front of other windows,  which we can't undo at the moment without finer window depth/z control.
-        //ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
-
-        // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,  because it would be confusing to have two docking targets within each others.
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-        ImGuiWindowFlags flagsViewport = ImGuiWindowFlags_NoScrollbar;
-        if (opt_fullscreen) {
-            ImGuiViewport* viewport = ImGui::GetMainViewport();
-            ImGui::SetNextWindowPos(viewport->GetWorkPos());
-            ImGui::SetNextWindowSize(viewport->GetWorkSize());
-            ImGui::SetNextWindowViewport(viewport->ID);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-            window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-            window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-        }
-
-        // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
-        if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode) window_flags |= ImGuiWindowFlags_NoBackground;
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-
-        // DockSpace
-        ImGui::Begin("DockSpace", &DockSpace, window_flags);
-        ImGui::PopStyleVar();
-        if (opt_fullscreen) ImGui::PopStyleVar(2);
-
-        ImGuiIO& io = ImGui::GetIO();
-        if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
-            ImGuiID dockspace_id = ImGui::GetID("DockSpace");
-            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-        }
+        UseFrameBuffer = Menu::ViewportRender;
 
         /**
          * @brief Menus
@@ -109,6 +76,8 @@ public:
             ImGui::EndMenuBar();
         }
 
+
+
         /**
          * @brief Views
         */
@@ -117,7 +86,17 @@ public:
         ImGui::End();
 
         // Console
-        View::ShowExampleAppConsole(&alwaysOpen);
+        static bool consoleOpen = true;
+        if (consoleOpen) View::ShowExampleAppConsole(&consoleOpen);
+
+        // Scene
+        static bool viewportOpen = true;
+        if (viewportOpen && UseFrameBuffer) {
+            uint32_t rendererID = ViewportBuffer->GetColorAttachmentRendererID();
+            ViewportActive = View::ShowScene(&viewportOpen, rendererID);
+        } else {
+            UseFrameBuffer = false;
+        }
 
         // Properties
         ImGui::Begin("Properties");
@@ -138,19 +117,6 @@ public:
             UI::LabelX("Label: %d", 0, 2);
         }
         ImGui::End();
-
-        // Viewport
-        if (UseFrameBuffer) {
-            View::ShowViewport(&alwaysOpen);
-            ImGui::Begin("Viewport", &alwaysOpen, flagsViewport);
-            ViewportActive = ImGui::IsWindowFocused() ? true : false;
-            uint32_t rendererID = ViewportBuffer->GetColorAttachmentRendererID();
-            // ToDo: GetContentRegionMax returns to high y value
-            ImVec2 contentRegion = ImGui::GetContentRegionMax();
-            contentRegion.y -= 32;
-            ImGui::Image((void*)rendererID, contentRegion, ImVec2(0,1), ImVec2(1,0));
-            ImGui::End();
-        }
 
         // Statistics
         ImGui::Begin("Statistics");
@@ -218,9 +184,6 @@ public:
             ImGui::Separator();
             UI::Property("... thereof Quads", "%d", Renderer2D::GetStatistics().QuadCount);
         }
-
-        ImGui::End();
-
         ImGui::End();
     }
 
@@ -232,6 +195,7 @@ public:
         // Preparation
         // Camera
         if (ViewportActive) SceneCamera.Update(deltaTime);
+
         // Renderer
         RenderCommand::SetClearColor(ClearColor);
         RenderCommand::Clear();
@@ -242,21 +206,30 @@ public:
         // Draw
         Renderer2D::BeginScene(SceneCamera.GetCamera());
 
+        // Checkerboard Texture
         Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 32.0f, 32.0f }, GridTexture);
 
         // Low performance Grid
         for (float y = -GridY; y < +GridY; y += GridSteps) {
             for (float x = -GridX; x < +GridX; x += GridSteps) {
                 glm::vec4 color = { (x + 5.0f) / 10.f, 0.2f, (y +5.0f) / 10.0f, 0.72f };
-                Renderer2D::DrawRotatedQuad({ x, y, -0.05f }, { GridSteps * 0.72f, GridSteps * 0.72f }, glm::radians(rotation), color);
+                Renderer2D::DrawRotatedQuad({ x, y, -0.05f }, { GridSteps * 0.72f, GridSteps * 0.72f }, glm::radians(rotation * -1.0f), color);
             }
         }
 
+        // Sample Quads
         Renderer2D::DrawQuad({ -0.2f, -0.2f }, { QuadSize, QuadSize }, { 1.0f, 0.0f, 0.0f, 1.0f });
         Renderer2D::DrawQuad({ 0.2f, 0.2f }, { QuadSize, QuadSize }, { 0.0f, 0.0f, 1.0f, 1.0f });
         Renderer2D::DrawRotatedQuad({ 0.0f, 0.0f, 1.0f }, { 0.2f, 0.2f }, glm::radians(rotation), { 0.0f, 1.0f, 0.0f, 0.72f });
+
         Renderer2D::EndScene();
         if(UseFrameBuffer) ViewportBuffer->Unbind();
+    }
+
+    void KeyboardEvent(KeyboardEventData data) override {
+        if (data.Key == KeyCode::KeyP) {
+            Ultra::Audio::Player::Pause(BackgroundMusic);
+        }
     }
 
     void MouseEvent(MouseEventData data) override {

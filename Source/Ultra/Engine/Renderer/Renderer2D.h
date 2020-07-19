@@ -16,6 +16,7 @@ public:
     static void Load();
     static void Unload();
 
+    static void BeginScene(const Camera &camera);
     static void BeginScene(const OrthographicCamera &camera);
     static void Flush();
     static void EndScene();

@@ -20,6 +20,7 @@ class Renderer {
 public:
 	static void Load();
 
+	static void BeginScene(Camera &camera);
 	static void BeginScene(OrthographicCamera &camera);
 	static void EndScene();
 

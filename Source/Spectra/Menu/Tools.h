@@ -20,25 +20,25 @@ static void ShowMenuTools() {
 		static int color = 0;
 		if (ImGui::Combo("Color", &color, "Default\0Red\0Pink\0Purple\0DeepPurple\0Indigo\0Blue\0LightBlue\0Cyan\0Teal\0Green\0LightGreen\0Lime\0Yellow\0Orange\0DeepOrange\0Brown\0Gray\0Amber\0\0")) {
 			switch (color) {
-				case 1:		{ primarySelected =  ColorPalette::Red; warnSelected = ColorPalette::Yellow;		break; }
-				case 2:		{ primarySelected =  ColorPalette::Pink; warnSelected = ColorPalette::Yellow;		break; }
-				case 3:		{ primarySelected =  ColorPalette::Purple; warnSelected = ColorPalette::Yellow;		break; }
-				case 4:		{ primarySelected =  ColorPalette::DeepPurple; warnSelected = ColorPalette::Yellow;	break; }
-				case 5:		{ primarySelected =  ColorPalette::Indigo; warnSelected = ColorPalette::Red;		break; }
-				case 6:		{ primarySelected =  ColorPalette::Blue; warnSelected = ColorPalette::Red;			break; }
-				case 7:		{ primarySelected =  ColorPalette::LightBlue; warnSelected = ColorPalette::Red;		break; }
-				case 8:		{ primarySelected =  ColorPalette::Cyan; warnSelected = ColorPalette::Red;			break; }
-				case 9:		{ primarySelected =  ColorPalette::Teal; warnSelected = ColorPalette::Red;			break; }
-				case 10:	{ primarySelected =  ColorPalette::Green; warnSelected = ColorPalette::Red;			break; }
-				case 11:	{ primarySelected =  ColorPalette::LightGreen; warnSelected = ColorPalette::Red;	break; }
-				case 12:	{ primarySelected =  ColorPalette::Lime; warnSelected = ColorPalette::Red;			break; }
-				case 13:	{ primarySelected =  ColorPalette::Yellow; warnSelected = ColorPalette::Red;		break; }
-				case 14:	{ primarySelected =  ColorPalette::Orange; warnSelected = ColorPalette::Red;		break; }
-				case 15:	{ primarySelected =  ColorPalette::DeepOrange; warnSelected = ColorPalette::Red;	break; }
-				case 16:	{ primarySelected =  ColorPalette::Brown; warnSelected = ColorPalette::Red;			break; }
-				case 17:	{ primarySelected =  ColorPalette::Gray; warnSelected = ColorPalette::Red;			break; }
-				case 18:	{ primarySelected =  ColorPalette::Amber; warnSelected = ColorPalette::Red;			break; }
-				default:	{ SetRayTeakStyle();																break; }
+				case 1:		{ primarySelected =  ColorPalette::Red;			warnSelected = ColorPalette::Yellow;	break; }
+				case 2:		{ primarySelected =  ColorPalette::Pink;		warnSelected = ColorPalette::Yellow;	break; }
+				case 3:		{ primarySelected =  ColorPalette::Purple;		warnSelected = ColorPalette::Yellow;	break; }
+				case 4:		{ primarySelected =  ColorPalette::DeepPurple;	warnSelected = ColorPalette::Yellow;	break; }
+				case 5:		{ primarySelected =  ColorPalette::Indigo;		warnSelected = ColorPalette::Red;		break; }
+				case 6:		{ primarySelected =  ColorPalette::Blue;		warnSelected = ColorPalette::Red;		break; }
+				case 7:		{ primarySelected =  ColorPalette::LightBlue;	warnSelected = ColorPalette::Red;		break; }
+				case 8:		{ primarySelected =  ColorPalette::Cyan;		warnSelected = ColorPalette::Red;		break; }
+				case 9:		{ primarySelected =  ColorPalette::Teal;		warnSelected = ColorPalette::Red;		break; }
+				case 10:	{ primarySelected =  ColorPalette::Green;		warnSelected = ColorPalette::Red;		break; }
+				case 11:	{ primarySelected =  ColorPalette::LightGreen;	warnSelected = ColorPalette::Red;		break; }
+				case 12:	{ primarySelected =  ColorPalette::Lime;		warnSelected = ColorPalette::Red;		break; }
+				case 13:	{ primarySelected =  ColorPalette::Yellow;		warnSelected = ColorPalette::Red;		break; }
+				case 14:	{ primarySelected =  ColorPalette::Orange;		warnSelected = ColorPalette::Red;		break; }
+				case 15:	{ primarySelected =  ColorPalette::DeepOrange;	warnSelected = ColorPalette::Red;		break; }
+				case 16:	{ primarySelected =  ColorPalette::Brown;		warnSelected = ColorPalette::Red;		break; }
+				case 17:	{ primarySelected =  ColorPalette::Gray;		warnSelected = ColorPalette::Red;		break; }
+				case 18:	{ primarySelected =  ColorPalette::Amber;		warnSelected = ColorPalette::Red;		break; }
+				default:	{ SetRayTeakStyle();																	break; }
 			}
 			SetStyle(themeSelected,	primarySelected, warnSelected);
 		}
@@ -65,7 +65,7 @@ static void ShowMenuTools() {
 				Ultra::RenderCommand::SetWireframeMode(wireframeMode);
 			}
 			if (ImGui::Checkbox("VSync", &verticalSync)) {
-				//Ultra::Gfx::SetVSync(verticalSync);
+				Ultra::Application::GetContext().SetVSync(verticalSync);
 			}
 			ImGui::EndMenu();
 		}

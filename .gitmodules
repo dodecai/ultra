@@ -10,3 +10,12 @@
 [submodule "Source/3rd-Party/entt"]
 	path = Source/3rd-Party/entt
 	url = https://github.com/skypjack/entt
+[submodule "Source/3rd-Party/OpenAL"]
+	path = Source/3rd-Party/OpenAL
+	url = https://github.com/kcat/openal-soft
+[submodule "Source/3rd-Party/vorbis"]
+	path = Source/3rd-Party/vorbis
+	url = https://github.com/xiph/vorbis
+[submodule "Source/3rd-Party/ogg"]
+	path = Source/3rd-Party/ogg
+	url = https://github.com/xiph/ogg

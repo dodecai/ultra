@@ -98,6 +98,16 @@ void Renderer2D::Unload() {
     delete[] sData.QVertexBufferBase;
 }
 
+void Renderer2D::BeginScene(const Camera &camera) {
+    sData.TextureShader->Bind();
+    sData.TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
+
+    sData.QIndexCount = 0;
+    sData.QVertexBufferPtr = sData.QVertexBufferBase;
+
+    sData.TextureSlotIndex = 1;
+}
+
 void Renderer2D::BeginScene(const OrthographicCamera &camera) {
     sData.TextureShader->Bind();
     sData.TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());

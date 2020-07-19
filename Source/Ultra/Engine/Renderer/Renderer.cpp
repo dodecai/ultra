@@ -12,9 +12,14 @@ void Renderer::Load() {
 	Renderer2D::Load();
 }
 
+void Renderer::BeginScene(Camera &camera) {
+	mSceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+}
+
 void Renderer::BeginScene(OrthographicCamera &camera) {
 	mSceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 }
+
 
 void Renderer::EndScene() {
 }
