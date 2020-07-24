@@ -1,4 +1,4 @@
-# <img src="https://github.com/larioteo/ultra/blob/master/Assets/Images/Ultra.png" alt="Logo" width="64"/> Ultra Spectra #
+# <img src="https://github.com/larioteo/ultra/blob/master/Assets/Images/Ultra%20Spectra.png" alt="Logo" width="64"/> Ultra Spectra #
 
 [Cpp-Image]: https://img.shields.io/badge/C%2B%2B-20-blue
 [C-Image]: https://img.shields.io/badge/C-11-blue
