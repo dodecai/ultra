@@ -54,10 +54,10 @@ public:
         SetStyle();
 
 
-        Ultra::Audio::Player::Initialize();
-        BackgroundMusic = Ultra::Audio::Source::LoadFromFile("Assets/Audio/Intergalactic Odyssey.ogg");
-        BackgroundMusic.SetRepeat(true);
-        Ultra::Audio::Player::Play(BackgroundMusic);
+        //Ultra::Audio::Player::Initialize();
+        //BackgroundMusic = Ultra::Audio::Source::LoadFromFile("Assets/Audio/Intergalactic Odyssey.ogg");
+        //BackgroundMusic.SetRepeat(true);
+        //Ultra::Audio::Player::Play(BackgroundMusic);
     }
 
     void GuiUpdate() override {
@@ -225,6 +225,7 @@ public:
         Renderer2D::EndScene();
         if(UseFrameBuffer) ViewportBuffer->Unbind();
     }
+
 
     void KeyboardEvent(KeyboardEventData data) override {
         if (data.Key == KeyCode::KeyP) {

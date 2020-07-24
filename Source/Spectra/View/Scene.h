@@ -14,4 +14,5 @@ static bool ShowScene(bool *show, uint32_t rendererID) {
         return active;
     };
     ImGui::End();
+    return false;
 }
