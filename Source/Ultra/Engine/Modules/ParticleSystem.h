@@ -50,7 +50,7 @@ public:
     ParticleSystem(uint32_t maxParticles = 1000);
 
     void Update(Timestamp deltaTime);
-    void Render(OrthographicCamera &camera);
+    void Render(Camera &camera);
 
     void Emit(const ParticleProperties &properties);
 };

@@ -10,8 +10,6 @@ class Designer: public Application {
 public:
 	Designer(): Application("Spectra") {
 		// Properties
-		//gladLoadGL();
-		//Gfx::SetVSync(false);
 		Renderer::Load();
 	}
 
@@ -20,10 +18,10 @@ public:
 	}
 
 	void Destroy() override {}
-
 	void Update(Timestamp deltaTime) override {
 		// Render
-		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+		// ToDo: Switch to white on light theme
+		RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 0.72f });
 		RenderCommand::Clear();
 	}
 };

@@ -15,10 +15,16 @@ class MainLayer: public Layer {
 
     CameraController SceneCamera;
     //OrthographicCameraController SceneCamera;
+
+    Reference<Scene> CurrentScene;
+    Entity SquareEntity;
+
     glm::vec4 ClearColor;
     glm::vec4 GridColor;
 
     Reference<Texture2D> GridTexture;
+
+    Reference<Shader> GridShader;
 
     bool UseFrameBuffer = true;
     bool ViewportActive = true;
@@ -53,6 +59,17 @@ public:
 
         SetStyle();
 
+        CurrentScene = CreateReference<Scene>();
+
+        SquareEntity = CurrentScene->CreateEntitiy("My square");
+        SquareEntity.AddComponent<CSpriteRenderer>(glm::vec4{ 1.0f, 1.0f, 0.0f, 1.0f });
+
+        auto &transform = SquareEntity.GetComponent<TransformComponent>();
+
+
+        GridShader = Shader::Create("Assets/Shaders/Grid.glsl");
+        GridShader->SetFloat("uResolution", 1000.0f);
+        GridShader->SetFloat("uScaling", 24.0f);
 
         //Ultra::Audio::Player::Initialize();
         //BackgroundMusic = Ultra::Audio::Source::LoadFromFile("Assets/Audio/Intergalactic Odyssey.ogg");
@@ -109,6 +126,12 @@ public:
             UI::Property("Rotation Speed:", RoatationSpeed, 0.0f, 120.0f);
         }
         if (ImGui::CollapsingHeader("Test")) {
+            if (SquareEntity) {
+                auto &tag = SquareEntity.GetComponent<TagComponent>();
+                ImGui::Text("%s", tag.Tag.c_str());
+                ImGui::Separator();
+            }
+
             static bool myCheck = true;
             UI::Property("Boolean", myCheck);
             UI::Property("State", "%s", "Test");
@@ -182,6 +205,7 @@ public:
             UI::Property("Vertices", "%d", Renderer2D::GetStatistics().GetTotalVertexCount());
             UI::Property("Indices", "%d", Renderer2D::GetStatistics().GetTotalIndexCount());
             ImGui::Separator();
+            UI::Property("... thereof Lines", "%d", Renderer2D::GetStatistics().LineCount);
             UI::Property("... thereof Quads", "%d", Renderer2D::GetStatistics().QuadCount);
         }
         ImGui::End();
@@ -189,10 +213,10 @@ public:
 
     void Update(Timestamp deltaTime) override {
 
+        // Preparation
         Renderer2D::ResetStatistics();
         if(UseFrameBuffer) ViewportBuffer->Bind();
 
-        // Preparation
         // Camera
         if (ViewportActive) SceneCamera.Update(deltaTime);
 
@@ -206,8 +230,17 @@ public:
         // Draw
         Renderer2D::BeginScene(SceneCamera.GetCamera());
 
+        Renderer2D::DrawLine({ -1.5f, -1.5f, 1.0f }, { -1.5f, 1.5f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+        Renderer2D::DrawLine({ -1.6f, -1.6f, 1.0f }, { -1.6f, 1.6f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+        Renderer2D::DrawLine({ -1.7f, -1.7f, 1.0f }, { -1.7f, 1.7f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+        Renderer2D::DrawLine({ -1.8f, -1.8f, 1.0f }, { -1.8f, 1.8f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+        Renderer2D::DrawLine({ -1.9f, -1.9f, 1.0f }, { -1.9f, 1.9f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+
+        //CurrentScene->Update(deltaTime);
+
         // Checkerboard Texture
-        Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 32.0f, 32.0f }, GridTexture);
+        Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 2.0f, 2.0f }, GridTexture);
+
 
         // Low performance Grid
         for (float y = -GridY; y < +GridY; y += GridSteps) {
@@ -216,6 +249,8 @@ public:
                 Renderer2D::DrawRotatedQuad({ x, y, -0.05f }, { GridSteps * 0.72f, GridSteps * 0.72f }, glm::radians(rotation * -1.0f), color);
             }
         }
+
+        // High performance Grid
 
         // Sample Quads
         Renderer2D::DrawQuad({ -0.2f, -0.2f }, { QuadSize, QuadSize }, { 1.0f, 0.0f, 0.0f, 1.0f });

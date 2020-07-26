@@ -10,7 +10,7 @@ Reference<VertexArray> VertexArray::Create() {
 		case RendererAPI::API::Null:		{ return nullptr; }
 		case RendererAPI::API::OpenGL:		{ return CreateReference<GLVertexArray>(); }
 	}
-	// Unknown RendererAPI
+	// ToDo: Unknown RendererAPI (one time would be enough...)
 	return nullptr;
 }
 

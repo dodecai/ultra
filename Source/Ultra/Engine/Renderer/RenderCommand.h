@@ -27,8 +27,16 @@ public:
 		s_RendererAPI->DrawIndexed(vertexArray, indexCount);
 	};
 
+	static void DrawIndexed(uint32_t count, RendererAPI::Type type, bool depthTest = true) {
+		s_RendererAPI->DrawIndexed(count, type, depthTest);
+	};
+
 	static void SetClearColor(const glm::vec4 &color) {
 		s_RendererAPI->SetClearColor(color);
+	};
+
+	static void SetLineThickness(float value = 1.0f) {
+		s_RendererAPI->SetLineThickness(value);
 	};
 
 	static void SetViewport(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) {

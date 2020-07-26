@@ -6,6 +6,8 @@
 // Library
 #include <Omnia.h>
 #include <Engine/Engine.h>
+#include <Scene/Scene.h>
+#include <Scene/Entity.h>
 
 // Wrap library in solution namespace
 namespace @PROJECT_NAME@ {

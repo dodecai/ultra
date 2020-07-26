@@ -1,28 +1,31 @@
 #type vertex
 #version 330 core
-layout (location = 0) in vec3 aPos;
 
-out vec3 TexCoords;
+layout (location = 0) in vec3 aPosition;
 
-uniform mat4 projection;
-uniform mat4 view;
+out vec3 oTextureCoordinates;
 
-void main()
-{
-    TexCoords = aPos;
-    vec4 pos = projection * view * vec4(aPos, 1.0);
-    gl_Position = pos.xyww;
+uniform mat4 uInverse;
+
+
+void main() {
+    vec4 position = vec4(aPosition.xy, 1.0, 1.0);
+    gl_Position = position;
+
+    oTextureCoordinates = position.xyz;
 }  
 
 #type fragment
 #version 330 core
-out vec4 FragColor;
 
-in vec3 TexCoords;
+layout (location = 0) out vec4 oColor;
 
-uniform samplerCube skybox;
+in vec3 aTextureCoordinates;
 
-void main()
-{    
-    FragColor = texture(skybox, TexCoords);
+uniform samplerCube uSkybox;
+uniform float uBlur;
+
+
+void main() {
+    oColor = textureLod(uSkybox, aTextureCoordinates, uBlur);
 }

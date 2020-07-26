@@ -107,6 +107,12 @@ private:
 };
 
 
+enum class VertexBufferType {
+	Null	= 0,
+	Static	= 1,
+	Dynamic = 2,
+};
+
 class VertexBuffer {
 public:
 	virtual ~VertexBuffer() {}

@@ -1,37 +1,36 @@
 #type vertex
 #version 330 core
-		
-layout(location = 0) in vec3 Position;
-layout(location = 1) in vec2 TextCoord;
 
-uniform mat4 u_ViewProjection;
+layout(location = 0) in vec3 aPosition;
+layout(location = 1) in vec2 aTextureCoordinates;
 
-out vec2 v_TextCoord;
+out vec2 vTextureCoordinates;
+
+uniform mat4 uViewProjection;
+uniform mat4 uTransform;
 
 void main() {
-	gl_Position = u_ViewProjection * vec4(Position, 1.0);
+	gl_Position = uViewProjection * uTransform * vec4(aPosition, 1.0);
 	
-	v_TextCoord = TextCoord;
+	vTextureCoordinates = aTextureCoordinates;
 }
 
 #type fragment
 #version 330 core
 		
-layout(location = 0) out vec4 color;
+layout(location = 0) out vec4 fColor;
 
-uniform float u_Resolution;
-uniform float u_Scaling;
+in vec2 vTextureCoordinates;
 
-in vec2 v_TextCoord;
+uniform float uResolution;
+uniform float uScaling;
 
-uniform sampler2D u_Texture;
-
-float calcGrid(vec2 part, float resolution) {
-	vec2 grid = fract(part);
+float calcGrid(vec2 position, float resolution) {
+	vec2 grid = fract(position);
 	return step(resolution, grid.x) * step(resolution, grid.y);
 }
 
 void main() {
-	float grid = calcGrid(v_TextCoord * u_Scaling, u_Resolution);
-	color = vec4(vec3(0.2), 0.5) * (1.0 - grid);
+	float xPos = calcGrid(vTextureCoordinates * uScaling, uResolution);
+	fColor = vec4(vec3(0.2), 0.5) * (1.0 - xPos);
 }

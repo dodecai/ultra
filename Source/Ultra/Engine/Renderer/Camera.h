@@ -47,10 +47,11 @@ enum class CameraType {
 	Perspective
 };
 
-
 class CameraController;
+
 class Camera {
 	friend CameraController;
+
 	// Properties
 	CameraType Type = CameraType::Orthographic;
 
@@ -91,7 +92,6 @@ public:
 	void SetPitch(float rotation) { Pitch = rotation; }
 	void SetYaw(float rotation) { Yaw = rotation; }
 };
-
 
 // ToDo: All-In-One camera class vs specific class
 class OrthographicCamera {

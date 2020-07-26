@@ -5,6 +5,18 @@
 
 namespace Ultra {
 
+enum class TextureFormat {
+	Null	= 0,
+	RGB		= 1,
+	RGBA	= 2,
+};
+
+enum class TextureWra {
+	Null	= 0,
+	Clamp	= 1,
+	Repeat	= 2,
+};
+
 class Texture {
 public:
 	virtual ~Texture() = default;

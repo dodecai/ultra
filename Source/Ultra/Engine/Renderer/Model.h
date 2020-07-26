@@ -1,12 +1,10 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include <fstream>
-#include <iostream>
+
+// ToDo: From prototype, maybe usefull in future
+#include "Ultra.pch"
 #include <map>
-#include <sstream>
-#include <string>
-#include <vector>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -17,8 +15,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <stb/stb_image.h>
 
-#include "./Mesh.h"
-#include "./Shader.h"
+#include "Mesh.h"
+#include "Shader.h"
 
 unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma = false);
 

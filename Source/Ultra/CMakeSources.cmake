@@ -27,6 +27,7 @@ set(ENGINE_RENDERER_HEADERS
 	"Engine/Renderer/Buffer.h"
 	"Engine/Renderer/Camera.h"
 	"Engine/Renderer/Framebuffer.h"
+	"Engine/Renderer/Mesh.h"
 	"Engine/Renderer/RenderCommand.h"
 	"Engine/Renderer/RendererAPI.h"
 	"Engine/Renderer/Renderer.h"
@@ -47,6 +48,7 @@ set(ENGINE_RENDERER_SOURCES
 	"Engine/Renderer/Buffer.cpp"
 	"Engine/Renderer/Camera.cpp"
 	"Engine/Renderer/Framebuffer.cpp"
+	"Engine/Renderer/Mesh.cpp"
 	"Engine/Renderer/RenderCommand.cpp"
 	"Engine/Renderer/RendererAPI.cpp"
 	"Engine/Renderer/Renderer.cpp"
@@ -84,10 +86,12 @@ list(APPEND ULTRA_SOURCES ${ENGINE_MODULE_SOURCES})
 
 # Default
 set(SCENE_DEFAULT_HEADERS
-#	"Scene/Scene.h"
+	"Scene/Components.h"
+	"Scene/Entity.h"
+	"Scene/Scene.h"
 )
 set(SCENE_DEFAULT_SOURCES
-#	"Scene/Scene.cpp"
+	"Scene/Scene.cpp"
 )
 list(APPEND ULTRA_HEADERS ${SCENE_DEFAULT_HEADERS})
 list(APPEND ULTRA_SOURCES ${SCENE_DEFAULT_SOURCES})
