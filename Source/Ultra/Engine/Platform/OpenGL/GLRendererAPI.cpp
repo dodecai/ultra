@@ -2,36 +2,43 @@
 
 #include <glad/glad.h>
 
+#define APP_MODE_DEBUG
+
 namespace Ultra {
 
-void OpenGLMessageCallback(
-	unsigned source,
-	unsigned type,
-	unsigned id,
-	unsigned severity,
-	int length,
-	const char* message,
-	const void* userParam) {
-	switch (severity) {
-		case GL_DEBUG_SEVERITY_HIGH:         APP_LOG_CRITICAL(message); return;
-		case GL_DEBUG_SEVERITY_MEDIUM:       APP_LOG_ERROR(message); return;
-		case GL_DEBUG_SEVERITY_LOW:          APP_LOG_WARN(message); return;
-		case GL_DEBUG_SEVERITY_NOTIFICATION: APP_LOG_TRACE(message); return;
+// Callbacks (internal)
+void APIENTRY GLMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+	switch (type) {
+		case GL_DEBUG_TYPE_ERROR:					{ applog << Log::Error;		break; }
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:		{ applog << Log::Warning;	break; }
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:		{ applog << Log::Warning;	break; }
+		case GL_DEBUG_TYPE_PORTABILITY:				{ applog << Log::Trace;		break; }
+		case GL_DEBUG_TYPE_PERFORMANCE:				{ applog << Log::Trace;		break; }
+		case GL_DEBUG_TYPE_OTHER:					{ applog << Log::Trace;		break; }
+		default:									{ applog << Log::Critical;	break; }
 	}
-
-	//HZ_CORE_ASSERT(false, "Unknown severity level!");
+	applog << "[Ultra::GLRendererAPI::Message]" << message << "{" <<
+		"ID:"		<< id		<< " | " <<
+		"Source:"	<< source	<< " | " <<
+		"Severity:" << severity	<<
+	"}\n";
 }
 
-void GLRendererAPI::Load() {
-	#define APP_MODE_DEBUG
-	#ifdef APP_MODE_DEBUG
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-		glDebugMessageCallback(OpenGLMessageCallback, nullptr);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
-	#endif
 
+// Default
+void GLRendererAPI::Load() {
 	gladLoadGL();
+
+	#ifdef APP_MODE_DEBUG
+		if (glDebugMessageCallback) {
+			glEnable(GL_DEBUG_OUTPUT);
+			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+			glDebugMessageCallback(GLMessageCallback, nullptr);
+			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
+		} else {
+			AppLogWarning("[Ultra::RendererAPI::GL]: ", "The feature 'DebugMessageCallback' isn't available!");
+		}
+	#endif
 
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
@@ -64,7 +71,7 @@ void GLRendererAPI::Load() {
 	// Show Errors
 	auto error = glGetError();
 	if (error != GL_NO_ERROR) {
-		AppLogError("[Ultra::GLRendererAPI::Load]: ", error);
+		AppLogError("[Ultra::RendererAPI::GL]: ", error);
 	}
 }
 
@@ -73,6 +80,7 @@ void GLRendererAPI::Unload() {
 }
 
 
+// 
 void GLRendererAPI::Clear() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -98,6 +106,7 @@ void GLRendererAPI::DrawIndexed(uint32_t count, Type type, bool depthTest) {
 }
 
 
+// Mutators
 void GLRendererAPI::SetClearColor(const glm::vec4 &color) {
 	glClearColor(color.r, color.g, color.b, color.a);
 }
@@ -105,8 +114,20 @@ void GLRendererAPI::SetClearColor(const glm::vec4 &color) {
 void GLRendererAPI::SetLineThickness(float value) {
 	GLfloat range[2];
 	glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, range);
-	APP_ASSERT(!(value < range[0] || value > range[1]), "The specified line width exceeds the supported range!")
+	// ToDo: Fails while closing application, the Update function should somehow finish cleanly.
+	//APP_ASSERT(!(value < range[0] || value > range[1]), "The specified line width exceeds the supported range!")
 	glLineWidth(value);
+}
+
+void GLRendererAPI::SetPolygonMode(PolygonMode mode) {
+	switch (mode) {
+		case PolygonMode::Solid:		{ glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); break; }
+		case PolygonMode::Wireframe:	{ glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break; }
+		default: {
+			APP_ASSERT(false, "The specified polygon mode isn't implemented yet!");
+			break;
+		}
+	}
 }
 
 void GLRendererAPI::SetViewport(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) {
@@ -115,14 +136,6 @@ void GLRendererAPI::SetViewport(const int32_t x, const int32_t y, const uint32_t
 		return;
 	}
 	glViewport(x, y, width, height);
-}
-
-void GLRendererAPI::SetWireframeMode(bool status) {
-	if (status) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	} else {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
 }
 
 }

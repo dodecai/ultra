@@ -1,21 +1,21 @@
-# Currently not used, it doesn't work as expected
-# Open C++ Style
-Language: Cpp
+# Ultra C++ Style
 BasedOnStyle: Google
+Language: Cpp
 AccessModifierOffset: -4
 #AlignAfterOpenBracket: Align
-#AlignConsecutiveAssignments: false
+#AlignConsecutiveAssignments: false                 # ToDo: Would be nice for numbers
+#AlignConsecutiveBitFields: true                    # CurrentlyNotSupported (new)
 #AlignConsecutiveDeclarations: false
-AlignConsecutiveMacros: true
+#AlignConsecutiveMacros: false                      # ToDo: Would be nice for numbers
 #AlignEscapedNewlines: Left
-#AlignOperands: true
+#AlignOperands: true                                # CurrentlyNotSupported: AlignAfterOperator
 #AlignTrailingComments: true
 #AllowAllArgumentsOnNextLine: false
 #AllowAllConstructorInitializersOnNextLine: false
 #AllowAllParametersOfDeclarationOnNextLine: false
-# CurrentlyNotSupported: Empty
-AllowShortBlocksOnASingleLine: true
-#AllowShortCaseLabelsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: true
+#AllowShortEnumsOnASingleLine: true                 # CurrentlyNotSupported
 #AllowShortFunctionsOnASingleLine: All
 #AllowShortIfStatementsOnASingleLine: WithoutElse
 #AllowShortLambdasOnASingleLine: All
@@ -26,11 +26,11 @@ AlwaysBreakBeforeMultilineStrings: false
 #AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
-#BraceWrapping:
+#BitFieldColonSpacing: After                         # CurrentlyNotSupported (new)
+BraceWrapping:
 #  AfterCaseLabel: false
 #  AfterClass: false
-  # CurrentlyNotSupported: Never
-#  AfterControlStatement: false
+#  AfterControlStatement: false                      # CurrentlyNotSupported: Never
 #  AfterEnum: false
 #  AfterFunction: false
 #  AfterNamespace: false
@@ -40,10 +40,12 @@ BinPackParameters: false
 #  AfterExternBlock: false
 #  BeforeCatch: false
 #  BeforeElse: false
+#  BeforeLambdaBody: false                           # CurrentlyNotSupported
+#  BeforeWhile: false                                # CurrentlyNotSupported
 #  IndentBraces: false
-#  SplitEmptyFunction: true
-#  SplitEmptyRecord: true
-#  SplitEmptyNamespace: true
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
 #BreakAfterJavaFieldAnnotations: false
 #BreakBeforeBinaryOperators: None
 #BreakBeforeBraces: Attach
@@ -54,15 +56,13 @@ BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
 BreakStringLiterals: false
 ColumnLimit: 0
-# ToDo: Check possibilities
-#CommentPragmas: '^ IWYU pragma:'
+#CommentPragmas: '^ IWYU pragma:'                   # ToDo: Check possibilities
 CompactNamespaces: true
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 #ConstructorInitializerIndentWidth: 4
 #ContinuationIndentWidth: 4
-#Cpp11BracedListStyle: true
-# CurrentlyNotSupported
-#DeriveLineEnding: true
+Cpp11BracedListStyle: false                         # ToDo: Think of it again
+#DeriveLineEnding: true                             # CurrentlyNotSupported
 DerivePointerAlignment: false
 #DisableFormat: false
 #ExperimentalAutoDetectBinPacking: false
@@ -72,8 +72,7 @@ FixNamespaceComments: false
 #  - Q_FOREACH
 #  - BOOST_FOREACH
 #IncludeBlocks: Regroup
-# ToDo: Check possibilities (google was only different!?)
-#IncludeCategories:
+#IncludeCategories:                                 # ToDo: Check possibilities (google was only different!?)
 #  - Regex:  '^<ext/.*\.h>'
 #    Priority: 2
 #  - Regex:  '^<.*\.h>'
@@ -83,29 +82,29 @@ FixNamespaceComments: false
 #  - Regex:  '.*'
 #    Priority: 3
 #IncludeIsMainRegex: '([-_](test|unittest))?$'
-# CurrentlyNotSupported
-#IndentGotoLabels: false
+#IncludeIsMainSourceRegex: ' .c, .cpp'              # ToDo: Check possibilities (new)
+#IndentCaseBlocks: false                            # CurrentlyNotSupported (new)
 #IndentCaseLabels: true
-# CurrentlyNotSupported
-#IndentGotoLabels: false
+#IndentExternBlock: false                           # CurrentlyNotSupported (new)
+IndentGotoLabels: true
 IndentPPDirectives: BeforeHash
 IndentWidth: 4
 #IndentWrappedFunctionNames: false
+#InsertTrailingCommas: true                         # CurrentlyNotSupported (new)
 #JavaScriptQuotes: Leave
 #JavaScriptWrapImports: true
 #KeepEmptyLinesAtTheStartOfBlocks: false
 #MacroBlockBegin: ''
 #MacroBlockEnd: ''
-#MaxEmptyLinesToKeep: 1
+MaxEmptyLinesToKeep: 3
 #NamespaceIndentation: None
-# CurrentlyNotSupported
-#NamespaceMacros: ''
+#NamespaceMacros: ''                                # CurrentlyNotSupported
 #ObjCBinPackProtocolList: Never
 ObjCBlockIndentWidth: 4
+#ObjCBreakBeforeNestedBlockParam: false             # CurrentlyNotSupported (new)
 #ObjCSpaceAfterProperty: false
 ObjCSpaceBeforeProtocolList: false
-# ToDo: Check possibilities of penalty
-#PenaltyBreakAssignment: 2
+#PenaltyBreakAssignment: 2                          # ToDo: Check possibilities of penalty
 #PenaltyBreakBeforeFirstCallParameter: 1
 #PenaltyBreakComment: 300
 #PenaltyBreakFirstLessLess: 120
@@ -142,21 +141,19 @@ PointerAlignment: Right
 #      - ParseTextProtoOrDie
 #    CanonicalDelimiter: ''
 #    BasedOnStyle: google
-ReflowComments: false
+ReflowComments: false                               # ToDo: Think of it again
 #SortIncludes: true
 #SortUsingDeclarations: true
 #SpaceAfterCStyleCast: false
 #SpaceAfterLogicalNot: false
-#SpaceAfterTemplateKeyword: true
+SpaceAfterTemplateKeyword: false
 #SpaceBeforeAssignmentOperators: true
 SpaceBeforeCpp11BracedList: true
 SpaceBeforeCtorInitializerColon: false
 SpaceBeforeInheritanceColon: false
 #SpaceBeforeParens: ControlStatements
 #SpaceBeforeRangeBasedForLoopColon: true
-# CurrentlyNotSupported
 #SpaceBeforeSquareBrackets: false
-# CurrentlyNotSupported
 #SpaceInEmptyBlock: false
 #SpaceInEmptyParentheses: false
 #SpacesBeforeTrailingComments: 2
@@ -170,5 +167,8 @@ SpacesInContainerLiterals: false
 #  - Q_UNUSED
 #  - QT_REQUIRE_VERSION
 TabWidth: 4
+#TypenameMacros: ''
+#UseCRLF: false
 UseTab: Always
+#WhitespaceSensitiveMacros: ''
 ...

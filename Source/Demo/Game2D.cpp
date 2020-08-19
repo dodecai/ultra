@@ -23,7 +23,7 @@ static const char *sMapTiles =
 ;
 
 class Game2D: public Layer {
-	OrthographicCameraController SceneCamera;
+	CameraController SceneCamera;
 	glm::vec4 ClearColor;
 
 	std::unordered_map<char, Reference<SubTexture2D>> TextureMap;
@@ -85,7 +85,7 @@ public:
 		RenderCommand::Clear();
 
 		// Draw
-		Renderer2D::BeginScene(SceneCamera.GetCamera());
+		Renderer2D::StartScene(SceneCamera.GetCamera());
 
 		for (uint32_t y = 0; y < sMapHeight; y++) {
 			for (uint32_t x = 0; x < sMapWidth; x++) {
@@ -102,7 +102,7 @@ public:
 			}
 		}
 
-		Renderer2D::EndScene();
+		Renderer2D::FinishScene();
 	}
 
 	void Destroy() override {	}

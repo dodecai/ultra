@@ -3,15 +3,17 @@
 
 namespace Ultra {
 
+// Properties
 RendererAPI::API RendererAPI::s_API = RendererAPI::API::OpenGL;
 
-RendererAPI *RendererAPI::Create()
-{
+// Default
+RendererAPI *RendererAPI::Create() {
 	switch (s_API) {
 		case RendererAPI::API::Null:		{ return nullptr; }
 		case RendererAPI::API::OpenGL:		{ return new GLRendererAPI(); }
 	}
-	// Unknown RendererAPI
+	AppLogCritical("[Ultra::RendererAPI::Create]: ", "The selected RendererAPI is currently not supported!");
 	return nullptr;
 }
+
 }

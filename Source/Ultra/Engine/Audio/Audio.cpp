@@ -1,5 +1,6 @@
-#include "Audio.h"
+﻿#include "Audio.h"
 
+#pragma warning(push, 0)
 #include <AL/al.h>
 #include <AL/alext.h>
 //#include <alc/alcmain.h>
@@ -8,6 +9,7 @@
 
 #include "vorbis/codec.h"
 #include "vorbis/vorbisfile.h"
+#pragma warning(pop)
 
 namespace Ultra::Audio {
 

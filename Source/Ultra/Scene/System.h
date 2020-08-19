@@ -1,18 +1,14 @@
-#pragma once
+﻿#pragma once
 
 #include <entt/entt.hpp>
 
 #include "Ultra.pch"
 #include "Core.h"
-
-#include <glm/glm.hpp>
+#include "Entity.h"
 
 namespace Ultra {
 
-
-// Systems
-static void OnTransformConstruct(entt::registry &registry, entt::entity entity) {
+static void ConstructTransform(entt::registry &registry, entt::entity entity) {}
 
 }
 
-}

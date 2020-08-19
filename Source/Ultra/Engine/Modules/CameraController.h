@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Ultra.pch"
 #include "Core.h"
@@ -39,7 +39,7 @@ class CameraController {
     bool Move(CameraMovement direction, float xoffset, float yoffset, bool constrainPitch = true);
 
 public:
-    CameraController(float apsectRatio);
+    CameraController(float apsectRatio, bool rotation = false);
 
     void Update(Timestamp deltaTime);
     void Resize(float width, float height);
@@ -47,7 +47,10 @@ public:
     Ultra::Camera &GetCamera() { return Camera; }
     const Ultra::Camera &GetCamera() const { return Camera; }
 
+    const CameraBounds& GetBounds() const { return Bounds; }
     float GetZoomLevel() const { return ZoomLevel; };
+
+    void SetZoomLevel(float level) { ZoomLevel = level; CalculateView(); }
 
     void Event(void *event);
     void KeyboardEvent(KeyboardEventData &data);

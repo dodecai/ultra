@@ -1,19 +1,17 @@
-#pragma once
+﻿#pragma once
 
+#pragma warning(push, 0) 
 #include <entt/entt.hpp>
+#pragma warning(pop)
+
 #include "Scene.h"
 
 namespace Ultra {
 
 class Entity {
-    entt::entity EntityHandle = entt::null;
-    Scene *pScene = nullptr;
-
 public:
     Entity() = default;
-    Entity(entt::entity handle, Scene *scene):
-        EntityHandle(handle),
-        pScene(scene) {};
+    Entity(entt::entity handle, Scene *scene): EntityHandle(handle), pScene(scene) {};
     ~Entity() = default;
 
     Entity(const Entity &other) = default;
@@ -45,6 +43,30 @@ public:
     }
 
     operator bool() const { return EntityHandle != entt::null; }
+
+private:
+    entt::entity EntityHandle = entt::null;
+    Scene *pScene = nullptr;
+};
+
+class ScriptableEntity {
+public:
+    ScriptableEntity() = default;
+    virtual ~ScriptableEntity() = default;
+
+    template<typename T>
+    T &GetComponent() {
+        return mEntity.GetComponent<T>();
+    }
+
+protected:
+    virtual void Create() {}
+    virtual void Destroy() {}
+    virtual void Update(Timestamp deltaTime) {}
+
+private:
+    Entity mEntity;
+    friend class Scene;
 };
 
 }

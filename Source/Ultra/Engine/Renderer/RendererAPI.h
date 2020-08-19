@@ -9,6 +9,7 @@
 
 namespace Ultra {
 
+// ToDo: RenderAPIData.h?
 using RendererID = uint32_t;
 
 struct RendererCapabilities {
@@ -34,8 +35,20 @@ struct RendererCapabilities {
 	}
 };
 
+enum class PrimitiveTypes {
+	Line,
+	Quad,
+};
+
+enum class PolygonMode {
+	Wireframe,
+	Solid,
+};
+
+
 class RendererAPI {
 public:
+	// Enumerations
 	enum class API {
 		Null		= 0x0,
 		OpenGL		= 0x1,
@@ -48,29 +61,32 @@ public:
 	};
 
 private:
+	// Properties
 	static API s_API;
 
 public:
+	// Default
+	static RendererAPI *Create();
+	virtual void Load() = 0;
+	virtual void Unload() = 0;
+
+	//
+	virtual void Clear() = 0;
+	virtual void DrawIndexed(const std::shared_ptr<VertexArray> &vertexArray, uint32_t indexCount = 0) = 0;
+	virtual void DrawIndexed(uint32_t count, Type type, bool depthTest = true) = 0;
+
+	// Accessors
+	inline static API GetAPI() { return s_API; };
 	static RendererCapabilities &GetCapabilities() {
 		static RendererCapabilities capabilities;
 		return capabilities;
 	}
 
-	static RendererAPI *Create();
-
-	virtual void Load() = 0;
-	virtual void Unload() = 0;
-
-	virtual void Clear() = 0;
-	virtual void DrawIndexed(const std::shared_ptr<VertexArray> &vertexArray, uint32_t indexCount = 0) = 0;
-	virtual void DrawIndexed(uint32_t count, Type type, bool depthTest = true) = 0;
-
+	// Mutators
 	virtual void SetClearColor(const glm::vec4 &color) = 0;
 	virtual void SetLineThickness(float value = 1.0f) = 0;
 	virtual void SetViewport(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) = 0;
-	virtual void SetWireframeMode(bool status) = 0;
-
-	inline static API GetAPI() { return s_API; };
+	virtual void SetPolygonMode(PolygonMode mode = PolygonMode::Solid) = 0;
 };
 
 }

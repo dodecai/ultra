@@ -30,7 +30,7 @@ void ParticleSystem::Update(Timestamp deltaTime) {
 }
 
 void ParticleSystem::Render(Camera &camera) {
-    Renderer2D::BeginScene(camera);
+    Renderer2D::StartScene(camera);
     for (auto &particle : ParticlePool) {
         if (!particle.Active) continue;
 
@@ -41,7 +41,7 @@ void ParticleSystem::Render(Camera &camera) {
         glm::vec3 position = { particle.Position.x, particle.Position.y, 0.2f };
         Renderer2D::DrawRotatedQuad(position, { size, size }, particle.Rotation, color);
     }
-    Renderer2D::EndScene();
+    Renderer2D::FinishScene();
 }
 
 void ParticleSystem::Emit(const ParticleProperties &properties) {

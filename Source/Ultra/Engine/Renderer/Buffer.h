@@ -3,6 +3,8 @@
 #include "Ultra.pch"
 #include "Core.h"
 
+#include "RendererData.h"
+
 namespace Ultra {
 
 enum class ShaderDataType: uint8_t {

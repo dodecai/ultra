@@ -7,6 +7,10 @@ static constexpr float PI = 3.14159f;
 
 namespace Ultra {
 
+Camera::Camera(glm::mat4 projection):
+	ProjectionMatrix (projection) {
+}
+
 Camera::Camera(float left, float right, float buttom, float top) {
 	switch (Type) {
 		case CameraType::Orthographic: {

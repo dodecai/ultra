@@ -1,4 +1,4 @@
-#include <Ultra.h>
+﻿#include <Ultra.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -11,7 +11,7 @@ namespace Ultra {
 class TestLayer: public Layer {
 	glm::vec4 ClearColor;
 
-	OrthographicCameraController SceneCamera;
+	CameraController SceneCamera;
 	ShaderLibrary Shaders;
 
 	Reference<VertexArray> GridVertexArray;
@@ -157,7 +157,7 @@ public:
 
 // 2D Renderer Test
 class TestLayer2D: public Layer {
-	OrthographicCameraController SceneCamera;
+	CameraController SceneCamera;
 	glm::vec4 ClearColor;
 	glm::vec4 GridColor;
 
@@ -217,7 +217,7 @@ public:
 		rotation += 1.0f;
 
 		// Draw
-		Renderer2D::BeginScene(SceneCamera.GetCamera());
+		Renderer2D::StartScene(SceneCamera.GetCamera());
 
 		Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 32.0f, 32.0f }, GridTexture);
 
@@ -233,7 +233,7 @@ public:
 		Renderer2D::DrawQuad({ -0.2f, -0.2f }, { 0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 		Renderer2D::DrawQuad({ 0.2f, 0.2f }, { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f });
 		Renderer2D::DrawRotatedQuad({ 0.0f, 0.0f, 1.0f }, { 0.2f, 0.2f }, glm::radians(rotation), { 0.0f, 1.0f, 0.0f, 0.72f });
-		Renderer2D::EndScene();
+		Renderer2D::FinishScene();
 
 		// Particle Tests
 		if (Input::GetMouseButtonState(MouseButton::Left)) {

@@ -1,12 +1,16 @@
-#pragma once
+﻿#pragma once
 
+// ToDo: Diable debugging on third party libraries by default...
+#pragma warning(push, 0) 
+#define ENTT_ASSERT(condition)
 #include <entt/entt.hpp>
+#pragma warning(pop)
 
 #include "Ultra.pch"
 #include "Core.h"
 
 #include "Components.h"
-#include "Engine/Renderer/Camera.h"
+#include "SceneCamera.h"
 
 namespace Ultra {
 
@@ -14,29 +18,37 @@ class Entity;
 
 class Scene {
     friend class Entity;
-    entt::registry Registry;
-
-
-protected:
-    //bool ActiveScene = false;
-    //Scope<Camera> mCamera;
-
 
 public:
-    Scene();
-    ~Scene();
+    Scene(const string &name = "Scene");
     //explicit Scene(Scope<Camera> &&camera): pCamera(std::move(camera)) {}
+    ~Scene();
 
-    //bool Active() const {return pScene ? pScene->Active() : false;};
+    Entity CreateEntity(const string &name = "");
+
     void Update(Timestamp deltaTime);
-
-    Entity CreateEntitiy(const string &name = "");
+    void Resize(uint32_t width, uint32_t height);
 
     // Accessors
-    //Camera *GetCamera() const { return Camera.get(); }
+    //Camera &GetCamera() const { return mCamera; }
+    bool IsActive() const {return mActive;};
 
     // Mutators
-    //void SetCamera(Camera *camera) { pCamera.reset(camera); }
+    void AttachEntity(Entity *entity);
+    void DetachEntity(Entity *entity);
+    //void SetCamera(const Camera &camera) { mCamera = camera; }
+
+private:
+    entt::registry Registry;
+
+    bool mActive = false;
+    float mEnvironmentBlur = 1.0f;
+    std::string mName;
+
+    vector<Entity *> mEntities;
+
+    uint32_t Width = 0;
+    uint32_t Height = 0;
 };
 
 // ToDo: From Prototype something like a scene library

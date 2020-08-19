@@ -62,7 +62,7 @@ static void ShowMenuTools() {
 			static bool wireframeMode = false;
 			static bool verticalSync = false;
 			if (ImGui::Checkbox("Wireframe", &wireframeMode)) {
-				Ultra::RenderCommand::SetWireframeMode(wireframeMode);
+				Ultra::RenderCommand::SetPolygonMode(wireframeMode ? Ultra::PolygonMode::Wireframe : Ultra::PolygonMode::Solid);
 			}
 			if (ImGui::Checkbox("VSync", &verticalSync)) {
 				Ultra::Application::GetContext().SetVSync(verticalSync);

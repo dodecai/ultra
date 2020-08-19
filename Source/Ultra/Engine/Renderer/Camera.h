@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <glm/glm.hpp>
 
@@ -74,6 +74,7 @@ class Camera {
 
 public:
 	// Constructors
+	Camera(glm::mat4 projection);
 	Camera(float left, float right, float buttom, float top);
 
 	// Accessors
@@ -119,5 +120,20 @@ public:
 private:
 	void CalculateViewMatrix();
 };
+
+
+
+class CameraNew {
+public:
+    CameraNew() = default;
+    CameraNew(const glm::mat4 &projection): Projection { projection } {}
+    virtual ~CameraNew() = default;
+
+    const glm::mat4 &GetProjection() const { return Projection; };
+
+protected:
+    glm::mat4 Projection = glm::mat4(1.0f);
+};
+
 
 }

@@ -16,10 +16,6 @@ void Renderer::BeginScene(Camera &camera) {
 	mSceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 }
 
-void Renderer::BeginScene(OrthographicCamera &camera) {
-	mSceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
-}
-
 
 void Renderer::EndScene() {
 }

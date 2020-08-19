@@ -1,7 +1,7 @@
 ﻿#include <Ultra.h>
 #include <EntryPoint.h>
 
-#include "Layer.cpp"
+#include "MainLayer.cpp"
 
 // Application
 namespace Ultra {

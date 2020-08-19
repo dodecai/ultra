@@ -43,8 +43,8 @@ public:
 		s_RendererAPI->SetViewport(x, y, width, height);
 	};
 
-	static void SetWireframeMode(bool status) {
-		s_RendererAPI->SetWireframeMode(status);
+	static void SetPolygonMode(PolygonMode mode = PolygonMode::Solid) {
+		s_RendererAPI->SetPolygonMode(mode);
 	}
 };
 }

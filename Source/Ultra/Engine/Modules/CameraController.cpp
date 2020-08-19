@@ -4,7 +4,7 @@
 
 namespace Ultra {
 
-CameraController::CameraController(float apsectRatio):
+CameraController::CameraController(float apsectRatio, bool rotation):
 	AspectRatio { apsectRatio },
 	Bounds { -AspectRatio * ZoomLevel, AspectRatio * ZoomLevel, -ZoomLevel, ZoomLevel },
 	Camera { Bounds.Left, Bounds.Right, Bounds.Bottom, Bounds.Top } {

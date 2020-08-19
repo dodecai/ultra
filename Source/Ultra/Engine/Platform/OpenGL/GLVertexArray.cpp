@@ -2,8 +2,6 @@
 
 #include <glad/glad.h>
 
-#include "Engine/Renderer/Buffer.h"
-
 namespace Ultra {
 
 static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type) {
@@ -24,6 +22,7 @@ static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type) {
 }
 
 
+// Default
 GLVertexArray::GLVertexArray() {
 	glCreateVertexArrays(1, &mRendererID);
 }
@@ -31,6 +30,7 @@ GLVertexArray::GLVertexArray() {
 GLVertexArray::~GLVertexArray() {
 	glDeleteVertexArrays(1, &mRendererID);
 }
+
 
 void GLVertexArray::Bind() const {
 	glBindVertexArray(mRendererID);
@@ -40,42 +40,67 @@ void GLVertexArray::Unbind() const {
 	glBindVertexArray(0);
 }
 
-void  GLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer> &vertexBuffer) {
-	glBindVertexArray(mRendererID);
+
+// Accessors
+RendererID GLVertexArray::GetRendererID() const {
+	return mRendererID;
+}
+
+const vector<Reference<VertexBuffer>> &GLVertexArray::GetVertexBuffers() const {
+	return mVertexBuffers;
+}
+
+const Reference<IndexBuffer> &GLVertexArray::GetIndexBuffer() const {
+	return mIndexBuffer;
+}
+
+
+// Mutators
+void  GLVertexArray::AddVertexBuffer(const Reference<VertexBuffer> &vertexBuffer) {
+	APP_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Error their is no layout specified for the vertex buffer!");
+	
+	Bind();
 	vertexBuffer->Bind();
 
-	// if (vertexBuffer->GetLayout().GetElements().size() > 0) --> Error no layout
-
-	uint32_t index = 0;
 	const auto &layout = vertexBuffer->GetLayout();
 	for (const auto &element : layout) {
-		glEnableVertexAttribArray(index);
-		glVertexAttribPointer(index,
-							  element.GetComponentCount(),
-							  ShaderDataTypeToOpenGLBaseType(element.Type),
-							  element.Normalized ? GL_TRUE : GL_FALSE,
-							  layout.GetStride(),
-							  (const void *)(uint64_t)element.Offset
-		);
-		index++;
+		glEnableVertexAttribArray(mVertexBufferIndex);
+
+		auto baseType = ShaderDataTypeToOpenGLBaseType(element.Type);
+		switch (baseType) {
+			case GL_INT: {
+				glVertexAttribIPointer(
+					mVertexBufferIndex,
+					element.GetComponentCount(),
+					baseType,
+					layout.GetStride(),
+					(const void *)(uint64_t)element.Offset
+				);
+			}
+
+			default: {
+				glVertexAttribPointer(
+					mVertexBufferIndex,
+					element.GetComponentCount(),
+					baseType,
+					element.Normalized ? GL_TRUE : GL_FALSE,
+					layout.GetStride(),
+					(const void *)(uint64_t)element.Offset
+				);
+			}
+		}
+		
+		mVertexBufferIndex++;
 	}
 
 	mVertexBuffers.push_back(vertexBuffer);
 }
 
-void GLVertexArray::SetIndexBuffer(const std::shared_ptr<IndexBuffer> &indexBuffer) {
-	glBindVertexArray(mRendererID);
+void GLVertexArray::SetIndexBuffer(const Reference<IndexBuffer> &indexBuffer) {
+	Bind();
 	indexBuffer->Bind();
 
 	mIndexBuffer = indexBuffer;
-}
-
-const std::vector<std::shared_ptr<VertexBuffer>> &GLVertexArray::GetVertexBuffers() const {
-	return mVertexBuffers;
-}
-
-const std::shared_ptr<IndexBuffer> &GLVertexArray::GetIndexBuffer() const {
-	return mIndexBuffer;
 }
 
 }

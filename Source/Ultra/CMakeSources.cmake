@@ -1,4 +1,4 @@
-# Preparation
+﻿# Preparation
 set (ULTRA_HEADERS "")
 set (ULTRA_SOURCES "")
 
@@ -30,6 +30,7 @@ set(ENGINE_RENDERER_HEADERS
 	"Engine/Renderer/Mesh.h"
 	"Engine/Renderer/RenderCommand.h"
 	"Engine/Renderer/RendererAPI.h"
+	"Engine/Renderer/RendererData.h"
 	"Engine/Renderer/Renderer.h"
 	"Engine/Renderer/Renderer2D.h"
 	"Engine/Renderer/Shader.h"
@@ -88,10 +89,29 @@ list(APPEND ULTRA_SOURCES ${ENGINE_MODULE_SOURCES})
 set(SCENE_DEFAULT_HEADERS
 	"Scene/Components.h"
 	"Scene/Entity.h"
+	"Scene/System.h"
+
 	"Scene/Scene.h"
+
+	"Scene/SceneCamera.h"
 )
 set(SCENE_DEFAULT_SOURCES
 	"Scene/Scene.cpp"
+
+	"Scene/SceneCamera.cpp"
 )
 list(APPEND ULTRA_HEADERS ${SCENE_DEFAULT_HEADERS})
 list(APPEND ULTRA_SOURCES ${SCENE_DEFAULT_SOURCES})
+
+#
+#	Scripts
+#
+
+# Default
+set(SCRIPTS_DEFAULT_HEADERS
+	"Scripts/CameraController.h"
+)
+set(SCRIPTS_DEFAULT_SOURCES
+)
+list(APPEND ULTRA_HEADERS ${SCRIPTS_DEFAULT_HEADERS})
+list(APPEND ULTRA_SOURCES ${SCRIPTS_DEFAULT_SOURCES})
