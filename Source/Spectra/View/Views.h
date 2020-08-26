@@ -1,7 +1,8 @@
-#pragma once
+﻿#pragma once
 
 // Views
 
+#include "Browser.h"
 namespace View {
 
 // Components

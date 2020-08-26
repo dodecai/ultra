@@ -23,7 +23,7 @@ public:
 
     template<typename T, typename... Args>
     T &AddComponent(Args &&...arguments) {
-        APP_ASSERT(!HasComponent<T>(), "Entity already has component!");
+        //APP_ASSERT(!HasComponent<T>(), "Entity already has component!");
 
         return pScene->Registry.emplace<T>(EntityHandle, arguments...);
     }
@@ -43,6 +43,14 @@ public:
     }
 
     operator bool() const { return EntityHandle != entt::null; }
+    operator uint32_t() const { return (uint32_t)EntityHandle; }
+
+    bool operator==(const Entity &other) const {
+        return EntityHandle == other.EntityHandle && pScene == other.pScene;
+    }
+    bool operator!=(const Entity &other) const {
+        return !(*this==other);
+    }
 
 private:
     entt::entity EntityHandle = entt::null;

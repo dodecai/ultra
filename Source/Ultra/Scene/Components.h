@@ -43,9 +43,9 @@ struct Tag {
     ~Tag() = default;
 
     // Accessors
-    operator const char *() const { return mTag.c_str(); }
     operator string &() { return mTag; }
     operator const string &() const { return mTag; }
+    operator const char *() const { return mTag.c_str(); }
 
     // Modifiers
     void operator =(string &right) { mTag = right; }

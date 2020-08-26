@@ -20,7 +20,7 @@ public:
 
     void Update(Timestamp deltaTime) override {
         auto &transform = GetComponent<Component::Transform>().mTransform;
-        float speed = 5.0f;
+        float speed = 12.0f;
 
         if (Input::GetKeyState(KeyCode::KeyA)) { transform[3].x -= speed * deltaTime; }
         if (Input::GetKeyState(KeyCode::KeyD)) { transform[3].x += speed * deltaTime; }

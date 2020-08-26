@@ -1,11 +1,11 @@
-# Preparation
+﻿# Preparation
 set (DESIGNER_HEADERS "")
 set (DESIGNER_SOURCES "")
 
 # Default
 set(DESIGNER_DEFAULT_HEADERS )
 set(DESIGNER_DEFAULT_SOURCES
-	"Designer.cpp"
+	"Spectra.cpp"
 )
 list(APPEND DESIGNER_HEADERS ${DESIGNER_DEFAULT_HEADERS})
 list(APPEND DESIGNER_SOURCES ${DESIGNER_DEFAULT_SOURCES})
@@ -26,6 +26,7 @@ list(APPEND DESIGNER_SOURCES ${DESIGNER_MENU_SOURCES})
 
 # Menues
 set(DESIGNER_VIEW_HEADERS
+    "View/Browser.h"
 	"View/Views.h"
 	"View/Console.h"
 	"View/Scene.h"
@@ -33,6 +34,7 @@ set(DESIGNER_VIEW_HEADERS
 	"View/TextEditor.h"
 )
 set(DESIGNER_VIEW_SOURCES
+    "View/Browser.cpp"
 	"View/TextEditor.cpp"
 )
 list(APPEND DESIGNER_HEADERS ${DESIGNER_VIEW_HEADERS})

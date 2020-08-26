@@ -48,7 +48,6 @@ void Scene::Update(Timestamp deltaTime) {
     }
     if (sceneCamera) {
         Renderer2D::StartScene(*sceneCamera, *cameraTransform);
-
         {
             try {
                 auto group = Registry.group<Component::Transform>(entt::get<Component::Sprite>);
@@ -58,6 +57,7 @@ void Scene::Update(Timestamp deltaTime) {
                     Renderer2D::DrawQuad(transform, sprite.Color);
                 }
             } catch (...) {
+                AppLogError("An unknwon entt error occured!");
             }
         }
 
