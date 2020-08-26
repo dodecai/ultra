@@ -98,14 +98,21 @@ public:
         // Properties
         ImGui::Begin("Properties");
 
-        // Show the properties of selected node...
         auto &selectedNode = Browser.GetSelectedNode();
         if (selectedNode) {
             ImGui::SetNextItemOpen(true, ImGuiCond_Once);
             const char *tag = selectedNode.GetComponent<Component::Tag>();
             if (ImGui::CollapsingHeader(tag)) {
-                string &test = selectedNode.GetComponent<Component::Tag>();
-                ImGui::InputText("Tag", test.data(), 1024);
+                string &tag = selectedNode.GetComponent<Component::Tag>();
+                tag.reserve(1024);
+                ImGui::InputText("Tag", tag.data(), 1024);
+
+                ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+                if (ImGui::CollapsingHeader("Information")) {
+                    auto &id = selectedNode.GetComponent<Component::Identifier>();
+                    UI::Property("ID", "%X", id);
+                    UI::Property("Type", "%s", "undefined");
+                }
 
                 ImGui::SetNextItemOpen(true, ImGuiCond_Once);
                 if (ImGui::CollapsingHeader("Transform")) {
