@@ -5,17 +5,17 @@
 # ☲ Properties
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # These variables are used inside this project.
-set(ProjectName "App")
+set(ProjectName "Test")
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ Build
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 include(CMakeSources.cmake)
 if(${TestMode})
 	# Shows console window and application window
-	add_executable(${ProjectName} ${APP_HEADERS} ${APP_SOURCES})
+	add_executable(${ProjectName} ${TEST_HEADERS} ${TEST_SOURCES})
 else()
 	# Shows only application window
-	add_executable(${ProjectName} WIN32 ${APP_HEADERS} ${APP_SOURCES})
+	add_executable(${ProjectName} WIN32 ${TEST_HEADERS} ${TEST_SOURCES})
 endif()
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ IDE

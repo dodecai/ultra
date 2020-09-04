@@ -10,9 +10,10 @@
 set(App3rdPartySource "${SolutionSourceRoot}/3rd-Party")
 set(AppBinarySource "${SolutionSourceRoot}/App")
 set(AppDemoSource "${SolutionSourceRoot}/Demo")
-set(AppDesignerSource "${SolutionSourceRoot}/Spectra")
-set(AppEngineSource "${SolutionSourceRoot}/Ultra")
+set(AppDesignerSource "${SolutionSourceRoot}/Designer")
+set(AppEngineSource "${SolutionSourceRoot}/Engine")
 set(AppLibrarySource  "${SolutionSourceRoot}/Library")
+set(AppTestSource  "${SolutionSourceRoot}/Test")
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # ☲ Process
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -35,6 +36,7 @@ add_subdirectoryX(${AppDemoSource})
 add_subdirectoryX(${AppDesignerSource})
 add_subdirectoryX(${AppEngineSource})
 add_subdirectoryX(${AppLibrarySource})
+add_subdirectoryX(${AppTestSource})
 add_subdirectoryX(${App3rdPartySource})
 message("################################################################################################")
 #■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■

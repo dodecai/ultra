@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // Properties
 extern "C" {
@@ -9,16 +9,16 @@ extern "C" {
 namespace @PROJECT_NAME@ {
 
 // Information
-constexpr auto AppCaption = "@AppCaption@";
-constexpr auto AppDescription = "@AppDescription@";
-constexpr auto AppRelease = "@AppRelease@";
-constexpr auto AppVersion = "@AppVersion@";
-constexpr auto AppVersionMajor = "@AppVersionMajor@";
-constexpr auto AppVersionMinor = "@AppVersionMinor@";
-constexpr auto AppVersionPatch = "@AppVersionPatch@";
+constexpr inline auto AppCaption = "@AppCaption@";
+constexpr inline auto AppDescription = "@AppDescription@";
+constexpr inline auto AppRelease = "@AppRelease@";
+constexpr inline auto AppVersion = "@AppVersion@";
+constexpr inline auto AppVersionMajor = "@AppVersionMajor@";
+constexpr inline auto AppVersionMinor = "@AppVersionMinor@";
+constexpr inline auto AppVersionPatch = "@AppVersionPatch@";
 
 // Switches
-static inline constexpr bool DebugMode = @DebugMode@;
-static inline constexpr bool VerboseMode = @VerboseMode@;
+constexpr inline bool DebugMode = @DebugMode@;
+constexpr inline bool VerboseMode = @VerboseMode@;
 
 }

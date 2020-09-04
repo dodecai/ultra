@@ -13,9 +13,7 @@ set(ALSOFT_UPDATE_BUILD_VERSION		OFF	CACHE BOOL "" FORCE)
 # ☷ Build
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # The needed headers and sources to build the library.
-cmake_policy(SET CMP0048 OLD)
 add_subdirectory(OpenAL)
-cmake_policy(SET CMP0048 NEW)
 # ToDo: Prevent OpenAL from overriding the supported standard...
 set_property(TARGET OpenAL PROPERTY CXX_STANDARD 20)
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐

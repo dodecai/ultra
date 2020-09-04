@@ -1,21 +1,20 @@
 ﻿#include <Ultra.h>
-#include <EntryPoint.h>
+#include <Ultra/EntryPoint.h>
 
-#include "Game2D.cpp"
+#include "Layers.cpp"
 
 // Application
 namespace Ultra {
 
 class Demo: public Application {
 public:
-	Demo(): Application("Ultra-Demo") {
-		// Properties
-		//gladLoadGL();
-		//Gfx::SetVSync(false);
+	Demo(const ApplicationProperties &properties): Application(properties) {
 		Renderer::Load();
 	}
+
 	void Create() override {
 		PushLayer(new Game2D());
+        //PushLayer(new Game3D());
 	}
 
 	void Destroy() override {}
@@ -26,5 +25,5 @@ public:
 
 // Application Entry-Point
 Ultra::Application *CreateApplication() {
-	return new Ultra::Demo();
+    return new Ultra::Demo({ "Ultra-Demo", "1280x1024" });
 }

@@ -5,9 +5,9 @@
 
 // Library
 #include <Omnia.h>
-#include <Engine/Engine.h>
-#include <Scene/Scene.h>
-#include <Scene/Entity.h>
+#include <Ultra/Engine.h>
+#include <Ultra/Scene/Scene.h>
+#include <Ultra/Scene/Entity.h>
 
 // Wrap library in solution namespace
 namespace @PROJECT_NAME@ {

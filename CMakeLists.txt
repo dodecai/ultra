@@ -38,9 +38,9 @@ message(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Here should be everything defined, to help developers to customize their builds.
 message("✶ Properties")
 set(DebugMode		false	CACHE BOOL "Enable additional information which should help finding errors faster, but they will slow down the code." FORCE)
-set(OptimizedMode	false	CACHE BOOL "Should the compiler optimize our code?" FORCE)
+set(OptimizedMode	true	CACHE BOOL "Should the compiler optimize our code?" FORCE)
 set(TestMode		true	CACHE BOOL "Special mode which speeds up development (additional console window, etc)." FORCE)
-set(VerboseMode		true	CACHE BOOL "Enable as much information as possible, more logging means also slower code." FORCE)
+set(VerboseMode		false	CACHE BOOL "Enable as much information as possible, more logging means also slower code." FORCE)
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 message("  ○ DebugMode:     ${DebugMode}")
 message("  ○ OptimizedMode: ${OptimizedMode}")
@@ -69,24 +69,31 @@ add_definitions(-D_HAS_STD_BYTE=0)
 #add_definitions(-DUNICODE -D_UNICODE)
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 if(${DebugMode})
-	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/sdl " "/showIncludes " "/RTC ")
+	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/diagnostics:column /JMC /sdl ")
 else()
-	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/Yu ")
+	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} " ")
 endif()
 if(${VerboseMode})
-	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/Wall ")
+	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/analyze /W4 ") # Wall is to heavy...
 endif()
 if(${OptimizedMode})
 	# Minimize Size: O1, Maximize Speed 02
-	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/O2 /RTC-")
+	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/cgthreads8 /GL /Gw ")
+    message(${CMAKE_BUILD_TYPE})
+    if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+	    set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/O2 ")
+    endif()
 endif()
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 if(MSVC)
 	# ToDo: Currently the variable in the function doesn't work as expected!?
 	# ToDo: Assimp crashes if module support is activated.
-	string (REPLACE ";" " " CompilerArgumentsMSVC ${CompilerArgumentsMSVC})
-	message("  ○ CompileOptions: '/bigobj /nologo /std:c++latest /utf-8 [ToDo: ${CompilerArgumentsMSVC} /experimental:module /Zc:preprocessor]'")
-	add_compile_options(/bigobj /nologo /std:c++latest /utf-8 /arch:AVX2 /fp:fast) # /experimental:module /Zc:preprocessor ?? /experimental:source_location??
+	string (JOIN ";" CompilerArgumentsMSVC ${CompilerArgumentsMSVC})
+    string (REPLACE " " ";" CompilerArgumentsMSVC ${CompilerArgumentsMSVC})
+	message("  ○ CompileOptions: '/nologo /bigobj /JMC /MP2048 /std:c++latest /utf-8 /arch:AVX2 /Zc:preprocessor ${CompilerArgumentsMSVC}'")
+	add_compile_options(/nologo /bigobj /MP2048 /std:c++latest /utf-8 /arch:AVX2 /Zc:preprocessor ${CompilerArgumentsMSVC})
+    
+    #  /fp:fast
 else()
 endif()
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
