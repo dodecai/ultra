@@ -1,6 +1,6 @@
-#include "GLBuffer.h"
+﻿#include "GLBuffer.h"
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 namespace Ultra {
 

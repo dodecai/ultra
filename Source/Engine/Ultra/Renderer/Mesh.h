@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include "Ultra.pch"
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 

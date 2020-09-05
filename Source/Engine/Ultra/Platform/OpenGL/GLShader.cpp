@@ -1,6 +1,6 @@
-#include "GLShader.h"
+﻿#include "GLShader.h"
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <Omnia/System/FileSystem.h>
@@ -23,8 +23,6 @@ GLShader::GLShader(const string &source) {
 }
 
 GLShader::GLShader(const string &vertexSource, const string &fragmentSource) {
-	gladLoadGL();
-
 	std::unordered_map<GLenum, std::string> sources;
 	sources[GL_VERTEX_SHADER] = ReadFile(vertexSource);
 	sources[GL_FRAGMENT_SHADER] = ReadFile(fragmentSource);

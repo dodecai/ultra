@@ -33,7 +33,7 @@ public:
         CurrentScene = CreateReference<Scene>();
 
         BackgroundMusic = CurrentScene->CreateEntity("Background Music");
-        BackgroundMusic.AddComponent<Component::Sound>("Assets/Audio/Angels Dream - Aakash Gandhi.ogg");
+        BackgroundMusic.AddComponent<Component::Sound>("Assets/Sounds/Angels Dream - Aakash Gandhi.ogg");
 
         CameraEntity = CurrentScene->CreateEntity("Camera");
         CameraEntity.AddComponent<Component::Camera>();
@@ -118,6 +118,7 @@ public:
             UI::Property("Grid X:", GridX, 1.0f, 25.0f);
             UI::Property("Grid Y:", GridY, 1.0f, 25.0f);
             UI::Property("Rotation Speed:", RoatationSpeed, 0.0f, 120.0f);
+
         }
         ImGui::End();
 

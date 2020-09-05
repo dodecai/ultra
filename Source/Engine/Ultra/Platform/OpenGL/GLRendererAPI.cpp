@@ -1,39 +1,40 @@
-#include "GLRendererAPI.h"
+﻿#include "GLRendererAPI.h"
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 #define APP_MODE_DEBUG
 
 namespace Ultra {
 
 // Callbacks (internal)
-void APIENTRY GLMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
-	switch (type) {
-		case GL_DEBUG_TYPE_ERROR:					{ applog << Log::Error;		break; }
-		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:		{ applog << Log::Warning;	break; }
-		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:		{ applog << Log::Warning;	break; }
-		case GL_DEBUG_TYPE_PORTABILITY:				{ applog << Log::Trace;		break; }
-		case GL_DEBUG_TYPE_PERFORMANCE:				{ applog << Log::Trace;		break; }
-		case GL_DEBUG_TYPE_OTHER:					{ applog << Log::Trace;		break; }
-		default:									{ applog << Log::Critical;	break; }
-	}
-	applog << "[Ultra::GLRendererAPI::Message]" << message << "{" <<
-		"ID:"		<< id		<< " | " <<
-		"Source:"	<< source	<< " | " <<
-		"Severity:" << severity	<<
-	"}\n";
-}
+//void APIENTRY GLMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+//	switch (type) {
+//		case GL_DEBUG_TYPE_ERROR:					{ applog << Log::Error;		break; }
+//		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:		{ applog << Log::Warning;	break; }
+//		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:		{ applog << Log::Warning;	break; }
+//		case GL_DEBUG_TYPE_PORTABILITY:				{ applog << Log::Trace;		break; }
+//		case GL_DEBUG_TYPE_PERFORMANCE:				{ applog << Log::Trace;		break; }
+//		case GL_DEBUG_TYPE_OTHER:					{ applog << Log::Trace;		break; }
+//		default:									{ applog << Log::Critical;	break; }
+//	}
+//	applog << "[Ultra::GLRendererAPI::Message]" << message << "{" <<
+//		"ID:"		<< id		<< " | " <<
+//		"Source:"	<< source	<< " | " <<
+//		"Severity:" << severity	<<
+//	"}\n";
+//}
 
 
 // Default
 void GLRendererAPI::Load() {
-	gladLoadGL();
+	//gladLoadGL();
+    gladLoaderLoadGL();
 
 	#ifdef APP_MODE_DEBUG
 		if (glDebugMessageCallback) {
 			glEnable(GL_DEBUG_OUTPUT);
 			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-			glDebugMessageCallback(GLMessageCallback, nullptr);
+			//glDebugMessageCallback(GLMessageCallback, nullptr);
 			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
 		} else {
 			AppLogWarning("[Ultra::RendererAPI::GL]: ", "The feature 'DebugMessageCallback' isn't available!");

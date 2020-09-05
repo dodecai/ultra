@@ -83,8 +83,8 @@ void PropertiesPanel::GuiUpdate() {
                 // Information
                 ImGui::SetNextItemOpen(true, ImGuiCond_Once);
                 if (ImGui::CollapsingHeader("Information")) {
-                    auto &id = Context.GetComponent<Component::Identifier>();
-                    UI::Property("ID", "%X", id);
+                    const string &id = Context.GetComponent<Component::Identifier>();
+                    UI::Property("ID", "%s", id.c_str());
                     UI::Property("Type", "%s", "undefined");
                 }
 

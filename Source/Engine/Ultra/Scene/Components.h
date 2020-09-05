@@ -28,6 +28,7 @@ namespace Ultra::Component {
 // Descriptive Components
 struct Identifier {
     // Accessors
+    operator string() { return ID; }
     operator uint64_t() { return ID; }
     operator const uint64_t() const { return ID; }
 
