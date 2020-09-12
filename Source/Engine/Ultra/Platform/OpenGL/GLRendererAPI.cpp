@@ -27,7 +27,6 @@ namespace Ultra {
 
 // Default
 void GLRendererAPI::Load() {
-	//gladLoadGL();
     gladLoaderLoadGL();
 
 	#ifdef APP_MODE_DEBUG

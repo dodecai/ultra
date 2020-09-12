@@ -60,8 +60,11 @@ class RendererAPI {
 public:
 	// Enumerations
 	enum class API {
-		Null		= 0x0,
-		OpenGL		= 0x1,
+        Null		= 0x00,
+        DirectX		= 0x10,
+        Metal		= 0x30,
+        OpenGL		= 0x40,
+        Vulkan		= 0x50,
 	};
 
 	enum class Type {

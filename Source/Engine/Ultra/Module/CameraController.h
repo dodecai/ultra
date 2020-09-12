@@ -40,6 +40,7 @@ class CameraController {
 
 public:
     CameraController(float apsectRatio, bool rotation = false);
+    CameraController(CameraController &right) = default;
 
     void Update(Timestamp deltaTime);
     void Resize(float width, float height);

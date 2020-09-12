@@ -34,6 +34,7 @@ void PropertiesPanel::GuiUpdate() {
             ImGui::SetNextItemOpen(true, ImGuiCond_Once);
             if (ImGui::CollapsingHeader(tag)) {
 
+
                 // Caption
                 string &tag = Context.GetComponent<Component::Tag>();
                 tag.reserve(1024);

@@ -1,6 +1,9 @@
 ﻿#include <Ultra.h>
 #include <Ultra/EntryPoint.h>
 
+//#define RAW_RENDERER_TEST
+#define VULKAN_TESTS1
+
 #include "Spectra/Designer.cpp"
 
 // Application
@@ -10,16 +13,20 @@ class Spectra: public Application {
 public:
     Spectra(const ApplicationProperties &properties): Application(properties) {
         auto &resolution = Application::GetConfig().GetSetting("Designer", "Resolution");
-		Renderer::Load();
+        #ifndef VULKAN_TESTS
+        Renderer::Load();
+        #endif
 	}
 
 	void Create() override {
-		PushLayer(new Designer());
+        PushLayer(new Designer());
 	}
 
 	void Update(Timestamp deltaTime) override {
 		// ToDo: Should be executed by default... +Switch to white on light theme Render
+        #ifndef VULKAN_TESTS
 		RenderCommand::Clear();
+        #endif
 	}
 };
 

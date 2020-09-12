@@ -9,8 +9,6 @@
 #include "Menu/Menues.h"
 #include "Panel/Panels.h"
 
-//#define RAW_RENDERER_TEST
-
 namespace Ultra {
 
 enum class DesignerState {
@@ -21,14 +19,16 @@ enum class DesignerState {
 
 class Designer: public Layer {
 public:
-    Designer(): Layer("Core"),
-        ClearColor { 0.0f, 0.0f, 0.0f, 0.72f },
-        GridColor (0.8f, 0.8f, 0.2f, 0.72f),
-        SceneCamera (1.33f) {
+    Designer(): Layer("Core") {
+        #ifndef VULKAN_TESTS
+        ClearColor =  { 0.0f, 0.0f, 0.0f, 0.72f };
+        GridColor = { 0.8f, 0.8f, 0.2f, 0.72f };
+        #endif
+        SetStyle();
     }
 
     void Create() override {
-        SetStyle();
+        #ifndef VULKAN_TESTS
 
         CurrentScene = CreateReference<Scene>();
 
@@ -57,6 +57,7 @@ public:
         GridShader->SetFloat("uResolution", 1000.0f);
         GridShader->SetFloat("uScaling", 24.0f);
 
+        #endif
     }
 
     void GuiUpdate() override {
@@ -66,14 +67,18 @@ public:
         // ToDo: Put disabled Items here
         ImGui::PopItemFlag();
         ImGui::PopStyleVar();
+        #ifndef VULKAN_TESTS
         Browser.GuiUpdate();
+        #endif
 
+        #ifndef VULKAN_TESTS
         static bool alwaysOpen = true;
         if (Menu::ViewportRender) {
             Viewport.Enable();
         } else {
             Viewport.Disable();
         }
+        #endif
 
         /**
          * @brief Menus
@@ -97,7 +102,9 @@ public:
         if (consoleOpen) View::ShowExampleAppConsole(&consoleOpen);
 
         // Scene
+        #ifndef VULKAN_TESTS
         Viewport.GuiUpdate();
+        #endif
 
         // Properties
         auto &selectedNode = Browser.GetSelectedNode();
@@ -110,6 +117,9 @@ public:
 
 
         // Test
+        #ifndef VULKAN_TESTS
+
+
         ImGui::Begin("Test");
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::CollapsingHeader("Grid")) {
@@ -121,6 +131,7 @@ public:
 
         }
         ImGui::End();
+        #endif
 
         // Statistics
         ImGui::Begin("Statistics");
@@ -194,6 +205,7 @@ public:
     }
 
     void Update(Timestamp deltaTime) override {
+        #ifndef VULKAN_TESTS
         // Preparation
         Renderer2D::ResetStatistics();
         if (Viewport.IsEnabled()) { Viewport.BindBuffer(); }
@@ -255,6 +267,7 @@ public:
             CurrentScene->Update(deltaTime);
         #endif
         if (Viewport.IsEnabled()) { Viewport.UnbindBuffer(); }
+        #endif
     }
 
     void KeyboardEvent(KeyboardEventData data) override {
@@ -272,24 +285,30 @@ public:
     }
 
     void MouseEvent(MouseEventData data) override {
+        #ifndef VULKAN_TESTS
         if (data.Action == MouseAction::Wheel) {
             SceneCamera.MouseEvent(data);
         }
+        #endif
     }
 
     void WindowEvent(WindowEventData data) override {
+        #ifndef VULKAN_TESTS
         if (data.Action == WindowAction::Resize) {
             Renderer::Resize(data.Width, data.Height);
             SceneCamera.Resize(data.Width, data.Height);
             CurrentScene->Resize(Application::GetWindow().GetContexttSize().Width, Application::GetWindow().GetContexttSize().Height);
         }
+        #endif
     }
 
 private:
     // Panels
     SceneBrowser Browser;
-    PropertiesPanel SceneProperties;
+    #ifndef VULKAN_TESTS
     ViewportPanel Viewport;
+    #endif
+    PropertiesPanel SceneProperties;
     TextEditor ScriptEditor;
 
     // Scene
@@ -301,7 +320,9 @@ private:
 
     Ultra::Audio::Source BackgroundMusicPlayer = {};
 
-    CameraController SceneCamera;
+
+    #ifndef VULKAN_TESTS
+    CameraController SceneCamera { 1.33f };
 
     glm::vec4 ClearColor;
     glm::vec4 GridColor;
@@ -312,6 +333,7 @@ private:
     float GridX = 5.0f;
     float GridY = 5.0f;
     float RoatationSpeed = 5.0f;
+    #endif
 };
 
 }

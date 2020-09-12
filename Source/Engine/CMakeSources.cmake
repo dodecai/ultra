@@ -52,6 +52,12 @@ set(ENGINE_RENDERER_HEADERS
 	"Ultra/Platform/OpenGL/GLShader.h"
 	"Ultra/Platform/OpenGL/GLTexture.h"
 	"Ultra/Platform/OpenGL/GLVertexArray.h"
+    
+	"Ultra/Platform/Vulkan/VKBuffer.h"
+	"Ultra/Platform/Vulkan/VKFramebuffer.h"
+	"Ultra/Platform/Vulkan/VKRendererAPI.h"
+	"Ultra/Platform/Vulkan/VKShader.h"
+	"Ultra/Platform/Vulkan/VKTexture.h"
 )
 set(ENGINE_RENDERER_SOURCES
 	"Ultra/Renderer/Buffer.cpp"
@@ -73,6 +79,12 @@ set(ENGINE_RENDERER_SOURCES
 	"Ultra/Platform/OpenGL/GLShader.cpp"
 	"Ultra/Platform/OpenGL/GLTexture.cpp"
 	"Ultra/Platform/OpenGL/GLVertexArray.cpp"
+    
+	"Ultra/Platform/Vulkan/VKBuffer.cpp"
+	"Ultra/Platform/Vulkan/VKFramebuffer.cpp"
+	"Ultra/Platform/Vulkan/VKRendererAPI.cpp"
+	"Ultra/Platform/Vulkan/VKShader.cpp"
+	"Ultra/Platform/Vulkan/VKTexture.cpp"
 )
 list(APPEND ENGINE_HEADERS ${ENGINE_RENDERER_HEADERS})
 list(APPEND ENGINE_SOURCES ${ENGINE_RENDERER_SOURCES})
