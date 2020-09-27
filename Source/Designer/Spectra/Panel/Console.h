@@ -218,7 +218,7 @@ public:
 			Add(Ultra::apptime.GetTimeStamp() + ": [Debug] Debug Message");
 			Add(Ultra::apptime.GetTimeStamp() + ": [Trace] Trace Message");
 		} else {
-			std::string &message = "unknown command '" + command + "'";
+			std::string message = "unknown command '" + command + "'";
 			Add(message);
 		}
 

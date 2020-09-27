@@ -58,6 +58,8 @@ set(ENGINE_RENDERER_HEADERS
 	"Ultra/Platform/Vulkan/VKRendererAPI.h"
 	"Ultra/Platform/Vulkan/VKShader.h"
 	"Ultra/Platform/Vulkan/VKTexture.h"
+
+	"Ultra/Platform/Vulkan/VKTest.h"
 )
 set(ENGINE_RENDERER_SOURCES
 	"Ultra/Renderer/Buffer.cpp"
@@ -85,6 +87,8 @@ set(ENGINE_RENDERER_SOURCES
 	"Ultra/Platform/Vulkan/VKRendererAPI.cpp"
 	"Ultra/Platform/Vulkan/VKShader.cpp"
 	"Ultra/Platform/Vulkan/VKTexture.cpp"
+    
+	"Ultra/Platform/Vulkan/VKTest.cpp"
 )
 list(APPEND ENGINE_HEADERS ${ENGINE_RENDERER_HEADERS})
 list(APPEND ENGINE_SOURCES ${ENGINE_RENDERER_SOURCES})

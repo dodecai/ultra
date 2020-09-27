@@ -32,9 +32,8 @@ void PropertiesPanel::GuiUpdate() {
         if (Context.HasComponent<Component::Tag>()) {
             const char *tag = Context.GetComponent<Component::Tag>();
             ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+
             if (ImGui::CollapsingHeader(tag)) {
-
-
                 // Caption
                 string &tag = Context.GetComponent<Component::Tag>();
                 tag.reserve(1024);
@@ -42,16 +41,45 @@ void PropertiesPanel::GuiUpdate() {
 
                 // Camera
                 if (Context.HasComponent<Component::Camera>()) {
-                    static bool primary = Context.GetComponent<Component::Camera>().Primary;
-                    UI::Property("Primary", primary);
-                    Context.GetComponent<Component::Camera>().Primary = primary;
-
                     auto &camera = Context.GetComponent<Component::Camera>().mCamera;
-                    float os = camera.GetOrthographicSize();
+                    auto &cameraComponent = Context.GetComponent<Component::Camera>();
 
-                    if (ImGui::DragFloat("Zoom", &os, 1.0f, 0.1f, 120.0f)) {
-                        camera.SetOrthographicSize(os);
+                    if (ImGui::Checkbox("Primary", &cameraComponent.Primary)) {
                     }
+
+                    const char *projectionTypes[] = { "Perspective", "Orthographic" };
+                    static int currentType = (int)camera.GetProjectionType();
+                    if (ImGui::Combo("Projection", &currentType, projectionTypes, IM_ARRAYSIZE(projectionTypes))) {
+                        camera.SetProjectionType((SceneCamera::ProjectionType)currentType);
+                    }
+
+                    if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective) {
+                        float fov = glm::degrees(camera.GetPerspectiveVerticalFOV());
+                        if (ImGui::DragFloat("FOV", &fov, 1.0f, 0.1f, 120.0f)) {
+                            camera.SetPerspectiveVerticalFOV(glm::radians(fov));
+                        }
+                    }
+
+                    if (camera.GetProjectionType() == SceneCamera::ProjectionType::Orthographic) {
+                        if (ImGui::Checkbox("Fix Aspect Ratio", &cameraComponent.FixedAspectRatio)) {
+                        }
+
+                        float os = camera.GetOrthographicSize();
+                        if (ImGui::DragFloat("Size", &os, 1.0f, 0.1f, 120.0f)) {
+                            camera.SetOrthographicSize(os);
+                        }
+                    }
+
+                    float near = camera.GetNearClip();
+                    if (ImGui::DragFloat("Near", &near, 1.0f, -120.0f, 120.0f)) {
+                        camera.SetNearClip(near);
+                    }
+
+                    float far = camera.GetFarClip();
+                    if (ImGui::DragFloat("Far", &far, 1.0f, -120.0f, 120.0f)) {
+                        camera.SetFarClip(far);
+                    }
+
                 }
 
                 // Sound
@@ -63,8 +91,7 @@ void PropertiesPanel::GuiUpdate() {
 
                 // Transform
                 if (Context.HasComponent<Component::Transform>()) {
-                    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-                    if (ImGui::CollapsingHeader("Transform")) {
+                    if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
                         auto &transform = Context.GetComponent<Component::Transform>().mTransform;
 
                         glm::vec3 scale;
@@ -77,7 +104,7 @@ void PropertiesPanel::GuiUpdate() {
 
                         ImGui::DragFloat3("Size", glm::value_ptr(scale));
                         ImGui::DragFloat3("Rotation", glm::value_ptr(orientation));
-                        ImGui::DragFloat3("Position", glm::value_ptr(transform[3]));
+                        ImGui::DragFloat3("Position", glm::value_ptr(transform[3]), 0.01f);
                     }
                 }
 
@@ -94,6 +121,10 @@ void PropertiesPanel::GuiUpdate() {
         ImGui::Separator();
     }
     ImGui::End();
+}
+
+void PropertiesPanel::DrawComponent() {
+
 }
 
 void PropertiesPanel::SetContext(Entity &entity) {

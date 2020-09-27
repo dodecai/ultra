@@ -38,7 +38,7 @@ void Scene::Update(Timestamp deltaTime) {
     {
         auto view = Registry.view<Component::Camera, Component::Transform>();
         for (auto entity : view) {
-            auto &[camera, transform] = view.get<Component::Camera, Component::Transform>(entity);
+            auto [camera, transform] = view.get<Component::Camera, Component::Transform>(entity);
 
             if (camera.Primary) {
                 sceneCamera = &camera.mCamera;
@@ -52,7 +52,7 @@ void Scene::Update(Timestamp deltaTime) {
             try {
                 auto group = Registry.group<Component::Transform>(entt::get<Component::Sprite>);
                 for (auto entity : group) {
-                    auto &[transform, sprite] = group.get<Component::Transform, Component::Sprite>(entity);
+                    auto [transform, sprite] = group.get<Component::Transform, Component::Sprite>(entity);
 
                     Renderer2D::DrawQuad(transform, sprite.Color);
                 }

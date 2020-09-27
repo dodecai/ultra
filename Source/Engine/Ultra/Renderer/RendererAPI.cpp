@@ -2,7 +2,6 @@
 #include "Ultra/Platform/OpenGL/GLRendererAPI.h"
 #include "Ultra/Platform/Vulkan/VKRendererAPI.h"
 
-
 namespace Ultra {
 
 // Properties

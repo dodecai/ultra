@@ -1,6 +1,8 @@
 ﻿#include <Ultra.h>
 #include <Ultra/EntryPoint.h>
 
+//import test;
+
 //#define RAW_RENDERER_TEST
 #define VULKAN_TESTS1
 
@@ -12,10 +14,8 @@ namespace Ultra {
 class Spectra: public Application {
 public:
     Spectra(const ApplicationProperties &properties): Application(properties) {
-        auto &resolution = Application::GetConfig().GetSetting("Designer", "Resolution");
-        #ifndef VULKAN_TESTS
+        auto resolution = Application::GetConfig().GetSetting("Designer", "Resolution");
         Renderer::Load();
-        #endif
 	}
 
 	void Create() override {
@@ -24,9 +24,7 @@ public:
 
 	void Update(Timestamp deltaTime) override {
 		// ToDo: Should be executed by default... +Switch to white on light theme Render
-        #ifndef VULKAN_TESTS
 		RenderCommand::Clear();
-        #endif
 	}
 };
 

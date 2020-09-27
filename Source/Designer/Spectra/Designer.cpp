@@ -37,10 +37,14 @@ public:
 
         CameraEntity = CurrentScene->CreateEntity("Camera");
         CameraEntity.AddComponent<Component::Camera>();
+        CameraEntity.GetComponent<Component::Camera>().Primary = true;
         CameraEntity.AddComponent<Component::NativeScript>().Bind<CameraSystem>();
 
         SquareEntity = CurrentScene->CreateEntity("Square");
         SquareEntity.AddComponent<Component::Sprite>(glm::vec4 { 0.02f, 0.02f, 0.72f, 1.0f });
+
+        auto SquareEntity2 = CurrentScene->CreateEntity("Square Red");
+        SquareEntity2.AddComponent<Component::Sprite>(glm::vec4 { 0.72f, 0.02f, 0.02f, 1.0f });
 
         CameraEntity2 = CurrentScene->CreateEntity("2nd Camera");
         CameraEntity2.AddComponent<Component::Camera>();

@@ -9,7 +9,10 @@ Renderer::SceneData *Renderer::mSceneData = new Renderer::SceneData;
 
 void Renderer::Load() {
 	RenderCommand::Load();
-	Renderer2D::Load();
+    // ToDo: Work on Vulkan Support
+    if (RendererAPI::GetAPI() == RendererAPI::API::OpenGL) {
+        Renderer2D::Load();
+    }
 }
 
 void Renderer::BeginScene(Camera &camera) {

@@ -39,6 +39,10 @@ void SceneBrowser::DrawEntityNode(Entity entity) {
         SelectionContext = entity;
     }
 
+    if (ImGui::IsWindowHovered() && ImGui::IsMouseDown(0)) {
+        SelectionContext = {};
+    }
+
     if (opened) {
 
 

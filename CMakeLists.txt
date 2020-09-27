@@ -78,10 +78,11 @@ if(${VerboseMode})
 endif()
 if(${OptimizedMode})
 	# Minimize Size: O1, Maximize Speed 02
-	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/cgthreads8 /GL /Gw ")
+    # ToDo: Recheck /GL after cl upgrade 
+	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/cgthreads8 ")
     message(${CMAKE_BUILD_TYPE})
     if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
-	    set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/O2 ")
+	    set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/O2 /Gw")
     endif()
 endif()
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐

@@ -16,6 +16,7 @@ public:
 
 private:
     void Draw();
+    void DrawComponent();
 
 private:
     Entity Context;

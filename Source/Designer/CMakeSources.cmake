@@ -4,6 +4,9 @@ set (DESIGNER_SOURCES "")
 
 # Default
 set(DESIGNER_DEFAULT_HEADERS )
+set(DESIGNER_DEFAULT_MODULES
+	"Module.ixx"
+)
 set(DESIGNER_DEFAULT_SOURCES
 	"Spectra.cpp"
 )
