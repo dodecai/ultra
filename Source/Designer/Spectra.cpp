@@ -1,11 +1,6 @@
 ﻿#include <Ultra.h>
 #include <Ultra/EntryPoint.h>
 
-//import test;
-
-//#define RAW_RENDERER_TEST
-#define VULKAN_TESTS1
-
 #include "Spectra/Designer.cpp"
 
 // Application

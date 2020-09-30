@@ -7,6 +7,29 @@
 
 namespace Ultra {
 
+enum class CameraTypes {
+    Orthographic    = 0,
+    Perspective     = 1
+};
+
+class Camera {
+public:
+    Camera() = default;
+    Camera(const glm::mat4 &projection): Projection { projection } {}
+    virtual ~Camera() = default;
+
+    const float GetExposure() const { return Exposure; }
+    const glm::mat4 &GetProjection() const { return Projection; }
+
+    void SetProjection(const glm::mat4 &projection) { Projection = projection; }
+
+protected:
+    float Exposure = 1.0f;
+    glm::mat4 Projection = glm::mat4(1.0f);
+};
+
+
+// ToDo: CleanUp old stuff
 struct CameraBounds {
 	float Left, Right;
 	float Bottom, Top;
@@ -42,18 +65,14 @@ enum class CameraMovement {
 	Forward,
 };
 
-enum class CameraType {
-	Orthographic,
-	Perspective
-};
-
 class CameraController;
 
-class Camera {
+// ToDo: All-In-One camera class vs specific class
+class PerspectiveCamera {
 	friend CameraController;
 
 	// Properties
-	CameraType Type = CameraType::Orthographic;
+	CameraTypes Type = CameraTypes::Orthographic;
 
 	glm::mat4 ProjectionMatrix = {};
 	glm::mat4 ViewMatrix = {};
@@ -74,8 +93,8 @@ class Camera {
 
 public:
 	// Constructors
-	Camera(glm::mat4 projection);
-	Camera(float left, float right, float buttom, float top);
+	PerspectiveCamera(glm::mat4 projection);
+	PerspectiveCamera(float left, float right, float buttom, float top);
 
 	// Accessors
 	const glm::vec3 &GetDirection(CameraDirection direction) const;
@@ -94,7 +113,6 @@ public:
 	void SetYaw(float rotation) { Yaw = rotation; }
 };
 
-// ToDo: All-In-One camera class vs specific class
 class OrthographicCamera {
 	glm::mat4 ProjectionMatrix;
 	glm::mat4 ViewMatrix;
@@ -120,20 +138,5 @@ public:
 private:
 	void CalculateViewMatrix();
 };
-
-
-
-class CameraNew {
-public:
-    CameraNew() = default;
-    CameraNew(const glm::mat4 &projection): Projection { projection } {}
-    virtual ~CameraNew() = default;
-
-    const glm::mat4 &GetProjection() const { return Projection; };
-
-protected:
-    glm::mat4 Projection = glm::mat4(1.0f);
-};
-
 
 }

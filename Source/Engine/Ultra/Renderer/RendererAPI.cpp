@@ -9,10 +9,11 @@ RendererAPI::API RendererAPI::s_API = RendererAPI::API::OpenGL;
 
 // Default
 RendererAPI *RendererAPI::Create() {
-	switch (s_API) {
-		case RendererAPI::API::Null:		{ return nullptr; }
-		case RendererAPI::API::OpenGL:		{ return new GLRendererAPI(); }
-        case RendererAPI::API::Vulkan:		{ return new VKRendererAPI(); }
+    Context::API = GraphicsAPI::OpenGL;
+	switch (Context::API) {
+		case GraphicsAPI::Null:		    { return nullptr; }
+		case GraphicsAPI::OpenGL:		{ return new GLRendererAPI(); }
+        case GraphicsAPI::Vulkan:		{ return new VKRendererAPI(); }
 	}
 	AppLogCritical("[Ultra::RendererAPI::Create]: ", "The selected RendererAPI is currently not supported!");
 	return nullptr;

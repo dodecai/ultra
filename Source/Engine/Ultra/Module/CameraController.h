@@ -17,7 +17,7 @@ class CameraController {
     float ZoomLevel = 1.0f;
 
     CameraBounds Bounds;
-    Camera Camera;
+    PerspectiveCamera Camera;
 
     float CameraAcceleration = 0.1f;
     float CameraSensitivity = 0.1f;
@@ -45,8 +45,8 @@ public:
     void Update(Timestamp deltaTime);
     void Resize(float width, float height);
 
-    Ultra::Camera &GetCamera() { return Camera; }
-    const Ultra::Camera &GetCamera() const { return Camera; }
+    Ultra::PerspectiveCamera &GetCamera() { return Camera; }
+    const Ultra::PerspectiveCamera &GetCamera() const { return Camera; }
 
     const CameraBounds& GetBounds() const { return Bounds; }
     float GetZoomLevel() const { return ZoomLevel; };

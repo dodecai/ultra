@@ -7,6 +7,13 @@ namespace Ultra {
 
 Renderer::SceneData *Renderer::mSceneData = new Renderer::SceneData;
 
+struct RendererData
+{
+    Reference<RenderPass> ActiveRenderPass;
+};
+
+static RendererData sData;
+
 void Renderer::Load() {
 	RenderCommand::Load();
     // ToDo: Work on Vulkan Support
@@ -15,8 +22,25 @@ void Renderer::Load() {
     }
 }
 
-void Renderer::BeginScene(Camera &camera) {
+void Renderer::BeginScene(PerspectiveCamera &camera) {
 	mSceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+}
+
+void Renderer::BeginRenderPass(Reference<RenderPass> renderPass, bool clear) {
+    sData.ActiveRenderPass = renderPass;
+    if (sData.ActiveRenderPass) {
+        renderPass->GetProperties().Framebuffer->Bind();
+        if (clear) {
+            const glm::vec4 &clearColor = renderPass->GetProperties().Framebuffer->GetProperties().ClearColor;
+            // RenderAPI::Clear(clearColor) better!?
+            RenderCommand::SetClearColor(clearColor);
+            RenderCommand::Clear();
+        }
+    }
+}
+
+void Renderer::EndRenderPass() {
+    if(sData.ActiveRenderPass) sData.ActiveRenderPass->GetProperties().Framebuffer->Unbind();
 }
 
 
@@ -25,15 +49,6 @@ void Renderer::EndScene() {
 
 void Renderer::Resize(const uint32_t width, const uint32_t height) {
 	RenderCommand::SetViewport(0, 0, width, height);
-}
-
-void Renderer::Submit(const std::shared_ptr<Shader> &shader, const std::shared_ptr<VertexArray> &vertexArray, const glm::mat4 &transform) {
-	shader->Bind();
-	shader->SetMat4("u_ViewProjection", mSceneData->ViewProjectionMatrix);
-	shader->SetMat4("u_Transform", transform);
-
-	vertexArray->Bind();
-	RenderCommand::DrawIndexed(vertexArray);
 }
 
 }

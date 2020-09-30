@@ -17,8 +17,6 @@ void VKRendererAPI::Clear() {
     VulkanTest->Update();
 }
 
-void VKRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray> &vertexArray, uint32_t indexCount) {
-}
 void VKRendererAPI::DrawIndexed(uint32_t count, Type type, bool depthTest) {}
 
 void VKRendererAPI::SetClearColor(const glm::vec4 &color) {}

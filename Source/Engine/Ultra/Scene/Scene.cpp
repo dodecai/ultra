@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "Entity.h"
+#include "Ultra/Renderer/Renderer.h"
 #include "Ultra/Renderer/Renderer2D.h"
 
 namespace Ultra {
@@ -33,7 +34,7 @@ void Scene::Update(Timestamp deltaTime) {
 
 
     // 2D 
-    CameraNew *sceneCamera = nullptr;
+    Camera *sceneCamera = nullptr;
     glm::mat4 *cameraTransform = nullptr;
     {
         auto view = Registry.view<Component::Camera, Component::Transform>();

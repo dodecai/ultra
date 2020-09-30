@@ -4,7 +4,7 @@
 
 namespace Ultra {
 
-class SceneCamera: public CameraNew {
+class SceneCamera: public Camera {
 public:
     enum class ProjectionType {
         Perspective     = 0,

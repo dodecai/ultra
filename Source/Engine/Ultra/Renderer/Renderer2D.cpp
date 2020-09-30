@@ -3,8 +3,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "RenderCommand.h"
+#include "Pipeline.h"
 #include "Shader.h"
-#include "VertexArray.h"
 
 namespace Ultra {
 
@@ -33,8 +33,9 @@ struct RendererData {
     static const uint32_t MaxLineVertices = MaxLines * 4;
     static const uint32_t MaxLineIndices = MaxLines * 6;
 
-    Reference<VertexArray> LineVertexArray;
+    Reference<Pipeline> LinePipeline;
     Reference<VertexBuffer> LineVertexBuffer;
+    Reference<IndexBuffer> LineIndexBuffer;
     Reference<Shader> LineShader;
 
     uint32_t LineIndexCount = 0;
@@ -45,18 +46,19 @@ struct RendererData {
     static const uint32_t MaxQuads = 21000;
     static const uint32_t MaxVertices = MaxQuads * 4;
     static const uint32_t MaxIndices = MaxQuads * 6;
-    // ToDo: RendererAPI::GetCapabilities().MaxTextureUnits
-    static const uint32_t MaxTextureSlots = 32;
+    static const uint32_t MaxTextureSlots = 32; // ToDo: Context::GetCapabilities().MaxTextureUnits
 
-    Reference<VertexArray> QVertexArray;
+    Reference<Pipeline> QuadPipeline;
     Reference<VertexBuffer> QVertexBuffer;
-    Reference<Shader> TextureShader;
-    Reference<Texture2D> WhiteTexture;
+    Reference<IndexBuffer> QIndexBuffer;
 
     uint32_t QIndexCount = 0;
     QuadVertex *QVertexBufferBase = nullptr;
     QuadVertex *QVertexBufferPtr = nullptr;
 
+    // Textures
+    Reference<Shader> TextureShader;
+    Reference<Texture2D> WhiteTexture;
     std::array<Reference<Texture2D>, MaxTextureSlots> TextureSlots;
     uint32_t TextureSlotIndex = 1; // 0 = White
 
@@ -69,65 +71,67 @@ static RendererData sData;
 // Default
 void Renderer2D::Load() {
     // Lines
-    sData.LineVertexArray = VertexArray::Create();
-    sData.LineVertexBuffer = VertexBuffer::Create(sData.MaxLineVertices * sizeof(LineVertex));
+    {
+        sData.LineShader = Shader::Create("Assets/Shaders/Line.glsl");
 
-    sData.LineShader = Shader::Create("Assets/Shaders/Line.glsl");
-    sData.LineVertexBuffer->SetLayout({
-        { ShaderDataType::Float3, "a_Position" },
-        { ShaderDataType::Float4, "a_Color" }
-    });
-    sData.LineVertexArray->AddVertexBuffer(sData.LineVertexBuffer);
-    
-    sData.LineVertexBufferBase = new LineVertex[sData.MaxLineVertices];
+        PipelineProperties pipelineProperties;
+        pipelineProperties.Layout = {
+            { ShaderDataType::Float3, "a_Position" },
+            { ShaderDataType::Float4, "a_Color" }
+        };
+        sData.LinePipeline = Pipeline::Create(pipelineProperties);
+        
+        sData.LineVertexBuffer = VertexBuffer::Create(sData.MaxLineVertices * sizeof(LineVertex));
+        sData.LineVertexBufferBase = new LineVertex[sData.MaxLineVertices];
 
-    uint32_t* lineIndices = new uint32_t[sData.MaxLineIndices];
-    for (uint32_t i = 0; i < sData.MaxLineIndices; i++) {
-        lineIndices[i] = i;
+        uint32_t* lineIndices = new uint32_t[sData.MaxLineIndices];
+        for (uint32_t i = 0; i < sData.MaxLineIndices; i++) {
+            lineIndices[i] = i;
+        }
+        
+        sData.LineIndexBuffer = IndexBuffer::Create(lineIndices, sData.MaxLineIndices);
+        delete[] lineIndices;
     }
-
-    Reference<IndexBuffer> lineIndexBuffer = IndexBuffer::Create(lineIndices, sData.MaxLineIndices);
-    sData.LineVertexArray->SetIndexBuffer(lineIndexBuffer);
-    delete[] lineIndices;
-
 
     // Quads
-    sData.QVertexArray = VertexArray::Create();
-    sData.QVertexBuffer = VertexBuffer::Create(sData.MaxVertices * sizeof(QuadVertex));
+    {
+        PipelineProperties pipelineProperties;
+        pipelineProperties.Layout = {
+            { ShaderDataType::Float3, "a_Position" },
+            { ShaderDataType::Float4, "a_Color" },
+            { ShaderDataType::Float2, "a_TexCoordinates" },
+            { ShaderDataType::Float, "a_TextureIndex" },
+            { ShaderDataType::Float, "a_TilingFactor" },
+        };
+        sData.QuadPipeline = Pipeline::Create(pipelineProperties);
 
-    sData.QVertexBuffer->SetLayout({
-        { ShaderDataType::Float3, "a_Position" },
-        { ShaderDataType::Float4, "a_Color" },
-        { ShaderDataType::Float2, "a_TexCoordinates" },
-        { ShaderDataType::Float, "a_TextureIndex" },
-        { ShaderDataType::Float, "a_TilingFactor" },
-    });
-    sData.QVertexArray->AddVertexBuffer(sData.QVertexBuffer);
+        sData.QVertexBuffer = VertexBuffer::Create(sData.MaxVertices * sizeof(QuadVertex));
+        sData.QVertexBufferBase = new QuadVertex[sData.MaxVertices];
 
-    sData.QVertexBufferBase = new QuadVertex[sData.MaxVertices];
+        uint32_t offset = 0;
+        uint32_t *quadIndicies = new uint32_t[sData.MaxIndices];
+        for (uint32_t i = 0; i < sData.MaxIndices; i += 6) {
+            quadIndicies[i + 0] = offset + 0;
+            quadIndicies[i + 1] = offset + 1;
+            quadIndicies[i + 2] = offset + 2;
 
-    uint32_t *quadIndicies = new uint32_t[sData.MaxIndices];
+            quadIndicies[i + 3] = offset + 2;
+            quadIndicies[i + 4] = offset + 3;
+            quadIndicies[i + 5] = offset + 0;      
+            offset += 4;
+        }
 
-    uint32_t offset = 0;
-    for (uint32_t i = 0; i < sData.MaxIndices; i += 6) {
-        quadIndicies[i + 0] = offset + 0;
-        quadIndicies[i + 1] = offset + 1;
-        quadIndicies[i + 2] = offset + 2;
-
-        quadIndicies[i + 3] = offset + 2;
-        quadIndicies[i + 4] = offset + 3;
-        quadIndicies[i + 5] = offset + 0;      
-        offset += 4;
+        sData.QIndexBuffer = IndexBuffer::Create(quadIndicies, sData.MaxIndices);
+        delete[] quadIndicies;
     }
 
-    Reference<IndexBuffer> QIndexBuffer = IndexBuffer::Create(quadIndicies, sData.MaxIndices);
-    sData.QVertexArray->SetIndexBuffer(QIndexBuffer);
-    delete[] quadIndicies;
-
+    // Miscelaneous
     sData.WhiteTexture = Texture2D::Create(1, 1);
     uint32_t whiteTextureData = 0xffffffff;
-    // ToDo: Thread Sync
+    // ToDo: Thread Syns
+    //sData.WhiteTexture->Lock();
     sData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
+    //sData.WhiteTexture->Unlock();
 
     int32_t samplers[sData.MaxTextureSlots];
     for (uint32_t i = 0; i < sData.MaxTextureSlots; i++) samplers[i] = i;
@@ -151,7 +155,7 @@ void Renderer2D::Unload() {
 }
 
 
-void Renderer2D::StartScene(const Camera &camera) {
+void Renderer2D::StartScene(const PerspectiveCamera &camera) {
     sData.DepthTest = true;
     sData.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 
@@ -166,21 +170,6 @@ void Renderer2D::StartScene(const Camera &camera) {
 
 void Renderer2D::StartScene(const Camera &camera, const glm::mat4 &transform) {
     sData.DepthTest = true;
-
-    sData.ViewProjectionMatrix = camera.GetProjectionMatrix() * glm::inverse(transform);
-
-    sData.LineIndexCount = 0;
-    sData.LineVertexBufferPtr = sData.LineVertexBufferBase;
-
-    sData.QIndexCount = 0;
-    sData.QVertexBufferPtr = sData.QVertexBufferBase;
-
-    sData.TextureSlotIndex = 1;
-}
-
-void Renderer2D::StartScene(const CameraNew &camera, const glm::mat4 &transform) {
-    sData.DepthTest = true;
-
     sData.ViewProjectionMatrix = camera.GetProjection() * glm::inverse(transform);
 
     sData.LineIndexCount = 0;
@@ -206,8 +195,9 @@ void Renderer2D::Flush() {
         sData.LineShader->Bind();
         sData.LineShader->SetMat4("u_ViewProjection", sData.ViewProjectionMatrix);
 
-        sData.LineVertexArray->Bind();
-        RenderCommand::SetLineThickness(24.0f);
+        sData.LinePipeline->Bind();
+        sData.LineIndexBuffer->Bind();
+        RenderCommand::SetLineThickness(3.0f);
         RenderCommand::DrawIndexed(sData.LineIndexCount, RendererAPI::Type::Lines, sData.DepthTest);
         sData.Stats.DrawCalls++;
     }
@@ -223,8 +213,8 @@ void Renderer2D::Flush() {
             sData.TextureSlots[i]->Bind(i);
         }
 
-        sData.QVertexArray->Bind();
-        //RenderCommand::DrawIndexed(sData.QVertexArray, sData.QIndexCount);
+        sData.QuadPipeline->Bind();
+        sData.QIndexBuffer->Bind();
         RenderCommand::DrawIndexed(sData.QIndexCount, RendererAPI::Type::Triangles, sData.DepthTest);
         sData.Stats.DrawCalls++;
     }

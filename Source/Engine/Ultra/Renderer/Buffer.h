@@ -5,6 +5,10 @@
 
 #include "RendererData.h"
 
+//#define __cpp_lib_byte
+//#include <cstddef>
+enum class byte : unsigned char {};
+
 namespace Ultra {
 
 enum class ShaderDataType: uint8_t {
@@ -115,17 +119,71 @@ enum class VertexBufferType {
 };
 
 
+struct DataBuffer {
+    byte *Data;
+    uint32_t Size;
+
+    DataBuffer(): Data { nullptr }, Size { 0 } {}
+    DataBuffer(byte *data, uint32_t size): Data { data }, Size { size } {}
+
+    static DataBuffer Copy(void *data, uint32_t size) {
+        DataBuffer buffer;
+        buffer.Allocate(size);
+        memcpy(buffer.Data, data, size);
+        return buffer;
+    }
+
+    void Allocate(uint32_t size) {
+        delete[] Data;
+        Data = nullptr;
+        if (size == 0) return;
+
+        Data = new byte[size];
+        Size = size;
+    }
+    void Initialize() {
+        if (Data) memset(Data, 0, Size);
+    }
+
+    template<typename T>
+    T *As() {
+        return (T *)Data;
+    }
+    template<typename T>
+    T &Read(uint32_t offset = 0) {
+        return *(T *)(Data + offset);
+    }
+    void Write(void *data, uint32_t size, uint32_t offset = 0) {
+        memcpy(Data + offset, data, size);
+    }
+    
+    uint32_t GetSize() const { return Size; }
+
+    operator bool() const {
+        return Data;
+    }
+    byte &operator[](int index) {
+        return Data[index];
+    }
+    byte operator[](int index) const {
+        return Data[index];
+    }
+};
+
+
 class VertexBuffer {
 public:
 	virtual ~VertexBuffer() {}
 
-	static Reference<VertexBuffer> Create(uint32_t size);
-	static Reference<VertexBuffer> Create(float *vertices, uint32_t size);
+	static Reference<VertexBuffer> Create(uint32_t size, VertexBufferType type = VertexBufferType::Dynamic);
+	static Reference<VertexBuffer> Create(void *data, uint32_t size, VertexBufferType type = VertexBufferType::Static);
 
+    virtual uint32_t GetRendererID() const = 0;
 	virtual const BufferLayout &GetLayout() const = 0;
-	virtual void SetLayout(const BufferLayout &layout) = 0;
+    virtual uint32_t GetSize() const = 0;
 
-	virtual void SetData(const void *data, uint32_t size) = 0;
+    virtual void SetLayout(const BufferLayout &layout) = 0;
+    virtual void SetData(void *data, uint32_t size, uint32_t offset = 0) = 0;
 
 	virtual void Bind() const = 0;
 	virtual void Unbind() const = 0;
@@ -136,13 +194,17 @@ class IndexBuffer {
 public:
 	virtual ~IndexBuffer() {}
 
-	static Reference<IndexBuffer> Create(uint32_t *indices, uint32_t size);
+    static Reference<IndexBuffer> Create(uint32_t size);
+	static Reference<IndexBuffer> Create(void *data, uint32_t size);
 
 	virtual void Bind() const = 0;
 	virtual void Unbind() const = 0;
 
 	virtual uint32_t GetCount() const = 0;
     virtual uint32_t GetSize() const = 0;
+    virtual uint32_t GetRendererID() const = 0;
+
+    virtual void SetData(void *data, uint32_t size, uint32_t offset = 0) = 0;
 };
 
 }

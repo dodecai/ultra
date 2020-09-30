@@ -2,10 +2,12 @@
 
 #include <glm/glm.hpp>
 
+#include "Omnia/GFX/Context.h"
 #include "Ultra.pch"
 #include "Ultra/Core.h"
 
-#include "VertexArray.h"
+//#define RAW_RENDERER_TEST
+#define VULKAN_TESTS1
 
 namespace Ultra {
 
@@ -81,7 +83,6 @@ public:
 
 	//
 	virtual void Clear() = 0;
-	virtual void DrawIndexed(const std::shared_ptr<VertexArray> &vertexArray, uint32_t indexCount = 0) = 0;
 	virtual void DrawIndexed(uint32_t count, Type type, bool depthTest = true) = 0;
 
 	// Accessors

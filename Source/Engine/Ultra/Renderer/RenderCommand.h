@@ -21,10 +21,6 @@ public:
 		s_RendererAPI->Clear();
 	};
 
-	static void DrawIndexed(const std::shared_ptr<VertexArray> &vertexArray, uint32_t indexCount = 0) {
-		s_RendererAPI->DrawIndexed(vertexArray, indexCount);
-	};
-
 	static void DrawIndexed(uint32_t count, RendererAPI::Type type, bool depthTest = true) {
 		s_RendererAPI->DrawIndexed(count, type, depthTest);
 	};

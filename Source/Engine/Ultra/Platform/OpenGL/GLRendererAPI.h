@@ -12,7 +12,6 @@ public:
 
 	// 
 	virtual void Clear() override;
-	virtual void DrawIndexed(const std::shared_ptr<VertexArray> &vertexArray, uint32_t indexCount = 0) override;
 	virtual void DrawIndexed(uint32_t count, Type type, bool depthTest = true) override;
 
 	// Mutators

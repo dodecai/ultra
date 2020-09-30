@@ -1,4 +1,4 @@
-#include "Camera.h"
+﻿#include "Camera.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -7,17 +7,17 @@ static constexpr float PI = 3.14159f;
 
 namespace Ultra {
 
-Camera::Camera(glm::mat4 projection):
+PerspectiveCamera::PerspectiveCamera(glm::mat4 projection):
 	ProjectionMatrix (projection) {
 }
 
-Camera::Camera(float left, float right, float buttom, float top) {
+PerspectiveCamera::PerspectiveCamera(float left, float right, float buttom, float top) {
 	switch (Type) {
-		case CameraType::Orthographic: {
+		case CameraTypes::Orthographic: {
 			ProjectionMatrix = glm::ortho(left, right, buttom, top, -1.0f, 1.0f);
 			break;
 		}
-		case CameraType::Perspective: {
+		case CameraTypes::Perspective: {
 			ProjectionMatrix = glm::perspectiveFov(glm::radians(45.0f), right - left, buttom - top, 0.1f, 1000000.0f);
 			Pitch = 90.0f;
 			break;
@@ -27,7 +27,7 @@ Camera::Camera(float left, float right, float buttom, float top) {
 	ViewProjectionMatrix = ProjectionMatrix * ViewMatrix;
 }
 
-const glm::vec3 &Camera::GetDirection(CameraDirection direction) const {
+const glm::vec3 &PerspectiveCamera::GetDirection(CameraDirection direction) const {
 	switch (direction) {
 		// X-Axis
 		case CameraDirection::Left:
@@ -53,17 +53,17 @@ const glm::vec3 &Camera::GetDirection(CameraDirection direction) const {
 	}
 }
 
-const glm::vec3 &Camera::GetPosition() const {
+const glm::vec3 &PerspectiveCamera::GetPosition() const {
 	return Position;
 }
 
 
-void Camera::SetProjection(float left, float right, float buttom, float top) {
+void PerspectiveCamera::SetProjection(float left, float right, float buttom, float top) {
 	ProjectionMatrix = { glm::ortho(left, right, buttom, top, -1.0f, 1.0f) };
 	ViewProjectionMatrix = ProjectionMatrix * ViewMatrix;
 }
 
-void Camera::CalculateViewMatrix() {
+void PerspectiveCamera::CalculateViewMatrix() {
 	// Calculate the new Front vector
 	//glm::vec3 front;
 	//front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));

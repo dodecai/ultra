@@ -4,6 +4,7 @@
 #include "Renderer.h"
 
 namespace Ultra {
+
 Reference<Framebuffer> Framebuffer::Create(const FramebufferProperties &properties) {
 	switch (Renderer::GetAPI()) {
 		case RendererAPI::API::Null:		{ return nullptr; }
@@ -12,4 +13,21 @@ Reference<Framebuffer> Framebuffer::Create(const FramebufferProperties &properti
 	// Unknown RendererAPI
 	return nullptr;
 }
+
+FramebufferPool::FramebufferPool(uint32_t maxBuffers) {
+    static FramebufferPool *instance = this;
+    Instance = instance;
+}
+
+FramebufferPool::~FramebufferPool() {}
+
+void FramebufferPool::Add(const Reference<Framebuffer> &framebuffer) {
+    Pool.push_back(framebuffer);
+}
+
+weak_ptr<Framebuffer> FramebufferPool::Allocate() {
+    // ToDo: Push back to Pool
+	return weak_ptr<Framebuffer>();
+}
+
 }

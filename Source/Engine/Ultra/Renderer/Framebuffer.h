@@ -3,6 +3,8 @@
 #include "Ultra.pch"
 #include "Ultra/Core.h"
 
+#include <glm/glm.hpp>
+
 namespace Ultra {
 
 enum class FramebufferFormat {
@@ -13,8 +15,9 @@ enum class FramebufferFormat {
 };
 
 struct FramebufferProperties {
-    uint32_t Width = 800;
-    uint32_t Height = 600;
+    glm::vec4 ClearColor = {};
+    uint32_t Width = 1280;
+    uint32_t Height = 1024;
     uint32_t Samples = 1;
 
     FramebufferFormat Format = FramebufferFormat::RGBA16F;
@@ -29,6 +32,7 @@ public:
     // Methods
     static Reference<Framebuffer> Create(const FramebufferProperties &properties);
     virtual void Bind() = 0;
+    virtual void BindTexture(uint32_t slot = 0) const = 0;
     virtual void Unbind() = 0;
 
     // Accessors
@@ -39,6 +43,23 @@ public:
 
     // Mutators
     virtual void Resize(uint32_t width, uint32_t height, bool reload = false) = 0;
+};
+
+class FramebufferPool final {
+public:
+    FramebufferPool(uint32_t maxBuffers = 32);
+    ~FramebufferPool();
+
+    void Add(const Reference<Framebuffer> &framebuffer);
+    weak_ptr<Framebuffer> Allocate();
+
+    static FramebufferPool *GetGlobal() { return Instance; }
+    const vector<Reference<Framebuffer>> &GetPool() const { return Pool; }
+
+
+private:
+    vector<Reference<Framebuffer>> Pool;
+    static inline FramebufferPool *Instance = nullptr;
 };
 
 }

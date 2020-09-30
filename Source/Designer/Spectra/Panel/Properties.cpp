@@ -45,6 +45,8 @@ void PropertiesPanel::GuiUpdate() {
                     auto &cameraComponent = Context.GetComponent<Component::Camera>();
 
                     if (ImGui::Checkbox("Primary", &cameraComponent.Primary)) {
+                        // ToDo: Switch other cameras to false
+
                     }
 
                     const char *projectionTypes[] = { "Perspective", "Orthographic" };

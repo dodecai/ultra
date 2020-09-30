@@ -19,6 +19,7 @@ class Entity;
 class Scene {
     friend class Entity;
     friend class SceneBrowser;
+    friend class PropertiesPanel;
 
 public:
     Scene(const string &name = "Scene");

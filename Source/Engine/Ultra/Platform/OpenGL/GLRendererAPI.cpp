@@ -27,7 +27,7 @@ namespace Ultra {
 
 // Default
 void GLRendererAPI::Load() {
-    gladLoaderLoadGL();
+    //gladLoaderLoadGL(); 
 
 	#ifdef APP_MODE_DEBUG
 		if (glDebugMessageCallback) {
@@ -40,11 +40,14 @@ void GLRendererAPI::Load() {
 		}
 	#endif
 
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 	glFrontFace(GL_CCW);
@@ -83,12 +86,6 @@ void GLRendererAPI::Unload() {
 // 
 void GLRendererAPI::Clear() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void GLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray> &vertexArray, uint32_t indexCount) {
-	uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
-	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
-	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void GLRendererAPI::DrawIndexed(uint32_t count, Type type, bool depthTest) {

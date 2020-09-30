@@ -16,6 +16,7 @@ public:
     
     // Methods
     virtual void Bind() override;
+    virtual void BindTexture(uint32_t slot = 0) const override {}
     virtual void Unbind() override;
 
     // Accessors

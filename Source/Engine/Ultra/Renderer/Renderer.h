@@ -6,6 +6,7 @@
 #include "Ultra/Core.h"
 
 #include "Camera.h"
+#include "RenderPass.h"
 #include "Shader.h"
 
 namespace Ultra {
@@ -15,18 +16,20 @@ class Renderer {
 		glm::mat4 ViewProjectionMatrix;
 	};
 
-	static SceneData *mSceneData;
-
 public:
 	static void Load();
 
-	static void BeginScene(Camera &camera);
+	static void BeginScene(PerspectiveCamera &camera);
+    static void BeginRenderPass(Reference<RenderPass> renderPass, bool clear = true);
+    static void EndRenderPass();
 	static void EndScene();
 
 	static void Resize(const uint32_t width, const uint32_t height);
-	static void Submit(const std::shared_ptr<Shader> &shader, const std::shared_ptr<VertexArray> &vertexArray, const glm::mat4 &transform = glm::mat4(1.0f));
 
 	inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
+
+private:
+    static SceneData *mSceneData;
 };
 
 }

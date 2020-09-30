@@ -29,7 +29,7 @@ void ParticleSystem::Update(Timestamp deltaTime) {
     }
 }
 
-void ParticleSystem::Render(Camera &camera) {
+void ParticleSystem::Render(PerspectiveCamera &camera) {
     Renderer2D::StartScene(camera);
     for (auto &particle : ParticlePool) {
         if (!particle.Active) continue;
