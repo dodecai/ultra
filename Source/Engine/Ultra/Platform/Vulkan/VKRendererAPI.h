@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Ultra/Renderer/RendererAPI.h"
+#include "VKContext.h"
 
 namespace Ultra {
 
@@ -19,6 +20,10 @@ public:
     virtual void SetLineThickness(float value) override;
     virtual void SetPolygonMode(PolygonMode mode) override;
     virtual void SetViewport(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
+
+private:
+    VKContext *pContext = nullptr;
+    VKDevice *Device = nullptr;
 };
 
 }
