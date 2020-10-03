@@ -16,10 +16,7 @@ static RendererData sData;
 
 void Renderer::Load() {
 	RenderCommand::Load();
-    // ToDo: Work on Vulkan Support
-    if (RendererAPI::GetAPI() == RendererAPI::API::OpenGL) {
-        Renderer2D::Load();
-    }
+    Renderer2D::Load();
 }
 
 void Renderer::BeginScene(PerspectiveCamera &camera) {

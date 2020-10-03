@@ -21,7 +21,7 @@ public:
 		s_RendererAPI->Clear();
 	};
 
-	static void DrawIndexed(uint32_t count, RendererAPI::Type type, bool depthTest = true) {
+	static void DrawIndexed(uint32_t count, PrimitiveType type, bool depthTest = true) {
 		s_RendererAPI->DrawIndexed(count, type, depthTest);
 	};
 

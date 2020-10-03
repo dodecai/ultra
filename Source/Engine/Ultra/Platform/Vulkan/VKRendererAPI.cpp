@@ -17,7 +17,7 @@ void VKRendererAPI::Clear() {
     VulkanTest->Update();
 }
 
-void VKRendererAPI::DrawIndexed(uint32_t count, Type type, bool depthTest) {}
+void VKRendererAPI::DrawIndexed(uint32_t count, PrimitiveType type, bool depthTest) {}
 
 void VKRendererAPI::SetClearColor(const glm::vec4 &color) {}
 

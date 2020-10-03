@@ -20,7 +20,7 @@ struct FramebufferProperties {
     uint32_t Height = 1024;
     uint32_t Samples = 1;
 
-    FramebufferFormat Format = FramebufferFormat::RGBA16F;
+    FramebufferFormat Format = FramebufferFormat::RGBA8;
 
     bool SwapChainTarget = false;
 };

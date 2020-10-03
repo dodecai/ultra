@@ -88,13 +88,13 @@ void GLRendererAPI::Clear() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void GLRendererAPI::DrawIndexed(uint32_t count, Type type, bool depthTest) {
+void GLRendererAPI::DrawIndexed(uint32_t count, PrimitiveType type, bool depthTest) {
 	if (!depthTest) glDisable(GL_DEPTH_TEST);
 
 	GLenum primitive = 0;
 	switch (type) {
-		case Type::Lines:		{ primitive = GL_LINES;		break; }
-		case Type::Triangles:	{ primitive = GL_TRIANGLES;	break; }
+		case PrimitiveType::Line:		{ primitive = GL_LINES;		break; }
+		case PrimitiveType::Triangle:	{ primitive = GL_TRIANGLES;	break; }
 	}
 
 	glDrawElements(primitive, count, GL_UNSIGNED_INT, nullptr);

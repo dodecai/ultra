@@ -5,6 +5,8 @@
 
 #include <Platform/GFX/Vulkan/VKContext.h>
 
+#include "VKBuffer.h"
+
 namespace Ultra {
 
 class VKTest {
@@ -17,23 +19,23 @@ public:
 
 private:
     void LoadResources();
-    void DestroyResources();
 
     void SetupCommands();
-    void CreateCommands();
-    void DestroyCommands();
+    void SetupPipeline();
+    void ReloadCommandBuffer(vk::CommandBuffer &cmd);
 
 private:
+    Reference<VertexBuffer> mVertexBuffer;
+    Reference<IndexBuffer> mIndexBuffer;
+
     static inline VKContext *pContext;
     static VKContext sContext;
 
     // ToDo: CleanUp everything not needed...
-    uint32_t QueueFamilyIndex;
     vector<vk::CommandBuffer> CommandBuffers;
     uint32_t CurrentBuffer = 0;
 
     vk::Pipeline Pipeline;
-    vk::PipelineCache PipelineCache;
     vk::PipelineLayout PipelineLayout;
 
     vk::DescriptorPool DescriptorPool;

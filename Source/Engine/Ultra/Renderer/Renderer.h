@@ -26,7 +26,7 @@ public:
 
 	static void Resize(const uint32_t width, const uint32_t height);
 
-	inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
+	inline static GraphicsAPI GetAPI() { return Context::API; }
 
 private:
     static SceneData *mSceneData;

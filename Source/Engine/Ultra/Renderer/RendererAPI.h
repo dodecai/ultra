@@ -6,9 +6,6 @@
 #include "Ultra.pch"
 #include "Ultra/Core.h"
 
-//#define RAW_RENDERER_TEST
-#define VULKAN_TESTS1
-
 namespace Ultra {
 
 // ToDo: RenderAPIData.h?
@@ -61,14 +58,6 @@ struct RendererCapabilities {
 class RendererAPI {
 public:
 	// Enumerations
-	enum class API {
-        Null		= 0x00,
-        DirectX		= 0x10,
-        Metal		= 0x30,
-        OpenGL		= 0x40,
-        Vulkan		= 0x50,
-	};
-
 	enum class Type {
 		Null	= 0,
 		Triangles,
@@ -83,10 +72,9 @@ public:
 
 	//
 	virtual void Clear() = 0;
-	virtual void DrawIndexed(uint32_t count, Type type, bool depthTest = true) = 0;
+	virtual void DrawIndexed(uint32_t count, PrimitiveType type, bool depthTest = true) = 0;
 
 	// Accessors
-	inline static API GetAPI() { return s_API; };
 	static RendererCapabilities &GetCapabilities() {
 		static RendererCapabilities capabilities;
 		return capabilities;
@@ -97,10 +85,6 @@ public:
 	virtual void SetLineThickness(float value = 1.0f) = 0;
 	virtual void SetViewport(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) = 0;
 	virtual void SetPolygonMode(PolygonMode mode = PolygonMode::Solid) = 0;
-
-private:
-    // Properties
-    static API s_API;
 };
 
 }

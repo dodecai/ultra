@@ -1,25 +1,30 @@
 ﻿#include "Shader.h"
 #include "Ultra/Platform/OpenGL/GLShader.h"
+#include "Ultra/Platform/Vulkan/VKShader.h"
 
 #include "Renderer.h"
 
 namespace Ultra {
 
 Omnia::Reference<Shader> Shader::Create(const string &source) {
-	switch (Renderer::GetAPI()) {
-		case RendererAPI::API::Null:		{ return nullptr; }
-		case RendererAPI::API::OpenGL:		{ return Omnia::CreateReference<GLShader>(source); }
+    switch (Context::API) {
+        case GraphicsAPI::Null:		{ return nullptr; }
+        case GraphicsAPI::OpenGL:	{ return Omnia::CreateReference<GLShader>(source); }
+        case GraphicsAPI::Vulkan:	{ return Omnia::CreateReference<VKShader>(source); }
+        default:                    { break; }
 	}
-	// Unknown RendererAPI
+    AppLogCritical("[Engine::Renderer::Shader] ", "The current graphics API doesn't support Shaders!");
 	return nullptr;
 }
 
 Omnia::Reference<Shader> Shader::Create(const string &vertexSource, const string &fragmentSource) {
-	switch (Renderer::GetAPI()) {
-		case RendererAPI::API::Null:		{ return nullptr; }
-		case RendererAPI::API::OpenGL:		{ return Omnia::CreateReference<GLShader>(vertexSource, fragmentSource); }
+    switch (Context::API) {
+        case GraphicsAPI::Null:		{ return nullptr; }
+        case GraphicsAPI::OpenGL:	{ return Omnia::CreateReference<GLShader>(vertexSource, fragmentSource); }
+        case GraphicsAPI::Vulkan:	{ return Omnia::CreateReference<VKShader>(vertexSource, fragmentSource); }
+        default:                    { break; }
 	}
-	// Unknown RendererAPI
+    AppLogCritical("[Engine::Renderer::Shader] ", "The current graphics API doesn't support Shaders!");
 	return nullptr;
 }
 

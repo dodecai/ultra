@@ -3,16 +3,18 @@
 #include <Omnia/GFX/Context.h>
 
 #include "Ultra/Platform/OpenGL/GLPipeline.h"
+#include "Ultra/Platform/Vulkan/VKPipeline.h"
 
 namespace Ultra {
 
 Reference<Pipeline> Pipeline::Create(const PipelineProperties &properties) {
     switch (Context::API) {
-        case GraphicsAPI::Null:		    { return nullptr; }
-        case GraphicsAPI::OpenGL:		{ return CreateReference<GLPipeline>(properties); }
-        //case GraphicsAPI::Vulkan:		{ return CreateReference<VKPipeline>(properties); }
+        case GraphicsAPI::Null:		{ return nullptr; }
+        case GraphicsAPI::OpenGL:	{ return CreateReference<GLPipeline>(properties); }
+        case GraphicsAPI::Vulkan:	{ return CreateReference<VKPipeline>(properties); }
+        default:                    { break; }
     }
-    AppLogCritical("[Ultra::Renderer::Pipeline::Create]: ", "The selected graphics API is currently not supported!");
+    AppLogCritical("[Engine::Renderer::Pipeline] ", "The current graphics API doesn't support Pipelines!");
     return nullptr;
 }
 

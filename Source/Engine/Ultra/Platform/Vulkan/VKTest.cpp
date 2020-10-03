@@ -8,6 +8,10 @@
 
 namespace Ultra {
 
+//static Reference<VKPipeline> s_CompositePipeline;
+static vk::CommandBuffer s_ImGuiCommandBuffer;
+static vk::CommandBuffer s_CompositeCommandBuffer;
+
 // ToDo: CleanUp everything not needed...
 struct Vertex {
     float position[3];
@@ -15,106 +19,189 @@ struct Vertex {
 };
 
 Vertex VertexBufferData[3] = {
-    { { 1.0f,  1.0f, 0.0f },{ 1.0f, 0.0f, 0.0f } },
-    { { -1.0f,  1.0f, 0.0f },{ 0.0f, 1.0f, 0.0f } },
-    { { 0.0f, -1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } }
+    { {  1.0f,  1.0f,  0.0f }, {  1.0f,  0.0f,  0.0f } },
+    { { -1.0f,  1.0f,  0.0f }, {  0.0f,  1.0f,  0.0f } },
+    { {  0.0f, -1.0f,  0.0f }, {  0.0f,  0.0f,  1.0f } }
 };
 
 uint32_t IndexBufferData[3] = { 0, 1, 2 };
 
-// Uniform data
 struct {
     glm::mat4 projectionMatrix;
     glm::mat4 modelMatrix;
     glm::mat4 viewMatrix;
 } uboVS;
+// ~ToDo
 
-uint32_t GetMemoryTypeIndex2(const vk::PhysicalDevice &physicalDevice, uint32_t typeBits, vk::MemoryPropertyFlags properties) {
-    auto gpuMemoryProps = physicalDevice.getMemoryProperties();
-    for (uint32_t i = 0; i < gpuMemoryProps.memoryTypeCount; i++) {
-        if ((typeBits & 1) == 1) {
-            if ((gpuMemoryProps.memoryTypes[i].propertyFlags & properties) == properties) {
-                return i;
-            }
-        }
-        typeBits >>= 1;
-    }
-    return 0;
-};
+
+void CompositeRenderPass(vk::CommandBufferInheritanceInfo& inheritanceInfo) {
+
+    auto *context = reinterpret_cast<VKContext*>(Application::Get().pContext.get());
+    auto &swapChain = context->GetSwapChain();
+
+    vk::CommandBuffer commandBuffer = s_CompositeCommandBuffer;
+
+    uint32_t width = swapChain->GetRenderArea().extent.width;
+    uint32_t height = swapChain->GetRenderArea().extent.height;
+
+    vk::CommandBufferBeginInfo cmdBufInfo = {};
+    cmdBufInfo.flags = vk::CommandBufferUsageFlagBits::eRenderPassContinue;
+    cmdBufInfo.pInheritanceInfo = &inheritanceInfo;
+
+    commandBuffer.begin(cmdBufInfo);
+
+    // Update dynamic viewport state
+    vk::Viewport viewport = {};
+    viewport.x = 0.0f;
+    viewport.y = (float)height;
+    viewport.height = -(float)height;
+    viewport.width = (float)width;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    commandBuffer.setViewport(1, viewport);
+
+    // Update dynamic scissor state
+    VkRect2D scissor = {};
+    scissor.extent.width = width;
+    scissor.extent.height = height;
+    scissor.offset.x = 0;
+    scissor.offset.y = 0;
+    //commandBuffer.setScissor(0, scissor);
+
+    //// Copy 3D scene here!
+    //Reference<VKPipeline> vulkanPipeline = s_CompositePipeline.As<VulkanPipeline>();
+
+    //VkPipelineLayout layout = vulkanPipeline->GetVulkanPipelineLayout();
+
+    //auto vulkanMeshVB = s_QuadVertexBuffer.As<VulkanVertexBuffer>();
+    //VkBuffer vbMeshBuffer = vulkanMeshVB->GetVulkanBuffer();
+    //VkDeviceSize offsets[1] = { 0 };
+    //vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vbMeshBuffer, offsets);
+
+    //auto vulkanMeshIB = s_QuadIndexBuffer.As<VulkanIndexBuffer>();
+    //VkBuffer ibBuffer = vulkanMeshIB->GetVulkanBuffer();
+    //vkCmdBindIndexBuffer(commandBuffer, ibBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+    //VkPipeline pipeline = vulkanPipeline->GetVulkanPipeline();
+    //vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+
+    //// Bind descriptor sets describing shader binding points
+    //vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &s_QuadDescriptorSet, 0, nullptr);
+
+    //vkCmdDrawIndexed(commandBuffer, s_QuadIndexBuffer->GetCount(), 1, 0, 0, 0);
+
+    //VK_CHECK_RESULT(vkEndCommandBuffer(commandBuffer));
+}
+
+
 
 VKTest::VKTest() {
     pContext = reinterpret_cast<VKContext*>(Application::Get().pContext.get());
-    QueueFamilyIndex = pContext->mPhysicalDevice->mQueueFamilyIndices.Graphics;
 
     // Command Buffers
-    CreateCommands();
     LoadResources();
+    SetupPipeline();
     SetupCommands();
 }
 
 VKTest::~VKTest() {
-    DestroyCommands();
-    DestroyResources();
+    // Vertices
+    pContext->GetDevice()->Call().freeMemory(Vertices.memory);
+    pContext->GetDevice()->Call().destroyBuffer(Vertices.buffer);
+
+    // Index buffer
+    pContext->GetDevice()->Call().freeMemory(Indices.memory);
+    pContext->GetDevice()->Call().destroyBuffer(Indices.buffer);
+
+    // Shader Module
+    pContext->GetDevice()->Call().destroyShaderModule(VertModule);
+    pContext->GetDevice()->Call().destroyShaderModule(FragModule);
+
+    // Graphics Pipeline
+    pContext->GetDevice()->Call().destroyPipeline(Pipeline);
+    pContext->GetDevice()->Call().destroyPipelineLayout(PipelineLayout);
+
+    // Descriptor Pool
+    pContext->GetDevice()->Call().destroyDescriptorPool(DescriptorPool);
+    for (vk::DescriptorSetLayout &dsl : DescriptorSetLayouts) {
+        pContext->GetDevice()->Call().destroyDescriptorSetLayout(dsl);
+    }
+
+    // Uniform block object
+    pContext->GetDevice()->Call().freeMemory(UniformDataVS.memory);
+    pContext->GetDevice()->Call().destroyBuffer(UniformDataVS.buffer);
 }
 
 void VKTest::Resize() {
-    DestroyCommands();
-    CreateCommands();
     SetupCommands();
 }
 
 void VKTest::Update() {
-    // Swap backbuffers
-    vk::Result result;
+    #define OLD_TEST
+    #ifndef OLD_TEST
+    vk::CommandBuffer drawCommandBuffer = pContext->GetSwapChain()->GetCurrentDrawCommandFramebuffer();
 
-    result = pContext->mDevice->GetDevice().acquireNextImageKHR(pContext->mSwapChain->mSwapchain, UINT64_MAX, pContext->mSwapChain->PresentCompleteSemaphore, nullptr, &CurrentBuffer);
-    if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR) {
-        // Swapchain lost, we'll try again next poll
-        pContext->SetViewport(pContext->mSwapChain->mSurfaceSize.width, pContext->mSwapChain->mSurfaceSize.height, 0, 0);
-        return;
-    }
-    if (result == vk::Result::eErrorDeviceLost) exit(1); // driver lost, we'll crash in this case:
+    VkClearValue clearValues[2];
+    clearValues[0].color = { { 0.1f, 0.1f, 0.1f, 1.0f } };
+    clearValues[1].depthStencil = { 1.0f, 0 };
 
-                                                         // Update Uniforms
-    uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, (float)(0.001f *0.32f), glm::vec3( 0.2f, 0.2f, 0.2f ));
+    vk::RenderPassBeginInfo renderPassBeginInfo = {};
+    renderPassBeginInfo.renderPass = pContext->GetSwapChain()->GetRenderPass();
+    renderPassBeginInfo.renderArea.offset.x = 0;
+    renderPassBeginInfo.renderArea.offset.y = 0;
+    renderPassBeginInfo.renderArea.extent.width = pContext->GetSwapChain()->GetRenderArea().extent.width;
+    renderPassBeginInfo.renderArea.extent.height = pContext->GetSwapChain()->GetRenderArea().extent.height;
+    renderPassBeginInfo.clearValueCount = 2; // Color + depth
+    //renderPassBeginInfo.pClearValues = clearValues;
+    renderPassBeginInfo.framebuffer = pContext->GetSwapChain()->GetCurrentFramebuffer();
 
+    drawCommandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eSecondaryCommandBuffers);
+    vk::CommandBufferInheritanceInfo inheritanceInfo = {};
+    inheritanceInfo.renderPass = pContext->GetSwapChain()->GetRenderPass();
+    inheritanceInfo.framebuffer = pContext->GetSwapChain()->GetCurrentFramebuffer();
+    CompositeRenderPass(inheritanceInfo);
+
+
+    std::vector<vk::CommandBuffer> commandBuffers;
+    commandBuffers.push_back(s_CompositeCommandBuffer);
+
+
+    drawCommandBuffer.executeCommands(commandBuffers);
+    drawCommandBuffer.endRenderPass();
+    #endif
+
+    #ifdef OLD_TEST
+    CurrentBuffer = pContext->GetSwapChain()->GetCurrentBufferIndex();
+
+    vk::CommandBuffer buffer = pContext->GetDevice()->GetCommandBuffer(true);
+    ReloadCommandBuffer(buffer);
+
+    // Update Uniforms
+    uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, (float)(0.001f *0.32f *2.0f), glm::vec3( 0.2f, 0.2f, 0.2f ));
     void *pData;
-    pData = pContext->mDevice->GetDevice().mapMemory(UniformDataVS.memory, 0, sizeof(uboVS));
+    pData =  pContext->GetDevice()->Call().mapMemory(UniformDataVS.memory, 0, sizeof(uboVS));
     memcpy(pData, &uboVS, sizeof(uboVS));
-    pContext->mDevice->GetDevice().unmapMemory(UniformDataVS.memory);
+    pContext->GetDevice()->Call().unmapMemory(UniformDataVS.memory);
 
-    // Wait for Fences
-    pContext->mDevice->GetDevice().waitForFences(1, &pContext->mSwapChain->WaitFences[CurrentBuffer], VK_TRUE, UINT64_MAX);
-    pContext->mDevice->GetDevice().resetFences(1, &pContext->mSwapChain->WaitFences[CurrentBuffer]);
+    // Submit
     vk::SubmitInfo submitInfo;
-    vk::PipelineStageFlags waitDstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
     submitInfo
-        .setWaitSemaphoreCount(1)
-        .setPWaitSemaphores(&pContext->mSwapChain->PresentCompleteSemaphore)
-        .setPWaitDstStageMask(&waitDstStageMask)
         .setCommandBufferCount(1)
-        .setPCommandBuffers(&CommandBuffers[CurrentBuffer])
         .setSignalSemaphoreCount(1)
-        .setPSignalSemaphores(&pContext->mSwapChain->RenderCompleteSemaphore);
-    result = pContext->mDevice->GetQueue().submit(1, &submitInfo, pContext->mSwapChain->WaitFences[CurrentBuffer]);
+        .setPCommandBuffers(&CommandBuffers[CurrentBuffer])
+        .setPSignalSemaphores(&pContext->GetSwapChain()->mSemaphores.RenderComplete)
+        ;
 
-    if (result == vk::Result::eErrorDeviceLost)
-    {
-        // driver lost, we'll crash in this case:
-        exit(1);
-    }
-
-    result = pContext->mDevice->GetQueue().presentKHR(vk::PresentInfoKHR(1, &pContext->mSwapChain->RenderCompleteSemaphore, 1, &pContext->mSwapChain->mSwapchain, &CurrentBuffer, nullptr));
-
-    if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR) {
-        // Swapchain lost, we'll try again next poll
-        pContext->SetViewport(pContext->mSwapChain->mSurfaceSize.width, pContext->mSwapChain->mSurfaceSize.height, 0, 0);
-        return;
-    }
+    pContext->GetDevice()->FlushCommandBuffer(buffer, submitInfo);
+    //pContext->GetSwapChain()->Present();
+    pContext->GetSwapChain()->QueuePresent(pContext->GetDevice()->GetQueue(), CurrentBuffer, pContext->GetSwapChain()->mSemaphores.RenderComplete);
+    #endif
 }
 
 
 void VKTest::LoadResources() {
+    VKAllocator allocator(pContext->GetDevice(), "Test");
+
     /**
     * Create Shader uniform binding data structures:
     */
@@ -122,7 +209,7 @@ void VKTest::LoadResources() {
     //Descriptor Pool
     vector<vk::DescriptorPoolSize> descriptorPoolSizes = { vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, 1) };
 
-    DescriptorPool = pContext->mDevice->GetDevice().createDescriptorPool(
+    DescriptorPool =  pContext->GetDevice()->Call().createDescriptorPool(
         vk::DescriptorPoolCreateInfo( vk::DescriptorPoolCreateFlags(), 1, static_cast<uint32_t>(descriptorPoolSizes.size()),  descriptorPoolSizes.data())
     );
 
@@ -132,221 +219,58 @@ void VKTest::LoadResources() {
     };
 
     DescriptorSetLayouts = {
-        pContext->mDevice->GetDevice().createDescriptorSetLayout( vk::DescriptorSetLayoutCreateInfo( vk::DescriptorSetLayoutCreateFlags(), static_cast<uint32_t>(descriptorSetLayoutBindings.size()), descriptorSetLayoutBindings.data()))
+        pContext->GetDevice()->Call().createDescriptorSetLayout( vk::DescriptorSetLayoutCreateInfo( vk::DescriptorSetLayoutCreateFlags(), static_cast<uint32_t>(descriptorSetLayoutBindings.size()), descriptorSetLayoutBindings.data()))
     };
 
-    DescriptorSets = pContext->mDevice->GetDevice().allocateDescriptorSets(
+    DescriptorSets =  pContext->GetDevice()->Call().allocateDescriptorSets(
         vk::DescriptorSetAllocateInfo(DescriptorPool, static_cast<uint32_t>(DescriptorSetLayouts.size()), DescriptorSetLayouts.data())
     );
 
-    PipelineLayout = pContext->mDevice->GetDevice().createPipelineLayout(
+    PipelineLayout =  pContext->GetDevice()->Call().createPipelineLayout(
         vk::PipelineLayoutCreateInfo(vk::PipelineLayoutCreateFlags(), static_cast<uint32_t>(DescriptorSetLayouts.size()), DescriptorSetLayouts.data(), 0, nullptr)
     );
 
-
-
-    // Setup vertices data
+    // Setup vertices and indices data
     uint32_t vertexBufferSize = static_cast<uint32_t>(3) * sizeof(Vertex);
-
-    // Setup mIndices data
     Indices.count = 3;
     uint32_t indexBufferSize = Indices.count * sizeof(uint32_t);
 
-    void *data;
-    // Static data like vertex and index buffer should be stored on the device memory  for optimal (and fastest) access by the GPU
-    //
-    // To achieve this we use so-called "staging buffers" :
-    // - Create a buffer that's visible to the host (and can be mapped)
-    // - Copy the data to this buffer
-    // - Create another buffer that's local on the device (VRAM) with the same size
-    // - Copy the data from the host to the device using a command buffer
-    // - Delete the host visible (staging) buffer
-    // - Use the device local buffers for rendering
-
-    struct StagingBuffer {
-        vk::DeviceMemory memory;
-        vk::Buffer buffer;
-    };
-
-    struct {
-        StagingBuffer vertices;
-        StagingBuffer indices;
-    } stagingBuffers;
-
-    // Vertex buffer
-    stagingBuffers.vertices.buffer = pContext->mDevice->GetDevice().createBuffer(
-        vk::BufferCreateInfo(
-        vk::BufferCreateFlags(),
-        vertexBufferSize,
-        vk::BufferUsageFlagBits::eTransferSrc,
-        vk::SharingMode::eExclusive,
-        1,
-        &QueueFamilyIndex
-    )
-    );
-
-    auto memReqs = pContext->mDevice->GetDevice().getBufferMemoryRequirements(stagingBuffers.vertices.buffer);
-
-    // Request a host visible memory type that can be used to copy our data do
-    // Also request it to be coherent, so that writes are visible to the GPU right after unmapping the buffer
-    stagingBuffers.vertices.memory = pContext->mDevice->GetDevice().allocateMemory(
-        vk::MemoryAllocateInfo(
-        memReqs.size,
-        GetMemoryTypeIndex2(pContext->mPhysicalDevice->GePhysicalDevice(), memReqs.memoryTypeBits, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent)
-    )
-    );
-
-    // Map and copy
-    data = pContext->mDevice->GetDevice().mapMemory(stagingBuffers.vertices.memory, 0, memReqs.size, vk::MemoryMapFlags());
-    memcpy(data, VertexBufferData, vertexBufferSize);
-    pContext->mDevice->GetDevice().unmapMemory(stagingBuffers.vertices.memory);
-    pContext->mDevice->GetDevice().bindBufferMemory(stagingBuffers.vertices.buffer, stagingBuffers.vertices.memory, 0);
-
-    // Create a device local buffer to which the (host local) vertex data will be copied and which will be used for rendering
-    Vertices.buffer = pContext->mDevice->GetDevice().createBuffer(
-        vk::BufferCreateInfo(
-        vk::BufferCreateFlags(),
-        vertexBufferSize,
-        vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst,
-        vk::SharingMode::eExclusive,
-        1,
-        &QueueFamilyIndex
-    )
-    );
-
-    memReqs = pContext->mDevice->GetDevice().getBufferMemoryRequirements(Vertices.buffer);
-
-    Vertices.memory = pContext->mDevice->GetDevice().allocateMemory(
-        vk::MemoryAllocateInfo(
-        memReqs.size,
-        GetMemoryTypeIndex2(pContext->mPhysicalDevice->GePhysicalDevice(), memReqs.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal)
-    )
-    );
-
-    pContext->mDevice->GetDevice().bindBufferMemory(Vertices.buffer, Vertices.memory, 0);
-
-    // Index buffer
-    // Copy index data to a buffer visible to the host (staging buffer)
-    stagingBuffers.indices.buffer = pContext->mDevice->GetDevice().createBuffer(
-        vk::BufferCreateInfo(
-        vk::BufferCreateFlags(),
-        indexBufferSize,
-        vk::BufferUsageFlagBits::eTransferSrc,
-        vk::SharingMode::eExclusive,
-        1,
-        &QueueFamilyIndex
-    )
-    );
-    memReqs = pContext->mDevice->GetDevice().getBufferMemoryRequirements(stagingBuffers.indices.buffer);
-    stagingBuffers.indices.memory = pContext->mDevice->GetDevice().allocateMemory(
-        vk::MemoryAllocateInfo(
-        memReqs.size,
-        GetMemoryTypeIndex2(pContext->mPhysicalDevice->GePhysicalDevice(), memReqs.memoryTypeBits, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent)
-    )
-    );
-
-    data = pContext->mDevice->GetDevice().mapMemory(stagingBuffers.indices.memory, 0, indexBufferSize, vk::MemoryMapFlags());
-    memcpy(data, IndexBufferData, indexBufferSize);
-    pContext->mDevice->GetDevice().unmapMemory(stagingBuffers.indices.memory);
-    pContext->mDevice->GetDevice().bindBufferMemory(stagingBuffers.indices.buffer, stagingBuffers.indices.memory, 0);
-
-    // Create destination buffer with device only visibility
-    Indices.buffer = pContext->mDevice->GetDevice().createBuffer(
-        vk::BufferCreateInfo(
-        vk::BufferCreateFlags(),
-        indexBufferSize,
-        vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
-        vk::SharingMode::eExclusive,
-        0,
-        nullptr
-    )
-    );
-
-    memReqs = pContext->mDevice->GetDevice().getBufferMemoryRequirements(Indices.buffer);
-    Indices.memory = pContext->mDevice->GetDevice().allocateMemory(
-        vk::MemoryAllocateInfo(
-        memReqs.size,
-        GetMemoryTypeIndex2(pContext->mPhysicalDevice->GePhysicalDevice(), memReqs.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal
-    )
-    )
-    );
-
-    pContext->mDevice->GetDevice().bindBufferMemory(Indices.buffer, Indices.memory, 0);
-
-
-
-    auto getCommandBuffer = [&](bool begin) {
-        vk::CommandBuffer cmdBuffer = pContext->mDevice->GetDevice().allocateCommandBuffers (
-            vk::CommandBufferAllocateInfo(
-            pContext->mDevice->mCommandPool,
-            vk::CommandBufferLevel::ePrimary,
-            1)
-        )[0];
-
-        // If requested, also start the new command buffer
-        if (begin) {
-            cmdBuffer.begin(
-                vk::CommandBufferBeginInfo()
-            );
-        }
-
-        return cmdBuffer;
-    };
+    mVertexBuffer = VertexBuffer::Create(VertexBufferData, vertexBufferSize);
+    mIndexBuffer = IndexBuffer::Create(IndexBufferData, indexBufferSize);
 
     // Buffer copies have to be submitted to a queue, so we need a command buffer for them
     // Note: Some devices offer a dedicated transfer queue (with only the transfer bit set) that may be faster when doing lots of copies
-    vk::CommandBuffer copyCmd = getCommandBuffer(true);
-
-    // Put buffer region copies into command buffer
-    vector<vk::BufferCopy> copyRegions = {
-        vk::BufferCopy(0, 0, vertexBufferSize)
-    };
-
+    vk::CommandBuffer copyCmd =  pContext->GetDevice()->GetCommandBuffer(true);
+   
     // Vertex buffer
-    copyCmd.copyBuffer(stagingBuffers.vertices.buffer, Vertices.buffer, copyRegions);
+    // Put buffer region copies into command buffer
+    Vertices.buffer = ((VKVertexBuffer *)mVertexBuffer.get())->GetNativeBufferT();
+    vector<vk::BufferCopy> copyRegions = { vk::BufferCopy(0, 0, vertexBufferSize) };
+    copyCmd.copyBuffer(
+        ((VKVertexBuffer *)mVertexBuffer.get())->GetNativeBuffer(),
+        Vertices.buffer,
+        copyRegions
+    );
 
     // Index buffer
-    copyRegions =
-    {
-        vk::BufferCopy(0, 0,  indexBufferSize)
-    };
-
-    copyCmd.copyBuffer(stagingBuffers.indices.buffer, Indices.buffer, copyRegions);
+    Indices.buffer = ((VKIndexBuffer *)mIndexBuffer.get())->GetNativeBufferT();
+    copyRegions = { vk::BufferCopy(0, 0, indexBufferSize) };
+    copyCmd.copyBuffer(
+        ((VKIndexBuffer *)mIndexBuffer.get())->GetNativeBuffer(),
+        Indices.buffer,
+        copyRegions
+    );
 
     // Flushing the command buffer will also submit it to the queue and uses a fence to ensure that all commands have been executed before returning
-    auto flushCommandBuffer = [&](vk::CommandBuffer commandBuffer)
-    {
-        commandBuffer.end();
-
-        vector<vk::SubmitInfo> submitInfos = {
-            vk::SubmitInfo(0, nullptr, nullptr, 1, &commandBuffer, 0, nullptr)
-        };
-
-        // Create fence to ensure that the command buffer has finished executing
-        vk::Fence fence = pContext->mDevice->GetDevice().createFence(vk::FenceCreateInfo());
-
-        // Submit to the queue
-        pContext->mDevice->GetQueue().submit(submitInfos, fence);
-        // Wait for the fence to signal that command buffer has finished executing
-        pContext->mDevice->GetDevice().waitForFences(1, &fence, VK_TRUE, UINT_MAX);
-        pContext->mDevice->GetDevice().destroyFence(fence);
-        pContext->mDevice->GetDevice().freeCommandBuffers(pContext->mDevice->mCommandPool, 1, &commandBuffer);
-    };
-
-    flushCommandBuffer(copyCmd);
-
-    // Destroy staging buffers
-    // Note: Staging buffer must not be deleted before the copies have been submitted and executed
-    pContext->mDevice->GetDevice().destroyBuffer(stagingBuffers.vertices.buffer);
-    pContext->mDevice->GetDevice().freeMemory(stagingBuffers.vertices.memory);
-    pContext->mDevice->GetDevice().destroyBuffer(stagingBuffers.indices.buffer);
-    pContext->mDevice->GetDevice().freeMemory(stagingBuffers.indices.memory);
+    pContext->GetDevice()->FlushCommandBuffer(copyCmd);
+    
 
 
     // Vertex input binding
     Vertices.inputBinding.binding = 0;
     Vertices.inputBinding.stride = sizeof(Vertex);
     Vertices.inputBinding.inputRate = vk::VertexInputRate::eVertex;
+
 
     // Inpute attribute binding describe shader attribute locations and memory layouts
     // These match the following shader layout (see assets/shaders/triangle.vert):
@@ -375,31 +299,22 @@ void VKTest::LoadResources() {
     // Single uniforms like in OpenGL are no longer present in Vulkan. All Shader uniforms are passed via uniform buffer blocks
 
     // Vertex shader uniform buffer block
-    vk::MemoryAllocateInfo allocInfo = {};
-    allocInfo.pNext = nullptr;
-    allocInfo.allocationSize = 0;
-    allocInfo.memoryTypeIndex = 0;
-
     // Create a new buffer
-    UniformDataVS.buffer = pContext->mDevice->GetDevice().createBuffer(
+    UniformDataVS.buffer = pContext->GetDevice()->Call().createBuffer(
         vk::BufferCreateInfo(
-        vk::BufferCreateFlags(),
-        sizeof(uboVS),
-        vk::BufferUsageFlagBits::eUniformBuffer
-    )
+            vk::BufferCreateFlags(),
+            sizeof(uboVS),
+            vk::BufferUsageFlagBits::eUniformBuffer
+        )
     );
     // Get memory requirements including size, alignment and memory type 
-    memReqs = pContext->mDevice->GetDevice().getBufferMemoryRequirements(UniformDataVS.buffer);
-    allocInfo.allocationSize = memReqs.size;
-    // Get the memory type index that supports host visible memory access
-    // Most implementations offer multiple memory types and selecting the correct one to allocate memory from is crucial
-    // We also want the buffer to be host coherent so we don't have to flush (or sync after every update.
-    // Note: This may affect performance so you might not want to do this in a real world application that updates buffers on a regular base
-    allocInfo.memoryTypeIndex = GetMemoryTypeIndex2(pContext->mPhysicalDevice->GePhysicalDevice(), memReqs.memoryTypeBits, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-    // Allocate memory for the uniform buffer
-    UniformDataVS.memory = pContext->mDevice->GetDevice().allocateMemory(allocInfo);
+
+    vk::MemoryRequirements memReqs;
+    memReqs = pContext->GetDevice()->Call().getBufferMemoryRequirements(UniformDataVS.buffer);
+
+    allocator.Allocate(memReqs, &UniformDataVS.memory, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
     // Bind memory to buffer
-    pContext->mDevice->GetDevice().bindBufferMemory(UniformDataVS.buffer, UniformDataVS.memory, 0);
+    pContext->GetDevice()->Call().bindBufferMemory(UniformDataVS.buffer, UniformDataVS.memory, 0);
 
     // Store information in the uniform's descriptor that is used by the descriptor set
     UniformDataVS.descriptor.buffer = UniformDataVS.buffer;
@@ -410,15 +325,15 @@ void VKTest::LoadResources() {
     float zoom = -2.5f;
 
     // Update matrices
-    uboVS.projectionMatrix = glm::perspective(45.0f, (float)pContext->mSwapChain->mViewport.width / (float)pContext->mSwapChain->mViewport.height, 0.01f, 1024.0f);
+    uboVS.projectionMatrix = glm::perspective(45.0f, (float)pContext->GetSwapChain()->mViewport.width / (float)pContext->GetSwapChain()->mViewport.height, 0.01f, 1024.0f);
     uboVS.viewMatrix = glm::translate(glm::identity<glm::mat4>(), { 0.0f, 0.0f, zoom });
     uboVS.modelMatrix = glm::identity<glm::mat4>();
 
     // Map uniform buffer and update it
     void *pData;
-    pData = pContext->mDevice->GetDevice().mapMemory(UniformDataVS.memory, 0, sizeof(uboVS));
+    pData = pContext->GetDevice()->Call().mapMemory(UniformDataVS.memory, 0, sizeof(uboVS));
     memcpy(pData, &uboVS, sizeof(uboVS));
-    pContext->mDevice->GetDevice().unmapMemory(UniformDataVS.memory);
+    pContext->GetDevice()->Call().unmapMemory(UniformDataVS.memory);
 
 
 
@@ -435,65 +350,63 @@ void VKTest::LoadResources() {
         )
     };
 
-    pContext->mDevice->GetDevice().updateDescriptorSets(descriptorWrites, nullptr);
+    pContext->GetDevice()->Call().updateDescriptorSets(descriptorWrites, nullptr);
+}
 
-
-
+void VKTest::SetupPipeline() {
     // Create Graphics Pipeline
     string vertShaderCode = ReadFile("Assets/Shaders/triangle.vert.spv");
     string fragShaderCode = ReadFile("Assets/Shaders/triangle.frag.spv");
 
-    VertModule = pContext->mDevice->GetDevice().createShaderModule(
+    VertModule = pContext->GetDevice()->Call().createShaderModule(
         vk::ShaderModuleCreateInfo(
-        vk::ShaderModuleCreateFlags(),
-        vertShaderCode.size(),
-        (uint32_t*)vertShaderCode.data()
-    )
+            vk::ShaderModuleCreateFlags(),
+            vertShaderCode.size(),
+            (uint32_t*)vertShaderCode.data()
+        )
     );
 
-    FragModule = pContext->mDevice->GetDevice().createShaderModule(
+    FragModule = pContext->GetDevice()->Call().createShaderModule(
         vk::ShaderModuleCreateInfo(
-        vk::ShaderModuleCreateFlags(),
-        fragShaderCode.size(),
-        (uint32_t*)fragShaderCode.data()
-    )
+            vk::ShaderModuleCreateFlags(),
+            fragShaderCode.size(),
+            (uint32_t*)fragShaderCode.data()
+        )
     );
-
-    PipelineCache = pContext->mDevice->GetDevice().createPipelineCache(vk::PipelineCacheCreateInfo());
 
     std::vector<vk::PipelineShaderStageCreateInfo> pipelineShaderStages = {
         vk::PipelineShaderStageCreateInfo(
             vk::PipelineShaderStageCreateFlags(),
-        vk::ShaderStageFlagBits::eVertex,
-        VertModule,
-        "main",
-        nullptr
+            vk::ShaderStageFlagBits::eVertex,
+            VertModule,
+            "main",
+            nullptr
         ),
         vk::PipelineShaderStageCreateInfo(
-        vk::PipelineShaderStageCreateFlags(),
-        vk::ShaderStageFlagBits::eFragment,
-        FragModule,
-        "main",
-        nullptr
+            vk::PipelineShaderStageCreateFlags(),
+            vk::ShaderStageFlagBits::eFragment,
+            FragModule,
+            "main",
+            nullptr
         )
     };
 
     vk::PipelineVertexInputStateCreateInfo pvi = Vertices.inputState;
 
-    vk::PipelineInputAssemblyStateCreateInfo pia(
+    vk::PipelineInputAssemblyStateCreateInfo pia (
         vk::PipelineInputAssemblyStateCreateFlags(),
         vk::PrimitiveTopology::eTriangleList
     );
 
-    vk::PipelineViewportStateCreateInfo pv(
+    vk::PipelineViewportStateCreateInfo pv (
         vk::PipelineViewportStateCreateFlagBits(),
         1,
-        &pContext->mSwapChain->mViewport,
+        &pContext->GetSwapChain()->mViewport,
         1,
-        &pContext->mSwapChain->mRenderArea
+        &pContext->GetSwapChain()->mRenderArea
     );
 
-    vk::PipelineRasterizationStateCreateInfo pr(
+    vk::PipelineRasterizationStateCreateInfo pr (
         vk::PipelineRasterizationStateCreateFlags(),
         VK_FALSE,
         VK_FALSE,
@@ -507,7 +420,7 @@ void VKTest::LoadResources() {
         1.0f
     );
 
-    vk::PipelineMultisampleStateCreateInfo pm(
+    vk::PipelineMultisampleStateCreateInfo pm (
         vk::PipelineMultisampleStateCreateFlags(),
         vk::SampleCountFlagBits::e1
     );
@@ -530,13 +443,13 @@ void VKTest::LoadResources() {
     vector<vk::PipelineColorBlendAttachmentState> colorBlendAttachments = {
         vk::PipelineColorBlendAttachmentState(
             VK_FALSE,
-        vk::BlendFactor::eZero,
-        vk::BlendFactor::eOne,
-        vk::BlendOp::eAdd,
-        vk::BlendFactor::eZero,
-        vk::BlendFactor::eZero,
-        vk::BlendOp::eAdd,
-        vk::ColorComponentFlags(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA)
+            vk::BlendFactor::eZero,
+            vk::BlendFactor::eOne,
+            vk::BlendOp::eAdd,
+            vk::BlendFactor::eZero,
+            vk::BlendFactor::eZero,
+            vk::BlendOp::eAdd,
+            vk::ColorComponentFlags(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA)
         )
     };
 
@@ -559,61 +472,26 @@ void VKTest::LoadResources() {
         dynamicStates.data()
     );
 
-    Pipeline = static_cast<vk::Pipeline>(pContext->mDevice->GetDevice().createGraphicsPipeline(
-        PipelineCache,
+    Pipeline = static_cast<vk::Pipeline>(pContext->GetDevice()->Call().createGraphicsPipeline(
+        pContext->GetPipelineCache(),
         vk::GraphicsPipelineCreateInfo(
-        vk::PipelineCreateFlags(),
-        static_cast<uint32_t>(pipelineShaderStages.size()),
-        pipelineShaderStages.data(),
-        &pvi,
-        &pia,
-        nullptr,
-        &pv,
-        &pr,
-        &pm,
-        &pds,
-        &pbs,
-        &pdy,
-        PipelineLayout,
-        pContext->mSwapChain->RenderPass,
-        0
+            vk::PipelineCreateFlags(),
+            static_cast<uint32_t>(pipelineShaderStages.size()),
+            pipelineShaderStages.data(),
+            &pvi,
+            &pia,
+            nullptr,
+            &pv,
+            &pr,
+            &pm,
+            &pds,
+            &pbs,
+            &pdy,
+            PipelineLayout,
+            pContext->GetSwapChain()->RenderPass,
+            0
         )
-        ));
-
-}
-
-void VKTest::DestroyResources() {
-    // Vertices
-    pContext->mDevice->GetDevice().freeMemory(Vertices.memory);
-    pContext->mDevice->GetDevice().destroyBuffer(Vertices.buffer);
-
-    // Index buffer
-    pContext->mDevice->GetDevice().freeMemory(Indices.memory);
-    pContext->mDevice->GetDevice().destroyBuffer(Indices.buffer);
-
-    // Shader Module
-    pContext->mDevice->GetDevice().destroyShaderModule(VertModule);
-    pContext->mDevice->GetDevice().destroyShaderModule(FragModule);
-
-    // Render Pass
-
-    // Graphics Pipeline
-    pContext->mDevice->GetDevice().destroyPipelineCache(PipelineCache);
-    pContext->mDevice->GetDevice().destroyPipeline(Pipeline);
-    pContext->mDevice->GetDevice().destroyPipelineLayout(PipelineLayout);
-
-    // Descriptor Pool
-    pContext->mDevice->GetDevice().destroyDescriptorPool(DescriptorPool);
-    for (vk::DescriptorSetLayout &dsl : DescriptorSetLayouts) {
-        pContext->mDevice->GetDevice().destroyDescriptorSetLayout(dsl);
-    }
-
-    // Uniform block object
-    pContext->mDevice->GetDevice().freeMemory(UniformDataVS.memory);
-    pContext->mDevice->GetDevice().destroyBuffer(UniformDataVS.buffer);
-
-    // Destroy Framebuffers, Image Views
-    pContext->mSwapChain->Destroy();
+    ));
 }
 
 void VKTest::SetupCommands() {
@@ -623,22 +501,23 @@ void VKTest::SetupCommands() {
         vk::ClearDepthStencilValue(1.0f, 0)
     };
 
+    CommandBuffers = pContext->GetSwapChain()->GetCommandBuffers();
     for (size_t i = 0; i < CommandBuffers.size(); ++i){
         vk::CommandBuffer& cmd = CommandBuffers[i];
         cmd.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
         cmd.begin(vk::CommandBufferBeginInfo());
         cmd.beginRenderPass(
             vk::RenderPassBeginInfo(
-            pContext->mSwapChain->RenderPass,
-            pContext->mSwapChain->GetSwapchainBuffer()[i].frameBuffer,
-            pContext->mSwapChain->mRenderArea,
+            pContext->GetSwapChain()->RenderPass,
+            pContext->GetSwapChain()->GetSwapchainBuffer()[i].frameBuffer,
+            pContext->GetSwapChain()->mRenderArea,
             static_cast<uint32_t>(clearValues.size()),
             clearValues.data()),
             vk::SubpassContents::eInline);
 
-        cmd.setViewport(0, 1, &pContext->mSwapChain->mViewport);
+        cmd.setViewport(0, 1, &pContext->GetSwapChain()->mViewport);
 
-        cmd.setScissor(0, 1, &pContext->mSwapChain->mRenderArea);
+        cmd.setScissor(0, 1, &pContext->GetSwapChain()->mRenderArea);
 
         // Bind Descriptor Sets, these are attribute/uniform "descriptions"
         cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, Pipeline);
@@ -660,18 +539,44 @@ void VKTest::SetupCommands() {
     }
 }
 
-void VKTest::CreateCommands() {
-    CommandBuffers = pContext->mDevice->GetDevice().allocateCommandBuffers(
-        vk::CommandBufferAllocateInfo(
-        pContext->mDevice->mCommandPool,
-        vk::CommandBufferLevel::ePrimary,
-        static_cast<uint32_t>(pContext->mSwapChain->GetSwapchainBuffer().size())
-    )
-    );
-}
+void VKTest::ReloadCommandBuffer(vk::CommandBuffer &cmd) {
+    vector<vk::ClearValue> clearValues = {
+        vk::ClearColorValue(
+            std::array<float, 4>{0.2f, 0.2f, 0.2f, 1.0f}),
+        vk::ClearDepthStencilValue(1.0f, 0)
+    };
 
-void VKTest::DestroyCommands() {
-    pContext->mDevice->GetDevice().freeCommandBuffers(pContext->mDevice->mCommandPool, CommandBuffers);
+    cmd.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
+    cmd.begin(vk::CommandBufferBeginInfo());
+    cmd.beginRenderPass(
+        vk::RenderPassBeginInfo(
+            pContext->GetSwapChain()->RenderPass,
+            pContext->GetSwapChain()->GetSwapchainBuffer()[0].frameBuffer,
+            pContext->GetSwapChain()->mRenderArea,
+            static_cast<uint32_t>(clearValues.size()),
+            clearValues.data()),
+        vk::SubpassContents::eInline);
+
+    cmd.setViewport(0, 1, &pContext->GetSwapChain()->mViewport);
+
+    cmd.setScissor(0, 1, &pContext->GetSwapChain()->mRenderArea);
+
+    // Bind Descriptor Sets, these are attribute/uniform "descriptions"
+    cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, Pipeline);
+
+    cmd.bindDescriptorSets(
+        vk::PipelineBindPoint::eGraphics,
+        PipelineLayout,
+        0,
+        DescriptorSets,
+        nullptr
+    );
+
+    vk::DeviceSize offsets = 0;
+    cmd.bindVertexBuffers(0, 1, &Vertices.buffer, &offsets);
+    cmd.bindIndexBuffer(Indices.buffer, 0, vk::IndexType::eUint32);
+    cmd.drawIndexed(Indices.count, 1, 0, 0, 1);
+    cmd.endRenderPass();
 }
 
 }

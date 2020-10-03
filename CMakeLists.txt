@@ -37,7 +37,7 @@ message(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # Here should be everything defined, to help developers to customize their builds.
 message("✶ Properties")
-set(DebugMode		false	CACHE BOOL "Enable additional information which should help finding errors faster, but they will slow down the code." FORCE)
+set(DebugMode		true	CACHE BOOL "Enable additional information which should help finding errors faster, but they will slow down the code." FORCE)
 set(OptimizedMode	true	CACHE BOOL "Should the compiler optimize our code?" FORCE)
 set(TestMode		true	CACHE BOOL "Special mode which speeds up development (additional console window, etc)." FORCE)
 set(VerboseMode		false	CACHE BOOL "Enable as much information as possible, more logging means also slower code." FORCE)
@@ -68,8 +68,9 @@ add_definitions(-D_HAS_STD_BYTE=0)
 # Patch: Unicode Support (not needed, cause it is passed with the /utf-8 argument, which has its benefits)
 #add_definitions(-DUNICODE -D_UNICODE)
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+# ToDo: Recheck  /sdl
 if(${DebugMode})
-	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/diagnostics:column /JMC /sdl ")
+	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/diagnostics:column /JMC ")
 else()
 	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} " ")
 endif()

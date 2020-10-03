@@ -1,16 +1,19 @@
 ﻿#include "FrameBuffer.h"
 #include "Ultra/Platform/OpenGL/GLFramebuffer.h"
+#include "Ultra/Platform/Vulkan/VKFramebuffer.h"
 
 #include "Renderer.h"
 
 namespace Ultra {
 
 Reference<Framebuffer> Framebuffer::Create(const FramebufferProperties &properties) {
-	switch (Renderer::GetAPI()) {
-		case RendererAPI::API::Null:		{ return nullptr; }
-		case RendererAPI::API::OpenGL:		{ return CreateReference<GLFramebuffer>(properties); }
+    switch (Context::API) {
+        case GraphicsAPI::Null:		{ return nullptr; }
+        case GraphicsAPI::OpenGL:	{ return CreateReference<GLFramebuffer>(properties); }
+        case GraphicsAPI::Vulkan:	{ return CreateReference<VKFramebuffer>(properties); }
+        default:                    { break; }
 	}
-	// Unknown RendererAPI
+    AppLogCritical("[Engine::Renderer::Framebuffer] ", "The current graphics API doesn't support Framebuffers!");
 	return nullptr;
 }
 

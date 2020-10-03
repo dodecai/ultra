@@ -198,7 +198,7 @@ void Renderer2D::Flush() {
         sData.LinePipeline->Bind();
         sData.LineIndexBuffer->Bind();
         RenderCommand::SetLineThickness(3.0f);
-        RenderCommand::DrawIndexed(sData.LineIndexCount, RendererAPI::Type::Lines, sData.DepthTest);
+        RenderCommand::DrawIndexed(sData.LineIndexCount, PrimitiveType::Line, sData.DepthTest);
         sData.Stats.DrawCalls++;
     }
 
@@ -215,7 +215,7 @@ void Renderer2D::Flush() {
 
         sData.QuadPipeline->Bind();
         sData.QIndexBuffer->Bind();
-        RenderCommand::DrawIndexed(sData.QIndexCount, RendererAPI::Type::Triangles, sData.DepthTest);
+        RenderCommand::DrawIndexed(sData.QIndexCount, PrimitiveType::Triangle, sData.DepthTest);
         sData.Stats.DrawCalls++;
     }
 }
