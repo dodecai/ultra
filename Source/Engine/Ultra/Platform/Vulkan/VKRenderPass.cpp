@@ -1,7 +1,8 @@
 ﻿#include "VKRenderpass.h"
 
 namespace Ultra {
-VKRenderPass::VKRenderPass(const RenderPassProperties &properties) {}
+VKRenderPass::VKRenderPass(const RenderPassProperties &properties) {
+}
 
 VKRenderPass::~VKRenderPass() {}
 

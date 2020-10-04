@@ -2,6 +2,8 @@
 
 #include "Ultra/Renderer/RenderPass.h"
 
+#include "VKContext.h"
+
 namespace Ultra {
 
 class VKRenderPass: public RenderPass {
@@ -14,6 +16,7 @@ public:
 
 private:
     RenderPassProperties Properties;
+    vk::RenderPass mRenderPass;
 };
 
 }

@@ -44,7 +44,8 @@ uint32_t GLFramebuffer::GetRendererID() const {
 
 
 void GLFramebuffer::Resize(uint32_t width, uint32_t height, bool reload) {
-    if (!reload && (Properties.Width == width && Properties.Height == height)) return;
+    if (!reload || (Properties.Width != width || Properties.Height != height))
+        return;
 
     Properties.Width = width;
     Properties.Height = height;

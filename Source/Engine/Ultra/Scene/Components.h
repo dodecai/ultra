@@ -20,7 +20,8 @@ enum class Components {
     Tag,
     Transform,
     Camera,
-    NativeScript
+    NativeScript,
+    Sprite
 };
 
 namespace Ultra::Component {
@@ -156,6 +157,9 @@ struct Sprite {
     Sprite() = default;
     Sprite(const Sprite &) = default;
     Sprite(const glm::vec4 &color): Color(color) {}
+
+    operator glm::vec4 &() { return Color; }
+    operator const glm::vec4 &() const { return Color; }
 };
 
 }

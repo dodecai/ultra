@@ -11,8 +11,8 @@ public:
     ViewportPanel();
     ViewportPanel(FramebufferProperties &properties);
 
-    void GuiUpdate();
     void Update();
+    void Resize(uint32_t width, uint32_t height) { Buffer->Resize(width, height, false); }
 
     bool IsActive() { return Active; }
     bool IsEnabled() { return Enabled; }

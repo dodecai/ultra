@@ -34,19 +34,6 @@ VKPipeline::~VKPipeline() {}
 void VKPipeline::Bind() {}
 
 void VKPipeline::Invalidate() {
-    VKContext = reinterpret_cast<Omnia::VKContext *>(&Omnia::Application::Get().GetContext());
-
-    auto &device = VKContext->GetDevice()->Call();
-
-    //AppAssert(Properties.Shader, "");
-    //Reference<VKShader> shader = Reference<VKShader>(Properties.Shader);
-    //Reference<VKFramebuffer> framebuffer = Properties.RenderPass->GetProperties().Framebuffer.As<VKFramebuffer>();
-
-    //vk::DescriptorSetLayout descriptorSetLayout = shader->GetDescriptorSetLayout();
-    //const auto &pushConstantRanges = shader->GetPushConstantRanges();
-
-
-
 }
 
 PipelineProperties &VKPipeline::GetProperties() {

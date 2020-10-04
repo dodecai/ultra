@@ -91,6 +91,15 @@ void PropertiesPanel::GuiUpdate() {
                     ImGui::InputText("Source", source.data(), 1024);
                 }
 
+                // Settings
+                if (ImGui::CollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    // SpriteRenderer
+                    if (Context.HasComponent<Component::Sprite>()) {
+                        glm::vec4 &color = Context.GetComponent<Component::Sprite>();
+                        ImGui::ColorEdit4("Color", glm::value_ptr(color));
+                    }
+                }
+
                 // Transform
                 if (Context.HasComponent<Component::Transform>()) {
                     if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {

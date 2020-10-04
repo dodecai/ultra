@@ -69,14 +69,12 @@ public:
         ImGui::PopStyleVar();
         Browser.GuiUpdate();
 
-        #ifndef VULKAN_TESTS
         static bool alwaysOpen = true;
         if (Menu::ViewportRender) {
             Viewport.Enable();
         } else {
             Viewport.Disable();
         }
-        #endif
 
         /**
          * @brief Menus
@@ -100,9 +98,7 @@ public:
         if (consoleOpen) View::ShowExampleAppConsole(&consoleOpen);
 
         // Scene
-        #ifndef VULKAN_TESTS
-        Viewport.GuiUpdate();
-        #endif
+        Viewport.Update();
 
         // Properties
         auto &selectedNode = Browser.GetSelectedNode();
@@ -116,6 +112,7 @@ public:
 
         // Test
         ImGui::Begin("Test");
+        #ifdef StepI
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::CollapsingHeader("Grid")) {
             UI::Property("Quad Size:", QuadSize);
@@ -125,6 +122,7 @@ public:
             UI::Property("Rotation Speed:", RoatationSpeed, 0.0f, 120.0f);
 
         }
+        #endif
         ImGui::End();
 
         // Statistics
@@ -201,29 +199,19 @@ public:
     void Update(Timestamp deltaTime) override {
         // Preparation
         Renderer2D::ResetStatistics();
-        if (Viewport.IsEnabled()) { Viewport.BindBuffer(); }
-
-        // Camera
-        if (Viewport.IsActive()) SceneCamera.Update(deltaTime);
+        if (Viewport.IsEnabled()) {
+            Viewport.BindBuffer();
+        }
 
         // Renderer
         RenderCommand::SetClearColor(ClearColor);
         RenderCommand::Clear();
-        Viewport.Update();
-        //if (FramebufferProperties fbp = ViewportBuffer->GetProperties();
-        //    ViewportSize.x > 0.0f && ViewportSize.y > 0.0f &&
-        //    (fbp.Width != ViewportSize.x || fbp.Height != ViewportSize.y)) {
 
-            auto &width = Application::GetWindow().GetContexttSize().Width;
-            auto &height = Application::GetWindow().GetContexttSize().Height;
+        auto &dimension = Application::GetWindow().GetContexttSize();
+        CurrentScene->Resize(dimension.Width, dimension.Height);
 
-            Renderer::Resize(width, height);
-            SceneCamera.Resize(width, height);
-            CurrentScene->Resize(width, height);
-        //    ViewportBuffer->Resize((uint32_t)ViewportSize.x, (uint32_t)ViewportSize.y);
-        //}
-
-        #ifdef RAW_RENDERER_TEST
+        CurrentScene->Update(deltaTime);
+        #ifdef StepI
             // Draw
             Renderer2D::StartScene(SceneCamera.GetCamera());
 
@@ -256,8 +244,6 @@ public:
             Renderer2D::DrawRotatedQuad({ 0.0f, 0.0f, 1.0f }, { 0.2f, 0.2f }, glm::radians(rotation), { 0.0f, 1.0f, 0.0f, 0.72f });
 
             Renderer2D::FinishScene();
-        #else
-            CurrentScene->Update(deltaTime);
         #endif
 
         if (Viewport.IsEnabled()) { Viewport.UnbindBuffer(); }
@@ -277,17 +263,12 @@ public:
         }
     }
 
-    void MouseEvent(MouseEventData data) override {
-        if (data.Action == MouseAction::Wheel) {
-            SceneCamera.MouseEvent(data);
-        }
-    }
-
     void WindowEvent(WindowEventData data) override {
         if (data.Action == WindowAction::Resize) {
-            Renderer::Resize(data.Width, data.Height);
-            SceneCamera.Resize(data.Width, data.Height);
-            CurrentScene->Resize(Application::GetWindow().GetContexttSize().Width, Application::GetWindow().GetContexttSize().Height);
+            auto &dimension = Application::GetWindow().GetContexttSize();
+            Renderer::Resize(dimension.Width, dimension.Height);
+            Viewport.Resize(dimension.Width, dimension.Height);
+            CurrentScene->Resize(dimension.Width, dimension.Height);
         }
     }
 
@@ -307,7 +288,6 @@ private:
 
     Ultra::Audio::Source BackgroundMusicPlayer = {};
 
-    CameraController SceneCamera { 1.33f };
     glm::vec4 ClearColor;
     glm::vec4 GridColor;
     Reference<Texture2D> GridTexture;

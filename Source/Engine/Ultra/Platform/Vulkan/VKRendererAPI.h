@@ -1,7 +1,10 @@
 ﻿#pragma once
 
 #include "Ultra/Renderer/RendererAPI.h"
+
 #include "VKContext.h"
+#include "VKPipeline.h"
+#include "VKRenderPass.h"
 
 namespace Ultra {
 
@@ -22,8 +25,8 @@ public:
     virtual void SetViewport(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
 
 private:
-    VKContext *pContext = nullptr;
-    VKDevice *Device = nullptr;
+    static inline const VKContext *sContext = nullptr;
+    static inline Reference<VKDevice> sDevice = nullptr;
 };
 
 }
