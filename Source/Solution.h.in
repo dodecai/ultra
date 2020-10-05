@@ -8,6 +8,7 @@
 #include <Ultra/Engine.h>
 #include <Ultra/Scene/Scene.h>
 #include <Ultra/Scene/Entity.h>
+#include <Ultra/Scene/Serializer.h>
 
 // Wrap library in solution namespace
 namespace @PROJECT_NAME@ {

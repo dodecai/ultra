@@ -104,11 +104,13 @@ set(ENGINE_SCENE_HEADERS
 	"Ultra/Scene/System.h"
 
 	"Ultra/Scene/Scene.h"
+	"Ultra/Scene/Serializer.h"
 
 	"Ultra/Scene/SceneCamera.h"
 )
 set(ENGINE_SCENE_SOURCES
 	"Ultra/Scene/Scene.cpp"
+	"Ultra/Scene/Serializer.cpp"
 
 	"Ultra/Scene/SceneCamera.cpp"
 )

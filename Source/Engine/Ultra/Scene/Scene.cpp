@@ -91,6 +91,14 @@ Entity Scene::CreateEntity(const string &name) {
     return entity;
 }
 
+Entity Scene::CreateEntity(const uint64_t id) {
+    Entity entity = { Registry.create(), this };
+    auto &identifier = entity.AddComponent<Component::Identifier>();
+    identifier = id;
+
+    return entity;
+}
+
 void Scene::AttachEntity(Entity *entity) {}
 
 void Scene::DetachEntity(Entity *entity) {}

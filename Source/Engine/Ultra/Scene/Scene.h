@@ -19,6 +19,7 @@ class Entity;
 class Scene {
     friend class Entity;
     friend class SceneBrowser;
+    friend class Serializer;
     friend class PropertiesPanel;
 
 public:
@@ -27,6 +28,7 @@ public:
     ~Scene();
 
     Entity CreateEntity(const string &name = "");
+    Entity CreateEntity(const uint64_t id);
     
     void Update(Timestamp deltaTime);
     void Resize(uint32_t width, uint32_t height);

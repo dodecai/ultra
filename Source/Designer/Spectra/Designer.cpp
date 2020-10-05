@@ -29,35 +29,39 @@ public:
 
     void Create() override {
         CurrentScene = CreateReference<Scene>();
+        Serializer serializer(CurrentScene);
+        //serializer.Deserialize("./Data/Scene.yaml");
 
-        BackgroundMusic = CurrentScene->CreateEntity("Background Music");
-        BackgroundMusic.AddComponent<Component::Sound>("Assets/Sounds/Angels Dream - Aakash Gandhi.ogg");
+        //BackgroundMusic = CurrentScene->CreateEntity("Background Music");
+        //BackgroundMusic.AddComponent<Component::Sound>("Assets/Sounds/Angels Dream - Aakash Gandhi.ogg");
 
-        CameraEntity = CurrentScene->CreateEntity("Camera");
-        CameraEntity.AddComponent<Component::Camera>();
-        CameraEntity.GetComponent<Component::Camera>().Primary = true;
-        CameraEntity.AddComponent<Component::NativeScript>().Bind<CameraSystem>();
+        //CameraEntity = CurrentScene->CreateEntity("Camera");
+        //CameraEntity.AddComponent<Component::Camera>();
+        //CameraEntity.GetComponent<Component::Camera>().Primary = true;
+        //CameraEntity.AddComponent<Component::NativeScript>().Bind<CameraSystem>();
 
-        SquareEntity = CurrentScene->CreateEntity("Square");
-        SquareEntity.AddComponent<Component::Sprite>(glm::vec4 { 0.02f, 0.02f, 0.72f, 1.0f });
+        //SquareEntity = CurrentScene->CreateEntity("Square");
+        //SquareEntity.AddComponent<Component::Sprite>(glm::vec4 { 0.02f, 0.02f, 0.72f, 1.0f });
 
-        auto SquareEntity2 = CurrentScene->CreateEntity("Square Red");
-        SquareEntity2.AddComponent<Component::Sprite>(glm::vec4 { 0.72f, 0.02f, 0.02f, 1.0f });
+        //auto SquareEntity2 = CurrentScene->CreateEntity("Square Red");
+        //SquareEntity2.AddComponent<Component::Sprite>(glm::vec4 { 0.72f, 0.02f, 0.02f, 1.0f });
 
-        CameraEntity2 = CurrentScene->CreateEntity("2nd Camera");
-        CameraEntity2.AddComponent<Component::Camera>();
+        //CameraEntity2 = CurrentScene->CreateEntity("2nd Camera");
+        //CameraEntity2.AddComponent<Component::Camera>();
 
         Browser.SetContext(CurrentScene);
         ScriptEditor.SetText("#include <Ultra.h>\r\n\r\nnamespace Ultra {\r\n\r\nclass Player {\r\n};\r\n\r\n}\r\n");
 
         Ultra::Audio::Player::Initialize();
-        BackgroundMusicPlayer = Ultra::Audio::Source::LoadFromFile(BackgroundMusic.GetComponent<Component::Sound>());
-        BackgroundMusicPlayer.SetRepeat(true);
+        //BackgroundMusicPlayer = Ultra::Audio::Source::LoadFromFile(BackgroundMusic.GetComponent<Component::Sound>());
+        //BackgroundMusicPlayer.SetRepeat(true);
 
-        GridTexture = Texture2D::Create("./Assets/Textures/Checkerboard.png");
-        GridShader = Shader::Create("Assets/Shaders/Grid.glsl");
-        GridShader->SetFloat("uResolution", 1000.0f);
-        GridShader->SetFloat("uScaling", 24.0f);
+        //GridTexture = Texture2D::Create("./Assets/Textures/Checkerboard.png");
+        //GridShader = Shader::Create("Assets/Shaders/Grid.glsl");
+        //GridShader->SetFloat("uResolution", 1000.0f);
+        //GridShader->SetFloat("uScaling", 24.0f);
+
+        //serializer.Serialize("./Scene.yaml");
     }
 
     void GuiUpdate() override {
@@ -80,6 +84,19 @@ public:
          * @brief Menus
         */
         if (ImGui::BeginMenuBar()) {
+            if (ImGui::BeginMenu("File")) {
+                if (ImGui::MenuItem("OpenTest", "Ctrl+O")) {
+                    Serializer serializer(CurrentScene);
+                    auto result = Omnia::Application::GetDialog().OpenFile();
+                    serializer.Deserialize(result);
+                }
+                if (ImGui::MenuItem("SaveTest", "Ctrl+N")) {
+                    Serializer serializer(CurrentScene);
+                    auto result = Omnia::Application::GetDialog().SaveFile();
+                    serializer.Serialize(result);
+                }
+                ImGui::EndMenu();
+            }
             Menu::ShowMenuFile();
             Menu::ShowMenuEdit();
             Menu::ShowMenuView();

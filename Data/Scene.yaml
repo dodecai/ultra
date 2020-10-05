@@ -1,0 +1,49 @@
+Scene: x
+Entities:
+  - Entity: 14922758478884728481
+    Component::Tag:
+      Tag: Background Music
+    Component::Sound:
+      Source: Assets/Sounds/Angels Dream - Aakash Gandhi.ogg
+    Component::Transform:
+      Position: [0, 0, 0]
+      Rotation: [1, 0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 12985779992022861032
+    Component::Tag:
+      Tag: Camera
+    Component::Camera:
+      Primary: true
+      FixedAspectRatio: false
+    Component::Transform:
+      Position: [0, 0, 4.03000021]
+      Rotation: [1, 0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 13508316055826450006
+    Component::Tag:
+      Tag: Square
+    Component::Sprite:
+      Color: [0.0199999996, 0.0199999996, 0.720000029, 1]
+    Component::Transform:
+      Position: [0, 0, 0]
+      Rotation: [1, 0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 7771946038176205146
+    Component::Tag:
+      Tag: Square Red
+    Component::Sprite:
+      Color: [0.720000029, 0.0199999996, 0.0199999996, 1]
+    Component::Transform:
+      Position: [-0.839999974, -0.620000005, -2.02999997]
+      Rotation: [1, 0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 12445539052717913950
+    Component::Tag:
+      Tag: 2nd Camera
+    Component::Camera:
+      Primary: false
+      FixedAspectRatio: false
+    Component::Transform:
+      Position: [0, 0, 5.07999992]
+      Rotation: [1, 0, 0, 0]
+      Scale: [1, 1, 1]
