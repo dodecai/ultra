@@ -13,6 +13,8 @@
 
 namespace Ultra {
 
+Reference<Scene> sCurrentScene = nullptr;
+
 enum class DesignerState {
     Edit,
     Play,
@@ -28,40 +30,35 @@ public:
     }
 
     void Create() override {
+        size_t test = std::hash<string>{}("Hello World!");
+        AppLog(test);
+
         CurrentScene = CreateReference<Scene>();
         Serializer serializer(CurrentScene);
-        //serializer.Deserialize("./Data/Scene.yaml");
 
-        //BackgroundMusic = CurrentScene->CreateEntity("Background Music");
-        //BackgroundMusic.AddComponent<Component::Sound>("Assets/Sounds/Angels Dream - Aakash Gandhi.ogg");
+        Debug();
 
-        //CameraEntity = CurrentScene->CreateEntity("Camera");
-        //CameraEntity.AddComponent<Component::Camera>();
-        //CameraEntity.GetComponent<Component::Camera>().Primary = true;
-        //CameraEntity.AddComponent<Component::NativeScript>().Bind<CameraSystem>();
-
-        //SquareEntity = CurrentScene->CreateEntity("Square");
-        //SquareEntity.AddComponent<Component::Sprite>(glm::vec4 { 0.02f, 0.02f, 0.72f, 1.0f });
-
-        //auto SquareEntity2 = CurrentScene->CreateEntity("Square Red");
-        //SquareEntity2.AddComponent<Component::Sprite>(glm::vec4 { 0.72f, 0.02f, 0.02f, 1.0f });
-
-        //CameraEntity2 = CurrentScene->CreateEntity("2nd Camera");
-        //CameraEntity2.AddComponent<Component::Camera>();
 
         Browser.SetContext(CurrentScene);
         ScriptEditor.SetText("#include <Ultra.h>\r\n\r\nnamespace Ultra {\r\n\r\nclass Player {\r\n};\r\n\r\n}\r\n");
 
+        auto &dimension = Application::GetWindow().GetContexttSize();
+        CurrentScene->Resize(dimension.Width, dimension.Height);
+
+        sCurrentScene = CurrentScene;
+    }
+
+    void Debug() {
+        Serializer serializer(CurrentScene);
+        serializer.Deserialize("./Data/Scene.yaml");
+
         Ultra::Audio::Player::Initialize();
-        //BackgroundMusicPlayer = Ultra::Audio::Source::LoadFromFile(BackgroundMusic.GetComponent<Component::Sound>());
-        //BackgroundMusicPlayer.SetRepeat(true);
+        BackgroundMusic = CurrentScene->GetEntity("Background Music");
+        BackgroundMusicPlayer = Ultra::Audio::Source::LoadFromFile(BackgroundMusic.GetComponent<Component::Sound>());
+        BackgroundMusicPlayer.SetRepeat(true);
 
-        //GridTexture = Texture2D::Create("./Assets/Textures/Checkerboard.png");
-        //GridShader = Shader::Create("Assets/Shaders/Grid.glsl");
-        //GridShader->SetFloat("uResolution", 1000.0f);
-        //GridShader->SetFloat("uScaling", 24.0f);
-
-        //serializer.Serialize("./Scene.yaml");
+        CameraEntity = CurrentScene->GetEntity("Camera");
+        CameraEntity.AddComponent<Component::NativeScript>().Bind<CameraSystem>();
     }
 
     void GuiUpdate() override {
@@ -85,12 +82,20 @@ public:
         */
         if (ImGui::BeginMenuBar()) {
             if (ImGui::BeginMenu("File")) {
-                if (ImGui::MenuItem("OpenTest", "Ctrl+O")) {
+                if (ImGui::MenuItem("Open", "Ctrl+O")) {
+                    CurrentScene->Clear();
                     Serializer serializer(CurrentScene);
                     auto result = Omnia::Application::GetDialog().OpenFile();
                     serializer.Deserialize(result);
+                    CameraEntity = CurrentScene->GetEntity("Camera");
+                    CameraEntity.AddComponent<Component::NativeScript>().Bind<CameraSystem>();
+                    auto &dimension = Application::GetWindow().GetContexttSize();
+                    CurrentScene->Resize(dimension.Width, dimension.Height);
                 }
-                if (ImGui::MenuItem("SaveTest", "Ctrl+N")) {
+                if (ImGui::MenuItem("Close Test", "Ctrl+O")) {
+                    CurrentScene->Clear();
+                }
+                if (ImGui::MenuItem("Save Test", "Ctrl+N")) {
                     Serializer serializer(CurrentScene);
                     auto result = Omnia::Application::GetDialog().SaveFile();
                     serializer.Serialize(result);
@@ -224,9 +229,6 @@ public:
         RenderCommand::SetClearColor(ClearColor);
         RenderCommand::Clear();
 
-        auto &dimension = Application::GetWindow().GetContexttSize();
-        CurrentScene->Resize(dimension.Width, dimension.Height);
-
         CurrentScene->Update(deltaTime);
         #ifdef StepI
             // Draw
@@ -289,6 +291,8 @@ public:
         }
     }
 
+    static Reference<Scene> GetCurrentScene() { return sCurrentScene; }
+
 private:
     // Panels
     SceneBrowser Browser;
@@ -299,8 +303,6 @@ private:
     // Scene
     Reference<Scene> CurrentScene;
     Entity CameraEntity;
-    Entity CameraEntity2;
-    Entity SquareEntity;
     Entity BackgroundMusic;
 
     Ultra::Audio::Source BackgroundMusicPlayer = {};

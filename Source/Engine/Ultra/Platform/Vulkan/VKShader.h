@@ -1,22 +1,34 @@
 ﻿#pragma once
 
+#include <Platform/GFX/Vulkan/Vulkan.h>
+
 #include "Ultra/Renderer/Shader.h"
 
 namespace Ultra {
 
 class VKShader: public Shader {
-    uint32_t RendererID;
-    string ShaderName;
-
-    mutable unordered_map<string, int32_t> UniformLocationCache;
-
 public:
     VKShader(const string &source);
     VKShader(const string &vertexSource, const string &fragmentSource);
     virtual ~VKShader();
 
     virtual void Bind() const override; // Activate
+    virtual uint32_t GetRendererID() const override { return 0; }
+    virtual void Reload() const override {}
     virtual void Unbind() const override;
+
+    virtual const unordered_map<string, ShaderBuffer> &GetShaderBuffers() const { unordered_map<string, ShaderBuffer> result; return result; }
+    virtual const unordered_map<string, ShaderResourceDeclaration> &GetResources() const { unordered_map<string, ShaderResourceDeclaration> result; return result; }
+
+    virtual void SetUniformBuffer(const string &name, const void *data, uint32_t size) override {}
+    virtual void SetUniform(const string &name, float value) override {}
+    virtual void SetUniform(const string &name, int value) override {}
+    virtual void SetUniform(const string &name, glm::vec2 &value) override {}
+    virtual void SetUniform(const string &name, glm::vec3 &value) override {}
+    virtual void SetUniform(const string &name, glm::vec4 &value) override {}
+    virtual void SetUniform(const string &name, glm::mat3 &value) override {}
+    virtual void SetUniform(const string &name, glm::mat4 &value) override {}
+
 
     virtual const string GetName() const override;
 
@@ -44,6 +56,23 @@ private:
 
     virtual void UploadaUniformMat3(const string &name, const glm::mat3 &matrix) const;
     virtual void UploadaUniformMat4(const string &name, const glm::mat4 &matrix) const;
+
+private:
+    uint32_t RendererID;
+    string AssetPath;
+    string ShaderName;
+
+    vk::DescriptorSetLayout DescriptorSetLayout;
+    vk::DescriptorSet DescriptorSet;
+    vk::DescriptorPool DescriptorPool;
+
+    unordered_map<uint32_t, UniformBuffer> UniformBuffers;
+    //unordered_map<uint32_t, ImageSampler> ImageSamplers;
+    unordered_map<uint32_t, vk::WriteDescriptorSet> WriteDescriptorSets;
+    //vector<PushConstantRange> PushConstantRange;
+
+    mutable unordered_map<string, int32_t> UniformLocationCache;
+
 };
 
 }

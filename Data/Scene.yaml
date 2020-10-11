@@ -1,49 +1,46 @@
 Scene: x
 Entities:
-  - Entity: 14922758478884728481
-    Component::Tag:
-      Tag: Background Music
+  - Entity: 969c1159-9a10-70a4-bcad-d3d96029e8c9
+    Component::Tag: Background Music
     Component::Sound:
       Source: Assets/Sounds/Angels Dream - Aakash Gandhi.ogg
     Component::Transform:
       Position: [0, 0, 0]
       Rotation: [1, 0, 0, 0]
       Scale: [1, 1, 1]
-  - Entity: 12985779992022861032
-    Component::Tag:
-      Tag: Camera
+  - Entity: d3782132-8849-850e-c677-6cd5ee538301
+    Component::Tag: Camera
     Component::Camera:
       Primary: true
       FixedAspectRatio: false
+      ProjectionType: 0
     Component::Transform:
-      Position: [0, 0, 4.03000021]
+      Position: [0, 0, 5]
       Rotation: [1, 0, 0, 0]
       Scale: [1, 1, 1]
-  - Entity: 13508316055826450006
-    Component::Tag:
-      Tag: Square
+  - Entity: 129c3519-95c3-167a-8c80-ea9d03369de2
+    Component::Tag: 2nd Camera
+    Component::Camera:
+      Primary: false
+      FixedAspectRatio: false
+      ProjectionType: 1
+    Component::Transform:
+      Position: [0, 0, 5.07999992]
+      Rotation: [1, 0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 12a730ab-151b-3066-5712-baa35430bd2b
+    Component::Tag: Square
     Component::Sprite:
-      Color: [0.0199999996, 0.0199999996, 0.720000029, 1]
+      Color: [0.0554977432, 0.0568111986, 0.860215068, 1]
     Component::Transform:
-      Position: [0, 0, 0]
+      Position: [0, 0.159999996, 0]
       Rotation: [1, 0, 0, 0]
       Scale: [1, 1, 1]
-  - Entity: 7771946038176205146
-    Component::Tag:
-      Tag: Square Red
+  - Entity: e016da74-71a1-3c34-b347-0ba7838b371c
+    Component::Tag: Square Red
     Component::Sprite:
       Color: [0.720000029, 0.0199999996, 0.0199999996, 1]
     Component::Transform:
       Position: [-0.839999974, -0.620000005, -2.02999997]
-      Rotation: [1, 0, 0, 0]
-      Scale: [1, 1, 1]
-  - Entity: 12445539052717913950
-    Component::Tag:
-      Tag: 2nd Camera
-    Component::Camera:
-      Primary: false
-      FixedAspectRatio: false
-    Component::Transform:
-      Position: [0, 0, 5.07999992]
       Rotation: [1, 0, 0, 0]
       Scale: [1, 1, 1]

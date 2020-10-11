@@ -5,18 +5,29 @@
 namespace Ultra {
 
 class GLShader: public Shader {
-	uint32_t RendererID;
-	string ShaderName;
-
-	mutable unordered_map<string, int32_t> UniformLocationCache;
-
 public:
 	GLShader(const string &source);
 	GLShader(const string &vertexSource, const string &fragmentSource);
 	virtual ~GLShader();
 
 	virtual void Bind() const override; // Activate
+    virtual uint32_t GetRendererID() const { return 0; }
+    virtual void Reload() const {}
 	virtual void Unbind() const override;
+
+
+    virtual const unordered_map<string, ShaderBuffer> &GetShaderBuffers() const { unordered_map<string, ShaderBuffer> result; return result; }
+    virtual const unordered_map<string, ShaderResourceDeclaration> &GetResources() const { unordered_map<string, ShaderResourceDeclaration> result; return result; }
+
+    virtual void SetUniformBuffer(const string &name, const void *data, uint32_t size) {}
+    virtual void SetUniform(const string &name, float value) {}
+    virtual void SetUniform(const string &name, int value) {}
+    virtual void SetUniform(const string &name, glm::vec2 &value) {}
+    virtual void SetUniform(const string &name, glm::vec3 &value) {}
+    virtual void SetUniform(const string &name, glm::vec4 &value) {}
+    virtual void SetUniform(const string &name, glm::mat3 &value) {}
+    virtual void SetUniform(const string &name, glm::mat4 &value) {}
+
 
 	virtual const string GetName() const override;
 
@@ -34,6 +45,8 @@ private:
 	int32_t GetUniformLocation(const string &name) const;
 
 	// Uniforms
+
+
 	virtual void UploadaUniformInt(const string &name, int values) const;
 	virtual void UploadUniformIntArray(const string &name, int *values, size_t count) const;
 
@@ -44,6 +57,13 @@ private:
 
 	virtual void UploadaUniformMat3(const string &name, const glm::mat3 &matrix) const;
 	virtual void UploadaUniformMat4(const string &name, const glm::mat4 &matrix) const;
+
+private:
+    uint32_t RendererID;
+    string ShaderName;
+
+    mutable unordered_map<string, int32_t> UniformLocationCache;
+
 };
 
 }

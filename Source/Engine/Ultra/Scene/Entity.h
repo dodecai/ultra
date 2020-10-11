@@ -33,12 +33,18 @@ public:
 
         return pScene->Registry.get<T>(EntityHandle);
     }
-
+    
     template<typename T>
     T &RemoveComponent() {
         APP_ASSERT(!HasComponent<T>(), "The component doesn't exist under entity!");
 
         return pScene->Registry.remove<T>(EntityHandle);
+    }
+
+    template<typename T>
+    T &RemoveAllComponent() {
+        APP_ASSERT(!HasComponent<T>(), "The component doesn't exist under entity!");
+        return pScene->Registry.remove_all(T)(EntityHandle);
     }
 
     operator bool() const { return EntityHandle != entt::null; }
@@ -51,9 +57,11 @@ public:
         return !(*this==other);
     }
 
+    Scene *GetScene() const { return pScene; }
+
 private:
-    entt::entity EntityHandle = entt::null;
     Scene *pScene = nullptr;
+    entt::entity EntityHandle = entt::null;
 };
 
 class ScriptableEntity {

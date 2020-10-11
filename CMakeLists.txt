@@ -64,7 +64,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS TRUE)
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # Patch: Needet due to incompability of the WinAPI Library and >C++17 (std::byte)
-add_definitions(-D_HAS_STD_BYTE=0)
+add_definitions(-D_HAS_STD_BYTE=1)
 # Patch: Unicode Support (not needed, cause it is passed with the /utf-8 argument, which has its benefits)
 #add_definitions(-DUNICODE -D_UNICODE)
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐

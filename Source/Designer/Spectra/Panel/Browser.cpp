@@ -13,11 +13,13 @@ SceneBrowser::SceneBrowser(const Reference<Scene> &scene) {
 
 void SceneBrowser::GuiUpdate() {
     ImGui::Begin("Scene Browser");
-
+    
+    ImGui::BeginGroup();
     Context->Registry.each([&](auto id) {
         Entity entity { id, Context.get() };
         DrawEntityNode(entity);
     });
+    ImGui::EndGroup();
 
     ImGui::End();
 }
@@ -44,8 +46,6 @@ void SceneBrowser::DrawEntityNode(Entity entity) {
     }
 
     if (opened) {
-
-
         ImGui::TreePop();
     }
 

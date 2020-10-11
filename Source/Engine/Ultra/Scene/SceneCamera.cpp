@@ -123,6 +123,7 @@ SceneCamera::ProjectionType SceneCamera::GetProjectionType() {
 
 void SceneCamera::SetProjectionType(ProjectionType type) {
     Type = type;
+    RecalculateProjection();
 }
 
 

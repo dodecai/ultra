@@ -7,8 +7,6 @@
 
 //#define __cpp_lib_byte
 //#include <cstddef>
-enum class byte : unsigned char {};
-
 namespace Ultra {
 
 enum class ShaderDataType: uint8_t {
@@ -120,11 +118,11 @@ enum class VertexBufferType {
 
 
 struct DataBuffer {
-    byte *Data;
+    std::byte *Data;
     uint32_t Size;
 
     DataBuffer(): Data { nullptr }, Size { 0 } {}
-    DataBuffer(byte *data, uint32_t size): Data { data }, Size { size } {}
+    DataBuffer(std::byte *data, uint32_t size): Data { data }, Size { size } {}
 
     static DataBuffer Copy(void *data, uint32_t size) {
         DataBuffer buffer;
@@ -138,7 +136,7 @@ struct DataBuffer {
         Data = nullptr;
         if (size == 0) return;
 
-        Data = new byte[size];
+        Data = new std::byte[size];
         Size = size;
     }
     void Initialize() {
@@ -162,10 +160,10 @@ struct DataBuffer {
     operator bool() const {
         return Data;
     }
-    byte &operator[](int index) {
+    std::byte &operator[](int index) {
         return Data[index];
     }
-    byte operator[](int index) const {
+    std::byte operator[](int index) const {
         return Data[index];
     }
 };

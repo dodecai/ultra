@@ -28,21 +28,26 @@ namespace Ultra::Component {
 
 // Descriptive Components
 struct Identifier {
+    Identifier() = default;
+    Identifier(UUID<string> rhs): ID(rhs) {}
+    ~Identifier() = default;
+
     // Accessors
-    operator string() { return (string)ID; }
-    operator uint64_t() { return ID; }
-    operator const uint64_t() const { return ID; }
+    operator string() { return ID; }
+
+    // Comparision
+    bool operator==(const string &rhs) { return (ID == rhs); }
+    bool operator==(const UUID<string> &rhs) { return (ID == rhs); }
 
     // Modifiers
-    void operator =(uint64_t right) {
-        AppLogTrace("[Ultra::Component::Identifier]: ", "Overriding identifier from '", ID, "' to '", right, "'!");
+    void operator=(UUID<string> right) {
+        AppLogTrace("[Ultra::Component::Identifier]: ", "Overriding '", ID, "' to '", right, "'!");
         ID = right;
     }
-    bool operator ==(uint64_t right) const { return (ID == right); }
 
 private:
     // Properties
-    UUID ID;
+    UUID<string> ID;
 };
 
 struct Tag {
@@ -57,9 +62,12 @@ struct Tag {
     operator const string &() const { return mTag; }
     operator const char *() const { return mTag.c_str(); }
 
-    // Modifiers
-    void operator =(string &right) { mTag = right; }
+    // Comparision
     bool operator ==(string &right) const { return (mTag == right); }
+    bool operator ==(const string &right) const { return (mTag == right); }
+
+    // Mutators
+    void operator =(string &right) { mTag = right; }
 
 private:
     // Properties
@@ -84,11 +92,19 @@ struct Camera {
     SceneCamera mCamera;
     bool Primary = false;
     bool FixedAspectRatio = false;
+    SceneCamera::ProjectionType ProjectionType = SceneCamera::ProjectionType::Orthographic;
 
     Camera() = default;
     Camera(const Camera &) = default;
     //Camera(const glm::mat4 &projection): Camera(projection) {}
     ~Camera() = default;
+
+    operator int &() { return *reinterpret_cast<int *>(&ProjectionType); }
+    Camera &operator =(const SceneCamera::ProjectionType &type) {
+        ProjectionType = type;
+        mCamera.SetProjectionType(type);
+        return *this;
+    }
 
     //operator const glm::mat4 &() { return Camera.GetProjection(); }
     //operator const glm::mat4 &() const { return Camera.GetProjectionMatrix(); }

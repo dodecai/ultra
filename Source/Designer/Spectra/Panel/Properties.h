@@ -2,6 +2,7 @@
 
 #include "Ultra/Core.h"
 #include "Ultra/Scene/Entity.h"
+#include "Ultra/Scene/Scene.h"
 
 namespace Ultra {
 
@@ -19,7 +20,7 @@ private:
     void DrawComponent();
 
 private:
-    Entity Context;
+    Entity mContext;
 };
 
 }

@@ -24,13 +24,6 @@ enum class PolygonMode {
     Wireframe       = 0x2,
 };
 
-enum class Renderers {
-    Null            = 0x0,
-    DirectX         = 0x1,
-    OpenGL          = 0x2,
-    Vulkan          = 0x3,
-};
-
 struct RendererCapabilities {
 	string Vendor;
 	string Model;
@@ -56,14 +49,6 @@ struct RendererCapabilities {
 
 
 class RendererAPI {
-public:
-	// Enumerations
-	enum class Type {
-		Null	= 0,
-		Triangles,
-		Lines,
-	};
-
 public:
 	// Default
 	static RendererAPI *Create();

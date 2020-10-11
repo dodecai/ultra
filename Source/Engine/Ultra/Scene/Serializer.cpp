@@ -142,7 +142,7 @@ static std::tuple<glm::vec3, glm::quat, glm::vec3> GetTransformDecomposition(con
 }
 
 static void SerializeEntity(YAML::Emitter &out, Entity entity) {
-    uint64_t uuid = entity.GetComponent<Component::Identifier>();
+    string uuid = entity.GetComponent<Component::Identifier>();
     out << YAML::BeginMap;
     out << YAML::Key << "Entity";
     out << YAML::Value << uuid;
@@ -151,11 +151,7 @@ static void SerializeEntity(YAML::Emitter &out, Entity entity) {
         string &tag = entity.GetComponent<Component::Tag>();
 
         out << YAML::Key << "Component::Tag";
-        out << YAML::BeginMap;
-
-        out << YAML::Key << "Tag" << YAML::Value << tag;
-
-        out << YAML::EndMap;
+        out << YAML::Value << tag;
     }
 
     if (entity.HasComponent<Component::Camera>()) {
@@ -166,6 +162,8 @@ static void SerializeEntity(YAML::Emitter &out, Entity entity) {
 
         out << YAML::Key << "Primary" << YAML::Value << camera.Primary;
         out << YAML::Key << "FixedAspectRatio" << YAML::Value << camera.FixedAspectRatio;
+        out << YAML::Key << "ProjectionType" << YAML::Value << (uint32_t)camera.ProjectionType;
+
 
         out << YAML::EndMap;
     }
@@ -215,7 +213,7 @@ Serializer::Serializer(const Reference<Scene> &scene): mScene(scene) {}
 void Serializer::Serialize(const string &path) {
     YAML::Emitter out;
     out << YAML::BeginMap;
-    out << YAML::Key << "Scene" << YAML::Value << "x";
+    out << YAML::Key << "Scene" << YAML::Value << mScene->GetCaption();
 
     out << YAML::Key << "Entities" << YAML::Value;
     out << YAML::BeginSeq;
@@ -243,18 +241,20 @@ bool Serializer::Deserialize(const string &path) {
     auto entities = data["Entities"];
     if (entities) {
         for (auto entity : entities) {
-            uint64_t id = entity["Entity"].as<uint64_t>();
+            UUID<string> id = entity["Entity"].as<string>();
             Entity deserializedEntity = mScene->CreateEntity(id);
 
             if (auto tag = entity["Component::Tag"]) {
                 auto &component = deserializedEntity.AddComponent<Component::Tag>();
-                component = tag["Tag"].as<string>();
+                component = tag.as<string>();
             }
 
             if (auto camera = entity["Component::Camera"]) {
                 auto &component = deserializedEntity.AddComponent<Component::Camera>();
                 component.Primary = camera["Primary"].as<bool>();
                 component.FixedAspectRatio = camera["FixedAspectRatio"].as<bool>();
+                component.ProjectionType = (SceneCamera::ProjectionType)camera["ProjectionType"].as<uint32_t>();
+                component = (SceneCamera::ProjectionType)camera["ProjectionType"].as<uint32_t>();
             }
 
             if (auto sound = entity["Component::Sound"]) {

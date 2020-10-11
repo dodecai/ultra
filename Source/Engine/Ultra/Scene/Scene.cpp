@@ -1,20 +1,35 @@
 ﻿#include "Scene.h"
 
-#include "Ultra.pch"
-
 #include <glm/glm.hpp>
 
-#include "Entity.h"
+#include "Ultra.pch"
 #include "Ultra/Renderer/Renderer.h"
 #include "Ultra/Renderer/Renderer2D.h"
 
+#include "Entity.h"
+
 namespace Ultra {
 
-Scene::Scene(const string &name):
-    mName { name } {
+Scene::Scene(const string &caption): mCaption(caption) {}
+
+Scene::~Scene() { Clear(); }
+
+Entity Scene::CreateEntity(const string &name) {
+    Entity entity = { Registry.create(), this };
+    auto &id = entity.AddComponent<Component::Identifier>();
+    auto &tag = entity.AddComponent<Component::Tag>(name);
+    entity.AddComponent<Component::Transform>();
+    return entity;
 }
 
-Scene::~Scene() {
+Entity Scene::CreateEntity(const UUID<string> &id) {
+    Entity entity = { Registry.create(), this };
+    auto &identifier = entity.AddComponent<Component::Identifier>(id);
+    return entity;
+}
+
+
+void Scene::Clear() {
     Registry.clear();
 }
 
@@ -68,39 +83,55 @@ void Scene::Update(Timestamp deltaTime) {
 }
 
 void Scene::Resize(uint32_t width, uint32_t height) {
-    Width = width;
-    Height = height;
+    mWidth = width;
+    mHeight = height;
 
     auto view = Registry.view<Component::Camera>();
     for (auto entity : view) {
         auto &camera = view.get<Component::Camera>(entity);
-        if (!camera.FixedAspectRatio) {
-            camera.mCamera.SetViewportSize(width, height);
-        }
+        if (camera.ProjectionType == SceneCamera::ProjectionType::Orthographic && camera.FixedAspectRatio) return;
+        camera.mCamera.SetViewportSize(width, height);
     }
 }
 
-Entity Scene::CreateEntity(const string &name) {
-    Entity entity = { Registry.create(), this };
-    auto &id = entity.AddComponent<Component::Identifier>();
-    auto &tag = entity.AddComponent<Component::Tag>();
-    entity.AddComponent<Component::Transform>();
-    
-    tag = name.empty() ? "Entity" : name;
 
-    return entity;
+const Camera &Scene::GetCamera() {
+    auto view = Registry.view<Component::Camera>();
+    for (auto entity : view) {
+        auto camera = view.get<Component::Camera>(entity);
+        if (camera.Primary) { return camera.mCamera; }
+    }
 }
 
-Entity Scene::CreateEntity(const uint64_t id) {
-    Entity entity = { Registry.create(), this };
-    auto &identifier = entity.AddComponent<Component::Identifier>();
-    identifier = id;
-
-    return entity;
+const string &Scene::GetCaption() const {
+    return mCaption;
 }
 
-void Scene::AttachEntity(Entity *entity) {}
+const Entity &Scene::GetEntity(const string &name) {
+    auto view = Registry.view<Component::Tag>();
+    for (auto entity : view) {
+        auto &component = view.get<Component::Tag>(entity);
+        if (component == name) {
+            return { entity, this };
+        }
+    }
+    return Entity();
+}
 
-void Scene::DetachEntity(Entity *entity) {}
+const Entity &Scene::GetEntity(const UUID<string> &id) {
+    auto view = Registry.view<Component::Identifier>();
+    for (auto entity : view) {
+        auto &component = view.get<Component::Identifier>(entity);
+        if (component == id) {
+            return { entity, this };
+        }
+    }
+    return Entity();
+}
+
+
+void Scene::SetCaption(const string &caption) {
+    mCaption = caption;
+}
 
 }

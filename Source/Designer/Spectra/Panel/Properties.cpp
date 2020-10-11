@@ -27,32 +27,40 @@ void PropertiesPanel::GuiUpdate() {
     ImGui::Begin("Properties");
 
     // If an entity is selected ...
-    if (Context) {
+    if (mContext) {
         // .. and it has a tag component, show all well-known properties.
-        if (Context.HasComponent<Component::Tag>()) {
-            const char *tag = Context.GetComponent<Component::Tag>();
-            ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (mContext.HasComponent<Component::Tag>()) {
+            // Caption
+            string id = mContext.GetComponent<Component::Identifier>();
+            string &tag = mContext.GetComponent<Component::Tag>();
+            tag.reserve(1024);
+            ImGui::InputText("Caption", tag.data(), 1024);
+            ImGui::LabelText("ID", "%s", id.c_str());
+            UI::Property("Type", "%s", "undefined");
+            ImGui::Separator();
 
-            if (ImGui::CollapsingHeader(tag)) {
-                // Caption
-                string &tag = Context.GetComponent<Component::Tag>();
-                tag.reserve(1024);
-                ImGui::InputText("Tag", tag.data(), 1024);
-
+            // Settings
+            if (ImGui::CollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
                 // Camera
-                if (Context.HasComponent<Component::Camera>()) {
-                    auto &camera = Context.GetComponent<Component::Camera>().mCamera;
-                    auto &cameraComponent = Context.GetComponent<Component::Camera>();
-
-                    if (ImGui::Checkbox("Primary", &cameraComponent.Primary)) {
-                        // ToDo: Switch other cameras to false
-
-                    }
+                if (mContext.HasComponent<Component::Camera>()) {
+                    auto &camera = mContext.GetComponent<Component::Camera>().mCamera;
+                    auto &cameraComponent = mContext.GetComponent<Component::Camera>();
 
                     const char *projectionTypes[] = { "Perspective", "Orthographic" };
-                    static int currentType = (int)camera.GetProjectionType();
+                    static int currentType = cameraComponent;
                     if (ImGui::Combo("Projection", &currentType, projectionTypes, IM_ARRAYSIZE(projectionTypes))) {
-                        camera.SetProjectionType((SceneCamera::ProjectionType)currentType);
+                        cameraComponent = (SceneCamera::ProjectionType)currentType;
+                    }
+
+                    if (ImGui::Checkbox("Primary", &cameraComponent.Primary)) {
+                        auto cameras = mContext.GetScene()->Registry.view<Component::Camera>();
+                        for (auto entity : cameras) {
+                            auto &camera = cameras.get<Component::Camera>(entity);
+
+                            if (cameraComponent != camera && camera.Primary) {
+                                camera.Primary = false;
+                            }
+                        }
                     }
 
                     if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective) {
@@ -84,50 +92,40 @@ void PropertiesPanel::GuiUpdate() {
 
                 }
 
+
                 // Sound
-                if (Context.HasComponent<Component::Sound>()) {
-                    string &source = Context.GetComponent<Component::Sound>();
+                if (mContext.HasComponent<Component::Sound>()) {
+                    string &source = mContext.GetComponent<Component::Sound>();
                     source.reserve(1024);
                     ImGui::InputText("Source", source.data(), 1024);
                 }
 
-                // Settings
-                if (ImGui::CollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
-                    // SpriteRenderer
-                    if (Context.HasComponent<Component::Sprite>()) {
-                        glm::vec4 &color = Context.GetComponent<Component::Sprite>();
-                        ImGui::ColorEdit4("Color", glm::value_ptr(color));
-                    }
+                // Sprite
+                if (mContext.HasComponent<Component::Sprite>()) {
+                    glm::vec4 &color = mContext.GetComponent<Component::Sprite>();
+                    ImGui::ColorEdit4("Color", glm::value_ptr(color));
                 }
-
-                // Transform
-                if (Context.HasComponent<Component::Transform>()) {
-                    if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
-                        auto &transform = Context.GetComponent<Component::Transform>().mTransform;
-
-                        glm::vec3 scale;
-                        glm::quat orientation;
-                        glm::vec3 translation;
-                        glm::vec3 skew;
-                        glm::vec4 perspective;
-
-                        glm::decompose(transform, scale, orientation, translation, skew, perspective);
-
-                        ImGui::DragFloat3("Size", glm::value_ptr(scale));
-                        ImGui::DragFloat3("Rotation", glm::value_ptr(orientation));
-                        ImGui::DragFloat3("Position", glm::value_ptr(transform[3]), 0.01f);
-                    }
-                }
-
-                // Information
-                ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-                if (ImGui::CollapsingHeader("Information")) {
-                    const string &id = Context.GetComponent<Component::Identifier>();
-                    UI::Property("ID", "%s", id.c_str());
-                    UI::Property("Type", "%s", "undefined");
-                }
-
             }
+
+            // Transform
+            if (mContext.HasComponent<Component::Transform>()) {
+                if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    auto &transform = mContext.GetComponent<Component::Transform>().mTransform;
+
+                    glm::vec3 scale;
+                    glm::quat orientation;
+                    glm::vec3 translation;
+                    glm::vec3 skew;
+                    glm::vec4 perspective;
+
+                    glm::decompose(transform, scale, orientation, translation, skew, perspective);
+
+                    ImGui::DragFloat3("Size", glm::value_ptr(scale));
+                    ImGui::DragFloat3("Rotation", glm::value_ptr(orientation));
+                    ImGui::DragFloat3("Position", glm::value_ptr(transform[3]), 0.01f);
+                }
+            }
+
         }
         ImGui::Separator();
     }
@@ -139,7 +137,7 @@ void PropertiesPanel::DrawComponent() {
 }
 
 void PropertiesPanel::SetContext(Entity &entity) {
-    Context = entity;
+    mContext = entity;
 }
 
 void PropertiesPanel::Draw() {}

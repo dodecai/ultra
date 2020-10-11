@@ -11,6 +11,8 @@ PerspectiveCamera::PerspectiveCamera(glm::mat4 projection):
 	ProjectionMatrix (projection) {
 }
 
+
+
 PerspectiveCamera::PerspectiveCamera(float left, float right, float buttom, float top) {
 	switch (Type) {
 		case CameraTypes::Orthographic: {

@@ -23,36 +23,38 @@ class Scene {
     friend class PropertiesPanel;
 
 public:
-    Scene(const string &name = "Scene");
+    // Accessors
+    Scene(const string &caption = "Scene");
     //explicit Scene(Scope<Camera> &&camera): pCamera(std::move(camera)) {}
     ~Scene();
 
-    Entity CreateEntity(const string &name = "");
-    Entity CreateEntity(const uint64_t id);
+    Entity CreateEntity(const string &name = "Entity");
+    Entity CreateEntity(const UUID<string> &id);
     
+    void Clear();
     void Update(Timestamp deltaTime);
     void Resize(uint32_t width, uint32_t height);
 
     // Accessors
-    //Camera &GetCamera() const { return mCamera; }
+    const Camera &GetCamera();
+    const string &GetCaption() const;
+    const Entity &GetEntity(const string &name);
+    const Entity &GetEntity(const UUID<string> &id);
     bool IsActive() const {return mActive;};
 
+private:
     // Mutators
-    void AttachEntity(Entity *entity);
-    void DetachEntity(Entity *entity);
-    //void SetCamera(const Camera &camera) { mCamera = camera; }
+    void SetCaption(const string &caption);
 
 private:
+    //SceneCamera *pCamera = nullptr;
     entt::registry Registry;
-
-    bool mActive = false;
-    float mEnvironmentBlur = 1.0f;
-    std::string mName;
-
     vector<Entity *> mEntities;
 
-    uint32_t Width = 0;
-    uint32_t Height = 0;
+    std::string mCaption;
+    bool mActive = false;
+    uint32_t mWidth = 0;
+    uint32_t mHeight = 0;
 };
 
 // ToDo: From Prototype something like a scene library
