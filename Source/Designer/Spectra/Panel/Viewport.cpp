@@ -1,6 +1,8 @@
 ﻿#include <imgui/imgui.h>
 
 #include "Viewport.h"
+#include "Omnia/Core/Application.h"
+#include "Platform/GFX/Vulkan/VKContext.h"
 
 namespace Ultra {
 
@@ -27,7 +29,10 @@ void ViewportPanel::Update() {
             ImVec2 contentRegion = ImGui::GetContentRegionMax();
             Buffer->Resize(static_cast<uint32_t>(contentRegion.x), static_cast<uint32_t>(contentRegion.y));
 
+            //auto RendererID =  ((VKContext *)&Application::GetContext())->GetSwapChain()->GetAttachmentID();
+            //ImGui::Image((void *)RendererID, contentRegion, ImVec2(0,1), ImVec2(1,0));
             ImGui::Image((void *)rendererID, contentRegion, ImVec2(0,1), ImVec2(1,0));
+
             Active = ImGui::IsWindowFocused() ? true : false;
             ImGui::End();
         };

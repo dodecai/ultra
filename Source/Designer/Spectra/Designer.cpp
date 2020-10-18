@@ -15,6 +15,10 @@ namespace Ultra {
 
 Reference<Scene> sCurrentScene = nullptr;
 
+void test(const string &value) {
+    AppLog(value);
+}
+
 enum class DesignerState {
     Edit,
     Play,
@@ -30,9 +34,6 @@ public:
     }
 
     void Create() override {
-        size_t test = std::hash<string>{}("Hello World!");
-        AppLog(test);
-
         CurrentScene = CreateReference<Scene>();
         Serializer serializer(CurrentScene);
 
@@ -54,6 +55,7 @@ public:
 
         Ultra::Audio::Player::Initialize();
         BackgroundMusic = CurrentScene->GetEntity("Background Music");
+
         BackgroundMusicPlayer = Ultra::Audio::Source::LoadFromFile(BackgroundMusic.GetComponent<Component::Sound>());
         BackgroundMusicPlayer.SetRepeat(true);
 
@@ -72,9 +74,9 @@ public:
 
         static bool alwaysOpen = true;
         if (Menu::ViewportRender) {
-            Viewport.Enable();
+            mViewport.Enable();
         } else {
-            Viewport.Disable();
+            mViewport.Disable();
         }
 
         /**
@@ -120,7 +122,7 @@ public:
         if (consoleOpen) View::ShowExampleAppConsole(&consoleOpen);
 
         // Scene
-        Viewport.Update();
+        mViewport.Update();
 
         // Properties
         auto &selectedNode = Browser.GetSelectedNode();
@@ -221,8 +223,8 @@ public:
     void Update(Timestamp deltaTime) override {
         // Preparation
         Renderer2D::ResetStatistics();
-        if (Viewport.IsEnabled()) {
-            Viewport.BindBuffer();
+        if (mViewport.IsEnabled()) {
+            mViewport.BindBuffer();
         }
 
         // Renderer
@@ -232,7 +234,7 @@ public:
         CurrentScene->Update(deltaTime);
         #ifdef StepI
             // Draw
-            Renderer2D::StartScene(SceneCamera.GetCamera());
+            Renderer2D::StartScene(CurrentScene->GetCamera());
 
             static float rotation = 0.0f;
             rotation += RoatationSpeed * deltaTime;
@@ -265,17 +267,20 @@ public:
             Renderer2D::FinishScene();
         #endif
 
-        if (Viewport.IsEnabled()) { Viewport.UnbindBuffer(); }
+        if (mViewport.IsEnabled()) { mViewport.UnbindBuffer(); }
     }
 
     void KeyboardEvent(KeyboardEventData data) override {
         static bool playing = false;
         if (data.State == KeyState::Release) {
+            if (data.Key == KeyCode::F2) {
+                APP_DEBUGBREAK();
+            }
             if (data.Key == KeyCode::KeyP) {
                 if (playing) {
-                    Ultra::Audio::Player::Pause(BackgroundMusicPlayer);
+                    Audio::Player::Pause(BackgroundMusicPlayer);
                 } else {
-                    Ultra::Audio::Player::Play(BackgroundMusicPlayer);
+                    Audio::Player::Play(BackgroundMusicPlayer);
                 }
                 playing = !playing;
             }
@@ -286,7 +291,7 @@ public:
         if (data.Action == WindowAction::Resize) {
             auto &dimension = Application::GetWindow().GetContexttSize();
             Renderer::Resize(dimension.Width, dimension.Height);
-            Viewport.Resize(dimension.Width, dimension.Height);
+            mViewport.Resize(dimension.Width, dimension.Height);
             CurrentScene->Resize(dimension.Width, dimension.Height);
         }
     }
@@ -296,7 +301,7 @@ public:
 private:
     // Panels
     SceneBrowser Browser;
-    ViewportPanel Viewport;
+    ViewportPanel mViewport;
     PropertiesPanel SceneProperties;
     TextEditor ScriptEditor;
 

@@ -168,6 +168,19 @@ void Renderer2D::StartScene(const PerspectiveCamera &camera) {
     sData.TextureSlotIndex = 1;
 }
 
+void Renderer2D::StartScene(const Camera &camera) {
+    sData.DepthTest = true;
+    sData.ViewProjectionMatrix = camera.GetProjection();
+
+    sData.LineIndexCount = 0;
+    sData.LineVertexBufferPtr = sData.LineVertexBufferBase;
+
+    sData.QIndexCount = 0;
+    sData.QVertexBufferPtr = sData.QVertexBufferBase;
+
+    sData.TextureSlotIndex = 1;
+}
+
 void Renderer2D::StartScene(const Camera &camera, const glm::mat4 &transform) {
     sData.DepthTest = true;
     sData.ViewProjectionMatrix = camera.GetProjection() * glm::inverse(transform);

@@ -19,6 +19,7 @@ public:
     static void Unload();
 
     static void StartScene(const PerspectiveCamera &camera);
+    static void StartScene(const Camera &camera);
     static void StartScene(const Camera &camera, const glm::mat4 &transform);
     static void FinishScene();
     static void Flush();
