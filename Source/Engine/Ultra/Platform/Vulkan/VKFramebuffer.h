@@ -26,6 +26,7 @@ public:
     virtual uint32_t GetRendererID() const override;
     virtual const FramebufferProperties &GetProperties() const override;
     virtual uint32_t GetColorAttachmentRendererID() const override;
+    virtual void *GetColorAttachmentRendererIDRaw() const { return TextureID; }
     virtual uint32_t GetDepthAttachmentRendererID() const override;
 
     const vk::DescriptorImageInfo &GetNativeDescriptorInfo() const;
@@ -37,6 +38,7 @@ public:
 
 private:
     FramebufferProperties Properties;
+    void *TextureID = nullptr;
 
     uint32_t RendererID = 0;
     FramebufferAttachment ColorAttachment;

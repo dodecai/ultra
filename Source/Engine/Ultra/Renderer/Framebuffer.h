@@ -38,6 +38,7 @@ public:
     // Accessors
     virtual const FramebufferProperties &GetProperties() const = 0;
     virtual uint32_t GetColorAttachmentRendererID() const = 0;
+    virtual void *GetColorAttachmentRendererIDRaw() const { return nullptr; }
     virtual uint32_t GetDepthAttachmentRendererID() const = 0;
     virtual uint32_t GetRendererID() const = 0;
 

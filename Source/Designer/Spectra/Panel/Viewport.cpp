@@ -21,7 +21,6 @@ ViewportPanel::ViewportPanel(FramebufferProperties &properties) {
 void ViewportPanel::Update() {
     if (Enabled) {
         static bool viewportOpen = true;
-        uint32_t rendererID = Buffer->GetColorAttachmentRendererID();
 
         ImGuiWindowFlags viewportFlags = ImGuiWindowFlags_NoScrollbar;
 
@@ -29,9 +28,13 @@ void ViewportPanel::Update() {
             ImVec2 contentRegion = ImGui::GetContentRegionMax();
             Buffer->Resize(static_cast<uint32_t>(contentRegion.x), static_cast<uint32_t>(contentRegion.y));
 
-            //auto RendererID =  ((VKContext *)&Application::GetContext())->GetSwapChain()->GetAttachmentID();
-            //ImGui::Image((void *)RendererID, contentRegion, ImVec2(0,1), ImVec2(1,0));
-            ImGui::Image((void *)rendererID, contentRegion, ImVec2(0,1), ImVec2(1,0));
+            if (Context::API == GraphicsAPI::Vulkan) {
+                void *rendererID = Buffer->GetColorAttachmentRendererIDRaw();
+                ImGui::Image(rendererID, contentRegion, ImVec2(0,1), ImVec2(1,0));
+            } else {
+                uint32_t rendererID = Buffer->GetColorAttachmentRendererID();
+                ImGui::Image((void *)rendererID, contentRegion, ImVec2(0,1), ImVec2(1,0));
+            }
 
             Active = ImGui::IsWindowFocused() ? true : false;
             ImGui::End();

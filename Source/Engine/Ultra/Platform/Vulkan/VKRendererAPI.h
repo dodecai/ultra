@@ -25,8 +25,10 @@ public:
     virtual void SetViewport(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
 
 private:
-    static inline const VKContext *sContext = nullptr;
-    static inline Reference<VKDevice> sDevice = nullptr;
+    const VKContext *sContext = nullptr;
+    Reference<VKDevice> mDevice = nullptr;
+
+    Reference<VKPipeline> mPipelineA = nullptr;
 };
 
 }

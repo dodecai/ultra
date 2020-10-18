@@ -1,6 +1,7 @@
 ﻿#include "VKFramebuffer.h"
 
 #include "VKContext.h"
+#include "Omnia/UI/GuiBuilder.h"
 
 namespace Ultra {
 
@@ -8,14 +9,39 @@ static inline Omnia::VKContext *VKContext = nullptr;
 
 
 VKFramebuffer::VKFramebuffer(const FramebufferProperties &properties): Properties(properties) {
-    Resize(Properties.Width, Properties.Height, true);
     VKContext = reinterpret_cast<Omnia::VKContext *>(&Omnia::Application::Get().GetContext());
+    Resize(Properties.Width, Properties.Height, true);
 }
 
 VKFramebuffer::~VKFramebuffer() {}
 
-void VKFramebuffer::Bind() {}
-void VKFramebuffer::Unbind() {}
+void VKFramebuffer::Bind() {
+    //vk::ClearValue clearValues[2];
+    //clearValues[0].color = array<float, 4> { 0.0f, 0.0f, 0.0f, 0.72f};
+    //clearValues[1].depthStencil = { 1.0f, 0 };
+
+    //vk::RenderPassBeginInfo renderPassInfo = {};
+    //renderPassInfo.renderPass = RenderPass;
+    //renderPassInfo.renderArea.offset = { 0, 0 };
+    //renderPassInfo.framebuffer = Framebuffer;
+    //renderPassInfo.renderArea.extent = { Properties.Width, Properties.Height };
+    //renderPassInfo.clearValueCount = 2;
+    //renderPassInfo.pClearValues = clearValues;
+
+    //vk::CommandBuffer buffer = VKContext->GetSwapChain()->GetCurrentDrawCommandBuffer();
+
+    //buffer.begin(vk::CommandBufferBeginInfo());
+    //buffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+
+    //TextureID = ImGui_ImplVulkan_AddTexture(DescriptorImageInfo.sampler, DescriptorImageInfo.imageView, (VkImageLayout)DescriptorImageInfo.imageLayout);
+
+    //buffer.endRenderPass();
+    //buffer.end();
+}
+
+void VKFramebuffer::Unbind() {
+
+}
 
 uint32_t VKFramebuffer::GetRendererID() const {
     return RendererID;
@@ -46,11 +72,14 @@ vk::RenderPass VKFramebuffer::GetRenderPass() const {
 }
 
 void VKFramebuffer::Resize(uint32_t width, uint32_t height, bool reload) {
-    return;
     Properties.Width = width;
     Properties.Height = height;
+
     if (!Properties.SwapChainTarget) {
-        auto &device = VKContext->GetDevice()->Call();
+        static bool once = false;
+        if (!once) {
+        
+        vk::Device device = *VKContext->GetDevice();
 
         if (Framebuffer) device.destroyFramebuffer(Framebuffer, nullptr);
         array<vk::AttachmentDescription, 2> attachmentDescriptions;
@@ -61,7 +90,7 @@ void VKFramebuffer::Resize(uint32_t width, uint32_t height, bool reload) {
         /// Color Attachment
         /// 
         {
-            const vk::Format COLOR_BUFFER_FORMAT = vk::Format::eR8G8B8A8Unorm;
+            const vk::Format COLOR_BUFFER_FORMAT = vk::Format::eB8G8R8A8Unorm;
 
             vk::ImageCreateInfo imageInfo = {};
             imageInfo.imageType = vk::ImageType::e2D;
@@ -124,16 +153,14 @@ void VKFramebuffer::Resize(uint32_t width, uint32_t height, bool reload) {
         /// Depth and Stencil Attachment
         /// 
         {
-            const vk::Format DEPTH_BUFFER_FORMAT = vk::Format::eR8G8B8A8Unorm;
+            const vk::Format DEPTH_BUFFER_FORMAT = vk::Format::eD16UnormS8Uint;
 
             vk::ImageCreateInfo imageInfo = {};
             imageInfo.imageType = vk::ImageType::e2D;
             imageInfo.format = DEPTH_BUFFER_FORMAT;
-            imageInfo.extent.width = width;
-            imageInfo.extent.height = height;
-            imageInfo.extent.depth = 1;
-            imageInfo.mipLevels = 1;
-            imageInfo.arrayLayers = 1;
+            imageInfo.extent = { width, height, 1U };
+            imageInfo.mipLevels = 1U;
+            imageInfo.arrayLayers = 1U;
             imageInfo.samples = vk::SampleCountFlagBits::e1;
             imageInfo.tiling = vk::ImageTiling::eOptimal;
             imageInfo.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
@@ -146,15 +173,18 @@ void VKFramebuffer::Resize(uint32_t width, uint32_t height, bool reload) {
             device.bindImageMemory(DepthAttachment.Image, DepthAttachment.Memory, 0);
 
             vk::ImageViewCreateInfo viewInfo = {};
+            viewInfo.image = DepthAttachment.Image;
             viewInfo.viewType = vk::ImageViewType::e2D;
             viewInfo.format = DEPTH_BUFFER_FORMAT;
             viewInfo.subresourceRange = {};
-            viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil;
+            viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
+            if (DEPTH_BUFFER_FORMAT >= vk::Format::eD16UnormS8Uint) {
+                viewInfo.subresourceRange.aspectMask |= vk::ImageAspectFlagBits::eStencil;
+            }
             viewInfo.subresourceRange.baseMipLevel = 0;
             viewInfo.subresourceRange.levelCount = 1;
             viewInfo.subresourceRange.baseArrayLayer = 0;
             viewInfo.subresourceRange.layerCount = 1;
-            viewInfo.image = ColorAttachment.Image;
             DepthAttachment.View = device.createImageView(viewInfo, nullptr);
 
             attachmentDescriptions[1].flags = vk::AttachmentDescriptionFlagBits::eMayAlias;
@@ -221,8 +251,10 @@ void VKFramebuffer::Resize(uint32_t width, uint32_t height, bool reload) {
         DescriptorImageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
         DescriptorImageInfo.imageView = ColorAttachment.View;
         DescriptorImageInfo.sampler = ColorAttachmentSampler;
-
-    } else {
+         
+        once = true;
+        }
+     } else {
         auto &swapChain = VKContext->GetSwapChain();
         RenderPass = swapChain->GetRenderPass();
     }

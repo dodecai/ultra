@@ -3,6 +3,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "Ultra/Renderer/Pipeline.h"
+#include "VKContext.h"
 
 namespace Ultra {
 
@@ -21,9 +22,10 @@ public:
     vk::PipelineLayout GetNativePipelineLayout();
 
 private:
-    PipelineProperties Properties;
-    uint32_t VertexArrayRendererID = 0;
+    Reference<VKContext> mContext = nullptr;
+    Reference<VKDevice> mDevice = nullptr;
 
+    PipelineProperties Properties;
     vk::Pipeline Pipeline;
     vk::PipelineLayout Layout;
 };

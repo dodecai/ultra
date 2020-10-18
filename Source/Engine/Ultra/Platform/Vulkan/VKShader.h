@@ -20,14 +20,14 @@ public:
     virtual const unordered_map<string, ShaderBuffer> &GetShaderBuffers() const { unordered_map<string, ShaderBuffer> result; return result; }
     virtual const unordered_map<string, ShaderResourceDeclaration> &GetResources() const { unordered_map<string, ShaderResourceDeclaration> result; return result; }
 
-    virtual void SetUniformBuffer(const string &name, const void *data, uint32_t size) override {}
-    virtual void SetUniform(const string &name, float value) override {}
-    virtual void SetUniform(const string &name, int value) override {}
-    virtual void SetUniform(const string &name, glm::vec2 &value) override {}
-    virtual void SetUniform(const string &name, glm::vec3 &value) override {}
-    virtual void SetUniform(const string &name, glm::vec4 &value) override {}
-    virtual void SetUniform(const string &name, glm::mat3 &value) override {}
-    virtual void SetUniform(const string &name, glm::mat4 &value) override {}
+    virtual void SetUniformBuffer(const string &name, const void *data, uint32_t size) override;
+    virtual void SetUniform(const string &name, float value) override;
+    virtual void SetUniform(const string &name, int value) override;
+    virtual void SetUniform(const string &name, glm::vec2 &value) override;
+    virtual void SetUniform(const string &name, glm::vec3 &value) override;
+    virtual void SetUniform(const string &name, glm::vec4 &value) override;
+    virtual void SetUniform(const string &name, glm::mat3 &value) override;
+    virtual void SetUniform(const string &name, glm::mat4 &value) override;
 
 
     virtual const string GetName() const override;

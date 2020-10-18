@@ -43,6 +43,32 @@ const string VKShader::GetName() const {
     return string();
 }
 
+
+void VKShader::SetUniformBuffer(const string &name, const void *data, uint32_t size) {
+}
+
+void VKShader::SetUniform(const string &name, float value) {
+}
+
+void VKShader::SetUniform(const string &name, int value) {
+}
+
+void VKShader::SetUniform(const string &name, glm::vec2 &value) {
+}
+
+void VKShader::SetUniform(const string &name, glm::vec3 &value) {
+}
+
+void VKShader::SetUniform(const string &name, glm::vec4 &value) {
+}
+
+void VKShader::SetUniform(const string &name, glm::mat3 &value) {
+}
+
+void VKShader::SetUniform(const string &name, glm::mat4 &value) {
+}
+
+
 void VKShader::SetInt(const string &name, int value) {
 }
 
@@ -63,12 +89,15 @@ void VKShader::SetMat4(const string &name, const glm::mat4 &values) {
 
 void VKShader::Compile(unordered_map<unsigned int, string> sources) {
 }
+
 unordered_map<unsigned int, string> VKShader::Prepare(string &source) {
     return unordered_map<unsigned int, string>();
 }
+
 int32_t VKShader::GetUniformLocation(const string &name) const {
     return int32_t();
 }
+
 void VKShader::UploadaUniformInt(const string &name, int values) const {
 }
 
