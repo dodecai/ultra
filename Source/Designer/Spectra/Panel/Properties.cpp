@@ -15,8 +15,69 @@
 
 #include "Ultra/Scene/Components.h"
 
+#include <imgui/imgui_internal.h>
+
+namespace Omnia {
+
+namespace UI {
+
+/// Vector 3 Property
+inline void Property(const string &label, glm::vec3 &values, float resetValue = 0.0f, float columnWidth = 100.0f) {
+    ImGui::PushID(label.c_str());
+
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, columnWidth);
+    ImGui::Text(label.c_str());
+
+    ImGui::NextColumn();
+
+    ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
+
+    float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y *2.0f;
+    ImVec2 buttonSize = { lineHeight * 1.28f, lineHeight };
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 0.72f});
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.25f, 0.72f});
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 0.72f});
+    if (ImGui::Button("X", buttonSize)) values.x = resetValue;
+    ImGui::SameLine();
+    ImGui::DragFloat("##X", &values.x, 0.01f, 0.0f, 0.0f, "%.2f");
+    ImGui::PopItemWidth();
+    ImGui::SameLine();
+    ImGui::PopStyleColor(3);
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.3f, 0.72f});
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.2f, 0.3f, 0.72f});
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.3f, 0.72f});
+    if (ImGui::Button("Y", buttonSize)) values.y = resetValue;
+    ImGui::SameLine();
+    ImGui::DragFloat("##Y", &values.y, 0.2f, 0.0f, 0.0f, "%.2f");
+    ImGui::PopItemWidth();
+    ImGui::SameLine();
+    ImGui::PopStyleColor(3);
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 0.72f});
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 0.72f});
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 0.72f});
+    if (ImGui::Button("Z", buttonSize)) values.z = resetValue;
+    ImGui::SameLine();
+    ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f");
+    ImGui::PopItemWidth();
+    ImGui::PopStyleColor(3);
+
+    ImGui::PopStyleVar(1);
+    ImGui::Columns(1);
+
+    ImGui::PopID();
+}
+
+}
+
+}
 
 namespace Ultra {
+
 PropertiesPanel::PropertiesPanel() {}
 
 PropertiesPanel::PropertiesPanel(Entity &entity) {
@@ -34,15 +95,56 @@ void PropertiesPanel::GuiUpdate() {
             string id = mContext.GetComponent<Component::Identifier>();
             string &tag = mContext.GetComponent<Component::Tag>();
             tag.reserve(1024);
+
             ImGui::InputText("Caption", tag.data(), 1024);
-            ImGui::LabelText("ID", "%s", id.c_str());
+            ImGui::SameLine(ImGui::GetWindowWidth() -96.0f);
+            if (ImGui::Button("Add Component")) ImGui::OpenPopup("AddComponent");
+            if (ImGui::BeginPopup("AddComponent")) {
+                if (ImGui::Selectable("Camera")) mContext.AddComponent<Component::Camera>();
+                if (ImGui::Selectable("Sound")) mContext.AddComponent<Component::Sound>();
+                if (ImGui::Selectable("Sprite")) mContext.AddComponent<Component::Sprite>();
+                ImGui::EndPopup();
+             }
+
+            UI::Property("ID", "%s", id.c_str());
             UI::Property("Type", "%s", "undefined");
+
             ImGui::Separator();
 
-            // Settings
-            if (ImGui::CollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
-                // Camera
-                if (mContext.HasComponent<Component::Camera>()) {
+            const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap;
+
+            // Transform
+            if (mContext.HasComponent<Component::Transform>()) {
+                ImGui::PushID("Transform");
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
+                bool open = ImGui::CollapsingHeader("Transform", treeNodeFlags);
+                ImGui::SameLine(ImGui::GetWindowWidth() -32.0f);
+                ImGui::PopStyleVar();
+                if (ImGui::Button("+", ImVec2(24, 24))) ImGui::OpenPopup("ComponentSettings");
+                if (open) {
+                    auto &transform = mContext.GetComponent<Component::Transform>();
+
+                    UI::Property("Position", transform.Position);
+                    glm::vec3 rotation = glm::degrees(transform.Rotation);
+                    UI::Property("Rotation", rotation);
+                    transform.Rotation = glm::radians(rotation);
+                    UI::Property("Scale", transform.Scale, 1.0f);
+                }
+                if (ImGui::BeginPopup("ComponentSettings")) {
+                    ImGui::EndPopup();
+                }
+                ImGui::PopID();
+            }
+
+            // Camera
+            if (mContext.HasComponent<Component::Camera>()) {
+                ImGui::PushID("Camera");
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
+                bool open = ImGui::CollapsingHeader("Camera", treeNodeFlags);
+                ImGui::SameLine(ImGui::GetWindowWidth() -32.0f);
+                ImGui::PopStyleVar();
+                if (ImGui::Button("+", ImVec2(24, 24))) ImGui::OpenPopup("ComponentSettings");
+                if (open) {
                     auto &camera = mContext.GetComponent<Component::Camera>().mCamera;
                     auto &cameraComponent = mContext.GetComponent<Component::Camera>();
 
@@ -89,41 +191,52 @@ void PropertiesPanel::GuiUpdate() {
                     if (ImGui::DragFloat("Far", &far, 1.0f, -120.0f, 120.0f)) {
                         camera.SetFarClip(far);
                     }
-
                 }
+                if (ImGui::BeginPopup("ComponentSettings")) {
+                    if (ImGui::Selectable("Remove")) mContext.RemoveComponent<Component::Camera>();
+                    ImGui::EndPopup();
+                }
+                ImGui::PopID();
+            }
 
-
-                // Sound
-                if (mContext.HasComponent<Component::Sound>()) {
+            // Sound
+            if (mContext.HasComponent<Component::Sound>()) {
+                ImGui::PushID("Sound");
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
+                bool open = ImGui::CollapsingHeader("Sound", treeNodeFlags);
+                ImGui::SameLine(ImGui::GetWindowWidth() -32.0f);
+                ImGui::PopStyleVar();
+                if (ImGui::Button("+", ImVec2(24, 24))) ImGui::OpenPopup("ComponentSettings");
+                if (open) {
                     string &source = mContext.GetComponent<Component::Sound>();
                     source.reserve(1024);
                     ImGui::InputText("Source", source.data(), 1024);
                 }
-
-                // Sprite
-                if (mContext.HasComponent<Component::Sprite>()) {
-                    glm::vec4 &color = mContext.GetComponent<Component::Sprite>();
-                    ImGui::ColorEdit4("Color", glm::value_ptr(color));
+                if (ImGui::BeginPopup("ComponentSettings")) {
+                    if (ImGui::Selectable("Remove")) mContext.RemoveComponent<Component::Sound>();
+                    ImGui::EndPopup();
                 }
+                ImGui::PopID();
             }
 
-            // Transform
-            if (mContext.HasComponent<Component::Transform>()) {
-                if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
-                    auto &transform = mContext.GetComponent<Component::Transform>().mTransform;
 
-                    glm::vec3 scale;
-                    glm::quat orientation;
-                    glm::vec3 translation;
-                    glm::vec3 skew;
-                    glm::vec4 perspective;
-
-                    glm::decompose(transform, scale, orientation, translation, skew, perspective);
-
-                    ImGui::DragFloat3("Size", glm::value_ptr(scale));
-                    ImGui::DragFloat3("Rotation", glm::value_ptr(orientation));
-                    ImGui::DragFloat3("Position", glm::value_ptr(transform[3]), 0.01f);
+            // Sprite
+            if (mContext.HasComponent<Component::Sprite>()) {
+                ImGui::PushID("Sprite");
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
+                bool open = ImGui::CollapsingHeader("Sprite", treeNodeFlags);
+                ImGui::SameLine(ImGui::GetWindowWidth() -32.0f);
+                ImGui::PopStyleVar();
+                if (ImGui::Button("+", ImVec2(24, 24))) ImGui::OpenPopup("ComponentSettings");
+                if (open) {
+                    glm::vec4 &color = mContext.GetComponent<Component::Sprite>();
+                    UI::Property("Color", glm::value_ptr(color));
                 }
+                if (ImGui::BeginPopup("ComponentSettings")) {
+                    if (ImGui::Selectable("Remove")) mContext.RemoveComponent<Component::Sprite>();
+                    ImGui::EndPopup();
+                }
+                ImGui::PopID();
             }
 
         }

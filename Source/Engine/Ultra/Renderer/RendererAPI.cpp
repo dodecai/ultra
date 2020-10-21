@@ -7,7 +7,7 @@ namespace Ultra {
 
 // Default
 RendererAPI *RendererAPI::Create() {
-    Context::API = GraphicsAPI::Vulkan;
+    Context::API = GraphicsAPI::OpenGL;
 
 	switch (Context::API) {
 		case GraphicsAPI::Null:		{ return nullptr; }

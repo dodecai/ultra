@@ -13,13 +13,22 @@ SceneBrowser::SceneBrowser(const Reference<Scene> &scene) {
 
 void SceneBrowser::GuiUpdate() {
     ImGui::Begin("Scene Browser");
-    
+
     ImGui::BeginGroup();
     Context->Registry.each([&](auto id) {
         Entity entity { id, Context.get() };
         DrawEntityNode(entity);
     });
     ImGui::EndGroup();
+
+    if (ImGui::BeginPopupContextWindow(0, 1, false)) {
+        if (ImGui::Selectable("New Entity")) {
+            static uint32_t counter = 0;
+            Context->CreateEntity("New Entity #" + std::to_string(++counter));
+        }
+
+        ImGui::EndPopup();
+    }
 
     ImGui::End();
 }
@@ -44,11 +53,18 @@ void SceneBrowser::DrawEntityNode(Entity entity) {
     if (ImGui::IsWindowHovered() && ImGui::IsMouseDown(0)) {
         SelectionContext = {};
     }
+    
+    if (ImGui::BeginPopupContextItem()) {
+        if (ImGui::Selectable("Remove")) {
+            Context->DestroyEntity(entity);
+            SelectionContext = {};
+        }
+        ImGui::EndPopup();
+    }
 
     if (opened) {
         ImGui::TreePop();
     }
-
 
     //if (ImGui::CollapsingHeader(tag)) {}
 }

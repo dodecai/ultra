@@ -23,28 +23,30 @@ public:
 
     template<typename T, typename... Args>
     T &AddComponent(Args &&...arguments) {
-        //APP_ASSERT(!HasComponent<T>(), "Entity already has component!");
-        return pScene->Registry.emplace<T>(EntityHandle, arguments...);
+        if (HasComponent<T>()) {
+            AppLogWarning("Entity already has component!");
+            return GetComponent<T>();
+        }
+        T &component = pScene->Registry.emplace<T>(EntityHandle, arguments...);
+        return component;
     }
 
     template<typename T>
     T &GetComponent() {
-        APP_ASSERT(HasComponent<T>(), "The component doesn't exist under entity!");
-
+        if (!HasComponent<T>()) {
+            AppLogWarning("The component doesn't exist under entity!");
+        }
         return pScene->Registry.get<T>(EntityHandle);
     }
     
     template<typename T>
-    T &RemoveComponent() {
-        APP_ASSERT(!HasComponent<T>(), "The component doesn't exist under entity!");
-
-        return pScene->Registry.remove<T>(EntityHandle);
+    void RemoveComponent() {
+        if (HasComponent<T>()) pScene->Registry.remove<T>(EntityHandle);
     }
 
     template<typename T>
-    T &RemoveAllComponent() {
-        APP_ASSERT(!HasComponent<T>(), "The component doesn't exist under entity!");
-        return pScene->Registry.remove_all(T)(EntityHandle);
+    void RemoveAllComponent() {
+        pScene->Registry.remove_all(T)(EntityHandle);
     }
 
     operator bool() const { return EntityHandle != entt::null; }
@@ -56,6 +58,8 @@ public:
     bool operator!=(const Entity &other) const {
         return !(*this==other);
     }
+
+    operator entt::entity() const { return EntityHandle; }
 
     Scene *GetScene() const { return pScene; }
 

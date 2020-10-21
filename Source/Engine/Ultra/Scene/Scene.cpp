@@ -10,7 +10,13 @@
 
 namespace Ultra {
 
-Scene::Scene(const string &caption): mCaption(caption) {}
+inline void UpdateCamera(Scene &scene) {
+    scene.Resize(scene.GetWdith(), scene.GetHeight());
+}
+
+Scene::Scene(const string &caption): mCaption(caption) {
+    Registry.on_construct<Component::Camera>().connect<&UpdateCamera>(*this);
+}
 
 Scene::~Scene() { Clear(); }
 
@@ -26,6 +32,10 @@ Entity Scene::CreateEntity(const UUID<string> &id) {
     Entity entity = { Registry.create(), this };
     auto &identifier = entity.AddComponent<Component::Identifier>(id);
     return entity;
+}
+
+void Scene::DestroyEntity(Entity entity) {
+    Registry.destroy(entity);
 }
 
 
@@ -50,7 +60,7 @@ void Scene::Update(Timestamp deltaTime) {
 
     // 2D 
     Camera *sceneCamera = nullptr;
-    glm::mat4 *cameraTransform = nullptr;
+    glm::mat4 cameraTransform;
     {
         auto view = Registry.view<Component::Camera, Component::Transform>();
         for (auto entity : view) {
@@ -58,12 +68,12 @@ void Scene::Update(Timestamp deltaTime) {
 
             if (camera.Primary) {
                 sceneCamera = &camera.mCamera;
-                cameraTransform = &transform.mTransform;
+                cameraTransform = transform;
             }
         }
     }
     if (sceneCamera) {
-        Renderer2D::StartScene(*sceneCamera, *cameraTransform);
+        Renderer2D::StartScene(*sceneCamera, cameraTransform);
         {
             try {
                 auto group = Registry.group<Component::Transform>(entt::get<Component::Sprite>);
@@ -83,6 +93,7 @@ void Scene::Update(Timestamp deltaTime) {
 }
 
 void Scene::Resize(uint32_t width, uint32_t height) {
+    if (width == 0 && height == 0) return;
     mWidth = width;
     mHeight = height;
 
@@ -128,7 +139,6 @@ const Entity &Scene::GetEntity(const UUID<string> &id) {
     }
     return Entity();
 }
-
 
 void Scene::SetCaption(const string &caption) {
     mCaption = caption;

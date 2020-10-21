@@ -30,6 +30,7 @@ public:
 
     Entity CreateEntity(const string &name = "Entity");
     Entity CreateEntity(const UUID<string> &id);
+    void DestroyEntity(Entity entity);
     
     void Clear();
     void Update(Timestamp deltaTime);
@@ -40,6 +41,8 @@ public:
     const string &GetCaption() const;
     const Entity &GetEntity(const string &name);
     const Entity &GetEntity(const UUID<string> &id);
+    const uint32_t GetHeight() const { return mHeight; }
+    const uint32_t GetWdith() const { return mWidth; }
     bool IsActive() const {return mActive;};
 
 private:

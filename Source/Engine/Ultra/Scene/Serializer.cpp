@@ -273,7 +273,9 @@ bool Serializer::Deserialize(const string &path) {
                 glm::quat rotation = transform["Rotation"].as<glm::quat>();
                 glm::vec3 scale =transform["Scale"].as<glm::vec3>();
 
-                component = glm::translate(glm::mat4(1.0f), translation) * glm::toMat4(rotation) * glm::scale(glm::mat4(1.0f), scale);
+                component.Position = translation;
+                component.Rotation = -glm::eulerAngles(rotation);
+                component.Scale = scale;
             }
 
 
