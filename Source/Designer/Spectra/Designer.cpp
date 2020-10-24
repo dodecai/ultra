@@ -84,7 +84,7 @@ public:
         */
         if (ImGui::BeginMenuBar()) {
             if (ImGui::BeginMenu("File")) {
-                if (ImGui::MenuItem("Open", "Ctrl+O")) {
+                if (ImGui::MenuItem("Open Scene", "Ctrl+O")) {
                     CurrentScene->Clear();
                     Serializer serializer(CurrentScene);
                     auto result = Omnia::Application::GetDialog().OpenFile();
@@ -94,13 +94,13 @@ public:
                     auto &dimension = Application::GetWindow().GetContexttSize();
                     CurrentScene->Resize(dimension.Width, dimension.Height);
                 }
-                if (ImGui::MenuItem("Close Test", "Ctrl+O")) {
-                    CurrentScene->Clear();
-                }
-                if (ImGui::MenuItem("Save Test", "Ctrl+N")) {
+                if (ImGui::MenuItem("Save Scene", "Ctrl+S")) {
                     Serializer serializer(CurrentScene);
                     auto result = Omnia::Application::GetDialog().SaveFile();
                     serializer.Serialize(result);
+                }
+                if (ImGui::MenuItem("Close Scene", "Ctrl+C")) {
+                    CurrentScene->Clear();
                 }
                 ImGui::EndMenu();
             }

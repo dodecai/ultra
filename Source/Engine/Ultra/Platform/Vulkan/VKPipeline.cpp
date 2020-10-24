@@ -30,7 +30,7 @@ VKPipeline::VKPipeline(const PipelineProperties &properties): Properties(propert
     mDevice = mContext->GetDevice();
 
     // Load Shader Source
-    auto vertexShaderCode = ReadFile("assets/shaders/Basic.vert.spv");
+    auto vertexShaderCode = ReadFile("Assets/Shaders/Cache/Basic.vert.spv");
     auto vertexShaderModule = mDevice->Call().createShaderModuleUnique(
         vk::ShaderModuleCreateInfo(
             vk::ShaderModuleCreateFlags(),
@@ -39,7 +39,7 @@ VKPipeline::VKPipeline(const PipelineProperties &properties): Properties(propert
         )
     );
 
-    auto fragmentShaderCode = ReadFile("assets/shaders/Basic.frag.spv");
+    auto fragmentShaderCode = ReadFile("Assets/Shaders/Cache/Basic.frag.spv");
     auto fragmentShaderModule = mDevice->Call().createShaderModuleUnique(
         vk::ShaderModuleCreateInfo(
             vk::ShaderModuleCreateFlags(),

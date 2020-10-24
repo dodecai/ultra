@@ -44,7 +44,7 @@ void SceneBrowser::SetContext(const Reference<Scene> &scene) {
 void SceneBrowser::DrawEntityNode(Entity entity) {
     const char *tag = entity.GetComponent<Component::Tag>();
     ImGuiTreeNodeFlags flags = ((SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
-    
+    flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
     bool opened = ImGui::TreeNodeEx((void *)(uint32_t)entity, flags, tag);
     if (ImGui::IsItemClicked()) {
         SelectionContext = entity;

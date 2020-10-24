@@ -7,8 +7,7 @@
     set "Validator="%VULKAN_SDK%\Bin\glslc.exe""
 
 ::: Main
-    %Validator% Basic.vert -o Basic.vert.spv
-    %Validator% Basic.frag -o Basic.frag.spv
-
+    %Validator% Basic.vert -o "Cache/Basic.vert.spv"
+    %Validator% Basic.frag -o "Cache/Basic.frag.spv"
 ::: Terminate
     pause

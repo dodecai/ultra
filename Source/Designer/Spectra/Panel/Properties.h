@@ -17,7 +17,8 @@ public:
 
 private:
     void Draw();
-    void DrawComponent();
+    template<typename T, typename UIFunction>
+    void DrawComponent(const string &name, Entity entity, UIFunction uiFunction);
 
 private:
     Entity mContext;
