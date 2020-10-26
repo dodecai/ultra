@@ -19,3 +19,12 @@
 [submodule "Source/3rd-Party/ogg"]
 	path = Source/3rd-Party/ogg
 	url = https://github.com/xiph/ogg
+[submodule "Source/3rd-Party/SPIRV-Cross"]
+	path = Source/3rd-Party/SPIRV-Cross
+	url = https://github.com/KhronosGroup/SPIRV-Cross.git
+[submodule "Source/3rd-Party/glslang"]
+	path = Source/3rd-Party/glslang
+	url = https://github.com/KhronosGroup/glslang.git
+[submodule "Source/3rd-Party/SPIRV-Headers"]
+	path = Source/3rd-Party/SPIRV-Headers
+	url = https://github.com/KhronosGroup/SPIRV-Headers.git

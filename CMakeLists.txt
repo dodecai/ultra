@@ -81,7 +81,7 @@ if(${OptimizedMode})
 	# Minimize Size: O1, Maximize Speed 02
     # ToDo: Recheck /GL after cl upgrade 
 	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/cgthreads8 ")
-    message(${CMAKE_BUILD_TYPE})
+    message("* ${CMAKE_BUILD_TYPE}")
     if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
 	    set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/O2 /Gw")
     endif()

@@ -13,6 +13,7 @@ public:
     virtual ~VKPipeline();
 
     virtual void Bind() override;
+    void Bind(vk::CommandBuffer);
     virtual void Invalidate() override;
 
     virtual PipelineProperties &GetProperties() override;
@@ -20,6 +21,9 @@ public:
 
     vk::Pipeline GetNativePipeline();
     vk::PipelineLayout GetNativePipelineLayout();
+
+private:
+    void CreateVertexBuffer();
 
 private:
     Reference<VKContext> mContext = nullptr;

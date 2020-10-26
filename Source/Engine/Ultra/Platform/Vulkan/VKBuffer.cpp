@@ -36,8 +36,7 @@ VKVertexBuffer::VKVertexBuffer(uint32_t size, VertexBufferType type): mSize(size
 
 VKVertexBuffer::VKVertexBuffer(void *data, uint32_t size, VertexBufferType type): mSize(size), mType(type) {
     // ToDo:: Smooth solution ... this code is ...
-    VKContext = reinterpret_cast<Omnia::VKContext *>(&Omnia::Application::Get().GetContext());
-
+    VKContext = Omnia::Application::GetContext().As<Omnia::VKContext>();
     auto &device = VKContext->GetDevice()->Call();
     mBuffer = DataBuffer::Copy(data, size);
 
@@ -48,7 +47,7 @@ VKVertexBuffer::VKVertexBuffer(void *data, uint32_t size, VertexBufferType type)
     vk::BufferCreateInfo createInfo = {};
     createInfo.flags = vk::BufferCreateFlags();
     createInfo.sharingMode = vk::SharingMode::eExclusive;
-    createInfo.usage = vk::BufferUsageFlagBits::eTransferSrc; // vk::BufferUsageFlagBits::eVertexBuffer
+    createInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
     createInfo.size = mSize;
     Vertices.Buffer = device.createBuffer(createInfo, nullptr);
 

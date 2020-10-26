@@ -39,7 +39,16 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 # ☷ Libraries
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 message("  ҉ Linking Libraries")
-set(Libraries Omnia stb OpenAL ogg vorbis vorbisfile)
+# ToDo: Cross compiling will be something for the future...
+# HLSL, SPVRemapper, spirv-cross-core, spirv-cross-cpp, spirv-cross-glsl, spirv-cross-hlsl, spirv-cross-msl, spirv-cross-reflect, spirv-cross-util
+set(ShaderCompilerLibraries
+    glslang
+    glslang-default-resource-limits
+    OGLCompiler
+    OSDependent
+    SPIRV
+)
+set(Libraries Omnia stb OpenAL ogg vorbis vorbisfile ${ShaderCompilerLibraries})
 foreach(Library ${Libraries})
 	message("    - ${Library}")
 	target_link_libraries(${PROJECT_NAME} PUBLIC ${Library})

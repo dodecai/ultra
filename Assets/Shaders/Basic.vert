@@ -1,21 +1,20 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
+#extension GL_GOOGLE_include_directive : enable
 
-layout(location = 0) out vec3 oColor;
+layout(location = 0) in vec3 aPosition;
+layout(location = 1) in vec4 aColor;
 
-vec2 positions[3] = vec2[](
-    vec2(0.0, -0.5),
-    vec2(0.5, 0.5),
-    vec2(-0.5, 0.5)
-);
+layout(std140, binding = 0) uniform Camera {
+    mat4 uViewProjection;
+};
+layout(push_constant, binding = 1) uniform VertexUniforms {
+    mat4 uTransform;
+};
 
-vec3 colors[3] = vec3[](
-    vec3(1.0, 0.0, 0.0),
-    vec3(0.0, 1.0, 0.0),
-    vec3(0.0, 0.0, 1.0)
-);
+layout(location = 0) out vec4 oColor;
 
 void main() {
-    gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);
-    oColor = colors[gl_VertexIndex];
+	oColor = aColor;
+    gl_Position = vec4(aPosition, 1.0);
 }

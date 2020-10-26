@@ -14,7 +14,7 @@ set(STB_HEADERS
 set(STB_SOURCES
 	".Library/stb/stb_image.cpp"
 )
-add_library(stb ${STB_HEADERS} ${STB_SOURCES} ".Library/AL/examples/common/alhelpers2.h")
+add_library(stb ${STB_HEADERS} ${STB_SOURCES})
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ IDE
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐

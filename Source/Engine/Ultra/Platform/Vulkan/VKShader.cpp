@@ -1,6 +1,15 @@
 ﻿#include "VKShader.h"
 
+#include <Omnia/System/FileSystem.h>
+#include <Omnia/Utility/String.h>
+
+#include "VKContext.h"
+
+#include "Ultra/Utility/ShaderCompiler.h"
+
 namespace Ultra {
+
+static inline VKContext *sContext = nullptr;
 
 //static ShaderUniformType SPIRTypeToShaderUniformType(spirv_cross::SPIRType type) {
 //    switch (type.basetype) {
@@ -25,13 +34,69 @@ namespace Ultra {
 //    return ShaderUniformType::None;
 //}
 
-VKShader::VKShader(const string &source) {
+static inline string GetShaderExtension(vk::ShaderStageFlagBits flag) {
+    string result;
+    switch (flag) {
+        case vk::ShaderStageFlagBits::eVertex:       { result += ".vert";   break;  }
+        case vk::ShaderStageFlagBits::eFragment:     { result += ".frag";   break;  }
+        case vk::ShaderStageFlagBits::eGeometry:     { result += ".geom";   break;  }
+        case vk::ShaderStageFlagBits::eCompute:      { result += ".comp";   break;  }
+        deault:                                      { result += "";        break;  }
+    }
+    return result;
 }
 
-VKShader::VKShader(const string &vertexSource, const string &fragmentSource) {}
+VKShader::VKShader(const string &source) {
+    sContext = Application::GetContext().As<Omnia::VKContext>();
+
+    string cache = GetFilePath(source) + "/Cache/";
+    cache += GetFileName(source) + ".spirv";
+
+    bool compiled = false;
+    if (GetFileExtension(source) == ".glsl" && GetFileName(source) != "Basic") return;
+    if (FileSystemObjectExists(cache)) {
+        // ToDo: Load compiled shaders directly and use something like a creation timestamp file.
+
+        mShaderSource[vk::ShaderStageFlagBits::eVertex] = ReadFile(cache + ".vert");
+        mShaderSource[vk::ShaderStageFlagBits::eFragment] = ReadFile(cache + ".frag");
+
+        mShaderStages.reserve(mShaderSource.size());
+        CreateModules();
+        return;
+    }
+
+    // Read "All-In-One" shader and split them to the underlying types
+    string shaderSource = ReadFile(source);
+    auto sources = Prepare(shaderSource);
+
+    // Compile shaders and store them in the cache for later usage
+    Compile(sources);
+    for (auto &[type, data] : mShaderSource) {
+        string target = cache + GetShaderExtension(type);
+        WriteFile(target, data);
+    }
+
+    mShaderStages.reserve(mShaderSource.size());
+    CreateModules();
+}
+
+VKShader::VKShader(const string &vertexSource, const string &fragmentSource) {
+    sContext = Application::GetContext().As<Omnia::VKContext>();
+
+    mShaderSource[vk::ShaderStageFlagBits::eVertex] = ReadFile(vertexSource);
+    mShaderSource[vk::ShaderStageFlagBits::eFragment] = ReadFile(fragmentSource);
+
+    mShaderStages.reserve(mShaderSource.size());
+    
+    CreateModules();
+}
 
 VKShader::~VKShader() {
 }
+
+void VKShader::Reload() const {
+}
+
 
 void VKShader::Bind() const {
 }
@@ -39,87 +104,122 @@ void VKShader::Bind() const {
 void VKShader::Unbind() const {
 }
 
+
 const string VKShader::GetName() const {
     return string();
 }
 
-
-void VKShader::SetUniformBuffer(const string &name, const void *data, uint32_t size) {
+const unordered_map<string, ShaderBuffer> &VKShader::GetBuffers() const {
+    unordered_map<string, ShaderBuffer> result;
+    return result; 
 }
 
-void VKShader::SetUniform(const string &name, float value) {
-}
-
-void VKShader::SetUniform(const string &name, int value) {
-}
-
-void VKShader::SetUniform(const string &name, glm::vec2 &value) {
-}
-
-void VKShader::SetUniform(const string &name, glm::vec3 &value) {
-}
-
-void VKShader::SetUniform(const string &name, glm::vec4 &value) {
-}
-
-void VKShader::SetUniform(const string &name, glm::mat3 &value) {
-}
-
-void VKShader::SetUniform(const string &name, glm::mat4 &value) {
+const unordered_map<string, ShaderResourceDeclaration> &VKShader::GetResources() const {
+    unordered_map<string, ShaderResourceDeclaration> result; return result;
 }
 
 
-void VKShader::SetInt(const string &name, int value) {
+void VKShader::SetUniformBuffer(const string &name, const void *data, size_t size) {
 }
 
-void VKShader::SetIntArray(const string &name, int *values, size_t count) {
+void VKShader::SetUniform(const string &name, float data) {
 }
 
-void VKShader::SetFloat(const string &name, const float value) {
+void VKShader::SetUniform(const string &name, bool data) {
 }
 
-void VKShader::SetFloat3(const string &name, const glm::vec3 &values) {
+void VKShader::SetUniform(const string &name, int data) {
 }
 
-void VKShader::SetFloat4(const string &name, const glm::vec4 &values) {
+void VKShader::SetUniform(const string &name, glm::vec2 &data) {
 }
 
-void VKShader::SetMat4(const string &name, const glm::mat4 &values) {
+void VKShader::SetUniform(const string &name, glm::vec3 &data) {
 }
 
-void VKShader::Compile(unordered_map<unsigned int, string> sources) {
+void VKShader::SetUniform(const string &name, glm::vec4 &data) {
 }
 
-unordered_map<unsigned int, string> VKShader::Prepare(string &source) {
-    return unordered_map<unsigned int, string>();
+void VKShader::SetUniform(const string &name, glm::mat3 &data) {
 }
 
-int32_t VKShader::GetUniformLocation(const string &name) const {
-    return int32_t();
+void VKShader::SetUniform(const string &name, glm::mat4 &data) {
 }
 
-void VKShader::UploadaUniformInt(const string &name, int values) const {
+
+static vk::ShaderStageFlagBits ShaderTypeFromString(const std::string &type) {
+    if (type == "vertex") return vk::ShaderStageFlagBits::eVertex;
+    if (type == "geometry") return vk::ShaderStageFlagBits::eGeometry;
+    if (type == "fragment" || type == "pixel") return vk::ShaderStageFlagBits::eFragment;
+    if (type == "compute") return vk::ShaderStageFlagBits::eCompute;
+
+    // Unknown Shader
+    return vk::ShaderStageFlagBits::eAll;
 }
 
-void VKShader::UploadUniformIntArray(const string &name, int *values, size_t count) const {
+void VKShader::CreateModules() {
+    for (auto &[type, source] : mShaderSource) {
+        auto shader = sContext->GetDevice()->Call().createShaderModule(
+            vk::ShaderModuleCreateInfo(
+                vk::ShaderModuleCreateFlags(),
+                source.size(),
+                reinterpret_cast<const uint32_t *>(source.data())
+            )
+        );
+
+        vk::PipelineShaderStageCreateInfo createInfo = { 
+            vk::PipelineShaderStageCreateFlags(),
+            type,
+            shader,
+            "main"
+        };
+
+        mShaderStages.push_back(createInfo);
+    }
 }
 
-void VKShader::UploadaUniformFloat(const string &name, const float value) const {
+void VKShader::Compile(ShaderMap &sources) {
+    ShaderCompiler::InputOptions input = {};
+    input.format = ShaderCompiler::ShaderFormat::GLSL;
+    input.es = false;
+    input.glslVersion = 450;
+
+    ShaderCompiler::OutputOptions output = {};
+    output.format = ShaderCompiler::ShaderFormat::SPIRV;
+    output.es = true;
+
+    for (auto &[type, data] : sources) {
+        if (type == vk::ShaderStageFlagBits::eVertex) {
+            input.stage = ShaderCompiler::ShaderLanguage::Vertex;
+        } else {
+            input.stage = ShaderCompiler::ShaderLanguage::Fragment;
+        }
+        auto result = ShaderCompiler::Compile(data, input, output);
+        mShaderSource[type] = result;
+    }
 }
 
-void VKShader::UploadaUniformFloat2(const string &name, const glm::vec2 &values) const {
-}
+VKShader::ShaderMap VKShader::Prepare(string &source) {
+    ShaderMap shaderSources;
 
-void VKShader::UploadaUniformFloat3(const string &name, const glm::vec3 &values) const {
-}
+    const char *typeToken = "#type";
+    size_t typeTokenLength = strlen(typeToken);
+    size_t pos = source.find(typeToken, 0);
+    while (pos != std::string::npos) {
+        size_t eol = source.find_first_of("\r\n", pos);
+        // Syntax Error: eol != std::string::npos
+        size_t begin = pos + typeTokenLength + 1;
+        std::string type = source.substr(begin, eol - begin);
+        // Unknown Shader Type type == "vertex" || type == "fragment" || "pixel"
 
-void VKShader::UploadaUniformFloat4(const string &name, const glm::vec4 &values) const {
-}
+        size_t nextLinePos = source.find_first_not_of("\r\n", eol);
+        // Syntax Error: nextLinePos != std::string::npos
+        pos = source.find(typeToken, nextLinePos);
 
-void VKShader::UploadaUniformMat3(const string &name, const glm::mat3 &matrix) const {
-}
+        shaderSources[ShaderTypeFromString(type)] = (pos == std::string::npos) ? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);
+    }
 
-void VKShader::UploadaUniformMat4(const string &name, const glm::mat4 &matrix) const {
+    return shaderSources;
 }
 
 }

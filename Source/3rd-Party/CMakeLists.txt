@@ -9,8 +9,10 @@
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 include("Library#glm.cmake")
 include("Library#entt.cmake")
+include("Library#glslang.cmake")
 include("Library#Ogg.cmake")
 include("Library#OpenAL.cmake")
+include("Library#SPIRV-Cross.cmake")
 include("Library#stb.cmake")
 include("Library#Vorbis.cmake")
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐

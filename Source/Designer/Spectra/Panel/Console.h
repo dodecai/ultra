@@ -62,16 +62,9 @@ public:
 		return console->Input(data);
 	}
 	void Draw(const std::string &title, bool *p_open) {
-		
-		//if (GColorTheme == ColorThemes::Dark) {
-		//	ImGui::PushStyleColor(ImGuiCol_ChildBg, ConvertColorRgbaVec(ConsoleDarkTheme::Background, 0.1f));
-		//} else {
-		//	ImGui::PushStyleColor(ImGuiCol_ChildBg, ConvertColorRgbaVec(ConsoleLightTheme::Background, 0.92f));
-		//}
 		ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
 		if (!ImGui::Begin(title.c_str(), p_open)) {
 			ImGui::End();
-			//ImGui::PopStyleColor();
 			return;
 		}
 

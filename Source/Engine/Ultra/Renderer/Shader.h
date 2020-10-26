@@ -46,44 +46,33 @@ struct ShaderBuffer {
 
 class Shader {
 public:
-	virtual ~Shader() {}
-
-	static Omnia::Reference<Shader> Create(const string &source);
-	static Omnia::Reference<Shader> Create(const string &vertexSource, const string &fragmentSource);
-
-	virtual void Bind() const = 0;	//Activate, Compile, Load
-    virtual uint32_t GetRendererID() const = 0;
+    // Default
+	virtual ~Shader() = default;
+	static Reference<Shader> Create(const string &source);
+	static Reference<Shader> Create(const string &vertexSource, const string &fragmentSource);
     virtual void Reload() const = 0;
+
+	virtual void Bind() const = 0;
 	virtual void Unbind() const = 0;
 
-    virtual const unordered_map<string, ShaderBuffer> &GetShaderBuffers() const = 0;
+    // Accessors
+    virtual const std::string GetName() const = 0;
+    virtual const unordered_map<string, ShaderBuffer> &GetBuffers() const = 0;
     virtual const unordered_map<string, ShaderResourceDeclaration> &GetResources() const = 0;
 
-    virtual void SetUniformBuffer(const string &name, const void *data, uint32_t size) = 0;
-    virtual void SetUniform(const string &name, float value) = 0;
-    virtual void SetUniform(const string &name, int value) = 0;
-    virtual void SetUniform(const string &name, glm::vec2 &value) = 0;
-    virtual void SetUniform(const string &name, glm::vec3 &value) = 0;
-    virtual void SetUniform(const string &name, glm::vec4 &value) = 0;
-    virtual void SetUniform(const string &name, glm::mat3 &value) = 0;
-    virtual void SetUniform(const string &name, glm::mat4 &value) = 0;
+    // Mutators
+    virtual void SetUniformBuffer(const string &name, const void *data, size_t size) = 0;
+    virtual void SetUniform(const string &name, bool data) = 0;
+    virtual void SetUniform(const string &name, int data) = 0;
+    virtual void SetUniform(const string &name, float data) = 0;
+    virtual void SetUniform(const string &name, glm::vec2 &data) = 0;
+    virtual void SetUniform(const string &name, glm::vec3 &data) = 0;
+    virtual void SetUniform(const string &name, glm::vec4 &data) = 0;
+    virtual void SetUniform(const string &name, glm::mat3 &data) = 0;
+    virtual void SetUniform(const string &name, glm::mat4 &data) = 0;
 
-    // Old Stuff
-	virtual void SetInt(const string &name, int value) = 0;
-	virtual void SetIntArray(const string &name, int *values, size_t count) = 0;
-	virtual void SetFloat(const string &name, const float value) = 0;
-	virtual void SetFloat3(const string &name, const glm::vec3 &values) = 0;
-	virtual void SetFloat4(const string &name, const glm::vec4 &values) = 0; // Vec seams now more "common" ...
-	virtual void SetMat4(const string &name, const glm::mat4 &values) = 0; // + 2 & 3
-
-    virtual const std::string GetName() const = 0;
-
-	// From Prototype
-	virtual void SetBool(const std::string &name, bool value) const {}
-
+protected:
     static vector<Reference<Shader>> sShaders;
-private:
-    uint32_t RendererID;
 };
 
 class ShaderLibrary {

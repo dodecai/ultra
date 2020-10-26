@@ -1,31 +1,34 @@
-#type vertex
-#version 330 core
-		
-layout(location = 0) in vec3 a_Position;
-layout(location = 1) in vec4 a_Color;
+﻿#type vertex
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_GOOGLE_include_directive : enable
 
-uniform mat4 u_ViewProjection;
-uniform mat4 u_Transform;
+layout(location = 0) in vec3 aPosition;
+layout(location = 1) in vec4 aColor;
 
-out vec3 x_Position;
-out vec4 x_Color;
-		
+layout(std140, binding = 0) uniform Camera {
+    mat4 uViewProjection;
+};
+layout(push_constant, binding = 1) uniform VertexUniforms {
+    mat4 uTransform;
+};
+
+layout(location = 0) out vec4 oColor;
+
 void main() {
-	x_Position = a_Position;
-	x_Color = a_Color;
-	gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
+	oColor = aColor;
+    gl_Position = vec4(aPosition, 1.0);
 }
 
 #type fragment
-#version 330 core
-		
-layout(location = 0) out vec4 Color;
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_GOOGLE_include_directive : enable
 
-in vec3 x_Position;
-in vec4 x_Color;
+layout(location = 0) in vec4 aColor;
 
-uniform vec3 u_Color;
+layout(location = 0) out vec4 oColor;
 
 void main() {
-	Color = vec4(u_Color, 1.0);
+    oColor = aColor;
 }
