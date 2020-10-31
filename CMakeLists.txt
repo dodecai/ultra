@@ -37,7 +37,7 @@ message(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # Here should be everything defined, to help developers to customize their builds.
 message("✶ Properties")
-set(DebugMode		false	CACHE BOOL "Enable additional information which should help finding errors faster, but they will slow down the code." FORCE)
+set(DebugMode		true	CACHE BOOL "Enable additional information which should help finding errors faster, but they will slow down the code." FORCE)
 set(OptimizedMode	true	CACHE BOOL "Should the compiler optimize our code?" FORCE)
 set(TestMode		true	CACHE BOOL "Special mode which speeds up development (additional console window, etc)." FORCE)
 set(VerboseMode		false	CACHE BOOL "Enable as much information as possible, more logging means also slower code." FORCE)
@@ -70,7 +70,10 @@ add_definitions(-D_HAS_STD_BYTE=1)
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ToDo: Recheck  /sdl
 if(${DebugMode})
-	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/diagnostics:column /JMC ")
+	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/diagnostics:column ")
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+	    set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/JMC ")
+    endif()
 else()
 	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} " ")
 endif()
@@ -92,8 +95,8 @@ if(MSVC)
 	# ToDo: Assimp crashes if module support is activated.
 	string (JOIN ";" CompilerArgumentsMSVC ${CompilerArgumentsMSVC})
     string (REPLACE " " ";" CompilerArgumentsMSVC ${CompilerArgumentsMSVC})
-	message("  ○ CompileOptions: '/nologo /bigobj /JMC /MP2048 /std:c++latest /utf-8 /arch:AVX2 /Zc:preprocessor ${CompilerArgumentsMSVC}'")
-	add_compile_options(/nologo /bigobj /JMC /MP2048 /std:c++latest /utf-8 /arch:AVX2 /Zc:preprocessor ${CompilerArgumentsMSVC})
+	message("  ○ CompileOptions: '/nologo /bigobj /MP2048 /std:c++latest /utf-8 /arch:AVX2 /Zc:preprocessor ${CompilerArgumentsMSVC}'")
+	add_compile_options(/nologo /bigobj /MP2048 /std:c++latest /utf-8 /arch:AVX2 /Zc:preprocessor ${CompilerArgumentsMSVC})
     
     #  /fp:fast
 else()

@@ -23,6 +23,18 @@
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "variables": []
+    },
+    {
+      "name": "Prerelease-x64",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "buildRoot": "${projectDir}\\Cache\\${name}",
+      "installRoot": "${projectDir}\\Setup\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": []
     }
   ]
 }
