@@ -8,18 +8,18 @@
 
 | Project | License | Release | Version |
 | :------ | :-----: | :-----: | :------ |
-| [OpenGL Mathematics](https://github.com/g-truc/glm.git "glm")                         | MIT       | 2020-08-30 | commit\{b3f87720261d623986f164b2a7f6a0a938430271} |
-| [Sean's Tool Box](https://github.com/nothings/stb.git "stb")                          | MIT       | 2020-07-13 | commit\{b42009b3b9d4ca35bc703f5310eedc74f584be58} |
-| [EnTT](https://github.com/skypjack/entt.git "entt")                                   | MIT       | 2020-10-28 | commit\{f3fc32660bfba47012f24bfbdcb034adae7e0b69} |
-| [Glslang](https://github.com/KhronosGroup/SPIRV-Tools.git "glslang")                  | Multi     | 2020-10-30 | commit\{142cb87f803d42f5ae3dd2da8dff4f19f6f15e8c} |
-| [OpenAL Soft](https://github.com/kcat/openal-soft.git "openal-soft")                  | LGPL      | 2020-10-26 | commit\{be0798b56d30a2607f651b1d50c5bec9529ddb9a} |
-| [Ogg](https://github.com/xiph/ogg.git "ogg")                                          | BSD       | 2020-10-26 | commit\{36f969bb37559345ee03796ed625a9abd42c6db9} |
-| [SPIR-V Cross](https://github.com/KhronosGroup/SPIRV-Cross.git "SPIRV-Cross")         | Apache2.0 | 2020-10-30 | commit\{8884b34940dd61af6d81a7cbb68ca48d6d38bd4f} |
-| [SPIR-V Headers](https://github.com/KhronosGroup/SPIRV-Headers.git "SPIRV-Headers")   | MIT       | 2020-10-23 | commit\{7845730cab6ebbdeb621e7349b7dc1a59c3377be} |
-| [Vorbis](https://github.com/xiph/vorbis.git "vorbis")                                 | BSD       | 2020-10-26 | commit\{98eddc72d36e3421519d54b101c09b57e4d4d10d} |
+| [Open Asset Import Library](https://github.com/assimp/assimp.git "assimp")            | BSD-3-Clause  | 2020-10-29 | commit\{de610b8ce9626a1e4443e491f62ac09fa119584e} |
+| [EnTT](https://github.com/skypjack/entt.git "entt")                                   | MIT           | 2020-10-28 | commit\{f3fc32660bfba47012f24bfbdcb034adae7e0b69} |
+| [OpenGL Mathematics](https://github.com/g-truc/glm.git "glm")                         | MIT           | 2020-08-30 | commit\{b3f87720261d623986f164b2a7f6a0a938430271} |
+| [Glslang](https://github.com/KhronosGroup/SPIRV-Tools.git "glslang")                  | Multi         | 2020-10-30 | commit\{142cb87f803d42f5ae3dd2da8dff4f19f6f15e8c} |
+| [OpenAL Soft](https://github.com/kcat/openal-soft.git "openal-soft")                  | LGPL          | 2020-10-26 | commit\{be0798b56d30a2607f651b1d50c5bec9529ddb9a} |
+| [Ogg](https://github.com/xiph/ogg.git "ogg")                                          | BSD           | 2020-10-26 | commit\{36f969bb37559345ee03796ed625a9abd42c6db9} |
+| [SPIR-V Cross](https://github.com/KhronosGroup/SPIRV-Cross.git "SPIRV-Cross")         | Apache2.0     | 2020-10-30 | commit\{8884b34940dd61af6d81a7cbb68ca48d6d38bd4f} |
+| [SPIR-V Headers](https://github.com/KhronosGroup/SPIRV-Headers.git "SPIRV-Headers")   | MIT           | 2020-10-23 | commit\{7845730cab6ebbdeb621e7349b7dc1a59c3377be} |
+| [Sean's Tool Box](https://github.com/nothings/stb.git "stb")                          | MIT           | 2020-07-13 | commit\{b42009b3b9d4ca35bc703f5310eedc74f584be58} |
+| [Vorbis](https://github.com/xiph/vorbis.git "vorbis")                                 | BSD           | 2020-10-26 | commit\{98eddc72d36e3421519d54b101c09b57e4d4d10d} |
 
 <!-- These are leftovers which where used in the prototype, left them here, cause maybe they will be needed again.
-| [Open Asset Import Library](https://github.com/assimp/assimp.git "assimp")    | BSD-3-Clause  | 2020-05-21 | commit\{a6d554f6452dc217e9e7a2c6869f01db006c1240} |
 -->
 
 ## Inspiration ##

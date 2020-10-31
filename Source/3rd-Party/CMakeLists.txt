@@ -7,8 +7,9 @@
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ Modules
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
-include("Library#glm.cmake")
+include("Library#assimp.cmake")
 include("Library#entt.cmake")
+include("Library#glm.cmake")
 include("Library#glslang.cmake")
 include("Library#Ogg.cmake")
 include("Library#OpenAL.cmake")

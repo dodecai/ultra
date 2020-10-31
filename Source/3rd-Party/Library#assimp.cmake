@@ -9,7 +9,7 @@
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # Source: https://github.com/assimp/assimp/blob/master/Build.md
 # General
-set(BUILD_SHARED_LIBS				ON	CACHE BOOL "Generation of shared libs ( dll for windows, so for Linux ). Set this to OFF to get a static lib." FORCE)
+set(BUILD_SHARED_LIBS				OFF	CACHE BOOL "Generation of shared libs ( dll for windows, so for Linux ). Set this to OFF to get a static lib." FORCE)
 set(BUILD_DOCS						OFF CACHE BOOL "Build documentation using Doxygen." FORCE)
 set(ASSIMP_BUILD_ASSIMP_TOOLS		OFF CACHE BOOL "If the supplementary tools for Assimp are built in addition to the library." FORCE)
 set(ASSIMP_BUILD_SAMPLES			OFF CACHE BOOL "If the official samples are built as well (needs Glut)." FORCE)
@@ -147,12 +147,15 @@ add_compile_definitions(_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING )
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ Sources
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+project(PolicyOverwrite NONE)
+set(CMAKE_POLICY_DEFAULT_CMP0054 NEW)
 add_subdirectory(assimp)
+set_target_properties(assimp PROPERTIES COMPILE_FLAGS "")
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 set_property(TARGET assimp PROPERTY FOLDER 3rd-Party/assimp)
 #set_property(TARGET assimp_cmd PROPERTY FOLDER 3rd-Party/assimp)
-set_property(TARGET IrrXML PROPERTY FOLDER 3rd-Party/assimp)
-set_property(TARGET uninstall PROPERTY FOLDER 3rd-Party/assimp)
+#set_property(TARGET IrrXML PROPERTY FOLDER 3rd-Party/assimp)
+#set_property(TARGET uninstall PROPERTY FOLDER 3rd-Party/assimp)
 #set_property(TARGET unit PROPERTY FOLDER 3rd-Party/assimp)
 set_property(TARGET UpdateAssimpLibsDebugSymbolsAndDLLs PROPERTY FOLDER 3rd-Party/assimp)
 #set_property(TARGET zlib PROPERTY FOLDER 3rd-Party/assimp)

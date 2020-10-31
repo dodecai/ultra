@@ -28,3 +28,6 @@
 [submodule "Source/3rd-Party/SPIRV-Headers"]
 	path = Source/3rd-Party/SPIRV-Headers
 	url = https://github.com/KhronosGroup/SPIRV-Headers.git
+[submodule "Source/3rd-Party/assimp"]
+	path = Source/3rd-Party/assimp
+	url = https://github.com/assimp/assimp.git
