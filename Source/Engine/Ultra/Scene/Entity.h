@@ -50,7 +50,7 @@ public:
     }
 
     operator bool() const { return EntityHandle != entt::null; }
-    operator uint32_t() const { return (uint32_t)EntityHandle; }
+    operator uint32_t() const { return static_cast<uint32_t>(EntityHandle); }
 
     bool operator==(const Entity &other) const {
         return EntityHandle == other.EntityHandle && pScene == other.pScene;

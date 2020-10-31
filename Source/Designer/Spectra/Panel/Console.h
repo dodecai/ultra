@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-bool StringSearch(const std::string &strHaystack, const std::string &strNeedle) {
+inline bool StringSearch(const std::string &strHaystack, const std::string &strNeedle) {
 	auto it = std::search(
 		strHaystack.begin(), strHaystack.end(),
 		strNeedle.begin(),   strNeedle.end(),

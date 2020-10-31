@@ -1,9 +1,9 @@
-# Backup
+﻿# Backup
 [Bb]ackup/
 
 # Build
 [Bb]uild/
-[Cc]ache/
+/[Cc]ache/
 
 # Directories
 .vs/

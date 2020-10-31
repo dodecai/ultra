@@ -1,7 +1,6 @@
 ﻿#include "VKShader.h"
 
 #include <Omnia/System/FileSystem.h>
-#include <Omnia/Utility/String.h>
 
 #include "VKContext.h"
 
@@ -37,43 +36,63 @@ static inline VKContext *sContext = nullptr;
 static inline string GetShaderExtension(vk::ShaderStageFlagBits flag) {
     string result;
     switch (flag) {
-        case vk::ShaderStageFlagBits::eVertex:       { result += ".vert";   break;  }
-        case vk::ShaderStageFlagBits::eFragment:     { result += ".frag";   break;  }
-        case vk::ShaderStageFlagBits::eGeometry:     { result += ".geom";   break;  }
-        case vk::ShaderStageFlagBits::eCompute:      { result += ".comp";   break;  }
-        deault:                                      { result += "";        break;  }
+        case vk::ShaderStageFlagBits::eVertex:       { result += "-vert";   break;  }
+        case vk::ShaderStageFlagBits::eFragment:     { result += "-frag";   break;  }
+        case vk::ShaderStageFlagBits::eGeometry:     { result += "-geom";   break;  }
+        case vk::ShaderStageFlagBits::eCompute:      { result += "-comp";   break;  }
+        deault:                                      { result += "-x";        break;  }
     }
     return result;
 }
 
+static vk::ShaderStageFlagBits ShaderTypeFromString(const std::string &type) {
+    if (type == "vertex")   return vk::ShaderStageFlagBits::eVertex;
+    if (type == "geometry") return vk::ShaderStageFlagBits::eGeometry;
+    if (type == "fragment" ||
+        type == "pixel")    return vk::ShaderStageFlagBits::eFragment;
+    if (type == "compute")  return vk::ShaderStageFlagBits::eCompute;
+
+    // Unknown Shader
+    return vk::ShaderStageFlagBits::eAll;
+}
+
+static vk::ShaderStageFlagBits ShaderTypeFromSuffix(const std::string &type) {
+    if (type == "vert")     return vk::ShaderStageFlagBits::eVertex;
+    if (type == "geom")     return vk::ShaderStageFlagBits::eGeometry;
+    if (type == "frag")     return vk::ShaderStageFlagBits::eFragment;
+    if (type == "comp")     return vk::ShaderStageFlagBits::eCompute;
+
+    // Unknown Shader
+    return vk::ShaderStageFlagBits::eAll;
+}
+
 VKShader::VKShader(const string &source) {
     sContext = Application::GetContext().As<Omnia::VKContext>();
+    
+    if (GetFileName(source) != "Basic") return;
 
-    string cache = GetFilePath(source) + "/Cache/";
-    cache += GetFileName(source) + ".spirv";
+    const string cache = "Data/Cache/Shaders/";
+    string cacheShader = cache + GetFileName(source) + ".spirv";
+    auto cachedShaders = SearchFiles(cache, cacheShader);
+    if (cachedShaders.size()) {
+        for (auto &cachedShader : cachedShaders) {
+            if (String::EndsWith(cachedShader, ".spirv-vert")) {
+                mShaderSource[vk::ShaderStageFlagBits::eVertex] = ReadFile(cache + cachedShader + "-vert");
+            } else if (String::EndsWith(cachedShader, ".spirv-frag")) {
+                mShaderSource[vk::ShaderStageFlagBits::eFragment] = ReadFile(cache + cachedShader + "-frag");
+            }
+        }
+    } else {
+        // Read "All-In-One" shader and split them to the underlying types
+        string shaderSource = ReadFile(source);
+        auto sources = Prepare(shaderSource);
 
-    bool compiled = false;
-    if (GetFileExtension(source) == ".glsl" && GetFileName(source) != "Basic") return;
-    if (FileSystemObjectExists(cache)) {
-        // ToDo: Load compiled shaders directly and use something like a creation timestamp file.
-
-        mShaderSource[vk::ShaderStageFlagBits::eVertex] = ReadFile(cache + ".vert");
-        mShaderSource[vk::ShaderStageFlagBits::eFragment] = ReadFile(cache + ".frag");
-
-        mShaderStages.reserve(mShaderSource.size());
-        CreateModules();
-        return;
-    }
-
-    // Read "All-In-One" shader and split them to the underlying types
-    string shaderSource = ReadFile(source);
-    auto sources = Prepare(shaderSource);
-
-    // Compile shaders and store them in the cache for later usage
-    Compile(sources);
-    for (auto &[type, data] : mShaderSource) {
-        string target = cache + GetShaderExtension(type);
-        WriteFile(target, data);
+        // Compile shaders and store them in the cache for later usage
+        Compile(sources);
+        for (auto &[type, data] : mShaderSource) {
+            string target = cacheShader + GetShaderExtension(type);
+            WriteFile(target, data);
+        }
     }
 
     mShaderStages.reserve(mShaderSource.size());
@@ -110,12 +129,13 @@ const string VKShader::GetName() const {
 }
 
 const unordered_map<string, ShaderBuffer> &VKShader::GetBuffers() const {
-    unordered_map<string, ShaderBuffer> result;
+    static unordered_map<string, ShaderBuffer> result;
     return result; 
 }
 
 const unordered_map<string, ShaderResourceDeclaration> &VKShader::GetResources() const {
-    unordered_map<string, ShaderResourceDeclaration> result; return result;
+    static unordered_map<string, ShaderResourceDeclaration> result;
+    return result;
 }
 
 
@@ -144,17 +164,6 @@ void VKShader::SetUniform(const string &name, glm::mat3 &data) {
 }
 
 void VKShader::SetUniform(const string &name, glm::mat4 &data) {
-}
-
-
-static vk::ShaderStageFlagBits ShaderTypeFromString(const std::string &type) {
-    if (type == "vertex") return vk::ShaderStageFlagBits::eVertex;
-    if (type == "geometry") return vk::ShaderStageFlagBits::eGeometry;
-    if (type == "fragment" || type == "pixel") return vk::ShaderStageFlagBits::eFragment;
-    if (type == "compute") return vk::ShaderStageFlagBits::eCompute;
-
-    // Unknown Shader
-    return vk::ShaderStageFlagBits::eAll;
 }
 
 void VKShader::CreateModules() {

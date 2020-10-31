@@ -1,10 +1,14 @@
 ﻿#pragma once
+#define @PROJECT_NAME@_SETTINGS_PARSED
 
 // Properties
+#ifndef @PROJECT_NAME@_SETTINGS_PARSED
+/// These two lines will select the dedicated graphics card on Laptos with two graphic cards installed.
 extern "C" {
 	__declspec(dllexport) unsigned long NvOptimusEnablement = 0x1;
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
+#endif
 
 namespace @PROJECT_NAME@ {
 

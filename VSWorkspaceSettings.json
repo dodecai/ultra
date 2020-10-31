@@ -1,0 +1,7 @@
+﻿{
+  "ExcludedItems": [
+    "3rd-Party/**/CMakeList.txt",
+    "**.sln",
+    "**.vcxproj"
+  ]
+}

@@ -23,6 +23,8 @@ set(AppTestSource  "${SolutionSourceRoot}/Test")
 configure_file(Settings.h.in ${CMAKE_BINARY_DIR}/Source/Generated/${PROJECT_NAME}.settings)
 configure_file(Solution.h.in ${CMAKE_BINARY_DIR}/Source/Generated/${PROJECT_NAME}.h)
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
+add_compile_options(/experimental:external /external:I "${App3rdPartySource}")
+#‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ Linker
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 include_directories($<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/Source/Generated> $<INSTALL_INTERFACE:${PROJECT_NAME}/>)

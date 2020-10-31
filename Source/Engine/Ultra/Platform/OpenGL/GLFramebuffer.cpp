@@ -133,7 +133,7 @@ void GLFramebuffer::Invalidate() {
     }
 
     // ToDo: Replace with assert
-    if (!glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         //APP_ASSERT(nullptr, "Failed to create the framebuffer");
     }
 

@@ -15,15 +15,15 @@ using namespace Omnia;
 
 
 struct ParticleProperties {
-    glm::vec2 Position;
-    glm::vec2 Velocity;
-    glm::vec2 VelocityVariation;
-    glm::vec4 ColorBegin;
-    glm::vec4 ColorEnd;
+    glm::vec2 Position = {};
+    glm::vec2 Velocity = {};
+    glm::vec2 VelocityVariation = {};
+    glm::vec4 ColorBegin = {};
+    glm::vec4 ColorEnd = {};
 
-    float SizeBegin;
-    float SizeEnd;
-    float SizeVariation;
+    float SizeBegin = 0.0f;
+    float SizeEnd = 0.0f;
+    float SizeVariation = 0.0f;
     float LifeTime = 1.0f;
 };
 

@@ -9,6 +9,7 @@ SceneBrowser::SceneBrowser() {}
 
 SceneBrowser::SceneBrowser(const Reference<Scene> &scene) {
     SetContext(scene);
+    SelectionContext = {};
 }
 
 void SceneBrowser::GuiUpdate() {

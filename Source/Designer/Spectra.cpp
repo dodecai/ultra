@@ -1,7 +1,7 @@
 ﻿#include <Ultra.h>
 #include <Ultra/EntryPoint.h>
 
-#include "Spectra/Designer.cpp"
+#include "Spectra/Designer.h"
 
 // Application
 namespace Ultra {

@@ -53,12 +53,12 @@ const std::string GLShader::GetName() const {
 }
 
 const unordered_map<string, ShaderBuffer> &GLShader::GetBuffers() const {
-    unordered_map<string, ShaderBuffer> result;
+    static unordered_map<string, ShaderBuffer> result;
     return result;
 }
 
 const unordered_map<string, ShaderResourceDeclaration> &GLShader::GetResources() const {
-    unordered_map<string, ShaderResourceDeclaration> result;
+    static unordered_map<string, ShaderResourceDeclaration> result;
     return result;
 }
 

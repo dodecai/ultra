@@ -134,7 +134,7 @@ static EShLanguage GetShaderLanguage(const ShaderLanguage language) {
         case ShaderLanguage::Geometry:         { return EShLanguage::EShLangGeometry; }
         case ShaderLanguage::TessControl:      { return EShLanguage::EShLangTessControl; }
         case ShaderLanguage::TessEvaluation:   { return EShLanguage::EShLangTessEvaluation; }
-        deault:                             { return EShLanguage::EShLangCount; }
+        default:                               { return EShLanguage::EShLangCount; }
     }
 }
 

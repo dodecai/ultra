@@ -39,8 +39,8 @@ public:
     // Accessors
     const Camera &GetCamera();
     const string &GetCaption() const;
-    const Entity &GetEntity(const string &name);
-    const Entity &GetEntity(const UUID<string> &id);
+    const Entity GetEntity(const string &name);
+    const Entity GetEntity(const UUID<string> &id);
     const uint32_t GetHeight() const { return mHeight; }
     const uint32_t GetWdith() const { return mWidth; }
     bool IsActive() const {return mActive;};

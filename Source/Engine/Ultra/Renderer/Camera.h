@@ -97,7 +97,7 @@ public:
 	PerspectiveCamera(float left, float right, float buttom, float top);
 
 	// Accessors
-	const glm::vec3 &GetDirection(CameraDirection direction) const;
+	const glm::vec3 GetDirection(CameraDirection direction) const;
 	const glm::vec3 &GetPosition() const;
 
 	const glm::mat4 &GetProjectionMatrix() const { return ProjectionMatrix; }

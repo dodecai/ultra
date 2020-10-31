@@ -29,7 +29,7 @@ PerspectiveCamera::PerspectiveCamera(float left, float right, float buttom, floa
 	ViewProjectionMatrix = ProjectionMatrix * ViewMatrix;
 }
 
-const glm::vec3 &PerspectiveCamera::GetDirection(CameraDirection direction) const {
+const glm::vec3 PerspectiveCamera::GetDirection(CameraDirection direction) const {
 	switch (direction) {
 		// X-Axis
 		case CameraDirection::Left:

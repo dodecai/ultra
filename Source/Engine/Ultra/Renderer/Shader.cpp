@@ -35,7 +35,7 @@ ShaderUniform::ShaderUniform(const string &name, ShaderUniformType type, uint32_
     mOffset(offset) {
 }
 
-const string& ShaderUniform::UniformTypeToString(ShaderUniformType type) {
+const string ShaderUniform::UniformTypeToString(ShaderUniformType type) {
     if (type == ShaderUniformType::Bool)        return "Boolean";
     else if (type == ShaderUniformType::Int)    return "Int";
     else if (type == ShaderUniformType::Float)  return "Float";

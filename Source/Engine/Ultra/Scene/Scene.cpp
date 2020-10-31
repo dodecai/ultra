@@ -98,7 +98,7 @@ void Scene::Resize(uint32_t width, uint32_t height) {
     mHeight = height;
 
     auto view = Registry.view<Component::Camera>();
-    for (auto entity : view) {
+    for (auto &entity : view) {
         auto &camera = view.get<Component::Camera>(entity);
         if (camera.ProjectionType == SceneCamera::ProjectionType::Orthographic && camera.FixedAspectRatio) return;
         camera.mCamera.SetViewportSize(width, height);
@@ -108,36 +108,40 @@ void Scene::Resize(uint32_t width, uint32_t height) {
 
 const Camera &Scene::GetCamera() {
     auto view = Registry.view<Component::Camera>();
-    for (auto entity : view) {
-        auto camera = view.get<Component::Camera>(entity);
+    for (auto &entity : view) {
+        auto &camera = view.get<Component::Camera>(entity);
         if (camera.Primary) { return camera.mCamera; }
     }
+    static Camera *ptr = nullptr;
+    return *ptr;
 }
 
 const string &Scene::GetCaption() const {
     return mCaption;
 }
 
-const Entity &Scene::GetEntity(const string &name) {
+const Entity Scene::GetEntity(const string &name) {
     auto view = Registry.view<Component::Tag>();
-    for (auto entity : view) {
+    for (auto &entity : view) {
         auto &component = view.get<Component::Tag>(entity);
         if (component == name) {
             return { entity, this };
         }
     }
-    return Entity();
+    static Entity *ptr = nullptr;
+    return *ptr;
 }
 
-const Entity &Scene::GetEntity(const UUID<string> &id) {
+const Entity Scene::GetEntity(const UUID<string> &id) {
     auto view = Registry.view<Component::Identifier>();
-    for (auto entity : view) {
+    for (auto &entity : view) {
         auto &component = view.get<Component::Identifier>(entity);
         if (component == id) {
             return { entity, this };
         }
     }
-    return Entity();
+    static Entity *ptr = nullptr;
+    return *ptr;
 }
 
 void Scene::SetCaption(const string &caption) {

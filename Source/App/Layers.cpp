@@ -26,7 +26,7 @@ public:
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float2, "a_TextCoord" },
 		};
-		GridVertexArray = VertexArray::Create();
+		//GridVertexArray = VertexArray::Create();
 
 		Reference<VertexBuffer> gridVB;
 		float gridVertices[5 * 4] = {
@@ -37,19 +37,19 @@ public:
 		};
 		gridVB = VertexBuffer::Create(gridVertices, sizeof(gridVertices));
 		gridVB->SetLayout(gridLayout);
-		GridVertexArray->AddVertexBuffer(gridVB);
+		//GridVertexArray->AddVertexBuffer(gridVB);
 
 		Reference<IndexBuffer> gridIB;
 		uint32_t gridIndices[6] = { 0, 1, 2, 2, 3, 0 };
 		gridIB = IndexBuffer::Create(gridIndices, sizeof(gridIndices) / sizeof(uint32_t));
-		GridVertexArray->SetIndexBuffer(gridIB);
+		//GridVertexArray->SetIndexBuffer(gridIB);
 
 		// Player
 		BufferLayout playerLayout = {
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color" },
 		};
-		PlayerVertexArray = VertexArray::Create();
+		//PlayerVertexArray = VertexArray::Create();
 
 		Reference<VertexBuffer> playerVB;
 		float playerVertices[7 * 3] = {
@@ -59,18 +59,18 @@ public:
 		};
 		playerVB = VertexBuffer::Create(playerVertices, sizeof(playerVertices));
 		playerVB->SetLayout(playerLayout);
-		PlayerVertexArray->AddVertexBuffer(playerVB);
+		//PlayerVertexArray->AddVertexBuffer(playerVB);
 
 		Reference<IndexBuffer> playerIB;
 		uint32_t playerIndices[3] = { 0, 1, 2 };
 		playerIB = IndexBuffer::Create(playerIndices, sizeof(playerIndices) / sizeof(uint32_t));
-		PlayerVertexArray->SetIndexBuffer(playerIB);
+		//PlayerVertexArray->SetIndexBuffer(playerIB);
 
 		// Texture Test
 		TextureBase = Texture2D::Create("./Assets/Textures/Checkerboard.png");
 		TextureLogo = Texture2D::Create("./Assets/Textures/AlphaChannel.png");
 		Shaders.Get("Texture")->Bind();
-		Shaders.Get("Texture")->SetInt("u_Texture", 0);
+		Shaders.Get("Texture")->SetUniform("u_Texture", 0);
 	}
 
 	void GuiUpdate() override {
@@ -106,18 +106,18 @@ public:
 			for (int x = 0; x < 100; x++) {
 				glm::vec3 position(x * 0.11f, y * 0.11f, 0.0f);
 				glm::mat4 transformS = glm::translate(glm::mat4(1.0f), position) * scaleGrid;
-				Renderer::Submit(Shaders.Get("Grid"), GridVertexArray, transformS);
+				//Renderer::Submit(Shaders.Get("Grid"), GridVertexArray, transformS);
 			}
 		}
 		TextureBase->Bind();
-		Renderer::Submit(Shaders.Get("Texture"), GridVertexArray, glm::mat4(1.0f));
+		//Renderer::Submit(Shaders.Get("Texture"), GridVertexArray, glm::mat4(1.0f));
 		TextureLogo->Bind();
-		Renderer::Submit(Shaders.Get("Texture"), GridVertexArray, glm::mat4(1.0f));
+		//Renderer::Submit(Shaders.Get("Texture"), GridVertexArray, glm::mat4(1.0f));
 
 		// Player
 		glm::mat4 scalePlayer = glm::scale(glm::mat4(1.0f), glm::vec3(0.25f));
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), PlayerPosition) * scalePlayer;
-		Renderer::Submit(Shaders.Get("Player"), PlayerVertexArray, transform);
+		//Renderer::Submit(Shaders.Get("Player"), PlayerVertexArray, transform);
 
 		//~Renderer
 		Renderer::EndScene();
@@ -142,12 +142,12 @@ private:
     CameraController SceneCamera;
     ShaderLibrary Shaders;
 
-    Reference<VertexArray> GridVertexArray;
+    //Reference<VertexArray> GridVertexArray;
 
     Reference<Texture2D> TextureBase;
     Reference<Texture2D> TextureLogo;
 
-    Reference<VertexArray> PlayerVertexArray;
+    //Reference<VertexArray> PlayerVertexArray;
     glm::vec3 PlayerPosition;
     float PlayerMoveSpeed = 1.0f;
 };

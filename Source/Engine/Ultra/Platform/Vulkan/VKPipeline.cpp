@@ -208,6 +208,7 @@ vk::PipelineLayout VKPipeline::GetNativePipelineLayout() {
     return Layout;
 }
 
+
 void VKPipeline::CreateVertexBuffer() {
     vk::BufferCreateInfo bufferInfo = {};
     bufferInfo.size = sizeof(Vertices[0]) * Vertices.size();

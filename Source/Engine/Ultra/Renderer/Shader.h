@@ -20,7 +20,7 @@ public:
     const uint32_t GetSize() const { return mSize; }
     const uint32_t GetOffset() const { return mOffset; }
 
-    static const string &UniformTypeToString(ShaderUniformType type);
+    static const string UniformTypeToString(ShaderUniformType type);
 
 private:
     string mName;

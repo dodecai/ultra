@@ -82,6 +82,7 @@ PropertiesPanel::PropertiesPanel() {}
 
 PropertiesPanel::PropertiesPanel(Entity &entity) {
     SetContext(entity);
+    mContext = {};
 }
 
 void PropertiesPanel::GuiUpdate() {
