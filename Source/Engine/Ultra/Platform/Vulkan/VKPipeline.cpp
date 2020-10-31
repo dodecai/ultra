@@ -170,11 +170,11 @@ VKPipeline::VKPipeline(const PipelineProperties &properties): Properties(propert
 }
 
 VKPipeline::~VKPipeline() {
-    mDevice->Call().destroyBuffer(VertexBuffer);
-    mDevice->Call().freeMemory(VertexMemory);
+    mDevice->Call().destroyBuffer(VertexBuffer, nullptr);
+    mDevice->Call().freeMemory(VertexMemory, nullptr);
 
-    mDevice->Call().destroyPipeline(Pipeline);
-    mDevice->Call().destroyPipelineLayout(Layout);
+    mDevice->Call().destroyPipeline(Pipeline, nullptr);
+    mDevice->Call().destroyPipelineLayout(Layout, nullptr);
 }
 
 void VKPipeline::Bind() {

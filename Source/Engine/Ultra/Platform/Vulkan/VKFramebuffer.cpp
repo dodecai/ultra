@@ -114,7 +114,6 @@ void VKFramebuffer::Resize(uint32_t width, uint32_t height, bool reload) {
             vk::ImageViewCreateInfo viewInfo = {};
             viewInfo.viewType = vk::ImageViewType::e2D;
             viewInfo.format = COLOR_BUFFER_FORMAT;
-            viewInfo.subresourceRange = {};
             viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
             viewInfo.subresourceRange.baseMipLevel = 0;
             viewInfo.subresourceRange.levelCount = 1;
@@ -158,7 +157,7 @@ void VKFramebuffer::Resize(uint32_t width, uint32_t height, bool reload) {
             vk::ImageCreateInfo imageInfo = {};
             imageInfo.imageType = vk::ImageType::e2D;
             imageInfo.format = DEPTH_BUFFER_FORMAT;
-            imageInfo.extent = { width, height, 1U };
+            imageInfo.extent = vk::Extent3D { width, height, 1U };
             imageInfo.mipLevels = 1U;
             imageInfo.arrayLayers = 1U;
             imageInfo.samples = vk::SampleCountFlagBits::e1;
@@ -176,7 +175,6 @@ void VKFramebuffer::Resize(uint32_t width, uint32_t height, bool reload) {
             viewInfo.image = DepthAttachment.Image;
             viewInfo.viewType = vk::ImageViewType::e2D;
             viewInfo.format = DEPTH_BUFFER_FORMAT;
-            viewInfo.subresourceRange = {};
             viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
             if (DEPTH_BUFFER_FORMAT >= vk::Format::eD16UnormS8Uint) {
                 viewInfo.subresourceRange.aspectMask |= vk::ImageAspectFlagBits::eStencil;

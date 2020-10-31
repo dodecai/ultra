@@ -90,8 +90,8 @@ VKVertexBuffer::~VKVertexBuffer() {
     auto &device = VKContext->GetDevice()->Call();
     // Destroy staging buffers
     // Note: Staging buffer must not be deleted before the copies have been submitted and executed
-    device.destroyBuffer(Vertices.Buffer);
-    device.freeMemory(Vertices.Memory);
+    device.destroyBuffer(Vertices.Buffer, nullptr);
+    device.freeMemory(Vertices.Memory, nullptr);
 }
 
 void VKVertexBuffer::Bind() const {}
@@ -175,8 +175,8 @@ VKIndexBuffer::~VKIndexBuffer() {
 
     // Destroy staging buffers
     // Note: Staging buffer must not be deleted before the copies have been submitted and executed
-    device.destroyBuffer(Indices.Buffer);
-    device.freeMemory(Indices.Memory);
+    device.destroyBuffer(Indices.Buffer, nullptr);
+    device.freeMemory(Indices.Memory, nullptr);
 }
 
 void VKIndexBuffer::Bind() const {}
