@@ -107,7 +107,7 @@ void PshifterState::deviceUpdate(const ALCdevice *device)
 {
     /* (Re-)initializing parameters and clear the buffers. */
     mCount       = FIFO_LATENCY;
-    mPitchShiftI = FRACTIONONE;
+    mPitchShiftI = MixerFracOne;
     mPitchShift  = 1.0;
     mFreqPerBin  = device->Frequency / double{STFT_SIZE};
 
@@ -127,8 +127,8 @@ void PshifterState::update(const ALCcontext*, const ALeffectslot *slot, const Ef
 {
     const int tune{props->Pshifter.CoarseTune*100 + props->Pshifter.FineTune};
     const float pitch{std::pow(2.0f, static_cast<float>(tune) / 1200.0f)};
-    mPitchShiftI = fastf2u(pitch*FRACTIONONE);
-    mPitchShift  = mPitchShiftI * double{1.0/FRACTIONONE};
+    mPitchShiftI = fastf2u(pitch*MixerFracOne);
+    mPitchShift  = mPitchShiftI * double{1.0/MixerFracOne};
 
     const auto coeffs = CalcDirectionCoeffs({0.0f, 0.0f, -1.0f}, 0.0f);
 
@@ -169,7 +169,7 @@ void PshifterState::process(const size_t samplesToDo, const al::span<const Float
          */
         for(size_t k{0u};k < STFT_SIZE;k++)
             mFftBuffer[k] = mFIFO[k] * HannWindow[k];
-        complex_fft(mFftBuffer, -1.0);
+        forward_fft(mFftBuffer);
 
         /* Analyze the obtained data. Since the real FFT is symmetric, only
          * STFT_HALF_SIZE+1 samples are needed.
@@ -206,7 +206,7 @@ void PshifterState::process(const size_t samplesToDo, const al::span<const Float
         std::fill(mSynthesisBuffer.begin(), mSynthesisBuffer.end(), FrequencyBin{});
         for(size_t k{0u};k < STFT_HALF_SIZE+1;k++)
         {
-            const size_t j{(k*mPitchShiftI + (FRACTIONONE>>1)) >> FRACTIONBITS};
+            const size_t j{(k*mPitchShiftI + (MixerFracOne>>1)) >> MixerFracBits};
             if(j >= STFT_HALF_SIZE+1) break;
 
             mSynthesisBuffer[j].Amplitude += mAnalysisBuffer[k].Amplitude;
@@ -226,15 +226,15 @@ void PshifterState::process(const size_t samplesToDo, const al::span<const Float
 
             mFftBuffer[k] = std::polar(mSynthesisBuffer[k].Amplitude, mSumPhase[k]);
         }
-        /* Clear negative frequencies to recontruct the time-domain signal. */
-        std::fill(mFftBuffer.begin()+STFT_HALF_SIZE+1, mFftBuffer.end(), complex_d{});
+        for(size_t k{STFT_HALF_SIZE+1};k < STFT_SIZE;++k)
+            mFftBuffer[k] = std::conj(mFftBuffer[STFT_SIZE-k]);
 
         /* Apply an inverse FFT to get the time-domain siganl, and accumulate
          * for the output with windowing.
          */
-        complex_fft(mFftBuffer, 1.0);
+        inverse_fft(mFftBuffer);
         for(size_t k{0u};k < STFT_SIZE;k++)
-            mOutputAccum[k] += HannWindow[k]*mFftBuffer[k].real() * (2.0/STFT_HALF_SIZE/OVERSAMP);
+            mOutputAccum[k] += HannWindow[k]*mFftBuffer[k].real() * (2.0/STFT_SIZE/OVERSAMP);
 
         /* Shift FIFO and accumulator. */
         fifo_iter = std::copy(mFIFO.begin()+STFT_STEP, mFIFO.end(), mFIFO.begin());

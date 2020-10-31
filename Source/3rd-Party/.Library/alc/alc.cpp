@@ -403,6 +403,11 @@ const struct {
     DECL(alGetBufferPtrSOFT),
     DECL(alGetBuffer3PtrSOFT),
     DECL(alGetBufferPtrvSOFT),
+
+    DECL(alAuxiliaryEffectSlotPlaySOFT),
+    DECL(alAuxiliaryEffectSlotPlayvSOFT),
+    DECL(alAuxiliaryEffectSlotStopSOFT),
+    DECL(alAuxiliaryEffectSlotStopvSOFT),
 };
 #undef DECL
 
@@ -772,6 +777,8 @@ constexpr struct {
     DECL(AL_VOCAL_MORPHER_WAVEFORM),
     DECL(AL_VOCAL_MORPHER_RATE),
 
+    DECL(AL_EFFECTSLOT_TARGET_SOFT),
+
     DECL(AL_NUM_RESAMPLERS_SOFT),
     DECL(AL_DEFAULT_RESAMPLER_SOFT),
     DECL(AL_SOURCE_RESAMPLER_SOFT),
@@ -789,9 +796,7 @@ constexpr struct {
     DECL(AL_EVENT_CALLBACK_USER_PARAM_SOFT),
     DECL(AL_EVENT_TYPE_BUFFER_COMPLETED_SOFT),
     DECL(AL_EVENT_TYPE_SOURCE_STATE_CHANGED_SOFT),
-    DECL(AL_EVENT_TYPE_ERROR_SOFT),
-    DECL(AL_EVENT_TYPE_PERFORMANCE_SOFT),
-    DECL(AL_EVENT_TYPE_DEPRECATED_SOFT),
+    DECL(AL_EVENT_TYPE_DISCONNECTED_SOFT),
 
     DECL(AL_DROP_UNMATCHED_SOFT),
     DECL(AL_REMIX_UNMATCHED_SOFT),
@@ -807,6 +812,9 @@ constexpr struct {
     DECL(AL_BUFFER_CALLBACK_USER_PARAM_SOFT),
 
     DECL(AL_UNPACK_AMBISONIC_ORDER_SOFT),
+
+    DECL(AL_EFFECT_CONVOLUTION_REVERB_SOFT),
+    DECL(AL_EFFECTSLOT_STATE_SOFT),
 };
 #undef DECL
 
@@ -854,11 +862,12 @@ constexpr ALchar alExtList[] =
     "AL_SOFTX_bformat_hoa "
     "AL_SOFT_block_alignment "
     "AL_SOFTX_callback_buffer "
+    "AL_SOFTX_convolution_reverb "
     "AL_SOFT_deferred_updates "
     "AL_SOFT_direct_channels "
     "AL_SOFT_direct_channels_remix "
-    "AL_SOFTX_effect_target "
-    "AL_SOFTX_events "
+    "AL_SOFT_effect_target "
+    "AL_SOFT_events "
     "AL_SOFTX_filter_gain_ex "
     "AL_SOFT_gain_clamp_ex "
     "AL_SOFT_loop_points "
@@ -925,7 +934,8 @@ constexpr ALCchar alcNoDeviceExtList[] =
     "ALC_ENUMERATION_EXT "
     "ALC_EXT_CAPTURE "
     "ALC_EXT_thread_local_context "
-    "ALC_SOFT_loopback";
+    "ALC_SOFT_loopback "
+    "ALC_SOFT_loopback_bformat";
 constexpr ALCchar alcExtensionList[] =
     "ALC_ENUMERATE_ALL_EXT "
     "ALC_ENUMERATION_EXT "
@@ -937,6 +947,7 @@ constexpr ALCchar alcExtensionList[] =
     "ALC_SOFT_device_clock "
     "ALC_SOFT_HRTF "
     "ALC_SOFT_loopback "
+    "ALC_SOFT_loopback_bformat "
     "ALC_SOFT_output_limiter "
     "ALC_SOFT_pause_device";
 constexpr int alcMajorVersion{1};
@@ -947,13 +958,9 @@ constexpr int alcEFXMinorVersion{0};
 
 
 /* To avoid extraneous allocations, a 0-sized FlexArray<ALCcontext*> is defined
- * globally as a sharable object. MSVC warns that a zero-sized array will have
- * zero objects here, so silence that.
+ * globally as a sharable object.
  */
-DIAGNOSTIC_PUSH
-msc_pragma(warning(disable : 4815))
 al::FlexArray<ALCcontext*> EmptyContextArray{0u};
-DIAGNOSTIC_POP
 
 
 using DeviceRef = al::intrusive_ptr<ALCdevice>;
@@ -973,7 +980,11 @@ void alc_initconfig(void)
     if(auto loglevel = al::getenv("ALSOFT_LOGLEVEL"))
     {
         long lvl = strtol(loglevel->c_str(), nullptr, 0);
-        if(lvl >= NoLog && lvl <= LogRef)
+        if(lvl >= static_cast<long>(LogLevel::Trace))
+            gLogLevel = LogLevel::Trace;
+        else if(lvl <= static_cast<long>(LogLevel::Disable))
+            gLogLevel = LogLevel::Disable;
+        else
             gLogLevel = static_cast<LogLevel>(lvl);
     }
 
@@ -1269,9 +1280,9 @@ int RTPrioLevel{1};
 
 FILE *gLogFile{stderr};
 #ifdef _DEBUG
-LogLevel gLogLevel{LogWarning};
+LogLevel gLogLevel{LogLevel::Warning};
 #else
-LogLevel gLogLevel{LogError};
+LogLevel gLogLevel{LogLevel::Error};
 #endif
 
 /************************************************
@@ -1657,7 +1668,7 @@ static ALCenum UpdateDeviceParams(ALCdevice *device, const int *attrList)
     ALCsizei hrtf_id{-1};
     ALCuint oldFreq;
 
-    if((!attrList || !attrList[0]) && device->Type == Loopback)
+    if((!attrList || !attrList[0]) && device->Type == DeviceType::Loopback)
     {
         WARN("Missing attributes for loopback device\n");
         return ALC_INVALID_VALUE;
@@ -1762,7 +1773,7 @@ static ALCenum UpdateDeviceParams(ALCdevice *device, const int *attrList)
         }
 #undef TRACE_ATTR
 
-        const bool loopback{device->Type == Loopback};
+        const bool loopback{device->Type == DeviceType::Loopback};
         if(loopback)
         {
             if(!schans || !stype || !freq)
@@ -1838,8 +1849,8 @@ static ALCenum UpdateDeviceParams(ALCdevice *device, const int *attrList)
             if(schans == ALC_BFORMAT3D_SOFT)
             {
                 device->mAmbiOrder = aorder;
-                device->mAmbiLayout = static_cast<AmbiLayout>(alayout);
-                device->mAmbiScale = static_cast<AmbiNorm>(ascale);
+                device->mAmbiLayout = static_cast<DevAmbiLayout>(alayout);
+                device->mAmbiScale = static_cast<DevAmbiScaling>(ascale);
             }
         }
 
@@ -1899,7 +1910,7 @@ static ALCenum UpdateDeviceParams(ALCdevice *device, const int *attrList)
      * Update device format request if HRTF is requested
      */
     device->HrtfStatus = ALC_HRTF_DISABLED_SOFT;
-    if(device->Type != Loopback)
+    if(device->Type != DeviceType::Loopback)
     {
         if(auto hrtfopt = ConfigValueStr(device->DeviceName.c_str(), nullptr, "hrtf"))
         {
@@ -1935,7 +1946,7 @@ static ALCenum UpdateDeviceParams(ALCdevice *device, const int *attrList)
             throw al::backend_exception{ALC_INVALID_DEVICE, "Device reset failure"};
     }
     catch(std::exception &e) {
-        aluHandleDisconnect(device, "%s", e.what());
+        device->handleDisconnect("%s", e.what());
         return ALC_INVALID_DEVICE;
     }
 
@@ -1980,23 +1991,15 @@ static ALCenum UpdateDeviceParams(ALCdevice *device, const int *attrList)
         device->SourcesMax, device->NumMonoSources, device->NumStereoSources,
         device->AuxiliaryEffectSlotMax, device->NumAuxSends);
 
+    nanoseconds::rep sample_delay{0};
     if(device->Uhj_Encoder)
-    {
-        /* NOTE: Don't know why this has to be "copied" into a local constexpr
-         * variable to avoid a reference on Uhj2Encoder::sFilterSize...
-         */
-        constexpr size_t filter_len{Uhj2Encoder::sFilterSize};
-        device->FixedLatency += nanoseconds{seconds{filter_len}} / device->Frequency;
-    }
+        sample_delay += Uhj2Encoder::sFilterSize;
     if(device->mHrtfState)
-        device->FixedLatency += nanoseconds{seconds{HRTF_DIRECT_DELAY}} / device->Frequency;
+        sample_delay += HRTF_DIRECT_DELAY;
     if(auto *ambidec = device->AmbiDecoder.get())
     {
         if(ambidec->hasStablizer())
-        {
-            constexpr size_t StablizerDelay{FrontStablizer::DelayLength};
-            device->FixedLatency += nanoseconds{seconds{StablizerDelay}} / device->Frequency;
-        }
+            sample_delay += FrontStablizer::DelayLength;
     }
 
     if(GetConfigValueBool(device->DeviceName.c_str(), nullptr, "dither", 1))
@@ -2084,12 +2087,14 @@ static ALCenum UpdateDeviceParams(ALCdevice *device, const int *attrList)
 
         const float thrshld_dB{std::log10(thrshld) * 20.0f};
         auto limiter = CreateDeviceLimiter(device, thrshld_dB);
-        /* Convert the lookahead from samples to nanosamples to nanoseconds. */
-        device->FixedLatency += nanoseconds{seconds{limiter->getLookAhead()}} / device->Frequency;
+
+        sample_delay += limiter->getLookAhead();
         device->Limiter = std::move(limiter);
         TRACE("Output limiter enabled, %.4fdB limit\n", thrshld_dB);
     }
 
+    /* Convert the sample delay from samples to nanosamples to nanoseconds. */
+    device->FixedLatency += nanoseconds{seconds{sample_delay}} / device->Frequency;
     TRACE("Fixed device latency: %" PRId64 "ns\n", int64_t{device->FixedLatency.count()});
 
     FPUCtl mixer_mode{};
@@ -2099,9 +2104,11 @@ static ALCenum UpdateDeviceParams(ALCdevice *device, const int *attrList)
         {
             aluInitEffectPanning(slot, device);
 
-            EffectState *state{slot->Effect.State};
+            EffectState *state{slot->Effect.State.get()};
             state->mOutTarget = device->Dry.Buffer;
             state->deviceUpdate(device);
+            if(ALbuffer *buffer{slot->Buffer})
+                state->setBuffer(device, &buffer->mBuffer);
             slot->updateProps(context);
         }
 
@@ -2114,15 +2121,17 @@ static ALCenum UpdateDeviceParams(ALCdevice *device, const int *attrList)
             uint64_t usemask{~sublist.FreeMask};
             while(usemask)
             {
-                ALsizei idx{CTZ64(usemask)};
+                const ALsizei idx{CountTrailingZeros(usemask)};
                 ALeffectslot *slot{sublist.EffectSlots + idx};
                 usemask &= ~(1_u64 << idx);
 
                 aluInitEffectPanning(slot, device);
 
-                EffectState *state{slot->Effect.State};
+                EffectState *state{slot->Effect.State.get()};
                 state->mOutTarget = device->Dry.Buffer;
                 state->deviceUpdate(device);
+                if(ALbuffer *buffer{slot->Buffer})
+                    state->setBuffer(device, &buffer->mBuffer);
                 slot->updateProps(context);
             }
         }
@@ -2135,7 +2144,7 @@ static ALCenum UpdateDeviceParams(ALCdevice *device, const int *attrList)
             uint64_t usemask{~sublist.FreeMask};
             while(usemask)
             {
-                ALsizei idx{CTZ64(usemask)};
+                const ALsizei idx{CountTrailingZeros(usemask)};
                 ALsource *source{sublist.Sources + idx};
                 usemask &= ~(1_u64 << idx);
 
@@ -2193,7 +2202,7 @@ static ALCenum UpdateDeviceParams(ALCdevice *device, const int *attrList)
                 continue;
 
             voice->mStep = 0;
-            voice->mFlags |= VOICE_IS_FADING;
+            voice->mFlags |= VoiceIsFading;
 
             if(voice->mAmbiOrder && device->mAmbiOrder > voice->mAmbiOrder)
             {
@@ -2214,7 +2223,7 @@ static ALCenum UpdateDeviceParams(ALCdevice *device, const int *attrList)
                     std::fill_n(chandata.mWetParams.begin(), num_sends, SendParams{});
                 }
 
-                voice->mFlags |= VOICE_IS_AMBISONIC;
+                voice->mFlags |= VoiceIsAmbisonic;
             }
             else
             {
@@ -2226,13 +2235,13 @@ static ALCenum UpdateDeviceParams(ALCdevice *device, const int *attrList)
                     std::fill_n(chandata.mWetParams.begin(), num_sends, SendParams{});
                 }
 
-                voice->mFlags &= ~VOICE_IS_AMBISONIC;
+                voice->mFlags &= ~VoiceIsAmbisonic;
             }
 
             if(device->AvgSpeakerDist > 0.0f)
             {
                 /* Reinitialize the NFC filters for new parameters. */
-                const float w1{SPEEDOFSOUNDMETRESPERSEC /
+                const float w1{SpeedOfSoundMetersPerSec /
                     (device->AvgSpeakerDist * static_cast<float>(device->Frequency))};
                 for(auto &chandata : voice->mChans)
                     chandata.mDryParams.NFCtrlFilter.init(w1);
@@ -2256,7 +2265,7 @@ static ALCenum UpdateDeviceParams(ALCdevice *device, const int *attrList)
             device->Flags.set<DeviceRunning>();
         }
         catch(al::backend_exception& e) {
-            aluHandleDisconnect(device, "%s", e.what());
+            device->handleDisconnect("%s", e.what());
             return ALC_INVALID_DEVICE;
         }
     }
@@ -2277,22 +2286,19 @@ ALCdevice::~ALCdevice()
 
     size_t count{std::accumulate(BufferList.cbegin(), BufferList.cend(), size_t{0u},
         [](size_t cur, const BufferSubList &sublist) noexcept -> size_t
-        { return cur + static_cast<ALuint>(POPCNT64(~sublist.FreeMask)); }
-    )};
+        { return cur + static_cast<ALuint>(PopCount(~sublist.FreeMask)); })};
     if(count > 0)
         WARN("%zu Buffer%s not deleted\n", count, (count==1)?"":"s");
 
     count = std::accumulate(EffectList.cbegin(), EffectList.cend(), size_t{0u},
         [](size_t cur, const EffectSubList &sublist) noexcept -> size_t
-        { return cur + static_cast<ALuint>(POPCNT64(~sublist.FreeMask)); }
-    );
+        { return cur + static_cast<ALuint>(PopCount(~sublist.FreeMask)); });
     if(count > 0)
         WARN("%zu Effect%s not deleted\n", count, (count==1)?"":"s");
 
     count = std::accumulate(FilterList.cbegin(), FilterList.cend(), size_t{0u},
         [](size_t cur, const FilterSubList &sublist) noexcept -> size_t
-        { return cur + static_cast<ALuint>(POPCNT64(~sublist.FreeMask)); }
-    );
+        { return cur + static_cast<ALuint>(PopCount(~sublist.FreeMask)); });
     if(count > 0)
         WARN("%zu Filter%s not deleted\n", count, (count==1)?"":"s");
 
@@ -2345,8 +2351,7 @@ ALCcontext::~ALCcontext()
 
     count = std::accumulate(mSourceList.cbegin(), mSourceList.cend(), size_t{0u},
         [](size_t cur, const SourceSubList &sublist) noexcept -> size_t
-        { return cur + static_cast<ALuint>(POPCNT64(~sublist.FreeMask)); }
-    );
+        { return cur + static_cast<ALuint>(PopCount(~sublist.FreeMask)); });
     if(count > 0)
         WARN("%zu Source%s not deleted\n", count, (count==1)?"":"s");
     mSourceList.clear();
@@ -2357,7 +2362,6 @@ ALCcontext::~ALCcontext()
     while(eprops)
     {
         ALeffectslotProps *next{eprops->next.load(std::memory_order_relaxed)};
-        if(eprops->State) eprops->State->release();
         delete eprops;
         eprops = next;
         ++count;
@@ -2373,8 +2377,7 @@ ALCcontext::~ALCcontext()
 
     count = std::accumulate(mEffectSlotList.cbegin(), mEffectSlotList.cend(), size_t{0u},
         [](size_t cur, const EffectSlotSubList &sublist) noexcept -> size_t
-        { return cur + static_cast<ALuint>(POPCNT64(~sublist.FreeMask)); }
-    );
+        { return cur + static_cast<ALuint>(PopCount(~sublist.FreeMask)); });
     if(count > 0)
         WARN("%zu AuxiliaryEffectSlot%s not deleted\n", count, (count==1)?"":"s");
     mEffectSlotList.clear();
@@ -2432,7 +2435,7 @@ ALCcontext::~ALCcontext()
 
 void ALCcontext::init()
 {
-    if(DefaultEffect.type != AL_EFFECT_NULL && mDevice->Type == Playback)
+    if(DefaultEffect.type != AL_EFFECT_NULL && mDevice->Type == DeviceType::Playback)
     {
         mDefaultSlot = std::unique_ptr<ALeffectslot>{new ALeffectslot{}};
         if(mDefaultSlot->init() == AL_NO_ERROR)
@@ -2451,6 +2454,7 @@ void ALCcontext::init()
     {
         auxslots = ALeffectslot::CreatePtrArray(1);
         (*auxslots)[0] = mDefaultSlot.get();
+        mDefaultSlot->mState = SlotState::Playing;
     }
     mActiveAuxSlots.store(auxslots, std::memory_order_relaxed);
 
@@ -2717,8 +2721,8 @@ END_API_FUNC
 
 static inline ALCsizei NumAttrsForDevice(ALCdevice *device)
 {
-    if(device->Type == Capture) return 9;
-    if(device->Type != Loopback) return 29;
+    if(device->Type == DeviceType::Capture) return 9;
+    if(device->Type != DeviceType::Loopback) return 29;
     if(device->FmtChans == DevFmtAmbi3D)
         return 35;
     return 29;
@@ -2768,7 +2772,7 @@ static size_t GetIntegerv(ALCdevice *device, ALCenum param, const al::span<int> 
         return 0;
     }
 
-    if(device->Type == Capture)
+    if(device->Type == DeviceType::Capture)
     {
         switch(param)
         {
@@ -2847,7 +2851,7 @@ static size_t GetIntegerv(ALCdevice *device, ALCenum param, const al::span<int> 
 
             values[i++] = ALC_FREQUENCY;
             values[i++] = static_cast<int>(device->Frequency);
-            if(device->Type != Loopback)
+            if(device->Type != DeviceType::Loopback)
             {
                 values[i++] = ALC_REFRESH;
                 values[i++] = static_cast<int>(device->Frequency / device->UpdateSize);
@@ -2922,7 +2926,7 @@ static size_t GetIntegerv(ALCdevice *device, ALCenum param, const al::span<int> 
         return 1;
 
     case ALC_REFRESH:
-        if(device->Type == Loopback)
+        if(device->Type == DeviceType::Loopback)
         {
             alcSetError(device, ALC_INVALID_DEVICE);
             return 0;
@@ -2934,7 +2938,7 @@ static size_t GetIntegerv(ALCdevice *device, ALCenum param, const al::span<int> 
         return 1;
 
     case ALC_SYNC:
-        if(device->Type == Loopback)
+        if(device->Type == DeviceType::Loopback)
         {
             alcSetError(device, ALC_INVALID_DEVICE);
             return 0;
@@ -2943,7 +2947,7 @@ static size_t GetIntegerv(ALCdevice *device, ALCenum param, const al::span<int> 
         return 1;
 
     case ALC_FORMAT_CHANNELS_SOFT:
-        if(device->Type != Loopback)
+        if(device->Type != DeviceType::Loopback)
         {
             alcSetError(device, ALC_INVALID_DEVICE);
             return 0;
@@ -2952,7 +2956,7 @@ static size_t GetIntegerv(ALCdevice *device, ALCenum param, const al::span<int> 
         return 1;
 
     case ALC_FORMAT_TYPE_SOFT:
-        if(device->Type != Loopback)
+        if(device->Type != DeviceType::Loopback)
         {
             alcSetError(device, ALC_INVALID_DEVICE);
             return 0;
@@ -2961,7 +2965,7 @@ static size_t GetIntegerv(ALCdevice *device, ALCenum param, const al::span<int> 
         return 1;
 
     case ALC_AMBISONIC_LAYOUT_SOFT:
-        if(device->Type != Loopback || device->FmtChans != DevFmtAmbi3D)
+        if(device->Type != DeviceType::Loopback || device->FmtChans != DevFmtAmbi3D)
         {
             alcSetError(device, ALC_INVALID_DEVICE);
             return 0;
@@ -2970,7 +2974,7 @@ static size_t GetIntegerv(ALCdevice *device, ALCenum param, const al::span<int> 
         return 1;
 
     case ALC_AMBISONIC_SCALING_SOFT:
-        if(device->Type != Loopback || device->FmtChans != DevFmtAmbi3D)
+        if(device->Type != DeviceType::Loopback || device->FmtChans != DevFmtAmbi3D)
         {
             alcSetError(device, ALC_INVALID_DEVICE);
             return 0;
@@ -2979,7 +2983,7 @@ static size_t GetIntegerv(ALCdevice *device, ALCenum param, const al::span<int> 
         return 1;
 
     case ALC_AMBISONIC_ORDER_SOFT:
-        if(device->Type != Loopback || device->FmtChans != DevFmtAmbi3D)
+        if(device->Type != DeviceType::Loopback || device->FmtChans != DevFmtAmbi3D)
         {
             alcSetError(device, ALC_INVALID_DEVICE);
             return 0;
@@ -3057,7 +3061,7 @@ START_API_FUNC
         alcSetError(dev.get(), ALC_INVALID_VALUE);
         return;
     }
-    if(!dev || dev->Type == Capture)
+    if(!dev || dev->Type == DeviceType::Capture)
     {
         auto ivals = al::vector<int>(static_cast<ALuint>(size));
         size_t got{GetIntegerv(dev.get(), pname, ivals)};
@@ -3081,7 +3085,7 @@ START_API_FUNC
             values[i++] = ALC_FREQUENCY;
             values[i++] = dev->Frequency;
 
-            if(dev->Type != Loopback)
+            if(dev->Type != DeviceType::Loopback)
             {
                 values[i++] = ALC_REFRESH;
                 values[i++] = dev->Frequency / dev->UpdateSize;
@@ -3263,7 +3267,7 @@ START_API_FUNC
      */
     std::unique_lock<std::recursive_mutex> listlock{ListLock};
     DeviceRef dev{VerifyDevice(device)};
-    if(!dev || dev->Type == Capture || !dev->Connected.load(std::memory_order_relaxed))
+    if(!dev || dev->Type == DeviceType::Capture || !dev->Connected.load(std::memory_order_relaxed))
     {
         listlock.unlock();
         alcSetError(dev.get(), ALC_INVALID_DEVICE);
@@ -3488,7 +3492,7 @@ START_API_FUNC
             deviceName = nullptr;
     }
 
-    DeviceRef device{new ALCdevice{Playback}};
+    DeviceRef device{new ALCdevice{DeviceType::Playback}};
 
     /* Set output format */
     device->FmtChans = DevFmtChannelsDefault;
@@ -3626,19 +3630,19 @@ START_API_FUNC
                     ((device->mAmbiOrder%10) == 3) ? "rd" : "th");
             else
             {
-                device->mAmbiLayout = AmbiLayout::FuMa;
-                device->mAmbiScale = AmbiNorm::FuMa;
+                device->mAmbiLayout = DevAmbiLayout::FuMa;
+                device->mAmbiScale = DevAmbiScaling::FuMa;
             }
         }
         else if(al::strcasecmp(fmt, "ambix") == 0 || al::strcasecmp(fmt, "acn+sn3d") == 0)
         {
-            device->mAmbiLayout = AmbiLayout::ACN;
-            device->mAmbiScale = AmbiNorm::SN3D;
+            device->mAmbiLayout = DevAmbiLayout::ACN;
+            device->mAmbiScale = DevAmbiScaling::SN3D;
         }
         else if(al::strcasecmp(fmt, "acn+n3d") == 0)
         {
-            device->mAmbiLayout = AmbiLayout::ACN;
-            device->mAmbiScale = AmbiNorm::N3D;
+            device->mAmbiLayout = DevAmbiLayout::ACN;
+            device->mAmbiScale = DevAmbiScaling::N3D;
         }
         else
             ERR("Unsupported ambi-format: %s\n", fmt);
@@ -3666,7 +3670,7 @@ START_API_FUNC
         alcSetError(nullptr, ALC_INVALID_DEVICE);
         return ALC_FALSE;
     }
-    if((*iter)->Type == Capture)
+    if((*iter)->Type == DeviceType::Capture)
     {
         alcSetError(*iter, ALC_INVALID_DEVICE);
         return ALC_FALSE;
@@ -3734,7 +3738,7 @@ START_API_FUNC
             deviceName = nullptr;
     }
 
-    DeviceRef device{new ALCdevice{Capture}};
+    DeviceRef device{new ALCdevice{DeviceType::Capture}};
 
     auto decompfmt = DecomposeDevFormat(format);
     if(!decompfmt)
@@ -3789,7 +3793,7 @@ START_API_FUNC
         alcSetError(nullptr, ALC_INVALID_DEVICE);
         return ALC_FALSE;
     }
-    if((*iter)->Type != Capture)
+    if((*iter)->Type != DeviceType::Capture)
     {
         alcSetError(*iter, ALC_INVALID_DEVICE);
         return ALC_FALSE;
@@ -3812,7 +3816,7 @@ ALC_API void ALC_APIENTRY alcCaptureStart(ALCdevice *device)
 START_API_FUNC
 {
     DeviceRef dev{VerifyDevice(device)};
-    if(!dev || dev->Type != Capture)
+    if(!dev || dev->Type != DeviceType::Capture)
     {
         alcSetError(dev.get(), ALC_INVALID_DEVICE);
         return;
@@ -3829,7 +3833,7 @@ START_API_FUNC
             dev->Flags.set<DeviceRunning>();
         }
         catch(al::backend_exception& e) {
-            aluHandleDisconnect(dev.get(), "%s", e.what());
+            dev->handleDisconnect("%s", e.what());
             alcSetError(dev.get(), ALC_INVALID_DEVICE);
         }
     }
@@ -3840,7 +3844,7 @@ ALC_API void ALC_APIENTRY alcCaptureStop(ALCdevice *device)
 START_API_FUNC
 {
     DeviceRef dev{VerifyDevice(device)};
-    if(!dev || dev->Type != Capture)
+    if(!dev || dev->Type != DeviceType::Capture)
         alcSetError(dev.get(), ALC_INVALID_DEVICE);
     else
     {
@@ -3856,7 +3860,7 @@ ALC_API void ALC_APIENTRY alcCaptureSamples(ALCdevice *device, ALCvoid *buffer, 
 START_API_FUNC
 {
     DeviceRef dev{VerifyDevice(device)};
-    if(!dev || dev->Type != Capture)
+    if(!dev || dev->Type != DeviceType::Capture)
     {
         alcSetError(dev.get(), ALC_INVALID_DEVICE);
         return;
@@ -3904,7 +3908,7 @@ START_API_FUNC
         return nullptr;
     }
 
-    DeviceRef device{new ALCdevice{Loopback}};
+    DeviceRef device{new ALCdevice{DeviceType::Loopback}};
 
     device->SourcesMax = 256;
     device->AuxiliaryEffectSlotMax = 64;
@@ -3961,7 +3965,7 @@ ALC_API ALCboolean ALC_APIENTRY alcIsRenderFormatSupportedSOFT(ALCdevice *device
 START_API_FUNC
 {
     DeviceRef dev{VerifyDevice(device)};
-    if(!dev || dev->Type != Loopback)
+    if(!dev || dev->Type != DeviceType::Loopback)
         alcSetError(dev.get(), ALC_INVALID_DEVICE);
     else if(freq <= 0)
         alcSetError(dev.get(), ALC_INVALID_VALUE);
@@ -3984,12 +3988,12 @@ FORCE_ALIGN ALC_API void ALC_APIENTRY alcRenderSamplesSOFT(ALCdevice *device, AL
 START_API_FUNC
 {
     DeviceRef dev{VerifyDevice(device)};
-    if(!dev || dev->Type != Loopback)
+    if(!dev || dev->Type != DeviceType::Loopback)
         alcSetError(dev.get(), ALC_INVALID_DEVICE);
     else if(samples < 0 || (samples > 0 && buffer == nullptr))
         alcSetError(dev.get(), ALC_INVALID_VALUE);
     else
-        aluMixData(dev.get(), buffer, static_cast<ALuint>(samples), dev->channelsFromFmt());
+        dev->renderSamples(buffer, static_cast<ALuint>(samples), dev->channelsFromFmt());
 }
 END_API_FUNC
 
@@ -4003,7 +4007,7 @@ ALC_API void ALC_APIENTRY alcDevicePauseSOFT(ALCdevice *device)
 START_API_FUNC
 {
     DeviceRef dev{VerifyDevice(device)};
-    if(!dev || dev->Type != Playback)
+    if(!dev || dev->Type != DeviceType::Playback)
         alcSetError(dev.get(), ALC_INVALID_DEVICE);
     else
     {
@@ -4021,7 +4025,7 @@ ALC_API void ALC_APIENTRY alcDeviceResumeSOFT(ALCdevice *device)
 START_API_FUNC
 {
     DeviceRef dev{VerifyDevice(device)};
-    if(!dev || dev->Type != Playback)
+    if(!dev || dev->Type != DeviceType::Playback)
     {
         alcSetError(dev.get(), ALC_INVALID_DEVICE);
         return;
@@ -4040,7 +4044,7 @@ START_API_FUNC
         dev->Flags.set<DeviceRunning>();
     }
     catch(al::backend_exception& e) {
-        aluHandleDisconnect(dev.get(), "%s", e.what());
+        dev->handleDisconnect("%s", e.what());
         alcSetError(dev.get(), ALC_INVALID_DEVICE);
     }
 }
@@ -4056,7 +4060,7 @@ ALC_API const ALCchar* ALC_APIENTRY alcGetStringiSOFT(ALCdevice *device, ALCenum
 START_API_FUNC
 {
     DeviceRef dev{VerifyDevice(device)};
-    if(!dev || dev->Type == Capture)
+    if(!dev || dev->Type == DeviceType::Capture)
         alcSetError(dev.get(), ALC_INVALID_DEVICE);
     else switch(paramName)
     {
@@ -4081,7 +4085,7 @@ START_API_FUNC
 {
     std::unique_lock<std::recursive_mutex> listlock{ListLock};
     DeviceRef dev{VerifyDevice(device)};
-    if(!dev || dev->Type == Capture)
+    if(!dev || dev->Type == DeviceType::Capture)
     {
         listlock.unlock();
         alcSetError(dev.get(), ALC_INVALID_DEVICE);

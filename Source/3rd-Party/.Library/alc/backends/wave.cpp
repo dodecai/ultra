@@ -146,10 +146,10 @@ int WaveBackend::mixerProc()
         }
         while(avail-done >= mDevice->UpdateSize)
         {
-            aluMixData(mDevice, mBuffer.data(), mDevice->UpdateSize, frameStep);
+            mDevice->renderSamples(mBuffer.data(), mDevice->UpdateSize, frameStep);
             done += mDevice->UpdateSize;
 
-            if(!IS_LITTLE_ENDIAN)
+            if /*constexpr*/(!IS_LITTLE_ENDIAN)
             {
                 const ALuint bytesize{mDevice->bytesFromFmt()};
 
@@ -181,7 +181,7 @@ int WaveBackend::mixerProc()
             if(ferror(mFile))
             {
                 ERR("Error writing to file\n");
-                aluHandleDisconnect(mDevice, "Failed to write playback samples");
+                mDevice->handleDisconnect("Failed to write playback samples");
                 break;
             }
         }
@@ -271,8 +271,8 @@ bool WaveBackend::reset()
         case DevFmtAmbi3D:
             /* .amb output requires FuMa */
             mDevice->mAmbiOrder = minu(mDevice->mAmbiOrder, 3);
-            mDevice->mAmbiLayout = AmbiLayout::FuMa;
-            mDevice->mAmbiScale = AmbiNorm::FuMa;
+            mDevice->mAmbiLayout = DevAmbiLayout::FuMa;
+            mDevice->mAmbiScale = DevAmbiScaling::FuMa;
             isbformat = 1;
             chanmask = 0;
             break;

@@ -10,6 +10,7 @@
 #include "almalloc.h"
 #include "alspan.h"
 #include "alu.h"
+#include "buffer_storage.h"
 #include "devformat.h"
 #include "filters/biquad.h"
 #include "filters/nfc.h"
@@ -174,15 +175,13 @@ struct VoicePropsItem : public VoiceProps {
     DEF_NEWDEL(VoicePropsItem)
 };
 
-#define VOICE_IS_STATIC        (1u<<0)
-#define VOICE_IS_CALLBACK      (1u<<1)
-#define VOICE_IS_AMBISONIC     (1u<<2) /* Voice needs HF scaling for ambisonic upsampling. */
-#define VOICE_CALLBACK_STOPPED (1u<<3)
-#define VOICE_IS_FADING        (1u<<4) /* Fading sources use gain stepping for smooth transitions. */
-#define VOICE_HAS_HRTF         (1u<<5)
-#define VOICE_HAS_NFC          (1u<<6)
-
-#define VOICE_TYPE_MASK (VOICE_IS_STATIC | VOICE_IS_CALLBACK)
+constexpr ALuint VoiceIsStatic{       1u<<0};
+constexpr ALuint VoiceIsCallback{     1u<<1};
+constexpr ALuint VoiceIsAmbisonic{    1u<<2}; /* Needs HF scaling for ambisonic upsampling. */
+constexpr ALuint VoiceCallbackStopped{1u<<3};
+constexpr ALuint VoiceIsFading{       1u<<4}; /* Use gain stepping for smooth transitions. */
+constexpr ALuint VoiceHasHrtf{        1u<<5};
+constexpr ALuint VoiceHasNfc{         1u<<6};
 
 struct Voice {
     enum State {
@@ -221,7 +220,7 @@ struct Voice {
     ALuint mFrequency;
     ALuint mSampleSize;
     AmbiLayout mAmbiLayout;
-    AmbiNorm mAmbiScaling;
+    AmbiScaling mAmbiScaling;
     ALuint mAmbiOrder;
 
     /** Current target parameters used for mixing. */

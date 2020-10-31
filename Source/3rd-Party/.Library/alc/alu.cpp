@@ -103,8 +103,8 @@ struct BSincTag;
 struct FastBSincTag;
 
 
-static_assert(!(MAX_RESAMPLER_PADDING&1) && MAX_RESAMPLER_PADDING >= BSINC_POINTS_MAX,
-    "MAX_RESAMPLER_PADDING is not a multiple of two, or is too small");
+static_assert(MAX_RESAMPLER_PADDING >= BSincPointsMax, "MAX_RESAMPLER_PADDING is too small");
+static_assert(!(MAX_RESAMPLER_PADDING&1), "MAX_RESAMPLER_PADDING is not a multiple of two");
 
 
 namespace {
@@ -174,13 +174,13 @@ inline HrtfDirectMixerFunc SelectHrtfMixer(void)
 
 inline void BsincPrepare(const ALuint increment, BsincState *state, const BSincTable *table)
 {
-    size_t si{BSINC_SCALE_COUNT - 1};
+    size_t si{BSincScaleCount - 1};
     float sf{0.0f};
 
-    if(increment > FRACTIONONE)
+    if(increment > MixerFracOne)
     {
-        sf = FRACTIONONE / static_cast<float>(increment);
-        sf = maxf(0.0f, (BSINC_SCALE_COUNT-1) * (sf-table->scaleBase) * table->scaleRange);
+        sf = MixerFracOne / static_cast<float>(increment);
+        sf = maxf(0.0f, (BSincScaleCount-1) * (sf-table->scaleBase) * table->scaleRange);
         si = float2uint(sf);
         /* The interpolation factor is fit to this diagonally-symmetric curve
          * to reduce the transition ripple caused by interpolating different
@@ -219,7 +219,7 @@ inline ResamplerFunc SelectResampler(Resampler resampler, ALuint increment)
         return Resample_<CubicTag,CTag>;
     case Resampler::BSinc12:
     case Resampler::BSinc24:
-        if(increment <= FRACTIONONE)
+        if(increment <= MixerFracOne)
         {
             /* fall-through */
         case Resampler::FastBSinc12:
@@ -342,10 +342,10 @@ inline ALuint dither_rng(ALuint *seed) noexcept
 }
 
 
-auto GetAmbiScales(AmbiNorm scaletype) noexcept -> const std::array<float,MAX_AMBI_CHANNELS>&
+auto GetAmbiScales(AmbiScaling scaletype) noexcept -> const std::array<float,MAX_AMBI_CHANNELS>&
 {
-    if(scaletype == AmbiNorm::FuMa) return AmbiScale::FromFuMa;
-    if(scaletype == AmbiNorm::SN3D) return AmbiScale::FromSN3D;
+    if(scaletype == AmbiScaling::FuMa) return AmbiScale::FromFuMa;
+    if(scaletype == AmbiScaling::SN3D) return AmbiScale::FromSN3D;
     return AmbiScale::FromN3D;
 }
 
@@ -476,8 +476,7 @@ bool CalcEffectSlotParams(ALeffectslot *slot, ALeffectslot **sorted_slots, ALCco
         slot->Params.AirAbsorptionGainHF = 1.0f;
     }
 
-    EffectState *state{props->State};
-    props->State = nullptr;
+    EffectState *state{props->State.release()};
     EffectState *oldstate{slot->Params.mEffectState};
     slot->Params.mEffectState = state;
 
@@ -502,7 +501,7 @@ bool CalcEffectSlotParams(ALeffectslot *slot, ALeffectslot **sorted_slots, ALCco
              * cleaned up sometime later (not ideal, but better than blocking
              * or leaking).
              */
-            props->State = oldstate;
+            props->State.reset(oldstate);
         }
     }
 
@@ -819,76 +818,79 @@ void CalcPanningAndFilters(Voice *voice, const float xpos, const float ypos, con
         break;
     }
 
-    voice->mFlags &= ~(VOICE_HAS_HRTF | VOICE_HAS_NFC);
+    voice->mFlags &= ~(VoiceHasHrtf | VoiceHasNfc);
     if(voice->mFmtChannels == FmtBFormat2D || voice->mFmtChannels == FmtBFormat3D)
     {
         /* Special handling for B-Format sources. */
 
-        if(Distance > std::numeric_limits<float>::epsilon())
+        if(Device->AvgSpeakerDist > 0.0f)
         {
-            /* Panning a B-Format sound toward some direction is easy. Just pan
-             * the first (W) channel as a normal mono sound and silence the
-             * others.
-             */
-
-            if(Device->AvgSpeakerDist > 0.0f)
-            {
-                /* Clamp the distance for really close sources, to prevent
-                 * excessive bass.
-                 */
-                const float mdist{maxf(Distance, Device->AvgSpeakerDist/4.0f)};
-                const float w0{SPEEDOFSOUNDMETRESPERSEC / (mdist * Frequency)};
-
-                /* Only need to adjust the first channel of a B-Format source. */
-                voice->mChans[0].mDryParams.NFCtrlFilter.adjust(w0);
-
-                voice->mFlags |= VOICE_HAS_NFC;
-            }
-
-            auto calc_coeffs = [xpos,ypos,zpos,Spread](RenderMode mode)
-            {
-                if(mode != StereoPair)
-                    return CalcDirectionCoeffs({xpos, ypos, zpos}, Spread);
-
-                /* Clamp Y, in case rounding errors caused it to end up outside
-                 * of -1...+1.
-                 */
-                const float ev{std::asin(clampf(ypos, -1.0f, 1.0f))};
-                /* Negate Z for right-handed coords with -Z in front. */
-                const float az{std::atan2(xpos, -zpos)};
-
-                /* A scalar of 1.5 for plain stereo results in +/-60 degrees
-                 * being moved to +/-90 degrees for direct right and left
-                 * speaker responses.
-                 */
-                return CalcAngleCoeffs(ScaleAzimuthFront(az, 1.5f), ev, Spread);
-            };
-            const auto coeffs = calc_coeffs(Device->mRenderMode);
-
-            /* NOTE: W needs to be scaled according to channel scaling. */
-            const float scale0{GetAmbiScales(voice->mAmbiScaling)[0]};
-            ComputePanGains(&Device->Dry, coeffs.data(), DryGain.Base*scale0,
-                voice->mChans[0].mDryParams.Gains.Target);
-            for(ALuint i{0};i < NumSends;i++)
-            {
-                if(const ALeffectslot *Slot{SendSlots[i]})
-                    ComputePanGains(&Slot->Wet, coeffs.data(), WetGain[i].Base*scale0,
-                        voice->mChans[0].mWetParams[i].Gains.Target);
-            }
-        }
-        else
-        {
-            if(Device->AvgSpeakerDist > 0.0f)
+            if(!(Distance > std::numeric_limits<float>::epsilon()))
             {
                 /* NOTE: The NFCtrlFilters were created with a w0 of 0, which
                  * is what we want for FOA input. The first channel may have
                  * been previously re-adjusted if panned, so reset it.
                  */
                 voice->mChans[0].mDryParams.NFCtrlFilter.adjust(0.0f);
+            }
+            else
+            {
+                /* Clamp the distance for really close sources, to prevent
+                 * excessive bass.
+                 */
+                const float mdist{maxf(Distance, Device->AvgSpeakerDist/4.0f)};
+                const float w0{SpeedOfSoundMetersPerSec / (mdist * Frequency)};
 
-                voice->mFlags |= VOICE_HAS_NFC;
+                /* Only need to adjust the first channel of a B-Format source. */
+                voice->mChans[0].mDryParams.NFCtrlFilter.adjust(w0);
             }
 
+            voice->mFlags |= VoiceHasNfc;
+        }
+
+        /* Panning a B-Format sound toward some direction is easy. Just pan the
+         * first (W) channel as a normal mono sound. The angular spread is used
+         * as a directional scalar to blend between full coverage and full
+         * panning.
+         */
+        const float coverage{!(Distance > std::numeric_limits<float>::epsilon()) ? 1.0f :
+            (Spread * (1.0f/al::MathDefs<float>::Tau()))};
+
+        auto calc_coeffs = [xpos,ypos,zpos](RenderMode mode)
+        {
+            if(mode != RenderMode::Pairwise)
+                return CalcDirectionCoeffs({xpos, ypos, zpos}, 0.0f);
+
+            /* Clamp Y, in case rounding errors caused it to end up outside
+             * of -1...+1.
+             */
+            const float ev{std::asin(clampf(ypos, -1.0f, 1.0f))};
+            /* Negate Z for right-handed coords with -Z in front. */
+            const float az{std::atan2(xpos, -zpos)};
+
+            /* A scalar of 1.5 for plain stereo results in +/-60 degrees
+             * being moved to +/-90 degrees for direct right and left
+             * speaker responses.
+             */
+            return CalcAngleCoeffs(ScaleAzimuthFront(az, 1.5f), ev, 0.0f);
+        };
+        auto coeffs = calc_coeffs(Device->mRenderMode);
+        std::transform(coeffs.begin()+1, coeffs.end(), coeffs.begin()+1,
+            std::bind(std::multiplies<float>{}, _1, 1.0f-coverage));
+
+        /* NOTE: W needs to be scaled according to channel scaling. */
+        const auto &scales = GetAmbiScales(voice->mAmbiScaling);
+        ComputePanGains(&Device->Dry, coeffs.data(), DryGain.Base*scales[0],
+            voice->mChans[0].mDryParams.Gains.Target);
+        for(ALuint i{0};i < NumSends;i++)
+        {
+            if(const ALeffectslot *Slot{SendSlots[i]})
+                ComputePanGains(&Slot->Wet, coeffs.data(), WetGain[i].Base*scales[0],
+                    voice->mChans[0].mWetParams[i].Gains.Target);
+        }
+
+        if(coverage > 0.0f)
+        {
             /* Local B-Format sources have their XYZ channels rotated according
              * to the orientation.
              */
@@ -923,20 +925,19 @@ void CalcPanningAndFilters(Voice *voice, const float xpos, const float ypos, con
             const uint8_t *index_map{(voice->mFmtChannels == FmtBFormat2D) ?
                 GetAmbi2DLayout(voice->mAmbiLayout).data() :
                 GetAmbiLayout(voice->mAmbiLayout).data()};
-            const float *scales{GetAmbiScales(voice->mAmbiScaling).data()};
 
             static const uint8_t ChansPerOrder[MAX_AMBI_ORDER+1]{1, 3, 5, 7,};
             static const uint8_t OrderOffset[MAX_AMBI_ORDER+1]{0, 1, 4, 9,};
-            for(size_t c{0};c < num_channels;c++)
+            for(size_t c{1};c < num_channels;c++)
             {
                 const size_t acn{index_map[c]};
                 const size_t order{AmbiIndex::OrderFromChannel[acn]};
                 const size_t tocopy{ChansPerOrder[order]};
                 const size_t offset{OrderOffset[order]};
-                const float scale{scales[acn]};
+                const float scale{scales[acn] * coverage};
                 auto in = shrot.cbegin() + offset;
 
-                std::array<float,MAX_AMBI_CHANNELS> coeffs{};
+                coeffs = std::array<float,MAX_AMBI_CHANNELS>{};
                 for(size_t x{0};x < tocopy;++x)
                     coeffs[offset+x] = in[x][acn] * scale;
 
@@ -996,7 +997,7 @@ void CalcPanningAndFilters(Voice *voice, const float xpos, const float ypos, con
             }
         }
     }
-    else if(Device->mRenderMode == HrtfRender)
+    else if(Device->mRenderMode == RenderMode::Hrtf)
     {
         /* Full HRTF rendering. Skip the virtual channels and render to the
          * real outputs.
@@ -1075,7 +1076,7 @@ void CalcPanningAndFilters(Voice *voice, const float xpos, const float ypos, con
             }
         }
 
-        voice->mFlags |= VOICE_HAS_HRTF;
+        voice->mFlags |= VoiceHasHrtf;
     }
     else
     {
@@ -1090,13 +1091,13 @@ void CalcPanningAndFilters(Voice *voice, const float xpos, const float ypos, con
                  * excessive bass.
                  */
                 const float mdist{maxf(Distance, Device->AvgSpeakerDist/4.0f)};
-                const float w0{SPEEDOFSOUNDMETRESPERSEC / (mdist * Frequency)};
+                const float w0{SpeedOfSoundMetersPerSec / (mdist * Frequency)};
 
                 /* Adjust NFC filters. */
                 for(size_t c{0};c < num_channels;c++)
                     voice->mChans[c].mDryParams.NFCtrlFilter.adjust(w0);
 
-                voice->mFlags |= VOICE_HAS_NFC;
+                voice->mFlags |= VoiceHasNfc;
             }
 
             /* Calculate the directional coefficients once, which apply to all
@@ -1104,7 +1105,7 @@ void CalcPanningAndFilters(Voice *voice, const float xpos, const float ypos, con
              */
             auto calc_coeffs = [xpos,ypos,zpos,Spread](RenderMode mode)
             {
-                if(mode != StereoPair)
+                if(mode != RenderMode::Pairwise)
                     return CalcDirectionCoeffs({xpos, ypos, zpos}, Spread);
                 const float ev{std::asin(clampf(ypos, -1.0f, 1.0f))};
                 const float az{std::atan2(xpos, -zpos)};
@@ -1147,7 +1148,7 @@ void CalcPanningAndFilters(Voice *voice, const float xpos, const float ypos, con
                 for(size_t c{0};c < num_channels;c++)
                     voice->mChans[c].mDryParams.NFCtrlFilter.adjust(w0);
 
-                voice->mFlags |= VOICE_HAS_NFC;
+                voice->mFlags |= VoiceHasNfc;
             }
 
             for(size_t c{0};c < num_channels;c++)
@@ -1164,7 +1165,7 @@ void CalcPanningAndFilters(Voice *voice, const float xpos, const float ypos, con
                     continue;
                 }
 
-                const auto coeffs = CalcAngleCoeffs((Device->mRenderMode == StereoPair)
+                const auto coeffs = CalcAngleCoeffs((Device->mRenderMode == RenderMode::Pairwise)
                     ? ScaleAzimuthFront(chans[c].angle, 3.0f) : chans[c].angle,
                     chans[c].elevation, Spread);
 
@@ -1243,23 +1244,23 @@ void CalcNonAttnSourceParams(Voice *voice, const VoiceProps *props, const ALCcon
     const auto Pitch = static_cast<float>(voice->mFrequency) /
         static_cast<float>(Device->Frequency) * props->Pitch;
     if(Pitch > float{MAX_PITCH})
-        voice->mStep = MAX_PITCH<<FRACTIONBITS;
+        voice->mStep = MAX_PITCH<<MixerFracBits;
     else
-        voice->mStep = maxu(fastf2u(Pitch * FRACTIONONE), 1);
+        voice->mStep = maxu(fastf2u(Pitch * MixerFracOne), 1);
     voice->mResampler = PrepareResampler(props->mResampler, voice->mStep, &voice->mResampleState);
 
     /* Calculate gains */
     const ALlistener &Listener = ALContext->mListener;
     GainTriplet DryGain;
     DryGain.Base  = minf(clampf(props->Gain, props->MinGain, props->MaxGain) * props->Direct.Gain *
-        Listener.Params.Gain, GAIN_MIX_MAX);
+        Listener.Params.Gain, GainMixMax);
     DryGain.HF = props->Direct.GainHF;
     DryGain.LF = props->Direct.GainLF;
     GainTriplet WetGain[MAX_SENDS];
     for(ALuint i{0};i < Device->NumAuxSends;i++)
     {
         WetGain[i].Base = minf(clampf(props->Gain, props->MinGain, props->MaxGain) *
-            props->Send[i].Gain * Listener.Params.Gain, GAIN_MIX_MAX);
+            props->Send[i].Gain * Listener.Params.Gain, GainMixMax);
         WetGain[i].HF = props->Send[i].GainHF;
         WetGain[i].LF = props->Send[i].GainLF;
     }
@@ -1298,7 +1299,7 @@ void CalcAttnSourceParams(Voice *voice, const VoiceProps *props, const ALCcontex
             /* Calculate the distances to where this effect's decay reaches
              * -60dB.
              */
-            DecayDistance[i].Base = SendSlots[i]->Params.DecayTime * SPEEDOFSOUNDMETRESPERSEC;
+            DecayDistance[i].Base = SendSlots[i]->Params.DecayTime * SpeedOfSoundMetersPerSec;
             DecayDistance[i].LF = DecayDistance[i].Base * SendSlots[i]->Params.DecayLFRatio;
             DecayDistance[i].HF = DecayDistance[i].Base * SendSlots[i]->Params.DecayHFRatio;
             if(SendSlots[i]->Params.DecayHFLimit)
@@ -1311,7 +1312,7 @@ void CalcAttnSourceParams(Voice *voice, const VoiceProps *props, const ALCcontex
                      * decay distance (so it doesn't take any longer to decay
                      * than the air would allow).
                      */
-                    constexpr float log10_decaygain{-3.0f/*std::log10(REVERB_DECAY_GAIN)*/};
+                    constexpr float log10_decaygain{-3.0f/*std::log10(ReverbDecayGain)*/};
                     const float absorb_dist{log10_decaygain / std::log10(airAbsorption)};
                     DecayDistance[i].HF = minf(absorb_dist, DecayDistance[i].HF);
                 }
@@ -1464,13 +1465,13 @@ void CalcAttnSourceParams(Voice *voice, const VoiceProps *props, const ALCcontex
 
     /* Apply gain and frequency filters */
     DryGain.Base = minf(clampf(DryGain.Base, props->MinGain, props->MaxGain) * props->Direct.Gain *
-        Listener.Params.Gain, GAIN_MIX_MAX);
+        Listener.Params.Gain, GainMixMax);
     DryGain.HF *= props->Direct.GainHF;
     DryGain.LF *= props->Direct.GainLF;
     for(ALuint i{0};i < NumSends;i++)
     {
         WetGain[i].Base = minf(clampf(WetGain[i].Base, props->MinGain, props->MaxGain) *
-            props->Send[i].Gain * Listener.Params.Gain, GAIN_MIX_MAX);
+            props->Send[i].Gain * Listener.Params.Gain, GainMixMax);
         WetGain[i].HF *= props->Send[i].GainHF;
         WetGain[i].LF *= props->Send[i].GainLF;
     }
@@ -1482,7 +1483,7 @@ void CalcAttnSourceParams(Voice *voice, const VoiceProps *props, const ALCcontex
             Listener.Params.MetersPerUnit};
         if(props->AirAbsorptionFactor > 0.0f)
         {
-            const float hfattn{std::pow(AIRABSORBGAINHF, meters_base*props->AirAbsorptionFactor)};
+            const float hfattn{std::pow(AirAbsorbGainHF, meters_base*props->AirAbsorptionFactor)};
             DryGain.HF *= hfattn;
             std::for_each(std::begin(WetGain), std::begin(WetGain)+NumSends,
                 [hfattn](GainTriplet &gain) noexcept -> void { gain.HF *= hfattn; });
@@ -1499,16 +1500,16 @@ void CalcAttnSourceParams(Voice *voice, const VoiceProps *props, const ALCcontex
                 if(!(DecayDistance[i].Base > 0.0f))
                     continue;
 
-                const float gain{std::pow(REVERB_DECAY_GAIN, meters_base/DecayDistance[i].Base)};
+                const float gain{std::pow(ReverbDecayGain, meters_base/DecayDistance[i].Base)};
                 WetGain[i].Base *= gain;
                 /* Yes, the wet path's air absorption is applied with
                  * WetGainAuto on, rather than WetGainHFAuto.
                  */
                 if(gain > 0.0f)
                 {
-                    float gainhf{std::pow(REVERB_DECAY_GAIN, meters_base/DecayDistance[i].HF)};
+                    float gainhf{std::pow(ReverbDecayGain, meters_base/DecayDistance[i].HF)};
                     WetGain[i].HF *= minf(gainhf / gain, 1.0f);
-                    float gainlf{std::pow(REVERB_DECAY_GAIN, meters_base/DecayDistance[i].LF)};
+                    float gainlf{std::pow(ReverbDecayGain, meters_base/DecayDistance[i].LF)};
                     WetGain[i].LF *= minf(gainlf / gain, 1.0f);
                 }
             }
@@ -1556,9 +1557,9 @@ void CalcAttnSourceParams(Voice *voice, const VoiceProps *props, const ALCcontex
      */
     Pitch *= static_cast<float>(voice->mFrequency) / static_cast<float>(Device->Frequency);
     if(Pitch > float{MAX_PITCH})
-        voice->mStep = MAX_PITCH<<FRACTIONBITS;
+        voice->mStep = MAX_PITCH<<MixerFracBits;
     else
-        voice->mStep = maxu(fastf2u(Pitch * FRACTIONONE), 1);
+        voice->mStep = maxu(fastf2u(Pitch * MixerFracOne), 1);
     voice->mResampler = PrepareResampler(props->mResampler, voice->mStep, &voice->mResampleState);
 
     float spread{0.0f};
@@ -1921,65 +1922,61 @@ void Write(const al::span<const FloatBufferLine> InBuffer, void *OutBuffer, cons
 
 } // namespace
 
-void aluMixData(ALCdevice *device, void *OutBuffer, const ALuint NumSamples,
-    const size_t FrameStep)
+void ALCdevice::renderSamples(void *outBuffer, const ALuint numSamples, const size_t frameStep)
 {
     FPUCtl mixer_mode{};
-    for(ALuint SamplesDone{0u};SamplesDone < NumSamples;)
+    for(ALuint written{0u};written < numSamples;)
     {
-        const ALuint SamplesToDo{minu(NumSamples-SamplesDone, BUFFERSIZE)};
+        const ALuint samplesToDo{minu(numSamples-written, BUFFERSIZE)};
 
         /* Clear main mixing buffers. */
-        std::for_each(device->MixBuffer.begin(), device->MixBuffer.end(),
-            [](FloatBufferLine &buffer) -> void { buffer.fill(0.0f); });
+        for(FloatBufferLine &buffer : MixBuffer)
+            buffer.fill(0.0f);
 
         /* Increment the mix count at the start (lsb should now be 1). */
-        IncrementRef(device->MixCount);
+        IncrementRef(MixCount);
 
         /* Process and mix each context's sources and effects. */
-        ProcessContexts(device, SamplesToDo);
+        ProcessContexts(this, samplesToDo);
 
         /* Increment the clock time. Every second's worth of samples is
          * converted and added to clock base so that large sample counts don't
          * overflow during conversion. This also guarantees a stable
          * conversion.
          */
-        device->SamplesDone += SamplesToDo;
-        device->ClockBase += std::chrono::seconds{device->SamplesDone / device->Frequency};
-        device->SamplesDone %= device->Frequency;
+        SamplesDone += samplesToDo;
+        ClockBase += std::chrono::seconds{SamplesDone / Frequency};
+        SamplesDone %= Frequency;
 
         /* Increment the mix count at the end (lsb should now be 0). */
-        IncrementRef(device->MixCount);
+        IncrementRef(MixCount);
 
         /* Apply any needed post-process for finalizing the Dry mix to the
          * RealOut (Ambisonic decode, UHJ encode, etc).
          */
-        device->postProcess(SamplesToDo);
-
-        const al::span<FloatBufferLine> RealOut{device->RealOut.Buffer};
+        postProcess(samplesToDo);
 
         /* Apply compression, limiting sample amplitude if needed or desired. */
-        if(Compressor *comp{device->Limiter.get()})
-            comp->process(SamplesToDo, RealOut.data());
+        if(Limiter) Limiter->process(samplesToDo, RealOut.Buffer.data());
 
         /* Apply delays and attenuation for mismatched speaker distances. */
-        ApplyDistanceComp(RealOut, SamplesToDo, device->ChannelDelay.as_span().cbegin());
+        ApplyDistanceComp(RealOut.Buffer, samplesToDo, ChannelDelay.as_span().cbegin());
 
         /* Apply dithering. The compressor should have left enough headroom for
          * the dither noise to not saturate.
          */
-        if(device->DitherDepth > 0.0f)
-            ApplyDither(RealOut, &device->DitherSeed, device->DitherDepth, SamplesToDo);
+        if(DitherDepth > 0.0f)
+            ApplyDither(RealOut.Buffer, &DitherSeed, DitherDepth, samplesToDo);
 
-        if LIKELY(OutBuffer)
+        if LIKELY(outBuffer)
         {
             /* Finally, interleave and convert samples, writing to the device's
              * output buffer.
              */
-            switch(device->FmtType)
+            switch(FmtType)
             {
 #define HANDLE_WRITE(T) case T:                                               \
-    Write<T>(RealOut, OutBuffer, SamplesDone, SamplesToDo, FrameStep); break;
+    Write<T>(RealOut.Buffer, outBuffer, written, samplesToDo, frameStep); break;
             HANDLE_WRITE(DevFmtByte)
             HANDLE_WRITE(DevFmtUByte)
             HANDLE_WRITE(DevFmtShort)
@@ -1991,14 +1988,13 @@ void aluMixData(ALCdevice *device, void *OutBuffer, const ALuint NumSamples,
             }
         }
 
-        SamplesDone += SamplesToDo;
+        written += samplesToDo;
     }
 }
 
-
-void aluHandleDisconnect(ALCdevice *device, const char *msg, ...)
+void ALCdevice::handleDisconnect(const char *msg, ...)
 {
-    if(!device->Connected.exchange(false, std::memory_order_acq_rel))
+    if(!Connected.exchange(false, std::memory_order_acq_rel))
         return;
 
     AsyncEvent evt{EventType_Disconnected};
@@ -2014,8 +2010,8 @@ void aluHandleDisconnect(ALCdevice *device, const char *msg, ...)
     if(msglen < 0 || static_cast<size_t>(msglen) >= sizeof(evt.u.user.msg))
         evt.u.user.msg[sizeof(evt.u.user.msg)-1] = 0;
 
-    IncrementRef(device->MixCount);
-    for(ALCcontext *ctx : *device->mContexts.load())
+    IncrementRef(MixCount);
+    for(ALCcontext *ctx : *mContexts.load())
     {
         const ALbitfieldSOFT enabledevt{ctx->mEnabledEvts.load(std::memory_order_acquire)};
         if((enabledevt&EventType_Disconnected))
@@ -2040,5 +2036,5 @@ void aluHandleDisconnect(ALCdevice *device, const char *msg, ...)
         };
         std::for_each(voicelist.begin(), voicelist.end(), stop_voice);
     }
-    IncrementRef(device->MixCount);
+    IncrementRef(MixCount);
 }

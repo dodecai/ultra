@@ -224,7 +224,7 @@ FORCE_ALIGN int DSoundPlayback::mixerProc()
     if(FAILED(err))
     {
         ERR("Failed to get buffer caps: 0x%lx\n", err);
-        aluHandleDisconnect(mDevice, "Failure retrieving playback buffer info: 0x%lx", err);
+        mDevice->handleDisconnect("Failure retrieving playback buffer info: 0x%lx", err);
         return 1;
     }
 
@@ -251,7 +251,7 @@ FORCE_ALIGN int DSoundPlayback::mixerProc()
                 if(FAILED(err))
                 {
                     ERR("Failed to play buffer: 0x%lx\n", err);
-                    aluHandleDisconnect(mDevice, "Failure starting playback: 0x%lx", err);
+                    mDevice->handleDisconnect("Failure starting playback: 0x%lx", err);
                     return 1;
                 }
                 Playing = true;
@@ -285,16 +285,16 @@ FORCE_ALIGN int DSoundPlayback::mixerProc()
 
         if(SUCCEEDED(err))
         {
-            aluMixData(mDevice, WritePtr1, WriteCnt1/FrameSize, FrameStep);
+            mDevice->renderSamples(WritePtr1, WriteCnt1/FrameSize, FrameStep);
             if(WriteCnt2 > 0)
-                aluMixData(mDevice, WritePtr2, WriteCnt2/FrameSize, FrameStep);
+                mDevice->renderSamples(WritePtr2, WriteCnt2/FrameSize, FrameStep);
 
             mBuffer->Unlock(WritePtr1, WriteCnt1, WritePtr2, WriteCnt2);
         }
         else
         {
             ERR("Buffer lock error: %#lx\n", err);
-            aluHandleDisconnect(mDevice, "Failed to lock output buffer: 0x%lx", err);
+            mDevice->handleDisconnect("Failed to lock output buffer: 0x%lx", err);
             return 1;
         }
 
@@ -329,11 +329,18 @@ void DSoundPlayback::open(const ALCchar *name)
     else
     {
         auto iter = std::find_if(PlaybackDevices.cbegin(), PlaybackDevices.cend(),
-            [name](const DevMap &entry) -> bool
-            { return entry.name == name; }
-        );
+            [name](const DevMap &entry) -> bool { return entry.name == name; });
         if(iter == PlaybackDevices.cend())
-            throw al::backend_exception{ALC_INVALID_VALUE, "Device name \"%s\" not found", name};
+        {
+            GUID id{};
+            hr = CLSIDFromString(utf8_to_wstr(name).c_str(), &id);
+            if(SUCCEEDED(hr))
+                iter = std::find_if(PlaybackDevices.cbegin(), PlaybackDevices.cend(),
+                    [&id](const DevMap &entry) -> bool { return entry.guid == id; });
+            if(iter == PlaybackDevices.cend())
+                throw al::backend_exception{ALC_INVALID_VALUE, "Device name \"%s\" not found",
+                    name};
+        }
         guid = &iter->guid;
     }
 
@@ -608,11 +615,18 @@ void DSoundCapture::open(const ALCchar *name)
     else
     {
         auto iter = std::find_if(CaptureDevices.cbegin(), CaptureDevices.cend(),
-            [name](const DevMap &entry) -> bool
-            { return entry.name == name; }
-        );
+            [name](const DevMap &entry) -> bool { return entry.name == name; });
         if(iter == CaptureDevices.cend())
-            throw al::backend_exception{ALC_INVALID_VALUE, "Device name \"%s\" not found", name};
+        {
+            GUID id{};
+            hr = CLSIDFromString(utf8_to_wstr(name).c_str(), &id);
+            if(SUCCEEDED(hr))
+                iter = std::find_if(CaptureDevices.cbegin(), CaptureDevices.cend(),
+                    [&id](const DevMap &entry) -> bool { return entry.guid == id; });
+            if(iter == CaptureDevices.cend())
+                throw al::backend_exception{ALC_INVALID_VALUE, "Device name \"%s\" not found",
+                    name};
+        }
         guid = &iter->guid;
     }
 
@@ -717,7 +731,7 @@ void DSoundCapture::stop()
     if(FAILED(hr))
     {
         ERR("stop failed: 0x%08lx\n", hr);
-        aluHandleDisconnect(mDevice, "Failure stopping capture: 0x%lx", hr);
+        mDevice->handleDisconnect("Failure stopping capture: 0x%lx", hr);
     }
 }
 
@@ -732,9 +746,9 @@ ALCuint DSoundCapture::availableSamples()
     if(!mDevice->Connected.load(std::memory_order_acquire))
         return static_cast<ALCuint>(mRing->readSpace());
 
-    ALuint FrameSize{mDevice->frameSizeFromFmt()};
-    DWORD BufferBytes{mBufferBytes};
-    DWORD LastCursor{mCursor};
+    const ALuint FrameSize{mDevice->frameSizeFromFmt()};
+    const DWORD BufferBytes{mBufferBytes};
+    const DWORD LastCursor{mCursor};
 
     DWORD ReadCursor{};
     void *ReadPtr1{}, *ReadPtr2{};
@@ -742,8 +756,8 @@ ALCuint DSoundCapture::availableSamples()
     HRESULT hr{mDSCbuffer->GetCurrentPosition(nullptr, &ReadCursor)};
     if(SUCCEEDED(hr))
     {
-        DWORD NumBytes{(ReadCursor-LastCursor + BufferBytes) % BufferBytes};
-        if(!NumBytes) return static_cast<ALCubyte>(mRing->readSpace());
+        const DWORD NumBytes{(BufferBytes+ReadCursor-LastCursor) % BufferBytes};
+        if(!NumBytes) return static_cast<ALCuint>(mRing->readSpace());
         hr = mDSCbuffer->Lock(LastCursor, NumBytes, &ReadPtr1, &ReadCnt1, &ReadPtr2, &ReadCnt2, 0);
     }
     if(SUCCEEDED(hr))
@@ -752,13 +766,13 @@ ALCuint DSoundCapture::availableSamples()
         if(ReadPtr2 != nullptr && ReadCnt2 > 0)
             mRing->write(ReadPtr2, ReadCnt2/FrameSize);
         hr = mDSCbuffer->Unlock(ReadPtr1, ReadCnt1, ReadPtr2, ReadCnt2);
-        mCursor = (LastCursor+ReadCnt1+ReadCnt2) % BufferBytes;
+        mCursor = ReadCursor;
     }
 
     if(FAILED(hr))
     {
         ERR("update failed: 0x%08lx\n", hr);
-        aluHandleDisconnect(mDevice, "Failure retrieving capture data: 0x%lx", hr);
+        mDevice->handleDisconnect("Failure retrieving capture data: 0x%lx", hr);
     }
 
     return static_cast<ALCuint>(mRing->readSpace());

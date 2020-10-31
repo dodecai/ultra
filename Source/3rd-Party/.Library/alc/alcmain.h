@@ -50,17 +50,17 @@ struct bs2b;
 #define DEFAULT_NUM_UPDATES  3
 
 
-enum DeviceType {
+enum class DeviceType {
     Playback,
     Capture,
     Loopback
 };
 
 
-enum RenderMode {
-    NormalRender,
-    StereoPair,
-    HrtfRender
+enum class RenderMode {
+    Normal,
+    Pairwise,
+    Hrtf
 };
 
 
@@ -130,24 +130,20 @@ public:
     };
 
 private:
+    using FloatArray = al::FlexArray<float,16>;
     std::array<DistData,MAX_OUTPUT_CHANNELS> mChannels;
-    al::vector<float,16> mSamples;
+    std::unique_ptr<FloatArray> mSamples;
 
 public:
-    void setSampleCount(size_t new_size) { mSamples.resize(new_size); }
+    void setSampleCount(size_t new_size)
+    { mSamples = FloatArray::Create(new_size); }
     void clear() noexcept
     {
-        for(auto &chan : mChannels)
-        {
-            chan.Gain = 1.0f;
-            chan.Length = 0;
-            chan.Buffer = nullptr;
-        }
-        using SampleVecT = decltype(mSamples);
-        SampleVecT{}.swap(mSamples);
+        mChannels.fill(DistData{});
+        mSamples = nullptr;
     }
 
-    float *getSamples() noexcept { return mSamples.data(); }
+    float *getSamples() noexcept { return mSamples->data(); }
 
     al::span<DistData,MAX_OUTPUT_CHANNELS> as_span() { return mChannels; }
 };
@@ -209,8 +205,8 @@ struct ALCdevice : public al::intrusive_ref<ALCdevice> {
     /* For DevFmtAmbi* output only, specifies the channel order and
      * normalization.
      */
-    AmbiLayout mAmbiLayout{AmbiLayout::Default};
-    AmbiNorm   mAmbiScale{AmbiNorm::Default};
+    DevAmbiLayout mAmbiLayout{DevAmbiLayout::Default};
+    DevAmbiScaling mAmbiScale{DevAmbiScaling::Default};
 
     ALCenum LimiterState{ALC_DONT_CARE_SOFT};
 
@@ -247,7 +243,7 @@ struct ALCdevice : public al::intrusive_ref<ALCdevice> {
     al::vector<FilterSubList> FilterList;
 
     /* Rendering mode. */
-    RenderMode mRenderMode{NormalRender};
+    RenderMode mRenderMode{RenderMode::Normal};
 
     /* The average speaker distance as determined by the ambdec configuration,
      * HRTF data set, or the NFC-HOA reference delay. Only used for NFC.
@@ -350,6 +346,11 @@ struct ALCdevice : public al::intrusive_ref<ALCdevice> {
 
     inline void postProcess(const size_t SamplesToDo)
     { if LIKELY(PostProcess) (this->*PostProcess)(SamplesToDo); }
+
+    void renderSamples(void *outBuffer, const ALuint numSamples, const size_t frameStep);
+
+    /* Caller must lock the device state, and the mixer must not be running. */
+    [[gnu::format(printf,2,3)]] void handleDisconnect(const char *msg, ...);
 
     DEF_NEWDEL(ALCdevice)
 };

@@ -255,7 +255,7 @@ void InitDistanceComp(ALCdevice *device, const AmbDecConf *conf,
     if(!GetConfigValueBool(devname, "decoder", "distance-comp", 1) || !(maxdist > 0.0f))
         return;
 
-    const auto distSampleScale = static_cast<float>(device->Frequency) / SPEEDOFSOUNDMETRESPERSEC;
+    const auto distSampleScale = static_cast<float>(device->Frequency) / SpeedOfSoundMetersPerSec;
     const auto ChanDelay = device->ChannelDelay.as_span();
     size_t total{0u};
     for(size_t i{0u};i < conf->Speakers.size();i++)
@@ -303,16 +303,16 @@ void InitDistanceComp(ALCdevice *device, const AmbDecConf *conf,
 }
 
 
-auto GetAmbiScales(AmbiNorm scaletype) noexcept -> const std::array<float,MAX_AMBI_CHANNELS>&
+auto GetAmbiScales(DevAmbiScaling scaletype) noexcept -> const std::array<float,MAX_AMBI_CHANNELS>&
 {
-    if(scaletype == AmbiNorm::FuMa) return AmbiScale::FromFuMa;
-    if(scaletype == AmbiNorm::SN3D) return AmbiScale::FromSN3D;
+    if(scaletype == DevAmbiScaling::FuMa) return AmbiScale::FromFuMa;
+    if(scaletype == DevAmbiScaling::SN3D) return AmbiScale::FromSN3D;
     return AmbiScale::FromN3D;
 }
 
-auto GetAmbiLayout(AmbiLayout layouttype) noexcept -> const std::array<uint8_t,MAX_AMBI_CHANNELS>&
+auto GetAmbiLayout(DevAmbiLayout layouttype) noexcept -> const std::array<uint8_t,MAX_AMBI_CHANNELS>&
 {
-    if(layouttype == AmbiLayout::FuMa) return AmbiIndex::FromFuMa;
+    if(layouttype == DevAmbiLayout::FuMa) return AmbiIndex::FromFuMa;
     return AmbiIndex::FromACN;
 }
 
@@ -508,7 +508,7 @@ void InitPanning(ALCdevice *device, const bool hqdec=false, const bool stablize=
 
         float nfc_delay{ConfigValueFloat(devname, "decoder", "nfc-ref-delay").value_or(0.0f)};
         if(nfc_delay > 0.0f)
-            InitNearFieldCtrl(device, nfc_delay * SPEEDOFSOUNDMETRESPERSEC, device->mAmbiOrder,
+            InitNearFieldCtrl(device, nfc_delay * SpeedOfSoundMetersPerSec, device->mAmbiOrder,
                 true);
     }
     else
@@ -758,7 +758,7 @@ void InitHrtfPanning(ALCdevice *device)
     /* Don't bother with HOA when using full HRTF rendering. Nothing needs it,
      * and it eases the CPU/memory load.
      */
-    device->mRenderMode = HrtfRender;
+    device->mRenderMode = RenderMode::Hrtf;
     ALuint ambi_order{1};
     if(auto modeopt = ConfigValueStr(device->DeviceName.c_str(), nullptr, "hrtf-mode"))
     {
@@ -768,9 +768,9 @@ void InitHrtfPanning(ALCdevice *device)
             ALuint order;
         };
         static const HrtfModeEntry hrtf_modes[]{
-            { "full", HrtfRender, 1 },
-            { "ambi1", NormalRender, 1 },
-            { "ambi2", NormalRender, 2 },
+            { "full", RenderMode::Hrtf, 1 },
+            { "ambi1", RenderMode::Normal, 1 },
+            { "ambi2", RenderMode::Normal, 2 },
         };
 
         const char *mode{modeopt->c_str()};
@@ -796,7 +796,7 @@ void InitHrtfPanning(ALCdevice *device)
         ((ambi_order%10) == 1) ? "st" :
         ((ambi_order%10) == 2) ? "nd" :
         ((ambi_order%10) == 3) ? "rd" : "th",
-        (device->mRenderMode == HrtfRender) ? "+ Full " : "",
+        (device->mRenderMode == RenderMode::Hrtf) ? "+ Full " : "",
         device->HrtfName.c_str());
 
     al::span<const AngularPoint> AmbiPoints{AmbiPoints1O};
@@ -851,7 +851,7 @@ void aluInitRenderer(ALCdevice *device, int hrtf_id, HrtfRequestMode hrtf_appreq
     device->mHrtfState = nullptr;
     device->mHrtf = nullptr;
     device->HrtfName.clear();
-    device->mRenderMode = NormalRender;
+    device->mRenderMode = RenderMode::Normal;
 
     if(device->FmtChans != DevFmtStereo)
     {
@@ -916,7 +916,7 @@ void aluInitRenderer(ALCdevice *device, int hrtf_id, HrtfRequestMode hrtf_appreq
     }
 
     bool headphones{device->IsHeadphones};
-    if(device->Type != Loopback)
+    if(device->Type != DeviceType::Loopback)
     {
         if(auto modeopt = ConfigValueStr(device->DeviceName.c_str(), nullptr, "stereo-mode"))
         {
@@ -976,7 +976,7 @@ void aluInitRenderer(ALCdevice *device, int hrtf_id, HrtfRequestMode hrtf_appreq
             device->HrtfName = hrtfname;
             return true;
         };
-        std::find_if(device->HrtfList.cbegin(), device->HrtfList.cend(), find_hrtf);
+        (void)std::find_if(device->HrtfList.cbegin(), device->HrtfList.cend(), find_hrtf);
     }
 
     if(device->mHrtf)
@@ -992,9 +992,9 @@ void aluInitRenderer(ALCdevice *device, int hrtf_id, HrtfRequestMode hrtf_appreq
 no_hrtf:
     old_hrtf = nullptr;
 
-    device->mRenderMode = StereoPair;
+    device->mRenderMode = RenderMode::Pairwise;
 
-    if(device->Type != Loopback)
+    if(device->Type != DeviceType::Loopback)
     {
         if(auto cflevopt = ConfigValueInt(device->DeviceName.c_str(), nullptr, "cf_level"))
         {
@@ -1015,11 +1015,11 @@ no_hrtf:
     {
         const char *mode{encopt->c_str()};
         if(al::strcasecmp(mode, "uhj") == 0)
-            device->mRenderMode = NormalRender;
+            device->mRenderMode = RenderMode::Normal;
         else if(al::strcasecmp(mode, "panpot") != 0)
             ERR("Unexpected stereo-encoding: %s\n", mode);
     }
-    if(device->mRenderMode == NormalRender)
+    if(device->mRenderMode == RenderMode::Normal)
     {
         device->Uhj_Encoder = std::make_unique<Uhj2Encoder>();
         TRACE("UHJ enabled\n");

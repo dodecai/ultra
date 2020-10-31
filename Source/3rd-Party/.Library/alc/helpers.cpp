@@ -80,7 +80,7 @@ const PathNamePair &GetProcBinary()
 }
 
 
-void al_print(FILE *logfile, const char *fmt, ...)
+void al_print(LogLevel level, FILE *logfile, const char *fmt, ...)
 {
     al::vector<char> dynmsg;
     char stcmsg[256];
@@ -100,8 +100,12 @@ void al_print(FILE *logfile, const char *fmt, ...)
     va_end(args);
 
     std::wstring wstr{utf8_to_wstr(str)};
-    fputws(wstr.c_str(), logfile);
-    fflush(logfile);
+    if(gLogLevel >= level)
+    {
+        fputws(wstr.c_str(), logfile);
+        fflush(logfile);
+    }
+    OutputDebugStringW(wstr.c_str());
 }
 
 
@@ -218,6 +222,12 @@ void SetRTPriority(void)
 #ifdef __FreeBSD__
 #include <sys/sysctl.h>
 #endif
+#ifdef __HAIKU__
+#include <FindDirectory.h>
+#endif
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
 #ifdef HAVE_PROC_PIDPATH
 #include <libproc.h>
 #endif
@@ -253,6 +263,14 @@ const PathNamePair &GetProcBinary()
         if(proc_pidpath(pid, procpath, sizeof(procpath)) < 1)
             ERR("proc_pidpath(%d, ...) failed: %s\n", pid, strerror(errno));
         else
+            pathname.insert(pathname.end(), procpath, procpath+strlen(procpath));
+    }
+#endif
+#ifdef __HAIKU__
+    if(pathname.empty())
+    {
+        char procpath[PATH_MAX];
+        if(find_path(B_APP_IMAGE_SYMBOL, B_FIND_PATH_IMAGE_PATH, NULL, procpath, sizeof(procpath)) == B_OK)
             pathname.insert(pathname.end(), procpath, procpath+strlen(procpath));
     }
 #endif
@@ -306,14 +324,46 @@ const PathNamePair &GetProcBinary()
 }
 
 
-void al_print(FILE *logfile, const char *fmt, ...)
+void al_print(LogLevel level, FILE *logfile, const char *fmt, ...)
 {
-    std::va_list ap;
-    va_start(ap, fmt);
-    vfprintf(logfile, fmt, ap);
-    va_end(ap);
+    al::vector<char> dynmsg;
+    char stcmsg[256];
+    char *str{stcmsg};
 
-    fflush(logfile);
+    va_list args, args2;
+    va_start(args, fmt);
+    va_copy(args2, args);
+    int msglen{std::vsnprintf(str, sizeof(stcmsg), fmt, args)};
+    if UNLIKELY(msglen >= 0 && static_cast<size_t>(msglen) >= sizeof(stcmsg))
+    {
+        dynmsg.resize(static_cast<size_t>(msglen) + 1u);
+        str = dynmsg.data();
+        msglen = std::vsnprintf(str, dynmsg.size(), fmt, args2);
+    }
+    va_end(args2);
+    va_end(args);
+
+    if(gLogLevel >= level)
+    {
+        fputs(str, logfile);
+        fflush(logfile);
+    }
+#ifdef __ANDROID__
+    auto android_severity = [](LogLevel l) noexcept
+    {
+        switch(l)
+        {
+        case LogLevel::Trace: return ANDROID_LOG_DEBUG;
+        case LogLevel::Warning: return ANDROID_LOG_WARN;
+        case LogLevel::Error: return ANDROID_LOG_ERROR;
+        /* Should not happen. */
+        case LogLevel::Disable:
+            break;
+        }
+        return ANDROID_LOG_ERROR;
+    };
+    __android_log_print(android_severity(level), "openal", "%s", str);
+#endif
 }
 
 
@@ -443,13 +493,14 @@ void SetRTPriority()
          * should be 1 for SCHED_RR).
          */
         param.sched_priority = sched_get_priority_min(SCHED_RR);
+        int err;
 #ifdef SCHED_RESET_ON_FORK
-        if(pthread_setschedparam(pthread_self(), SCHED_RR|SCHED_RESET_ON_FORK, &param))
+        err = pthread_setschedparam(pthread_self(), SCHED_RR|SCHED_RESET_ON_FORK, &param);
+        if(err == EINVAL)
 #endif
-        {
-            if(pthread_setschedparam(pthread_self(), SCHED_RR, &param))
-                ERR("Failed to set real-time priority for thread\n");
-        }
+            err = pthread_setschedparam(pthread_self(), SCHED_RR, &param);
+        if(err != 0)
+            ERR("Failed to set real-time priority for thread: %s (%d)\n", std::strerror(err), err);
     }
 #else
     /* Real-time priority not available */
