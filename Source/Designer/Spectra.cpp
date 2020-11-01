@@ -14,16 +14,8 @@ public:
 	}
 
 	void Create() override {
-        mDesignerLayer = new Designer(); 
-        PushLayer(mDesignerLayer);
+        PushLayer(new Designer());
 	}
-    void Destroy() override {
-        delete mDesignerLayer;
-        mDesignerLayer = nullptr;
-    }
-
-private:
-    Designer *mDesignerLayer = nullptr;
 };
 
 }
