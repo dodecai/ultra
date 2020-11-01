@@ -2,8 +2,6 @@
 
 #include <glad/gl.h>
 
-#define APP_MODE_DEBUG
-
 namespace Ultra {
 
 // Default
@@ -42,7 +40,7 @@ void GLRendererAPI::Load() {
 	// Show Errors
 	auto error = glGetError();
 	if (error != GL_NO_ERROR) {
-		AppLogError("[Ultra::RendererAPI::GL]: ", error);
+		AppLogError("[Ultra::RendererAPI::GL]: Error occured while initializing { Code:", error, " }");
 	}
 }
 
