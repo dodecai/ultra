@@ -2,6 +2,6 @@
 
 namespace Ultra {
 
-inline RendererAPI *RenderCommand::s_RendererAPI = RendererAPI::Create();
+//inline RendererAPI *RenderCommand::s_RendererAPI = RendererAPI::Create();
 
 }

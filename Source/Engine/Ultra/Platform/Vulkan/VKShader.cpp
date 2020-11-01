@@ -69,7 +69,7 @@ static vk::ShaderStageFlagBits ShaderTypeFromSuffix(const std::string &type) {
 VKShader::VKShader(const string &source) {
     sContext = Application::GetContext().As<Omnia::VKContext>();
     
-    if (GetFileName(source) != "Basic") return;
+    //if (GetFileName(source) != "Basic") return;
 
     const string cache = "Data/Cache/Shaders/";
     string cacheShader = cache + GetFileName(source) + ".spirv";
@@ -204,7 +204,7 @@ void VKShader::Compile(ShaderMap &sources) {
             input.stage = ShaderCompiler::ShaderLanguage::Fragment;
         }
         auto result = ShaderCompiler::Compile(data, input, output);
-        mShaderSource[type] = result;
+        if (result != "") mShaderSource[type] = result;
     }
 }
 

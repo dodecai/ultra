@@ -150,7 +150,7 @@ add_compile_definitions(_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING )
 project(PolicyOverwrite NONE)
 set(CMAKE_POLICY_DEFAULT_CMP0054 NEW)
 add_subdirectory(assimp)
-set_target_properties(assimp PROPERTIES COMPILE_FLAGS "")
+remove_target_compiler_flag(assimp "/WX")
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 set_property(TARGET assimp PROPERTY FOLDER 3rd-Party/assimp)
 #set_property(TARGET assimp_cmd PROPERTY FOLDER 3rd-Party/assimp)

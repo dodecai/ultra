@@ -39,6 +39,7 @@ public:
     void OpenScene();
     void SaveScene();
     void SaveSceneAs();
+    void SwitchAPI(GraphicsAPI api);
 
 private:
     // Properties

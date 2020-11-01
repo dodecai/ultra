@@ -3,6 +3,8 @@
 #include "Renderer/Buffer.h"
 #include "Renderer/Camera.h"
 #include "Renderer/FrameBuffer.h"
+#include "Renderer/Material.h"
+#include "Renderer/Mesh.h"
 #include "Renderer/Pipeline.h"
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Renderer.h"

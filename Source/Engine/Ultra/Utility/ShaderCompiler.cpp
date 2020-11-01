@@ -180,6 +180,7 @@ string Compile(const string &source, const InputOptions &input, const OutputOpti
         AppLogWarning("[Ultra::ShaderCompiler]: Preprocess failed!");
         AppLog(shader.getInfoLog());
         AppLog(shader.getInfoDebugLog());
+        return string();
     }
 
     auto shaderSourcePre = preResult.c_str();
@@ -191,6 +192,7 @@ string Compile(const string &source, const InputOptions &input, const OutputOpti
         AppLogWarning("[Ultra::ShaderCompiler]: Parsing Failed!");
         AppLog(shader.getInfoLog());
         AppLog(shader.getInfoDebugLog());
+        return string();
     }
 
     program.addShader(&shader);
@@ -198,6 +200,7 @@ string Compile(const string &source, const InputOptions &input, const OutputOpti
         AppLogWarning("[Ultra::ShaderCompiler]: The shader could not be linked!");
         AppLog(shader.getInfoLog());
         AppLog(shader.getInfoDebugLog());
+        return string();
     }
     //program.buildReflection();
 

@@ -42,4 +42,10 @@ void ViewportPanel::Update() {
     }
 }
 
+void ViewportPanel::Reload() {
+    Context = Texture2D::Create("./Assets/Textures/Checkerboard.png");
+    FramebufferProperties fbProperties;
+    Buffer = Framebuffer::Create(fbProperties);
+}
+
 }

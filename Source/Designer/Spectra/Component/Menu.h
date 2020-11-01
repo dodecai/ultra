@@ -140,6 +140,15 @@ public:
 
             ImGui::Separator();
             if (ImGui::BeginMenu("Renderer Settings")) {
+                static int api = 0;
+                if (ImGui::Combo("API", &api, "OpenGL\0Vulkan\0\0")) {
+                    switch (api) {
+                        case 0:     { break; }
+                        case 1:     { break; }
+                        default:    { break; }
+                    }
+                }
+
                 static bool wireframeMode = false;
                 static bool verticalSync = false;
                 if (ImGui::Checkbox("Wireframe", &wireframeMode)) {

@@ -7,8 +7,6 @@ namespace Ultra {
 
 // Default
 RendererAPI *RendererAPI::Create() {
-    Context::API = GraphicsAPI::Vulkan;
-
 	switch (Context::API) {
 		case GraphicsAPI::Null:		{ return nullptr; }
 		case GraphicsAPI::OpenGL:	{ return new GLRendererAPI(); }
@@ -17,6 +15,14 @@ RendererAPI *RendererAPI::Create() {
 	}
     AppLogCritical("[Engine::Renderer::API] ", "The selected RendererAPI is currently not supported!");
 	return nullptr;
+}
+
+const GraphicsAPI RendererAPI::GetAPI() {
+    return Context::API;
+}
+
+void RendererAPI::SetAPI(const GraphicsAPI api) {
+    Context::API = api;
 }
 
 }

@@ -8,7 +8,6 @@ namespace Ultra {
 
 // Default
 void GLRendererAPI::Load() {
-    //gladLoaderLoadGL(); 
     unsigned int vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -54,7 +53,7 @@ void GLRendererAPI::Unload() {
 
 // 
 void GLRendererAPI::Clear() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 void GLRendererAPI::DrawIndexed(uint32_t count, PrimitiveType type, bool depthTest) {

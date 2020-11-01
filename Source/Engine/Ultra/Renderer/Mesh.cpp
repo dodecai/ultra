@@ -14,18 +14,46 @@
 #include <assimp/LogStream.hpp>
 
 namespace Ultra {
-Mesh::Mesh(const string &object) {
+
+static const uint32_t sMeshImportFlags =
+    aiProcess_CalcTangentSpace          | // Create binormals/tangents just in case
+    aiProcess_FlipUVs                   | // form prototype
+    aiProcess_GenNormals                | // Make sure we have legit normals
+    aiProcess_GenUVCoords               | // Convert UVs if required 
+    aiProcess_OptimizeMeshes            | // Batch draws where possible
+    aiProcess_SortByPType               | // Split meshes by primitive type
+    aiProcess_Triangulate               | // Make sure we're triangles
+    aiProcess_ValidateDataStructure;      // Validation
+
+
+Mesh::Mesh(const string &object): mLocation(object) {
+    AppLogInfo("[Ultra::Renderer::Mesh]: ", "Loading object: '", object, "'");
+
+    mImporter = CreateScope<Assimp::Importer>();
+
+    const aiScene *scene = mImporter->ReadFile(object, sMeshImportFlags);
+    // !scene->HasMeshes() ~ maybe not needed...
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+        AppLogError("[Ultra::Renderer::Mesh]: ", "Failed to load mesh from file!");
+        AppLogDebug("... ", mImporter->GetErrorString());
+        return;
+    }
+    mScene = scene;
+
+    mAnimated = scene->mAnimations != nullptr;
+    //mMeshShader = mAnimated ? Renderer::GetShaderLibrary()->Get("DynamicPBR") :  Renderer::GetShaderLibrary()->Get("StaticPBR");
+    //mBaseMaterial = Reference<Material>::Create(mMeshShader);
+    //mInverseTransform = glm::inverse(Mat4FromAssimpMat4(scene->mRootNode->mTransformation));
+
+
+
     // constructor
     //Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
     //    this->vertices = vertices;
     //    this->indices = indices;
     //    this->textures = textures;
-    //
-    //    // now that we have all the required data, set the vertex buffers and its attribute pointers.
-    //    setupMesh();
-    //}
+    // now that we have all the required data, set the vertex buffers and its attribute pointers.
     // initializes all the buffer objects/arrays
-    //void setupMesh() {
     //    // create buffers/arrays
     //    glGenVertexArrays(1, &VAO);
     //    glGenBuffers(1, &VBO);
@@ -60,7 +88,6 @@ Mesh::Mesh(const string &object) {
     //    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, Bitangent));
     //
     //    glBindVertexArray(0);
-    //}
 }
 
 Mesh::~Mesh() {

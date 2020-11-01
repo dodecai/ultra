@@ -14,13 +14,16 @@ public:
 	}
 
 	void Create() override {
-        PushLayer(new Designer());
+        mDesignerLayer = new Designer(); 
+        PushLayer(mDesignerLayer);
 	}
+    void Destroy() override {
+        delete mDesignerLayer;
+        mDesignerLayer = nullptr;
+    }
 
-	void Update(Timestamp deltaTime) override {
-		// ToDo: Should be executed by default... +Switch to white on light theme Render
-		RenderCommand::Clear();
-	}
+private:
+    Designer *mDesignerLayer = nullptr;
 };
 
 }

@@ -60,12 +60,14 @@ public:
 	virtual void DrawIndexed(uint32_t count, PrimitiveType type, bool depthTest = true) = 0;
 
 	// Accessors
+    static const GraphicsAPI GetAPI();
 	static RendererCapabilities &GetCapabilities() {
 		static RendererCapabilities capabilities;
 		return capabilities;
 	}
 
 	// Mutators
+    static void SetAPI(const GraphicsAPI api);
 	virtual void SetClearColor(const glm::vec4 &color) = 0;
 	virtual void SetLineThickness(float value = 1.0f) = 0;
 	virtual void SetViewport(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) = 0;

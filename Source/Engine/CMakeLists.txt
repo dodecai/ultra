@@ -48,7 +48,7 @@ set(ShaderCompilerLibraries
     OSDependent
     SPIRV
 )
-set(Libraries Omnia stb OpenAL ogg vorbis vorbisfile ${ShaderCompilerLibraries})
+set(Libraries Omnia assimp stb OpenAL ogg vorbis vorbisfile ${ShaderCompilerLibraries})
 foreach(Library ${Libraries})
 	message("    - ${Library}")
 	target_link_libraries(${PROJECT_NAME} PUBLIC ${Library})

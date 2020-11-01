@@ -16,8 +16,6 @@ void test(const string &value) {
 Designer::Designer(): Layer("Core") {
     ClearColor =  { 0.0f, 0.0f, 0.0f, 0.72f };
     GridColor = { 0.8f, 0.8f, 0.2f, 0.72f };
-
-    SetStyle();
 }
 
 void Designer::Create() {
@@ -27,6 +25,7 @@ void Designer::Create() {
     #ifdef APP_MODE_DEBUG
     Debug();
     #endif
+    //Reference<Mesh> mesh = CreateReference<Mesh>("Assets/Meshes/Cube/Cube.obj");
 
     Browser.SetContext(CurrentScene);
     ScriptEditor.SetText("#include <Ultra.h>\r\n\r\nnamespace Ultra {\r\n\r\nclass Player {\r\n};\r\n\r\n}\r\n");
@@ -35,6 +34,8 @@ void Designer::Create() {
     CurrentScene->Resize(dimension.Width, dimension.Height);
 
     sCurrentScene = CurrentScene;
+
+    SetStyle();
 }
 
 void Designer::Debug() {
@@ -203,6 +204,7 @@ void Designer::Update(Timestamp deltaTime) {
     // Preparation
     Renderer2D::ResetStatistics();
     if (mViewport.IsEnabled()) {
+        RenderCommand::Clear(); // ToDo: If Framebuffer is active, main window don't recieves the clear command
         mViewport.BindBuffer();
     }
 
@@ -254,6 +256,10 @@ void Designer::KeyboardEvent(KeyboardEventData data) {
     if (data.State == KeyState::Release) {
         if (data.Key == KeyCode::F2) {
             APP_DEBUGBREAK();
+        }
+        if (data.Key == KeyCode::F9) {
+            auto api = (Context::API == GraphicsAPI::OpenGL ? GraphicsAPI::Vulkan : GraphicsAPI::OpenGL);
+            SwitchAPI(api);
         }
         if (data.Key == KeyCode::KeyP) {
             if (playing) {
@@ -322,6 +328,15 @@ void Designer::SaveSceneAs() {
     auto result = Omnia::Application::GetDialog().SaveFile("Ultra Spectra Scene (*.yml)\0*.yml\0");
     CurrentSceneFile = result;
     serializer.Serialize(result);
+}
+
+void Designer::SwitchAPI(GraphicsAPI api) {
+    if (RenderCommand::GetAPI() == api) return;
+    RenderCommand::SetAPI(api);
+    Application::Reload();
+    RenderCommand::Reload();
+    SetStyle();
+    mViewport.Reload();
 }
 
 }

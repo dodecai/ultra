@@ -76,8 +76,8 @@ void Renderer2D::Load() {
 
         PipelineProperties pipelineProperties;
         pipelineProperties.Layout = {
-            { ShaderDataType::Float3, "a_Position" },
-            { ShaderDataType::Float4, "a_Color" }
+            { ShaderDataType::Float3, "aPosition" },
+            { ShaderDataType::Float4, "aColor" }
         };
         sData.LinePipeline = Pipeline::Create(pipelineProperties);
         
@@ -97,11 +97,11 @@ void Renderer2D::Load() {
     {
         PipelineProperties pipelineProperties;
         pipelineProperties.Layout = {
-            { ShaderDataType::Float3, "a_Position" },
-            { ShaderDataType::Float4, "a_Color" },
-            { ShaderDataType::Float2, "a_TexCoordinates" },
-            { ShaderDataType::Float, "a_TextureIndex" },
-            { ShaderDataType::Float, "a_TilingFactor" },
+            { ShaderDataType::Float3, "aPosition" },
+            { ShaderDataType::Float4, "aColor" },
+            { ShaderDataType::Float2, "aTexCoordinates" },
+            { ShaderDataType::Float, "aTextureIndex" },
+            { ShaderDataType::Float, "aTilingFactor" },
         };
         sData.QuadPipeline = Pipeline::Create(pipelineProperties);
 
@@ -138,7 +138,7 @@ void Renderer2D::Load() {
 
     sData.TextureShader = Shader::Create("./Assets/Shaders/Texture.glsl");
     sData.TextureShader->Bind();
-    sData.TextureShader->SetUniformBuffer("u_Textures", (void *)samplers, sData.MaxTextureSlots);
+    sData.TextureShader->SetUniformBuffer("uTextures", (void *)samplers, sData.MaxTextureSlots);
 
     // Set all texture slots to 0
     sData.TextureSlots[0] = sData.WhiteTexture;
@@ -206,7 +206,7 @@ void Renderer2D::Flush() {
         sData.LineVertexBuffer->SetData(sData.LineVertexBufferBase, dataSizeL);
 
         sData.LineShader->Bind();
-        sData.LineShader->SetUniform("u_ViewProjection", sData.ViewProjectionMatrix);
+        sData.LineShader->SetUniform("uViewProjection", sData.ViewProjectionMatrix);
 
         sData.LinePipeline->Bind();
         sData.LineIndexBuffer->Bind();
@@ -220,7 +220,7 @@ void Renderer2D::Flush() {
         sData.QVertexBuffer->SetData(sData.QVertexBufferBase, dataSize);
 
         sData.TextureShader->Bind();
-        sData.TextureShader->SetUniform("u_ViewProjection", sData.ViewProjectionMatrix);
+        sData.TextureShader->SetUniform("uViewProjection", sData.ViewProjectionMatrix);
 
         for (uint32_t i = 0; i < sData.TextureSlotIndex; i++) {
             sData.TextureSlots[i]->Bind(i);

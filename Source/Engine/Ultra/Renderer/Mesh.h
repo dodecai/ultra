@@ -130,34 +130,34 @@ private:
     glm::vec3 InterpolateScaling(float animationTime, const aiNodeAnim *pNodeAnim);
 
 private:
-    Scope<Assimp::Importer> mImporter;
-    string mLocation;
+    Scope<Assimp::Importer> mImporter = nullptr;
+    string mLocation = {};
 
-    glm::mat4 mInverseTransform;
-    std::vector<Submesh> mSubmeshes;
+    glm::mat4 mInverseTransform = {};
+    std::vector<Submesh> mSubmeshes = {};
 
-    Reference<Pipeline> mPipeline;
-    Reference<VertexBuffer> mVertexBuffer;
-    Reference<IndexBuffer> mIndexBuffer;
+    Reference<Pipeline> mPipeline = nullptr;
+    Reference<VertexBuffer> mVertexBuffer = nullptr;
+    Reference<IndexBuffer> mIndexBuffer = nullptr;
     //VertexBufferLayout mVertexBufferLayout;
 
     /// Mesh Properties
-    const aiScene *mScene;
-    vector<Vertex> mVertices;
-    vector<AnimatedVertex> mAnimatedVertices;
-    vector<Index> mIndices;
+    const aiScene *mScene = nullptr;
+    vector<Vertex> mVertices = {};
+    vector<AnimatedVertex> mAnimatedVertices = {};
+    vector<Index> mIndices = {};
     uint32_t mBoneCount = 0;
-    vector<BoneData> mBoneData;
-    unordered_map<string, uint32_t> mBoneMapping;
-    vector<glm::mat4> mBoneTransforms;
+    vector<BoneData> mBoneData = {};
+    unordered_map<string, uint32_t> mBoneMapping = {};
+    vector<glm::mat4> mBoneTransforms = {};
 
     /// Material Properties
-    Reference<Material> mBaseMaterial;
-    Reference<MaterialInstance> mMaterials;
-    Reference<Shader> mShader;
-    vector<Reference<Texture2D>> mTextures;
-    vector<Reference<Texture2D>> mNormalMaps;
-    unordered_map<uint32_t, vector<Triangle>> mTriangleCache;
+    Reference<Material> mBaseMaterial = nullptr;
+    Reference<MaterialInstance> mMaterials = nullptr;
+    Reference<Shader> mShader = nullptr;
+    vector<Reference<Texture2D>> mTextures = { nullptr };
+    vector<Reference<Texture2D>> mNormalMaps = { nullptr };
+    unordered_map<uint32_t, vector<Triangle>> mTriangleCache = {};
 
     /// Animation Properties
     bool mAnimated = false;
