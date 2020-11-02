@@ -32,6 +32,10 @@ private:
     PipelineProperties Properties;
     vk::Pipeline Pipeline;
     vk::PipelineLayout Layout;
+
+    // ToDo: These are needed for clean switch between contexts
+    vk::Buffer VertexBuffer;
+    vk::DeviceMemory VertexMemory;
 };
 
 }

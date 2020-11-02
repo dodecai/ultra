@@ -332,9 +332,11 @@ void Designer::SaveSceneAs() {
 
 void Designer::SwitchAPI(GraphicsAPI api) {
     if (RenderCommand::GetAPI() == api) return;
+    Renderer2D::Unload();
     RenderCommand::SetAPI(api);
     Application::Reload();
     RenderCommand::Reload();
+    Renderer2D::Load();
     SetStyle();
     mViewport.Reload();
 }

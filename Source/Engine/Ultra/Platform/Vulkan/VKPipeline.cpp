@@ -64,9 +64,6 @@ struct Vertex {
     }
 };
 
-static vk::Buffer VertexBuffer;
-static vk::DeviceMemory VertexMemory;
-
 const std::vector<Vertex> Vertices = {
     { {  0.0f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
     { {  0.5f,  0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },

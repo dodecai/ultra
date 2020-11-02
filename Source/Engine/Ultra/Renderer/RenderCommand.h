@@ -19,6 +19,7 @@ public:
 		s_RendererAPI->Load();
 	}
 	static void Clear() {
+        // ToDo: Sometimes hit before load, which doesn't make sense at all.
 		s_RendererAPI->Clear();
 	};
 

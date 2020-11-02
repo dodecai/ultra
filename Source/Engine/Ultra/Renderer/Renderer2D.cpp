@@ -150,8 +150,25 @@ void Renderer2D::Load() {
 }
 
 void Renderer2D::Unload() {
+    sData.LinePipeline.reset();
+    sData.LineVertexBuffer.reset();
+    sData.LineIndexBuffer.reset();
+    sData.LineShader.reset();
+
+    sData.QuadPipeline.reset();
+    sData.QVertexBuffer.reset();
+    sData.QIndexBuffer.reset();
+
+    sData.TextureShader.reset();
+    sData.WhiteTexture.reset();
+    for (auto &texture : sData.TextureSlots) {
+        texture.reset();
+    }
+
     delete[] sData.LineVertexBufferBase;
     delete[] sData.QVertexBufferBase;
+    sData.LineVertexBufferBase = nullptr;
+    sData.QVertexBufferBase = nullptr;
 }
 
 
