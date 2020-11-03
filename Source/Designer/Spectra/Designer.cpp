@@ -331,6 +331,7 @@ void Designer::SaveSceneAs() {
 }
 
 void Designer::SwitchAPI(GraphicsAPI api) {
+    // ToDo: Works fine if OpenGL is first initialized, otherwise it fails @SetPixelFormat
     if (RenderCommand::GetAPI() == api) return;
     Renderer2D::Unload();
     RenderCommand::SetAPI(api);
