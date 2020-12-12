@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "Texture.h"
 #include "SubTexture.h"
+#include "Ultra/Scene/SceneCamera.h"
 
 namespace Ultra {
 

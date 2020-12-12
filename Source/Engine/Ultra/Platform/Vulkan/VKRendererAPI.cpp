@@ -28,7 +28,8 @@ void VKRendererAPI::DrawIndexed(uint32_t count, PrimitiveType type, bool depthTe
 }
 
 void VKRendererAPI::SetClearColor(const glm::vec4 &color) {
-    //sContext->GetSwapChain()->GetSurfaceProperties().ClearValues[0].color = array<float, 4>{ color.r, color.g, color.b, color.a };
+    auto &clearValues = sContext->GetSwapChain()->GetSurfaceProperties().ClearValues;
+    clearValues[0].color = array<float, 4> { color.r, color.g, color.b, color.a};
 }
 
 void VKRendererAPI::SetLineThickness(float value) {

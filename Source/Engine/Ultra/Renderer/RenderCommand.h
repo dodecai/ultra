@@ -20,7 +20,7 @@ public:
 	}
 	static void Clear() {
         // ToDo: Sometimes hit before load, which doesn't make sense at all.
-		s_RendererAPI->Clear();
+        s_RendererAPI->Clear();
 	};
 
 	static void DrawIndexed(uint32_t count, PrimitiveType type, bool depthTest = true) {

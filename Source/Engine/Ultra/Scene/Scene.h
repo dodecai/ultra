@@ -38,6 +38,7 @@ public:
 
     // Accessors
     const Camera &GetCamera();
+    Entity GetCameraEntity();
     const string &GetCaption() const;
     const Entity GetEntity(const string &name);
     const Entity GetEntity(const UUID<string> &id);
@@ -60,34 +61,31 @@ private:
     uint32_t mHeight = 0;
 };
 
-// ToDo: From Prototype something like a scene library
-//class Scenes {
-//	std::unique_ptr<Scene> pScene;
-//
-//public:
-//	Scenes() {}
-//
-//	// Accessors
-//	Scene *GetScene() const { return pScene; }
-//	Camera *GetCamera() const { return pScene ? pScene->GetCamera() : nullptr; }
-//	bool IsActive() const { return pScene ? pScene->Active() : false; }
-//
-//	// Mutators
-//	void SetScene(std::unique_ptr<Scene> &&scene) { pScene = std::move(scene); }
-//
-//	// Methods
-//	void Update() override {
-//		if (!pScene) return;
-//
-//		if(!pScene->Running) {
-//			pScene->Run();
-//			pScene->Running = true;
-//		}
-//
-//		pScene->Update();
-//	}
-//
-//};
+class SceneLibrary {
+public:
+    SceneLibrary() = default;
+	void Update(Timestamp deltaTime) {
+        GetActiveScene()->Update(deltaTime);
+	}
+
+    void Push(Reference<Scene> &scene) {
+        mScenes.push_back(scene);
+    }
+    void Pop(Reference<Scene> &scene) {
+    }
+
+private:
+    Reference<Scene> &GetActiveScene() {
+        for (auto &scene : mScenes) {
+            if (scene->IsActive()) {
+                return scene;
+            }
+        }
+    }
+
+private:
+    vector<Reference<Scene>> mScenes;
+};
 }
 
 

@@ -54,7 +54,6 @@ void Start() {
 #ifdef THIS_IS_A_TEST
 #include <iostream>
 
-// ToDo: Tabulator not working here
 #define USE_STD_NAMESPACE
 #ifdef USE_STD_NAMESPACE
     using namespace std;

@@ -108,6 +108,7 @@ TextureFormat GLTexture2D::GetFormat() const {
 
 // Mutators
 void GLTexture2D::SetData(void *data, uint32_t size) const {
+    // ToDo: Thread Syns (Lock, Unlock)
 	uint32_t bpc = DataFormat == GL_RGB8 ? 4 : 3;
 	//if (size == (Width * Height * bpc)) {
 	//	//Data must be entire texture!
@@ -207,6 +208,7 @@ TextureFormat GLTexture3D::GetFormat() const {
 
 // Mutators
 void GLTexture3D::SetData(void *data, uint32_t size) const {
+    // ToDo: Thread Syns (Lock, Unlock)
 	uint32_t bpc = DataFormat == GL_RGB8 ? 4 : 3;
 	//if (size == (Width * Height * bpc)) {
 	//	//Data must be entire texture!

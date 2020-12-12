@@ -2,6 +2,7 @@
 
 #include "Designer.h"
 #include "Component/Menu.h"
+#include "ImGuizmo/ImGuizmo.h"
 
 //#define RAW_RENDERER_TEST
 
@@ -102,6 +103,8 @@ void Designer::GuiUpdate() {
     if (consoleOpen) View::ShowExampleAppConsole(&consoleOpen);
 
     // Scene
+    auto &selectedEntity = Browser.GetSelectedNode();
+    mViewport.SetContext(selectedEntity);
     mViewport.Update();
 
     // Properties
@@ -268,6 +271,19 @@ void Designer::KeyboardEvent(KeyboardEventData data) {
                 Audio::Player::Play(BackgroundMusicPlayer);
             }
             playing = !playing;
+        }
+
+        if (data.Key == KeyCode::KeyQ) {
+            mViewport.SetGizmoType(-1);
+        }
+        if (data.Key == KeyCode::KeyW) {
+            mViewport.SetGizmoType(ImGuizmo::OPERATION::TRANSLATE);
+        }
+        if (data.Key == KeyCode::KeyE) {
+            mViewport.SetGizmoType(ImGuizmo::OPERATION::ROTATE);
+        }
+        if (data.Key == KeyCode::KeyR) {
+            mViewport.SetGizmoType(ImGuizmo::OPERATION::SCALE);
         }
     }
 }

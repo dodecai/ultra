@@ -8,7 +8,6 @@
 
 namespace Ultra {
 
-// ToDo: RenderAPIData.h?
 using RendererID = uint32_t;
 
 enum class PrimitiveType {

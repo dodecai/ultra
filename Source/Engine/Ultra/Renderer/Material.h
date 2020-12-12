@@ -42,6 +42,7 @@ private:
     uint32_t mMaterialFlags;
 
     //Buffer mUniformStorageBuffer;
+    Reference<Shader> mShader;
     vector<Reference<Texture>> mTextures;
 };
 
@@ -75,6 +76,7 @@ private:
     Reference<Material> mMaterial;
 
     //Buffer mUniformStorageBuffer;
+    Reference<Shader> mShader;
     vector<Reference<Texture>> mTextures;
 };
 

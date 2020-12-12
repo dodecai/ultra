@@ -1,8 +1,11 @@
 ﻿#pragma once
 
 #include <entt/entt.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include "Omnia/Utility/UUID.h"
 
@@ -82,25 +85,24 @@ struct Transform {
     glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
 
     Transform() = default;
-
     Transform(const glm::vec3 &position): Position(position) {}
     Transform(const Transform &rhs) {
         Position = rhs.Position;
         Rotation = rhs.Rotation;
         Scale = rhs.Scale;
     };
-
     ~Transform() = default;
 
     operator glm::mat4() const {
         //component = glm::translate(glm::mat4(1.0f), translation) * glm::toMat4(rotation) * glm::scale(glm::mat4(1.0f), scale);
         return  glm::translate(glm::mat4(1.0f), Position) *
-                (
-                    glm::rotate(glm::mat4(1.0f), Rotation.x, { 1, 0, 0 }) *
-                    glm::rotate(glm::mat4(1.0f), Rotation.y, { 0, 1, 0 }) *
-                    glm::rotate(glm::mat4(1.0f), Rotation.z, { 0, 0, 1 })
-                ) *
+                glm::toMat4(glm::quat(Rotation)) *
                 glm::scale(glm::mat4(1.0f), Scale);
+        //(
+        //    glm::rotate(glm::mat4(1.0f), Rotation.x, { 1, 0, 0 }) *
+        //    glm::rotate(glm::mat4(1.0f), Rotation.y, { 0, 1, 0 }) *
+        //    glm::rotate(glm::mat4(1.0f), Rotation.z, { 0, 0, 1 })
+        //) *
     }
     //operator const glm::mat4 &() const {
     //    return  glm::translate(glm::mat4(1.0f), Position) *

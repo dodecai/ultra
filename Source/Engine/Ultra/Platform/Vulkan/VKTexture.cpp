@@ -16,7 +16,8 @@ TextureFormat VKTexture2D::GetFormat() const {
     return TextureFormat();
 }
 
-void VKTexture2D::SetData(void *data, uint32_t size) const {}
+void VKTexture2D::SetData(void *data, uint32_t size) const {
+}
 
 bool VKTexture2D::operator==(const Texture &other) const {
     return false;
@@ -40,7 +41,8 @@ TextureFormat VKTexture3D::GetFormat() const {
     return TextureFormat();
 }
 
-void VKTexture3D::SetData(void *data, uint32_t size) const {}
+void VKTexture3D::SetData(void *data, uint32_t size) const {
+}
 
 bool VKTexture3D::operator==(const Texture &other) const {
     return false;

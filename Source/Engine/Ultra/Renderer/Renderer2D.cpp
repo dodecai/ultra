@@ -128,10 +128,7 @@ void Renderer2D::Load() {
     // Miscelaneous
     sData.WhiteTexture = Texture2D::Create(1, 1);
     uint32_t whiteTextureData = 0xffffffff;
-    // ToDo: Thread Syns
-    //sData.WhiteTexture->Lock();
     sData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
-    //sData.WhiteTexture->Unlock();
 
     int32_t samplers[sData.MaxTextureSlots];
     for (uint32_t i = 0; i < sData.MaxTextureSlots; i++) samplers[i] = i;

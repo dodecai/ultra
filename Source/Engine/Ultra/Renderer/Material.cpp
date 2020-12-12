@@ -23,7 +23,7 @@ Material::~Material() {
 }
 
 const string &Material::GetName() {
-    // TODO: insert return statement here
+    return mName;
 }
 
 uint32_t Material::GetFlags() const {
@@ -31,7 +31,7 @@ uint32_t Material::GetFlags() const {
 }
 
 Reference<Shader> &Material::GetShader() {
-    // TODO: insert return statement here
+    return mShader;
 }
 
 void Material::Set(const string &name, Reference<Texture> &texture) {
@@ -43,12 +43,12 @@ void Material::Allocate() {
 
 template<typename T>
 T &Material::Get(const string &name) {
-    // TODO: insert return statement here
+   return T();
 }
 
 template<typename T>
 T &Material::GetResource(const string &name) {
-    // TODO: insert return statement here
+    return T();
 }
 
 template<typename T>
@@ -69,7 +69,7 @@ Reference<MaterialInstance> MaterialInstance::Create(const Reference<Material> &
 
 template<typename T>
 const string &MaterialInstance::GetName() {
-    // TODO: insert return statement here
+    return mName;
 }
 
 uint32_t MaterialInstance::GetFlags() const {
@@ -77,7 +77,7 @@ uint32_t MaterialInstance::GetFlags() const {
 }
 
 Reference<Shader> &MaterialInstance::GetShader() {
-    // TODO: insert return statement here
+    return mShader;
 }
 
 void MaterialInstance::Set(const string &name, Reference<Texture> &texture) {
@@ -88,12 +88,12 @@ void MaterialInstance::Allocate() {
 
 template<typename T>
 T &MaterialInstance::Get(const string &name) {
-    // TODO: insert return statement here
+    return T();
 }
 
 template<typename T>
 T &MaterialInstance::GetResource(const string &name) {
-    // TODO: insert return statement here
+    return T();
 }
 
 template<typename T>

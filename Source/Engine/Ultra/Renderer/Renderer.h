@@ -8,6 +8,7 @@
 #include "Camera.h"
 #include "RenderPass.h"
 #include "Shader.h"
+#include "Ultra/Scene/SceneCamera.h"
 
 namespace Ultra {
 

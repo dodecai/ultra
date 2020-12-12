@@ -109,11 +109,19 @@ void Scene::Resize(uint32_t width, uint32_t height) {
 const Camera &Scene::GetCamera() {
     auto view = Registry.view<Component::Camera>();
     for (auto &entity : view) {
-        auto &camera = view.get<Component::Camera>(entity);
+        const auto &camera = view.get<Component::Camera>(entity);
         if (camera.Primary) { return camera.mCamera; }
     }
-    static Camera *ptr = nullptr;
-    return *ptr;
+    return {};
+}
+
+Entity Scene::GetCameraEntity() {
+    auto view = Registry.view<Component::Camera>();
+    for (auto &entity : view) {
+        const auto &camera = view.get<Component::Camera>(entity);
+        if (camera.Primary) { return { entity, this }; }
+    }
+    return {};
 }
 
 const string &Scene::GetCaption() const {
@@ -128,8 +136,7 @@ const Entity Scene::GetEntity(const string &name) {
             return { entity, this };
         }
     }
-    static Entity *ptr = nullptr;
-    return *ptr;
+    return {};
 }
 
 const Entity Scene::GetEntity(const UUID<string> &id) {
