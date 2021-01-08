@@ -8,6 +8,7 @@
 
 #include "Ultra.pch"
 #include "Ultra/Core.h"
+#include "Ultra/Renderer/DesignerCamera.h"
 
 #include "Components.h"
 #include "SceneCamera.h"
@@ -33,7 +34,8 @@ public:
     void DestroyEntity(Entity entity);
     
     void Clear();
-    void Update(Timestamp deltaTime);
+    void UpdateDesigner(Timestamp deltaTime, DesignerCamera &camera);
+    void UpdateRuntime(Timestamp deltaTime);
     void Resize(uint32_t width, uint32_t height);
 
     // Accessors
@@ -65,7 +67,7 @@ class SceneLibrary {
 public:
     SceneLibrary() = default;
 	void Update(Timestamp deltaTime) {
-        GetActiveScene()->Update(deltaTime);
+        GetActiveScene()->UpdateRuntime(deltaTime);
 	}
 
     void Push(Reference<Scene> &scene) {

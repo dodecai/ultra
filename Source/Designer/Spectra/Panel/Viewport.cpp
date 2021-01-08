@@ -52,10 +52,15 @@ void ViewportPanel::Update() {
                 float windowHeight = (float)ImGui::GetWindowHeight();
                 ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 
-                auto cameraEntity = Designer::GetCurrentScene()->GetCameraEntity();
-                const auto &camera = cameraEntity.GetComponent<Component::Camera>().mCamera;
-                const glm::mat4 &cameraProjection = camera.GetProjection();
-                glm::mat4 cameraView = glm::inverse((glm::mat4)cameraEntity.GetComponent<Component::Transform>());
+                // Runtime Camera
+                //auto cameraEntity = Designer::GetCurrentScene()->GetCameraEntity();
+                //const auto &camera = cameraEntity.GetComponent<Component::Camera>().mCamera;
+                //const glm::mat4 &cameraProjection = camera.GetProjection();
+                //glm::mat4 cameraView = glm::inverse((glm::mat4)cameraEntity.GetComponent<Component::Transform>());
+
+                // Designer Camera
+                const glm::mat4 &cameraProjection = Designer::GetCamera()->GetProjection();
+                glm::mat4 cameraView =  Designer::GetCamera()->GetViewMatrix();
 
                 auto &transformEntity = mContext.GetComponent<Component::Transform>();
                 glm::mat4 transform = (glm::mat4)mContext.GetComponent<Component::Transform>();

@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "Texture.h"
 #include "SubTexture.h"
+#include "DesignerCamera.h"
 #include "Ultra/Scene/SceneCamera.h"
 
 namespace Ultra {
@@ -19,6 +20,7 @@ public:
     static void Load();
     static void Unload();
 
+    static void StartScene(const DesignerCamera &camera);
     static void StartScene(const PerspectiveCamera &camera);
     static void StartScene(const Camera &camera);
     static void StartScene(const Camera &camera, const glm::mat4 &transform);

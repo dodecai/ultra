@@ -43,7 +43,25 @@ void Scene::Clear() {
     Registry.clear();
 }
 
-void Scene::Update(Timestamp deltaTime) {
+void Scene::UpdateDesigner(Timestamp deltaTime, DesignerCamera &camera) {
+    Renderer2D::StartScene(camera);
+    {
+        try {
+            auto group = Registry.group<Component::Transform>(entt::get<Component::Sprite>);
+            for (auto entity : group) {
+                auto [transform, sprite] = group.get<Component::Transform, Component::Sprite>(entity);
+
+                Renderer2D::DrawQuad(transform, sprite.Color);
+            }
+        } catch (...) {
+            AppLogError("An unknwon entt error occured!");
+        }
+    }
+
+    Renderer2D::FinishScene();
+}
+
+void Scene::UpdateRuntime(Timestamp deltaTime) {
     // Update Scripts
     {
         Registry.view<Component::NativeScript>().each([=](auto entity, auto &nsc) {
@@ -56,7 +74,6 @@ void Scene::Update(Timestamp deltaTime) {
             nsc.Instance->Update(deltaTime);
         });
     }
-
 
     // 2D 
     Camera *sceneCamera = nullptr;
@@ -83,7 +100,7 @@ void Scene::Update(Timestamp deltaTime) {
                     Renderer2D::DrawQuad(transform, sprite.Color);
                 }
             } catch (...) {
-                AppLogError("An unknwon entt error occured!");
+                AppLogError("An unknown entt error occured!");
             }
         }
 

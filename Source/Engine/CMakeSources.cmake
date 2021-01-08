@@ -44,6 +44,7 @@ list(APPEND ENGINE_SOURCES ${ENGINE_MODULE_SOURCES})
 set(ENGINE_RENDERER_HEADERS
 	"Ultra/Renderer/Buffer.h"
 	"Ultra/Renderer/Camera.h"
+	"Ultra/Renderer/DesignerCamera.h"
 	"Ultra/Renderer/Framebuffer.h"
 	"Ultra/Renderer/Mesh.h"
 	"Ultra/Renderer/Pipeline.h"
@@ -76,6 +77,7 @@ set(ENGINE_RENDERER_HEADERS
 set(ENGINE_RENDERER_SOURCES
 	"Ultra/Renderer/Buffer.cpp"
 	"Ultra/Renderer/Camera.cpp"
+	"Ultra/Renderer/DesignerCamera.cpp"
 	"Ultra/Renderer/Framebuffer.cpp"
 	"Ultra/Renderer/Mesh.cpp"
 	"Ultra/Renderer/Pipeline.cpp"

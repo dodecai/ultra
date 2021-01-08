@@ -168,6 +168,18 @@ void Renderer2D::Unload() {
     sData.QVertexBufferBase = nullptr;
 }
 
+void Renderer2D::StartScene(const DesignerCamera & camera) {
+    sData.DepthTest = true;
+    sData.ViewProjectionMatrix = camera.GetViewProjection();
+
+    sData.LineIndexCount = 0;
+    sData.LineVertexBufferPtr = sData.LineVertexBufferBase;
+
+    sData.QIndexCount = 0;
+    sData.QVertexBufferPtr = sData.QVertexBufferBase;
+
+    sData.TextureSlotIndex = 1;
+}
 
 void Renderer2D::StartScene(const PerspectiveCamera &camera) {
     sData.DepthTest = true;

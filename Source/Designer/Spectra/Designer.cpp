@@ -23,6 +23,7 @@ void Designer::Create() {
     CurrentScene = CreateReference<Scene>();
     Serializer serializer(CurrentScene);
 
+    Debug();
     #ifdef APP_MODE_DEBUG
     Debug();
     #endif
@@ -35,6 +36,8 @@ void Designer::Create() {
     CurrentScene->Resize(dimension.Width, dimension.Height);
 
     sCurrentScene = CurrentScene;
+
+    Camera = DesignerCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 
     SetStyle();
 }
@@ -215,7 +218,10 @@ void Designer::Update(Timestamp deltaTime) {
     RenderCommand::SetClearColor(ClearColor);
     RenderCommand::Clear();
 
-    CurrentScene->Update(deltaTime);
+    // ToDo: Only if viewport is focused!
+    Camera.Update(deltaTime);
+    CurrentScene->UpdateDesigner(deltaTime, Camera);
+    //CurrentScene->UpdateRuntime(deltaTime);
     #ifdef StepI
         // Draw
         Renderer2D::StartScene(CurrentScene->GetCamera());
@@ -288,13 +294,26 @@ void Designer::KeyboardEvent(KeyboardEventData data) {
     }
 }
 
+void Designer::MouseEvent(MouseEventData data) {
+    if (data.Action == MouseAction::Wheel) {
+        float delta = data.DeltaWheelY * 0.1f;
+        Camera.Zoom(delta);
+        Camera.UpdateView();
+    }
+}
+
 void Designer::WindowEvent(WindowEventData data) {
     if (data.Action == WindowAction::Resize) {
         auto &dimension = Application::GetWindow().GetContexttSize();
         Renderer::Resize(dimension.Width, dimension.Height);
         mViewport.Resize(dimension.Width, dimension.Height);
+        Camera.SetViewportSize(dimension.Width, dimension.Height);
         CurrentScene->Resize(dimension.Width, dimension.Height);
     }
+}
+
+DesignerCamera *Designer::GetCamera() {
+    return &Camera;
 }
 
 Reference<Scene> Designer::GetCurrentScene() { return sCurrentScene; }

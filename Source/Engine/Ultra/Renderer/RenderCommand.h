@@ -36,7 +36,7 @@ public:
     }
 
 	static void SetClearColor(const glm::vec4 &color) {
-		s_RendererAPI->SetClearColor(color);
+        s_RendererAPI->SetClearColor(color);
 	};
 	static void SetLineThickness(float value = 1.0f) {
 		s_RendererAPI->SetLineThickness(value);

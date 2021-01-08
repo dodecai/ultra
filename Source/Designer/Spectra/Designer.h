@@ -28,9 +28,11 @@ public:
     void Update(Timestamp deltaTime) override;
     
     void KeyboardEvent(KeyboardEventData data) override;
+    void MouseEvent(MouseEventData data) override;
     void WindowEvent(WindowEventData data) override;
     
     // Accessors
+    static DesignerCamera *GetCamera();
     static Reference<Scene> GetCurrentScene();
 
     // Commands
@@ -52,6 +54,7 @@ private:
     TextEditor ScriptEditor;
 
     // Scene
+    static inline DesignerCamera Camera;
     Reference<Scene> CurrentScene;
     Entity CameraEntity;
     Entity BackgroundMusic;
