@@ -28,7 +28,8 @@ public:
     static void Flush();
 
     // Primitives
-    static void DrawQuad(const glm::mat4 &transform, const glm::vec4 &color = glm::vec4(1.0f));
+    static void DrawQuad(const glm::mat4 &transform, const glm::vec4 &color = glm::vec4(1.0f), string id = "");
+    //static void DrawQuad(const glm::mat4 &transform, const glm::vec4 &color = glm::vec4(1.0f));
     static void DrawQuad(const glm::mat4 &transform, const Reference<Texture2D> &texture, const float tilingFactor = 1.0f, const glm::vec4 &color = glm::vec4(1.0f));
     static void DrawQuad(const glm::mat4 &transform, const Reference<SubTexture2D> &subTexture, const float tilingFactor = 1.0f, const glm::vec4 &color = glm::vec4(1.0f));
 

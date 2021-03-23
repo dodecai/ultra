@@ -40,7 +40,7 @@ private:
     Reference<Texture2D> Context;
     Reference<Framebuffer> Buffer;
 
-    glm::vec2 ViewportSize = { 1000.0f, 1000.0f }; // ToDo: Since ImGui v.179 it is importand that the size is above zero, otherwize nothing will be visible.
+    glm::vec2 ViewportSize = { 1.0f, 1.0f }; // ToDo: Since ImGui v.179 it is importand that the size is above zero, otherwize nothing will be visible.
 };
 
 }

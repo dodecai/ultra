@@ -23,7 +23,9 @@ set(AppTestSource  "${SolutionSourceRoot}/Test")
 configure_file(Settings.h.in ${CMAKE_BINARY_DIR}/Source/Generated/${PROJECT_NAME}.settings)
 configure_file(Solution.h.in ${CMAKE_BINARY_DIR}/Source/Generated/${PROJECT_NAME}.h)
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
-add_compile_options(/experimental:external /external:I "${App3rdPartySource}")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    add_compile_options(/experimental:external /external:I "${App3rdPartySource}")
+endif()
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ Linker
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐

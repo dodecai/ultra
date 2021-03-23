@@ -10,6 +10,8 @@
 #include "Ultra/Core.h"
 #include "Ultra/Renderer/DesignerCamera.h"
 
+#include "Ultra/Renderer/Framebuffer.h"
+
 #include "Components.h"
 #include "SceneCamera.h"
 

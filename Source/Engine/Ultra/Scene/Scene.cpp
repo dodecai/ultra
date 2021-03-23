@@ -50,8 +50,7 @@ void Scene::UpdateDesigner(Timestamp deltaTime, DesignerCamera &camera) {
             auto group = Registry.group<Component::Transform>(entt::get<Component::Sprite>);
             for (auto entity : group) {
                 auto [transform, sprite] = group.get<Component::Transform, Component::Sprite>(entity);
-
-                Renderer2D::DrawQuad(transform, sprite.Color);
+                Renderer2D::DrawQuad(transform, sprite.Color, "");
             }
         } catch (...) {
             AppLogError("An unknwon entt error occured!");
