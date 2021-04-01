@@ -56,7 +56,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Build/${CMAKE_BUILD_TYPE
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 # ☷ Compiler
 #‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
-set(CMAKE_C_STANDARD 11)
+#set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED OFF)
 set(CMAKE_C_EXTENSIONS TRUE)
 set(CMAKE_CXX_STANDARD 20)
@@ -71,7 +71,7 @@ add_definitions(-D_HAS_STD_BYTE=1)
 # ToDo: Recheck  /sdl
 if(${DebugMode})
 	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/diagnostics:column ")
-    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 	    set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/JMC ")
     endif()
 else()
@@ -85,7 +85,7 @@ if(${OptimizedMode})
     # ToDo: Recheck /GL after cl upgrade 
 	set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/cgthreads8 ")
     message("* ${CMAKE_BUILD_TYPE}")
-    if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 	    set(CompilerArgumentsMSVC ${CompilerArgumentsMSVC} "/O2 /Gw")
     endif()
 endif()
