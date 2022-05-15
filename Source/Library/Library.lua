@@ -1,11 +1,11 @@
-project "Library"
-    defines { "PROJECT_NAME=Library" }
+﻿project "Ultra"
+    defines { "PROJECT_NAME=Ultra" }
     kind "StaticLib"
     language "C++"
     characterset "Unicode"
     confromancemode "true"
     cdialectx "C17"
-    cppdialect "C++Latest"
+    cppdialectx "C++20"
     cppmodules "true"
     nativewchar "on"
     toolset "msc"

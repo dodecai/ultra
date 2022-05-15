@@ -1,8 +1,11 @@
-#include <Settings.h>
+﻿#include <Settings.h>
 
-#include <iostream>
+import Ultra;
 
 int main() {
-    std::cout << "Hello World" << std::endl;
+    using namespace Ultra;
+    string message = "Hello World";
+
+    std::cout << message << integer << std::endl;
 	return 0;
 }

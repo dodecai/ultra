@@ -4,7 +4,6 @@
         "3rd-Party/Build/Modules.lua",
         "3rd-Party/3rd-Party.lua",
         "Source/Projects.lua",
-        "Prepare.bat",
         "Source/App/App.lua",
         "Source/Library/Library.lua",
         "Source/Test/Test.lua",

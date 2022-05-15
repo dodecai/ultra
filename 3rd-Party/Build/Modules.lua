@@ -72,6 +72,27 @@ premake.override(premake.vstudio.vc2010.elements, "clCompile", function(base, pr
 	return calls
 end)
 
+-- Visual Studio: C++ 20 Dialect Support
+require('vstudio')
+premake.api.register {
+  name = "cppdialectx",
+  scope = "project",
+  kind = "string",
+}
+premake.override(premake.vstudio.vc2010.elements, "clCompile", function(base, prj)
+	local m = premake.vstudio.vc2010
+	local calls = base(prj)
+
+	if premake.project.iscpp(prj) then
+		if prj.cdialectx then
+			table.insertafter(calls, premake.xmlDeclaration,  function()
+				premake.w('<LanguageStandard>stdcpp20</LanguageStandard>')
+			end)
+		end
+	end
+	return calls
+end)
+
 -- Visual Studio: C++ 20 Modules Support
 table.insert(premake.vstudio.vc2010.categories.ClCompile.extensions, ".cppm")
 table.insert(premake.vstudio.vc2010.categories.ClCompile.extensions, ".cxx")

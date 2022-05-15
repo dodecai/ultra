@@ -1,24 +1,24 @@
-project "App"
-    defines { "PROJECT_NAME=App" }
+﻿project "Spectra"
+    defines { "PROJECT_NAME=Spectra" }
     language "C++"
     characterset "Unicode"
     confromancemode "true"
     cdialectx "C17"
-    cppdialect "C++Latest"
+    cppdialectx "C++20"
     cppmodules "true"
     nativewchar "on"
     toolset "msc"
     
     debugdir "%{wks.location}/Build/%{cfg.buildcfg}"
-    dependson { "Library" }
+    dependson { "Ultra" }
     entrypoint "mainCRTStartup"
 
-    links { "Library" }
+    links { "Ultra" }
 
     files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx" }
     
     includedirs {
-        "%{Headers.Library}"
+        "%{Headers.Ultra}"
     }
 
     filter { "configurations:Debug" }
