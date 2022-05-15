@@ -20,6 +20,7 @@
     ["Manual"] = {
         "License",
         "ReadMe.md",
+        "Manual/Concept.md",
         "Manual/Style.md",
     }
 }
