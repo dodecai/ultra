@@ -69,6 +69,12 @@ void Designer::GuiUpdate() {
     static bool ViewportRender = true;
     if (ViewportRender) {
         mViewport.Enable();
+        // ToDo: Should be done once after window is created
+        auto &dimension = Application::GetWindow().GetContexttSize();
+        Renderer::Resize(dimension.Width, dimension.Height);
+        mViewport.Resize(dimension.Width, dimension.Height);
+        Camera.SetViewportSize(dimension.Width, dimension.Height);
+        CurrentScene->Resize(dimension.Width, dimension.Height);
     } else {
         mViewport.Disable();
     }

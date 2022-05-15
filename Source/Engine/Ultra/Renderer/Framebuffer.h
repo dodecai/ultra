@@ -9,9 +9,25 @@ namespace Ultra {
 
 enum class FramebufferFormat {
     Null    = 0,
+
+    // Colors
     RGBA8   = 1,
     RGBA16F = 2,
     RGBA32F = 3,
+
+    // Defaults
+    DEPTH24STENCIL8,
+
+    // Depth
+    Depth = DEPTH24STENCIL8,
+};
+
+struct FramebufferAttachments {
+    FramebufferAttachments(std::initializer_list<FramebufferFormat> attachments):
+        Attachments(attachments) {
+    }
+
+    vector<FramebufferFormat> Attachments;
 };
 
 struct FramebufferProperties {
@@ -21,6 +37,7 @@ struct FramebufferProperties {
     uint32_t Samples = 1;
 
     FramebufferFormat Format = FramebufferFormat::RGBA8;
+    FramebufferAttachments Attachments = {};
 
     bool SwapChainTarget = false;
 };

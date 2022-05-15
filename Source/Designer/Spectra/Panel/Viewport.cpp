@@ -17,7 +17,11 @@ namespace Ultra {
 
 ViewportPanel::ViewportPanel() {
     Context = Texture2D::Create("./Assets/Textures/Checkerboard.png");
+
     FramebufferProperties fbProperties;
+    fbProperties.Attachments = { FramebufferFormat::RGBA8, FramebufferFormat::Depth };
+    fbProperties.Width = 1280;
+    fbProperties.Height = 1024;
     Buffer = Framebuffer::Create(fbProperties);
 }
 
@@ -78,7 +82,8 @@ void ViewportPanel::Update() {
                     glm::value_ptr(cameraView),
                     glm::value_ptr(cameraProjection),
                     (ImGuizmo::OPERATION)mGizmoType,
-                    ImGuizmo::MODE::LOCAL, glm::value_ptr(transform),
+                    ImGuizmo::MODE::LOCAL,
+                    glm::value_ptr(transform),
                     nullptr,
                     snap ? snapValues : nullptr
                 );
