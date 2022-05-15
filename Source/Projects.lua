@@ -21,6 +21,7 @@
         "License",
         "ReadMe.md",
         "Manual/Concept.md",
+        "Manual/Concept.mmd",
         "Manual/Style.md",
     }
 }
