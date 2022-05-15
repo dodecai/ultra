@@ -1,0 +1,18 @@
+[submodule "3rd-Party/glad"]
+	path = 3rd-Party/glad
+	url = https://github.com/Dav1dde/glad
+[submodule "3rd-Party/imgui"]
+	path = 3rd-Party/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "3rd-Party/OpenGL-Registry"]
+	path = 3rd-Party/OpenGL-Registry
+	url = https://github.com/KhronosGroup/OpenGL-Registry
+[submodule "3rd-Party/yaml-cpp"]
+	path = 3rd-Party/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git
+[submodule "3rd-Party/Vulkan-Headers"]
+	path = 3rd-Party/Vulkan-Headers
+	url = https://github.com/KhronosGroup/Vulkan-Headers
+[submodule "3rd-Party/ImGuizmo"]
+	path = 3rd-Party/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo.git

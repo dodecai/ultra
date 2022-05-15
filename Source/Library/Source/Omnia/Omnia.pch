@@ -1,0 +1,32 @@
+﻿#pragma once
+
+#include <algorithm>
+#include <cstdint>
+#include <chrono>
+#include <filesystem>
+#include <functional>
+#include <memory>
+#include <mutex>
+#include <random>
+#include <type_traits>
+#include <utility>
+
+#include <future>
+#include <thread>
+
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <ostream>
+#include <sstream>
+
+#include <any>
+#include <array>
+#include <map>
+#include <optional>
+#include <queue>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>

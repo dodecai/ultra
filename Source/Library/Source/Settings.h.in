@@ -1,0 +1,29 @@
+﻿#pragma once
+
+#include <string_view>
+
+namespace @PROJECT_NAME@ {
+
+// Information
+constexpr auto LibCaption = "@LibCaption@";
+constexpr auto LibDescription = "@LibDescription@";
+constexpr auto LibRelease = "@LibRelease@";
+constexpr auto LibVersion = "@LibVersion@";
+constexpr auto LibVersionMajor = @LibVersionMajor@;
+constexpr auto LibVersionMinor = @LibVersionMinor@;
+constexpr auto LibVersionPatch = @LibVersionPatch@;
+
+// Properties
+@AppLibraryGfxApi@
+@AppLibraryDebugProperty@
+
+// Switches
+@AppLibraryPrimeExtensions@
+@AppLibraryCoreExtensions@
+@AppLibraryDebugExtensions@
+@AppLibraryGraphicExtensions@
+@AppLibrarySystemExtensions@
+@AppLibraryUIExtensions@
+@AppLibraryUtilitiesExtensions@
+
+}

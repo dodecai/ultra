@@ -1,0 +1,13 @@
+# Backup
+[Bb]ackup/
+
+# Build
+[Bb]uild/
+[Cc]ache/
+
+# Directories
+.vs/
+.vscode/
+
+# Files
+*.log
