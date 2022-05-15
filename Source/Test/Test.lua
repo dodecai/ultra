@@ -18,7 +18,7 @@
     files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx" }
     
     includedirs {
-        "%{Headers.Ultra}"
+        "%{Headers.Library}"
     }
 
     filter { "configurations:Debug" }

@@ -1,5 +1,62 @@
-﻿export module Ultra;
+﻿module;
 
-// Base Extensions
-export import Ultra.Types;
-export import Ultra.Platform;
+// Configuration
+#include "Ultra/Ultra.inl"
+
+export module Ultra;
+
+// Properties
+export import Ultra.Core;
+
+// Prime Extensions
+export import Ultra.Logger;
+export import "Ultra/Logger.h";
+
+// Core Extensions
+#ifdef LIB_EXTENSION_CORE
+    export import Ultra.Application;
+#endif
+
+// Debug Extensions
+#ifdef LIB_EXTENSION_DEBUG
+#endif
+
+// GFX Extensions
+#ifdef LIB_EXTENSION_GFX
+#endif
+
+// System Extensions
+#ifdef LIB_EXTENSION_SYSTEM
+#endif
+
+// UI Extensions
+#ifdef LIB_EXTENSION_UI
+#endif
+
+// Utility Extensions
+#ifdef LIB_EXTENSION_UTILITIES
+#endif
+
+export namespace Ultra {
+
+void ShowLibraryInfo() {
+    logger << "Library Information\n"
+        << " - Caption:     " << LibCaption     << "\n"
+        << " - Description: " << LibDescription << "\n"
+        << " - Release:     " << LibRelease     << "\n"
+        << " - Version:     " << LibVersion     << "\n";
+
+    logger << "Library Features\n" << std::boolalpha
+        << " - Prime:   " << Features::LibPrimeExtensions   << "\n"
+        << " - Core:    " << Features::LibCoreExtensions    << "\n"
+        << " - Debug:   " << Features::LibDebugExtensions   << "\n"
+        << " - GFX:     " << Features::LibGfxExtensions     << "\n"
+        << " - System:  " << Features::LibSystemExtensions  << "\n"
+        << " - UI:      " << Features::LibUiExtensions      << "\n"
+        << " - Utility: " << Features::LibUtilityExtensions << "\n"
+        << std::noboolalpha;
+
+    logger << "\n";
+}
+
+}

@@ -1,4 +1,4 @@
-﻿project "Spectra"
+﻿project "App"
     defines { "PROJECT_NAME=Spectra" }
     language "C++"
     characterset "Unicode"
@@ -18,7 +18,7 @@
     files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx" }
     
     includedirs {
-        "%{Headers.Ultra}"
+        "%{Headers.Library}"
     }
 
     filter { "configurations:Debug" }

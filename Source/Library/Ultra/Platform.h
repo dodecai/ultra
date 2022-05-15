@@ -1,12 +1,10 @@
-﻿export module Ultra.Platform;
-
-import Ultra.Types;
+﻿#pragma once
 
 ///
 /// @brief These values are used to control platform specific features during compilation.
 ///
 
-export namespace Ultra {
+namespace Ultra {
 
 ///
 /// Preprocessor Utilities
