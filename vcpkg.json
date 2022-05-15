@@ -1,0 +1,7 @@
+{ 
+  "name": "Ultra Spectra",
+  "version-string": "0.0.0",
+  "description":  "Game Engine Framework",
+  "dependencies": [
+  ] 
+}
