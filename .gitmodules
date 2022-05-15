@@ -1,6 +1,3 @@
-[submodule "Source/Library"]
-	path = Source/Library
-	url = https://www.github.com/larioteo/omnia
 [submodule "Source/3rd-Party/glm"]
 	path = Source/3rd-Party/glm
 	url = https://github.com/g-truc/glm
