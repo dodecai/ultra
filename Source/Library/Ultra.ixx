@@ -27,6 +27,7 @@ export import "Ultra/Logger.h";
 
 // System Extensions
 #ifdef LIB_EXTENSION_SYSTEM
+    export import Ultra.System.Cli;
 #endif
 
 // UI Extensions
@@ -35,6 +36,10 @@ export import "Ultra/Logger.h";
 
 // Utility Extensions
 #ifdef LIB_EXTENSION_UTILITIES
+    export import Ultra.Utility.DateTime;
+    export import Ultra.Utility.Timer;
+    export import Ultra.Utility.String;
+    export import Ultra.Utility.UUID;
 #endif
 
 export namespace Ultra {

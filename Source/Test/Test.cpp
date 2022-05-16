@@ -14,16 +14,18 @@ public:
 
     // Methods
     void Create() {
-        logger << "Create\n";
+        Test();
     }
 
     void Destroy() {
-        logger << "Destroy\n";
     }
 
     void Update() {
-        logger << "Update\n";
         Exit();
+    }
+
+    void Test() {
+        logger.Location() << "Test" << std::endl;
     }
 };
 

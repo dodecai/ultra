@@ -14,15 +14,17 @@ public:
 
     // Methods
     void Create() {
-        logger << "Create\n";
+        Ultra::Cli::Test();
+        logger << LogLevel::Info << "Create\n";
     }
 
     void Destroy() {
-        logger << "Destroy\n";
+        logger << LogLevel::Warn << "Destroy\n";
+        logger << logger.GetCounter() << std::endl;
     }
 
     void Update() {
-        logger << "Update\n";
+        logger << LogLevel::Error << "Update\n";
         Exit();
     }
 };

@@ -1,7 +1,7 @@
 ﻿include "3rd-Party/Build/Modules.lua"
 
 workspace "Ultra Spectra"
-    defines { "SOLUTION_NAME=Solution" }
+    defines { "SOLUTION_NAME=Ultra" }
     architecture "x64"
     configurations { "Debug", "Release", "Distribution" }
     buildoptions "/utf-8"
@@ -24,13 +24,3 @@ workspace "Ultra Spectra"
         include "3rd-Party/3rd-Party.lua"
     group ""
     
-    filter { "configurations:Debug" }
-        defines { "APP_MODE_DEBUG" }
-
-    filter { "configurations:Release" }
-        defines { "APP_MODE_RELEASE" }
-    
-    filter { "configurations:Distribution" }
-        defines { "APP_MODE_DISTRIBUTION" }
-    
-    filter {}

@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include <Settings.h>
-
 #include "Platform.h"
 
 ///
@@ -9,6 +7,11 @@
 ///
 
 namespace Ultra {
+
+// Disable Warning Example
+//#pragma warning(push)
+//#pragma warning(disable: #)
+//#pragma warning(pop)
 
 // Export/Import for Dynamic Libraries
 #ifdef APP_PLATFORM_WINDOWS
@@ -22,7 +25,7 @@ namespace Ultra {
 #endif
 
 // DebugBreak Support
-#ifdef APP_DEBUG_MODE
+#ifdef APP_MODE_DEBUG
 	#if defined(APP_PLATFORM_WINDOWS)
 		#define APP_DEBUGBREAK() __debugbreak()
 	#elif defined(APP_PLATFORM_LINUX)

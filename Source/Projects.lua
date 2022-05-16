@@ -26,6 +26,17 @@
     }
 }
 
+filter { "configurations:Debug" }
+    defines { "APP_MODE_DEBUG" }
+
+filter { "configurations:Release" }
+    defines { "APP_MODE_RELEASE" }
+    
+filter { "configurations:Distribution" }
+    defines { "APP_MODE_DISTRIBUTION" }
+    
+filter {}
+
 include "App/App.lua"
 include "Library/Library.lua"
 include "Test/Test.lua"

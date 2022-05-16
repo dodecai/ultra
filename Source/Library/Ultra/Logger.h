@@ -15,8 +15,9 @@
 
 #ifdef APP_MODE_DEBUG
     // Workaround, add the debug break after the message.
-    #define AppAssert(x, ...) if (AppAssert(x, __VA_ARGS__)) APP_DEBUGBREAK()
-    #define APP_ASSERT(x, ...) { if (!(x)) { AppLogFatal("[", __FUNCTION__, "]: ", __VA_ARGS__); APP_DEBUGBREAK(); } }
+    #define AppAssert(x, ...)   if (AppAssert(x, __VA_ARGS__)) APP_DEBUGBREAK()
+
+    #define APP_ASSERT(x, ...)  { if (!(x)) { AppLogFatal("[", __FUNCTION__, "]: ", __VA_ARGS__); APP_DEBUGBREAK(); } }
 #elif APP_MODE_RELEASE
     #define AppAssert(...);
     #define AppLogDebug(...);
