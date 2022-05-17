@@ -1,10 +1,11 @@
-﻿module;
-
-#include <chrono>
-#include <format>
-
+﻿// Module
 export module Ultra.Utility.DateTime;
 
+// Default
+import <chrono>;
+import <format>;
+
+// Usings
 using namespace std::chrono;
 using namespace std::chrono_literals;
 

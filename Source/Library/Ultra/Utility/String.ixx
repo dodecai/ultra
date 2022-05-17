@@ -1,37 +1,68 @@
-﻿export module Ultra.Utility.String;
+﻿// Module
+export module Ultra.Utility.String;
 
+// Library
 import Ultra.Core;
 
 export namespace Ultra {
 
+// All-String Types
+template<typename T>
+struct is_xstring: public std::disjunction<
+    std::is_same<char *,            typename std::decay_t<T>>,
+    std::is_same<const char *,      typename std::decay_t<T>>,
+    std::is_same<std::string,       typename std::decay_t<T>>,
+    std::is_same<std::string_view,  typename std::decay_t<T>>,
+    std::is_same<wchar_t *,         typename std::decay_t<T>>,
+    std::is_same<const wchar_t *,   typename std::decay_t<T>>,
+    std::is_same<std::wstring,      typename std::decay_t<T>>,
+    std::is_same<std::wstring_view, typename std::decay_t<T>>
+> {};
+
+template<typename T>
+constexpr bool is_xstring_v = is_xstring<T>::value;
+
+// Default-String Types
 template<typename T>
 struct is_string: public std::disjunction<
-    std::is_same<char *,             typename std::decay_t<T>>,
-    std::is_same<const char *,       typename std::decay_t<T>>,
-    std::is_same<std::string,        typename std::decay_t<T>>
+    std::is_same<char *,            typename std::decay_t<T>>,
+    std::is_same<const char *,      typename std::decay_t<T>>,
+    std::is_same<std::string,       typename std::decay_t<T>>,
+    std::is_same<std::string_view,  typename std::decay_t<T>>
 > {};
 
 template<typename T>
 constexpr bool is_string_v = is_string<T>::value;
 
+// Wide-String Types
 template<typename T>
 struct is_wstring: public std::disjunction<
-    std::is_same<wchar_t *,          typename std::decay_t<T>>,
-    std::is_same<const wchar_t *,    typename std::decay_t<T>>,
-    std::is_same<std::wstring,       typename std::decay_t<T>>
+    std::is_same<wchar_t *,         typename std::decay_t<T>>,
+    std::is_same<const wchar_t *,   typename std::decay_t<T>>,
+    std::is_same<std::wstring,      typename std::decay_t<T>>,
+    std::is_same<std::wstring_view, typename std::decay_t<T>>
 > {};
 
 template<typename T>
 constexpr bool is_wstring_v = is_wstring<T>::value;
 
+// All-String Concept
 template<typename T>
 concept typename_string =
-    std::is_same_v<char *,          std::decay<T>> ||
-    std::is_same_v<wchar_t *,       std::decay<T>> ||
-    std::is_same_v<const char *,    std::decay<T>> ||
-    std::is_same_v<const wchar_t *, std::decay<T>> ||
-    std::is_same_v<std::string,     std::decay<T>> ||
-    std::is_same_v<std::wstring,    std::decay<T>>;
+    std::is_same_v<char *,              std::decay<T>> ||
+    std::is_same_v<wchar_t *,           std::decay<T>> ||
+    std::is_same_v<const char *,        std::decay<T>> ||
+    std::is_same_v<const wchar_t *,     std::decay<T>> ||
+    std::is_same_v<std::string,         std::decay<T>> ||
+    std::is_same_v<std::string_view,    std::decay<T>> ||
+    std::is_same_v<std::wstring,        std::decay<T>> ||
+    std::is_same_v<std::wstring_view,   std::decay<T>>;
+
+// All-StringView Concept
+template<typename T>
+concept typename_string_view =
+    std::is_same_v<std::string_view,    std::decay<T>> ||
+    std::is_same_v<std::wstring_view,   std::decay<T>>;
 
 template<typename T>
 concept hashable = requires(T a) {
@@ -62,6 +93,7 @@ public:
             return (it != value.end());
         }
     }
+
     static bool EndsWith(string_view value, string_view token, bool caseSensitive = false) noexcept {
         if (value.length() < token.length()) return false;
         if (caseSensitive) {
@@ -73,6 +105,7 @@ public:
             return (it == value.end() - token.length());
         }
     }
+
     static bool StartsWith(string_view value, string_view token, bool caseSensitive = false) noexcept {
         if (value.length() < token.length()) return false;
         if (caseSensitive) {

@@ -14,6 +14,7 @@ import <ostream>;
 /// 
 export namespace Ultra { export namespace Cli {
 
+// Background Colors
 enum class Background {
     Default         = 49,
 
@@ -36,6 +37,7 @@ enum class Background {
     White           = 107,
 };
 
+// Text Colors
 enum class Color {
     Default         = 39,
 
@@ -58,6 +60,7 @@ enum class Color {
     White           = 97,
 };
 
+// Styles
 enum class Style {
     Bold            = 1,
     Faint           = 2,
@@ -88,14 +91,21 @@ enum class Style {
     Reset           = 0,
 };
 
+// Concepts
 template <typename T>
 concept typename_climodifier =
     std::is_same_v<T, Ultra::Cli::Background> ||
     std::is_same_v<T, Ultra::Cli::Color> ||
     std::is_same_v<T, Ultra::Cli::Style>;
 
+// Overrides
 template <typename_climodifier T>
 std::ostream &operator<<(std::ostream &stream, T type) {
+    return stream << "\x1b[" << static_cast<int>(type) << "m";
+}
+
+template <typename_climodifier T>
+std::wostream &operator<<(std::wostream &stream, T type) {
     return stream << "\x1b[" << static_cast<int>(type) << "m";
 }
 
@@ -104,6 +114,12 @@ std::ofstream &operator<<(std::ofstream &stream, T type) {
     return stream;
 }
 
+template <typename_climodifier T>
+std::wofstream &operator<<(std::wofstream &stream, T type) {
+    return stream;
+}
+
+// Show me what you can do...
 void Test() {
     using std::cout;
     using std::endl;

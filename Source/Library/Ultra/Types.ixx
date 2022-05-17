@@ -5,6 +5,7 @@ export module Ultra.Types;
 export import <algorithm>;
 export import <array>;
 export import <chrono>;
+export import  <cstdlib>;
 export import <cstdint>;
 export import <format>;
 export import <memory>;
@@ -24,7 +25,9 @@ export namespace Ultra {
 // Container
 using std::array;
 using std::string;
+using std::wstring;
 using std::string_view;
+using std::wstring_view;
 using std::vector;
 
 // Literals

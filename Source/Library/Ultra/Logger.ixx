@@ -13,6 +13,9 @@ import Ultra.Utility.String;
 
 // Usings
 using std::cout;
+using std::source_location;
+using std::wcout;
+using std::wostream;
 
 export namespace Ultra {
 
@@ -56,7 +59,7 @@ class Logger {
     ~Logger() = default;
 
 public:
-    // Get the global instance to the logger (And yeah thread-safe since C++11 accodring to researches!)
+    // Get the global instance to the logger (... and yeah thread-safe since C++11 accodring to researches!)
     static Logger &Instance() {
         static Logger instance;
         return instance;
@@ -100,16 +103,20 @@ public:
                     }
                     case LogLevel::Warn: {
                         mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightYellow << "[ Warn  ] ";
-                        break; }
+                        break;
+                    }
                     case LogLevel::Info: {
                         mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightGray << "[ Info  ] ";
-                        break; }
+                        break;
+                    }
                     case LogLevel::Debug: {
                         mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightGreen << "[ Debug ] ";
-                        break; }
+                        break;
+                    }
                     case LogLevel::Trace: {
-                        mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightMagenta << "[ Trace ] ";
-                        break; }
+                        mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightMagenta << "[ Trace ] " ;
+                        break;
+                    }
 
                     case LogLevel::Caption: {
                         mCaptionActive = true;
@@ -134,6 +141,14 @@ public:
         return (*this);
     }
 
+    template<Cli::typename_climodifier T>
+    Logger &operator<<(T &&data) {
+        std::unique_lock<mutex> lock(mSync);
+        if (mSkip) return (*this);
+        mStream << std::forward<T>(data);
+        return (*this);
+    }
+
     template<typename T>
     Logger &operator<<(T &&data) {
         std::unique_lock<mutex> lock(mSync);
@@ -151,7 +166,8 @@ public:
             }
         }
 
-        mStream << std::forward<T>(data);
+        if constexpr (is_wstring_v<T>) mWStream << std::forward<T>(data);
+        else mStream << std::forward<T>(data);
         return (*this);
     }
     
@@ -171,40 +187,81 @@ public:
         return (*this);
     }
 
-    //template <typename T>
-    Logger &Location(/*T &&data,*/ const std::source_location &location = std::source_location::current()) {
-        std::unique_lock<mutex> lock(mSync);
+    // Show whe what you got...
+    static void Test() {
+        // LogLevels
+        Logger::Instance() << LogLevel::Caption << "Caption" << "\n";
+        Logger::Instance() << LogLevel::Default << "Default" << "\n";
+        Logger::Instance() << LogLevel::Delimiter;
+        Logger::Instance() << LogLevel::Fatal   << "Fatal" << "\n";
+        Logger::Instance() << LogLevel::Error   << "Error" << "\n";
+        Logger::Instance() << LogLevel::Warn    << "Warn" << "\n";
+        Logger::Instance() << LogLevel::Info    << "Info" << "\n";
+        Logger::Instance() << LogLevel::Debug   << "Debug" << "\n";
+        Logger::Instance() << LogLevel::Trace   << "Trace" << "\n";
+        Logger::Instance() << LogLevel::Delimiter;
 
-        mStream << " [" << location.function_name() << "] "; // << std::forward<T>(data);
+        // Multi-Color
+        Logger::Instance()  << LogLevel::Default << "This "
+                            << Cli::Background::White << Cli::Color::Black << "is "
+                            << Cli::Background::Default << Cli::Color::LightBlue << "a "
+                            << Cli::Color::LightRed << "multi" << Cli::Color::LightGray << "-"
+                            << Cli::Color::LightGreen << "color" << Cli::Color::LightCyan << "-"
+                            << Cli::Color::LightBlue << "test"
+                            << Cli::Color::Default << "!\n";
 
-        return (*this);
+        // Integer Types
+        Logger::Instance() << "Integers[i|l|ll|u|ul|ull]: " << 0 << 0l << 0ll << 0u << 0ul << 0ull << "\n";
+
+        // String based Types
+        char Char[] = "Char *";
+        const char *ConstChar = "ConstChar *";
+        std::string String = "String";
+
+        Logger::Instance()  << Cli::Color::LightRed     << Char         << " "
+                            << Cli::Color::LightGreen   << ConstChar    << " "
+                            << Cli::Color::LightBlue    << String       << "\n";
+
+        // Wide-String based Types
+        wchar_t WChar_T[] = L"WChar_T *";
+        const wchar_t *ConstWChar_T = L"ConstWChar_T *";
+        std::wstring WString = L"WString";
+        
+        Logger::Instance()  << Cli::Color::LightRed     << WChar_T      << L" "
+                            << Cli::Color::LightGreen   << ConstWChar_T << L" "
+                            << Cli::Color::LightBlue    << WString      << L"\n";
+        Logger::Instance() << std::endl;
+
+        // Mixed String Types
+        Logger::Instance() << "Mixed String Types " << L"and Wide " << "... not wide " << L"and so on.\n";
     }
 
 private:
     // Properties
     LogLevel mLogLevel = LogLevel::Trace;
+    string mLocation;
     ostream &mStream = cout;
+    wostream &mWStream = wcout;
     mutex mSync;
 
     // States
     size_t mCounter = 0;
     bool mCaptionActive = false;
-    bool mLevelActive = false;
     bool mSkip = false;
 };
 
-Logger &logger = Logger::Instance();
+inline Logger &logger = Logger::Instance();
 
 ///
 /// @brief  As good as a logger can be, we need something for applications where performance matters. Therefore these function templates are for convenience,
 /// they will help removing unaccessary code in release and distribution builds, therefore they also override the log levels.
 ///
-template<typename ...Args> void AppLog(Args &&...args)			{ logger << LogLevel::Default   ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void AppLogTrace(Args &&...args)		{ logger << LogLevel::Trace     ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void AppLogDebug(Args &&...args)		{ logger << LogLevel::Debug     ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void AppLogInfo(Args &&...args)		{ logger << LogLevel::Info	    ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void AppLogWarning(Args &&...args)   { logger << LogLevel::Warn	    ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void AppLogError(Args &&...args)		{ logger << LogLevel::Error	    ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void AppLogFatal(Args &&...args)	    { logger << LogLevel::Fatal     ; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void AppLog(Args &&...args)			{ logger << LogLevel::Default; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void AppLogTrace(Args &&...args)		{ logger << LogLevel::Trace  ; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void AppLogDebug(Args &&...args)		{ logger << LogLevel::Debug  ; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void AppLogInfo(Args &&...args)		{ logger << LogLevel::Info	 ; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void AppLogWarning(Args &&...args)   { logger << LogLevel::Warn	 ; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void AppLogError(Args &&...args)		{ logger << LogLevel::Error	 ; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void AppLogFatal(Args &&...args)	    { logger << LogLevel::Fatal  ; (logger << ... << args); logger << "\n"; }
 
 }

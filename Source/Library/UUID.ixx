@@ -1,12 +1,4 @@
-﻿module;
-
-#include <random>
-
-export module Ultra.Utility.UUID;
-
-import Ultra.Core;
-
-#pragma region Information
+﻿#pragma region Information
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Universally Unique Identifier (UUID)
@@ -27,6 +19,15 @@ import Ultra.Core;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma endregion
+
+// Module
+export module Ultra.Utility.UUID;
+
+// Default
+import <random>;
+
+// Library
+import Ultra.Core;
 
 export namespace Ultra {
 

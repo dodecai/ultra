@@ -13,18 +13,9 @@ public:
     ~App() = default;
 
     // Methods
-    void Create() {
-        Ultra::Cli::Test();
-        logger << LogLevel::Info << "Create\n";
-    }
-
-    void Destroy() {
-        logger << LogLevel::Warn << "Destroy\n";
-        logger << logger.GetCounter() << std::endl;
-    }
-
-    void Update() {
-        logger << LogLevel::Error << "Update\n";
+    void Create() {}
+    void Destroy() {}
+    void Update(Timestamp deltatime) {
         Exit();
     }
 };

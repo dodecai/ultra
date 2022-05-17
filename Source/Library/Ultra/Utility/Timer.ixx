@@ -1,7 +1,10 @@
-﻿export module Ultra.Utility.Timer;
+﻿// Module
+export module Ultra.Utility.Timer;
 
+// Library
 import Ultra.Core;
 
+// Usings
 using namespace std::literals::chrono_literals;
 
 export namespace Ultra {

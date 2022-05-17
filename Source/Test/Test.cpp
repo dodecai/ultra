@@ -13,19 +13,15 @@ public:
     ~App() = default;
 
     // Methods
-    void Create() {
-        Test();
-    }
-
-    void Destroy() {
-    }
-
-    void Update() {
+    void Create() { Test(); }
+    void Destroy() {}
+    void Update(Timestamp deltatime) {
         Exit();
     }
 
     void Test() {
-        logger.Location() << "Test" << std::endl;
+        Cli::Test();
+        Logger::Test();
     }
 };
 
