@@ -23,25 +23,27 @@ public:
     ~DateTime() = default;
 
     // Converters
-    template <typename T = long long>
-    auto AsNanoseconds() const { return static_cast<T>(Nanoseconds.count()); }
-    template <typename T = long long>
-    auto AsMicroseconds() const { return static_cast<T>(Nanoseconds.count()) / static_cast<T>(1000); }
-    template <typename T = long long>
-    auto AsMilliseconds() const { return static_cast<T>(Nanoseconds.count()) / static_cast<T>(1000000); }
-    template <typename T = long long>
-    auto AsSeconds() const { return static_cast<T>(Nanoseconds.count()) / static_cast<T>(1000000000); }
+    auto AsNanoseconds() const { return duration_cast<nanoseconds>(Nanoseconds); }
+    auto AsMicroseconds() const { return duration_cast<microseconds>(Nanoseconds); }
+    auto AsMilliseconds() const { return duration_cast<milliseconds>(Nanoseconds); }
+    auto AsSeconds() const { return duration_cast<seconds>(Nanoseconds); }
 
     // Accessors
     template <typename T = long long>
-    static constexpr DateTime &GetNanoseconds(const T &nanoseconds) { return Time(duration<T, std::nano>(nanoseconds));	}
+    static constexpr DateTime GetNanoseconds(const T &nanoseconds) { return DateTime(duration<T, std::nano>(nanoseconds));	}
     template <typename T = long long>
-    static constexpr DateTime &GetMicroseconds(const T &microseconds) { return Time(duration<T, std::micro>(microseconds)); }
+    static constexpr DateTime GetMicroseconds(const T &microseconds) { return DateTime(duration<T, std::micro>(microseconds)); }
     template <typename T = long long>
-    static constexpr DateTime &GetMilliseconds(const T &milliseconds) { return Time(duration<T, std::micro>(milliseconds)); }
+    static constexpr DateTime GetMilliseconds(const T &milliseconds) { return DateTime(duration<T, std::micro>(milliseconds)); }
     template <typename T = long long>
-    static constexpr DateTime &GetSeconds(const T &seconds) { return Time(duration<T>(seconds)); }
+    static constexpr DateTime GetSeconds(const T &seconds) { return DateTime(duration<T>(seconds)); }
 
+    static const std::string GetDate() {
+        return GetDateTime(DateFormat);
+    }
+    static const std::string GetTime() {
+        return GetDateTime(TimeFormat);
+    }
     static const std::string GetTimeStamp(const std::string &format = "%FT%T") {
         // Get timestamp
         //auto nows = floor<std::chrono::microseconds>(high_resolution_clock::now());
@@ -52,12 +54,6 @@ public:
 
         // ToDo: ss.str() doesn't work anymore
         return std::format("{:%FT%T}", now);
-    }
-    static const std::string GetIsoDate() {
-        return GetDateTime(DateFormat);
-    }
-    static const std::string GetIsoTime() {
-        return GetDateTime(TimeFormat);
     }
     static const DateTime Now() {
         return duration_cast<nanoseconds>(high_resolution_clock::now() - StartTime);
@@ -76,20 +72,18 @@ public:
     }
 
 private:
-    static const std::string GetDateTime(const std::string &format) {
+    static const std::string GetDateTime(const std::string_view format = "{:%FT%T}") {
         auto now = floor<std::chrono::microseconds>(system_clock::now());
-
-        std::stringstream ss;
-        ss << "{:" << format << "}";
-
-        // ToDo: ss.str() doesn't work anymore
-        return std::format("{:%FT%T}", now);
+        //return std::vformat(format, now);
+        return {};
     }
 
-    static const inline std::string DateFormat = "%Y-%m-%d";
-    static const inline std::string TimeFormat = "%H:%M:%S";
+private:
+    // Properties
+    static const inline std::string DateFormat = "%F"; // Default Date Format
+    static const inline std::string TimeFormat = "%T"; // Default Time Format
 
-    static const time_point<high_resolution_clock> StartTime;
+    static const time_point<high_resolution_clock> StartTime; // StartTime: Automatically set during application startup
     nanoseconds Nanoseconds = {};
 };
 

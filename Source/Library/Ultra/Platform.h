@@ -26,7 +26,7 @@ namespace Ultra {
 	#define APP_COMPILER_MINOR		0
 	#define APP_COMPILER_PATCH		0
 	#define APP_COMPILER_VERSION	"v" TOSTRING(APP_COMPILER_MAJOR)
-    constexpr auto AppCompiler = "MSVC";
+    inline constexpr auto AppCompiler = "MSVC";
 #elif defined(__clang__)
 	#define APP_COMPILER_CLANG
 	#define APP_COMPILER			"Clang"
@@ -34,7 +34,7 @@ namespace Ultra {
 	#define APP_COMPILER_MINOR		__clang_minor__
 	#define APP_COMPILER_PATCH		__clang_patchlevel__
 	#define APP_COMPILER_VERSION	"v" TOSTRING(APP_COMPILER_MAJOR) "." TOSTRING(APP_COMPILER_MINOR) "." TOSTRING(APP_COMPILER_PATCH)
-    constexpr auto AppCompiler = "Clang";
+    inline constexpr auto AppCompiler = "Clang";
 #elif defined(__EMSCRIPTEN__)
 	#define APP_COMPILER_EMSCRIPTEN
 	#define APP_COMPILER			"emscripten"
@@ -42,7 +42,7 @@ namespace Ultra {
 	#define APP_COMPILER_MINOR		0
 	#define APP_COMPILER_PATCH		0
 	#define APP_COMPILER_VERSION	"v" TOSTRING(APP_COMPILER_MAJOR) "." TOSTRING(APP_COMPILER_MINOR) "." TOSTRING(APP_COMPILER_PATCH)
-    constexpr auto AppCompiler = "emscripten";
+    inline constexpr auto AppCompiler = "emscripten";
 #elif defined(__GNUC__)
 	#define APP_COMPILER_GNU
 	#define APP_COMPILER			"GCC"
@@ -50,7 +50,7 @@ namespace Ultra {
 	#define APP_COMPILER_MINOR		__GNUC_MINOR__
 	#define APP_COMPILER_PATCH		0
 	#define APP_COMPILER_VERSION	"v" TOSTRING(APP_COMPILER_MAJOR) "." TOSTRING(APP_COMPILER_MINOR)
-    constexpr auto AppCompiler = "GCC";
+    inline constexpr auto AppCompiler = "GCC";
 #elif defined(__MINGW32__) || defined(__MINGW64__)
 	#define APP_COMPILER_MINGW
 	#define APP_COMPILER			"MinGW"
@@ -63,7 +63,7 @@ namespace Ultra {
 	#endif
 	#define APP_COMPILER_PATCH		0
 	#define APP_COMPILER_VERSION "v" TOSTRING(APP_COMPILER_MAJOR) "." TOSTRING(APP_COMPILER_MINOR)
-    constexpr auto AppCompiler = "MinGW";
+    inline constexpr auto AppCompiler = "MinGW";
 #else
 	#define APP_COMPILER_UNKNOWN
 	#define APP_COMPILER			"Unknown"
@@ -71,26 +71,26 @@ namespace Ultra {
 	#define APP_COMPILER_MINOR		0
 	#define APP_COMPILER_PATCH		0
 	#define APP_COMPILER_VERSION	"v" TOSTRING(APP_COMPILER_MAJOR) "." TOSTRING(APP_COMPILER_MINOR) "." TOSTRING(APP_COMPILER_PATCH)
-    constexpr auto AppCompiler = "Unknown";
+    inline constexpr auto AppCompiler = "Unknown";
 #endif
 
 // Platform
 #if defined(_WIN32) || defined(_WIN64)
 	#define APP_PLATFORM_WINDOWS
 	#define APP_PLATFORM "Windows"
-	constexpr auto AppPlatform = "Windows";
+	inline constexpr auto AppPlatform = "Windows";
 #elif defined(__ANDROID__)
 	#define APP_PLATFORM_ANDROID
 	#define APP_PLATFORM "Android"
-	constexpr auto AppPlatform = "Android";
+    inline constexpr auto AppPlatform = "Android";
 #elif defined(__FREEBSD__)
 	#define APP_PLATFORM_BSD
 	#define APP_PLATFORM "BSD"
-	constexpr auto AppPlatform = "BSD";
+    inline constexpr auto AppPlatform = "BSD";
 #elif defined(__linux__) && !defined(__ANDROID__)
 	#define APP_PLATFORM_LINUX
 	#define APP_PLATFORM "Linux"
-	constexpr auto AppPlatform = "Linux";
+    inline constexpr auto AppPlatform = "Linux";
 #elif defined(__MACH__)
 	#include <TargetConditionals.h>
 	#if TARGET_OS_IPHONE == 1
@@ -100,42 +100,42 @@ namespace Ultra {
 		#define APP_PLATFORM_MACOSX
 		#define APP_PLATFORM "MacOSX"
 	#endif
-	constexpr auto AppPlatform = "MacOSX";
+    inline constexpr auto AppPlatform = "MacOSX";
 #elif !defined(__linux__) && defined(unix) || defined(__unix) || defined(__unix__)
 	#define APP_PLATFORM_UNIX
 	#define APP_PLATFORM "Unix"
-	constexpr auto AppPlatform = "Unix";
+    inline constexpr auto AppPlatform = "Unix";
 #elif defined(APP_COMPILER_EMSCRIPTEN)
 	#define APP_PLATFORM_WEB
 	#define APP_PLATFORM "WEB"
-	constexpr auto AppPlatform = "WEB";
+    inline constexpr auto AppPlatform = "WEB";
 #else
 	#define APP_PLATFORM_UNKNOWN
 	#define APP_PLATFORM "Unknown"
-	constexpr auto AppPlatform = "Unknown";
+    inline constexpr auto AppPlatform = "Unknown";
 #endif
 
 // PlatformAPI
 #if defined(APP_PLATFORM_WINDOWS)
 	#define APP_PLATFORM_API_WINAPI
 	#define APP_PLATFORM_API	"WinAPI"
-	constexpr auto AppPlatformAPI = "WinAPI";
+	inline constexpr auto AppPlatformAPI = "WinAPI";
 #elif defined(APP_PLATFORM_BSD) || defined(APP_PLATFORM_LINUX) || defined(APP_PLATFORM_UNIX)
 	#define APP_PLATFORM_API_XCB
 	#define APP_PLATFORM_API	"XCB"
-	constexpr auto AppPlatformAPI = "XCB";
+    inline constexpr auto AppPlatformAPI = "XCB";
 #elif defined(APP_PLATFORM_MACOSX)
 	#define APP_PLATFORM_API_COCOA
 	#define APP_PLATFORM_API	"Cocoa"
-	constexpr auto AppPlatformAPI = "Cocoa";
+    inline constexpr auto AppPlatformAPI = "Cocoa";
 #elif defined(APP_PLATFORM_WEB)
 	#define APP_PLATFORM_API_COCOA
 	#define APP_PLATFORM_API	"WASM"
-	constexpr auto AppPlatformAPI = "WASM";
+    inline constexpr auto AppPlatformAPI = "WASM";
 #else
 	#define APP_PLATFORM_API_UNKNOWN
 	#define APP_PLATFORM_API	"Unknown"
-	constexpr auto AppPlatformAPI = "Unknown";
+    inline constexpr auto AppPlatformAPI = "Unknown";
 #endif
 
 }
