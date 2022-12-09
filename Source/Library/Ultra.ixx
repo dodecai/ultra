@@ -9,16 +9,19 @@ export module Ultra;
 export import Ultra.Core;
 
 // Prime Extensions
+export import Ultra.Config;
 export import Ultra.Logger;
 export import "Ultra/Logger.h";
 
 // Core Extensions
 #ifdef LIB_EXTENSION_CORE
     export import Ultra.Application;
+    export import Ultra.Core.Layer;
 #endif
 
 // Debug Extensions
 #ifdef LIB_EXTENSION_DEBUG
+    export import Ultra.Debug.Profiler;
 #endif
 
 // GFX Extensions
@@ -37,6 +40,9 @@ export import "Ultra/Logger.h";
 // Utility Extensions
 #ifdef LIB_EXTENSION_UTILITIES
     export import Ultra.Utility.DateTime;
+    export import Ultra.Utility.Delegate;
+    export import Ultra.Utility.Enum;
+    export import Ultra.Utility.Thread;
     export import Ultra.Utility.Timer;
     export import Ultra.Utility.String;
     export import Ultra.Utility.UUID;

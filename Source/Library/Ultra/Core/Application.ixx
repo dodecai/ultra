@@ -1,31 +1,110 @@
 ﻿// Module
 export module Ultra.Application;
 
+import Ultra.Config;
+import Ultra.Core;
+import Ultra.Core.Layer;
+import Ultra.Core.LayerStack;
+import Ultra.Logger;
+import Ultra.Utility.DateTime;
 import Ultra.Utility.Timer;
 
+int main(int, char **);
+
 export namespace Ultra {
+
+// List of passed command line arguments
+struct Arguments {
+    Arguments() = default;
+    Arguments(const vector<string> &arguments): mArgumentList(arguments) {}
+
+private:
+    vector<string> mArgumentList = {};
+};
+
+// The title, resolution and graphics API can be passed as structure.
+struct ApplicationProperties {
+    ApplicationProperties(): Title("Ultra"), Resolution("800x600") { CalculateResolution(); }
+    ApplicationProperties(string title, string resolution): Title(title), Resolution(resolution) { CalculateResolution(); }
+    ApplicationProperties(string title, string resolution, Ultra::LogLevel level): Title(title), Resolution(resolution), LogLevel(level) { CalculateResolution(); }
+
+    // Properties
+    string Title;
+    string Resolution;
+    uint32_t Width;
+    uint32_t Height;
+
+    Ultra::LogLevel LogLevel = Ultra::LogLevel::Warn;
+    //GraphicsAPI GfxApi = GraphicsAPI::OpenGL;
+
+private:
+    void CalculateResolution() {
+        std::string delimiter = "x";
+        std::string width = Resolution.substr(0, Resolution.find(delimiter));
+        std::string height = Resolution.substr(Resolution.find(delimiter) + 1, Resolution.size());
+
+        bool rwidth = !width.empty() && std::find_if(width.begin(), width.end(), [](unsigned char c) { return !std::isdigit(c); }) == width.end();
+        bool rheight = !height.empty() && std::find_if(height.begin(), height.end(), [](unsigned char c) { return !std::isdigit(c); }) == height.end();
+
+        if (!rwidth || !rheight) {
+            Resolution = "1024x768";
+            Width = 1024;
+            Height = 768;
+            return;
+        }
+
+        Width = std::stoi(width);
+        Height = std::stoi(height);
+    }
+};
 
 ///
 /// @brief This is the main class which controls the workflow during runtime.
 ///
 class Application {
+    // Friends
+    friend int ::main(int, char**);
+
 public:
+    // Instance
+    static Application *pAppInstance;
+    
     // Constructors and Destructor
-    Application():
+    Application(const ApplicationProperties & properties = {}):
         mRunning(true) {
+        pAppInstance = this;
+        mProperties = properties;
+        logger.SetLevel(mProperties.LogLevel);
     };
     virtual ~Application() = default;
+    static Application &Get() { return *pAppInstance; }
 
     // With this method, everything begins.
     void Run() {
         // Initialization
-        Create();
+        logger << LogLevel::Caption << AsciiLogo() << "\n";
+        logger << mProperties.Title << " started ...\n" <<
+            "  on : '" << apptime.GetDate() << "'\n" <<
+            "  at : '" << apptime.GetTime() << "'\n";
+        logger << LogLevel::Caption << "Initialization" << "\n";
         Timer timer = {};
         double delay = {};
         double frames = {};
 
+        // Creation
+        Create();
+        for (Layer *layer : mLayers) layer->Create();
+
         // Logic Loop
+        logger << LogLevel::Caption << "Main Loop" << "\n";
         while (mRunning) {
+            // Update events and check if application is paused
+            if (mPaused) continue;
+            if (mReloaded) {
+                mReloaded = false;
+                continue;
+            }
+
             // Calcualte 
             Timestamp deltaTime = timer.GetDeltaTime();
             frames++;
@@ -38,29 +117,74 @@ public:
             }
 
             // Update
+            for (Layer *layer : mLayers) layer->Update(deltaTime);
             Update(deltaTime);
         }
 
         // Termination
+        logger << LogLevel::Caption << "Termination" << "\n";
+        for (Layer *layer : mLayers) layer->Destroy();
         Destroy();
+        logger << mProperties.Title << " finished ...\n" <<
+            "  on : '" << apptime.GetDate() << "'\n" <<
+            "  at : '" << apptime.GetTime() << "'\n";
     }
-    
+
+    // Accessors
+    virtual string AsciiLogo() { return mProperties.Title; };
+    static ApplicationProperties &GetProperties() { return Get().mProperties; }
+
+    ///
+    /// Methods
+    /// 
     // This method executes your initialization code.
-    virtual void Create() {};
+    virtual void Create() {}
     // This method executes your termination code.
     virtual void Destroy() {}
     // This method executes your main logic code.
-    virtual void Update(Timestamp deltatime) {};
+    virtual void Update(Timestamp deltatime) {}
 
     // With this method, everything ends.
     void Exit() {
         mRunning = false;
     }
 
+    // This method pushes a layer to the application.
+    void PushLayer(Layer *layer) {
+        mLayers.PushLayer(layer);
+        layer->Attach();
+    }
+
+    // This method pushes an overlay on top of the application.
+    void PushOverlay(Layer *overlay) {
+        mLayers.PushOverlay(overlay);
+        overlay->Attach();
+    }
+
+protected:
+    // Attention: This method is used reload/switch the graphics context.
+    static void Reload() {}
+
+    // This method sets the arguments passed during startup.
+    void SetArguments(const Arguments &arguments) {
+        mArguments = arguments;
+    }
+
 private:
     // Properties
+    ApplicationProperties mProperties;
+    Arguments mArguments;
+
+    // Objects
+    LayerStack mLayers;
+
+    // States
+    bool mPaused = false;
+    bool mReloaded = false;
     bool mRunning = false;
 };
+
+Application *Application::pAppInstance = nullptr;
 
 // Symbol for Entry-Point
 Application *CreateApplication();

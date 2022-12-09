@@ -13,9 +13,10 @@ public:
     ~App() = default;
 
     // Methods
-    void Create() { Test(); }
+    void Create() {}
     void Destroy() {}
     void Update(Timestamp deltatime) {
+        Test();
         Exit();
     }
 

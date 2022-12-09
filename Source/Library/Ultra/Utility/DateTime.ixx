@@ -44,7 +44,7 @@ public:
     static const std::string GetTime() {
         return GetDateTime(TimeFormat);
     }
-    static const std::string GetTimeStamp(const std::string &format = "%FT%T") {
+    static const std::string GetTimeStamp(const std::string &format = "{%FT%T}") {
         // Get timestamp
         //auto nows = floor<std::chrono::microseconds>(high_resolution_clock::now());
         auto now = floor<std::chrono::microseconds>(system_clock::now());
@@ -52,8 +52,9 @@ public:
         std::stringstream ss;
         ss << "{:" << format << "}";
 
-        // ToDo: ss.str() doesn't work anymore
         return std::format("{:%FT%T}", now);
+        // ToDo: Dynamic Format
+        // std::vformat(format, std::make_format_args(now));
     }
     static const DateTime Now() {
         return duration_cast<nanoseconds>(high_resolution_clock::now() - StartTime);
@@ -74,14 +75,13 @@ public:
 private:
     static const std::string GetDateTime(const std::string_view format = "{:%FT%T}") {
         auto now = floor<std::chrono::microseconds>(system_clock::now());
-        //return std::vformat(format, now);
-        return {};
+        return std::vformat(format, std::make_format_args(now));
     }
 
 private:
     // Properties
-    static const inline std::string DateFormat = "%F"; // Default Date Format
-    static const inline std::string TimeFormat = "%T"; // Default Time Format
+    static const inline std::string DateFormat = "{:%F}"; // Default Date Format
+    static const inline std::string TimeFormat = "{:%T}"; // Default Time Format
 
     static const time_point<high_resolution_clock> StartTime; // StartTime: Automatically set during application startup
     nanoseconds Nanoseconds = {};

@@ -21,6 +21,7 @@ int main(int argc, char **argv) {
 
     // Initialization
     auto app = Ultra::CreateApplication();
+    app->SetArguments(Ultra::Arguments({ argv + 1, argv + argc }));
 
     // Main
     app->Run();

@@ -10,7 +10,7 @@ namespace SOLUTION_NAME {
 // Information
 constexpr auto AppCaption        = "Ultra Spectra";
 constexpr auto AppDescription    = "Game Engine Framework";
-constexpr auto AppRelease        = "2022-07-02";
+constexpr auto AppRelease        = "2023-07-02";
 constexpr auto AppVersion        = "0.0.0";
 constexpr auto AppVersionMajor   = 0u;
 constexpr auto AppVersionMinor   = 0u;
