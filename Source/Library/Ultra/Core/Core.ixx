@@ -1,4 +1,4 @@
 ﻿export module Ultra.Core;
 
-export import "Core.h";
+export import "Private/Core.h";
 export import Ultra.Types;

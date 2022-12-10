@@ -17,24 +17,16 @@ public:
     void Destroy() {}
     void Update(Timestamp deltatime) {
         Test();
-        Exit();
+        //Exit();
     }
 
     void Test() {
-        Cli::Test();
-        Logger::Test();
+        //Cli::Test();
+        //Logger::Test();
 
-        logger << apptime.GetDate() << "\n";
-        logger << apptime.GetTime() << "\n";
-        logger << apptime.GetTimeStamp() << "\n";
-
-        auto now = apptime.Now();
-        auto ns = apptime.Now().AsNanoseconds();
-        auto µs = apptime.Now().AsMicroseconds();
-        auto ms = apptime.Now().AsMilliseconds();
-        auto s = apptime.Now().AsSeconds();
-
-        ns = apptime.GetNanoseconds(ns.count());
+        //logger << apptime.GetDate() << "\n";
+        //logger << apptime.GetTime() << "\n";
+        //logger << apptime.GetTimeStamp() << "\n";
     }
 };
 

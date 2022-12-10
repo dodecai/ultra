@@ -5,6 +5,9 @@ export module Ultra.Logger;
 import <iostream>;
 import <source_location>;
 
+// Extensions
+export import "Ultra/Core/Private/Logger.h";
+
 // Library
 import Ultra.Core;
 import Ultra.System.Cli;
@@ -256,12 +259,12 @@ inline Logger &logger = Logger::Instance();
 /// @brief  As good as a logger can be, we need something for applications where performance matters. Therefore these function templates are for convenience,
 /// they will help removing unaccessary code in release and distribution builds, therefore they also override the log levels.
 ///
-template<typename ...Args> void AppLog(Args &&...args)			{ logger << LogLevel::Default; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void AppLogTrace(Args &&...args)		{ logger << LogLevel::Trace  ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void AppLogDebug(Args &&...args)		{ logger << LogLevel::Debug  ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void AppLogInfo(Args &&...args)		{ logger << LogLevel::Info	 ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void AppLogWarning(Args &&...args)   { logger << LogLevel::Warn	 ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void AppLogError(Args &&...args)		{ logger << LogLevel::Error	 ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void AppLogFatal(Args &&...args)	    { logger << LogLevel::Fatal  ; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void Log(Args &&...args)			{ logger << LogLevel::Default; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void LogTrace(Args &&...args)	{ logger << LogLevel::Trace  ; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void LogDebug(Args &&...args)	{ logger << LogLevel::Debug  ; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void LogInfo(Args &&...args)		{ logger << LogLevel::Info	 ; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void LogWarning(Args &&...args)  { logger << LogLevel::Warn	 ; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void LogError(Args &&...args)	{ logger << LogLevel::Error	 ; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void LogFatal(Args &&...args)	{ logger << LogLevel::Fatal  ; (logger << ... << args); logger << "\n"; }
 
 }

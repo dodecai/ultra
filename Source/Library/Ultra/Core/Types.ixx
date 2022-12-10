@@ -31,9 +31,9 @@ using std::wstring_view;
 using std::vector;
 
 // Literals
-using namespace std::literals::chrono_literals;
-using namespace std::literals::string_literals;
-using namespace std::literals::string_view_literals;
+export using namespace std::literals::chrono_literals;
+export using namespace std::literals::string_literals;
+export using namespace std::literals::string_view_literals;
 
 // Smart-Pointer
 using std::shared_ptr;

@@ -1,15 +1,13 @@
 ﻿#pragma once
 
-#include "Core.h"
-
-import Ultra.Application;
-import Ultra.Types;
+// Library
+import Ultra.Core;
+import Ultra.Core.Application;
 
 ///
 /// @brief Application EntryPoint
 /// Attention: Can be used only once!
 ///
-
 extern Ultra::Application *Ultra::CreateApplication();
 
 int main(int argc, char **argv) {

@@ -11,40 +11,51 @@ export import Ultra.Core;
 // Prime Extensions
 export import Ultra.Config;
 export import Ultra.Logger;
-export import "Ultra/Logger.h";
 
 // Core Extensions
 #ifdef LIB_EXTENSION_CORE
-    export import Ultra.Application;
+    export import Ultra.Core.Application;
     export import Ultra.Core.Layer;
 #endif
 
 // Debug Extensions
 #ifdef LIB_EXTENSION_DEBUG
+    export import Ultra.Debug.Memory;
     export import Ultra.Debug.Profiler;
 #endif
 
 // GFX Extensions
 #ifdef LIB_EXTENSION_GFX
+    export import Ultra.GFX.Context;
 #endif
 
 // System Extensions
 #ifdef LIB_EXTENSION_SYSTEM
     export import Ultra.System.Cli;
+    export import Ultra.System.FileSystem;
+    export import Ultra.System.Input;
+    export import Ultra.System.Library;
 #endif
 
 // UI Extensions
 #ifdef LIB_EXTENSION_UI
+    export import Ultra.UI.GUILayer;
 #endif
 
 // Utility Extensions
 #ifdef LIB_EXTENSION_UTILITIES
     export import Ultra.Utility.DateTime;
     export import Ultra.Utility.Delegate;
+    export import Ultra.Utility.Dispatcher;
+    export import Ultra.Utility.Emitter;
     export import Ultra.Utility.Enum;
-    export import Ultra.Utility.Thread;
-    export import Ultra.Utility.Timer;
+    export import Ultra.Utility.Future;
+    export import Ultra.Utility.Property;
+    export import Ultra.Utility.Random;
+    export import Ultra.Utility.Signal;
     export import Ultra.Utility.String;
+    export import Ultra.Utility.ThreadPool;
+    export import Ultra.Utility.Timer;
     export import Ultra.Utility.UUID;
 #endif
 

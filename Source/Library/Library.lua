@@ -14,11 +14,16 @@
     files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx" }
     
     includedirs {
-	"%{Headers.Library}",
+	    "%{Headers.Library}",
+	    "%{Headers.ThirdParty}",
+	    "%{Headers.DearImGui}",
     }
 
-    links {
+    links { 
+        "Glad",
+        "DearImGui",
     }
+
     filter { "configurations:Debug" }
         defines { "_DEBUG" }
         symbols "On"

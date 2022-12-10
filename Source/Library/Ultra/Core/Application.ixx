@@ -1,11 +1,17 @@
 ﻿// Module
-export module Ultra.Application;
+export module Ultra.Core.Application;
 
 import Ultra.Config;
 import Ultra.Core;
 import Ultra.Core.Layer;
 import Ultra.Core.LayerStack;
 import Ultra.Logger;
+
+import Ultra.GFX.Context;
+import Ultra.UI.Dialog;
+import Ultra.UI.GUILayer;
+import Ultra.UI.Window;
+
 import Ultra.Utility.DateTime;
 import Ultra.Utility.Timer;
 
@@ -35,7 +41,7 @@ struct ApplicationProperties {
     uint32_t Height;
 
     Ultra::LogLevel LogLevel = Ultra::LogLevel::Warn;
-    //GraphicsAPI GfxApi = GraphicsAPI::OpenGL;
+    GraphicsAPI GfxApi = GraphicsAPI::OpenGL;
 
 private:
     void CalculateResolution() {
@@ -87,6 +93,26 @@ public:
             "  on : '" << apptime.GetDate() << "'\n" <<
             "  at : '" << apptime.GetTime() << "'\n";
         logger << LogLevel::Caption << "Initialization" << "\n";
+
+        // Load Configuration
+        //mConfig = CreateReference<Config>();
+
+        // Load Window, Context and Events
+        // ToDo: Cannot be called outside this library, which doesn't make sense yet at all...
+        mWindow = Window::Create(WindowProperties(mProperties.Title, mProperties.Width, mProperties.Height));
+        LogDebug("[Application] ", "Created window '", mProperties.Title, "' with size '", mProperties.Width, "x", mProperties.Height, "'");
+
+        Context::API = mProperties.GfxApi;
+        mContext = Context::Create(mWindow->GetNativeWindow());
+        mContext->Attach();
+        mContext->Load();
+        mContext->SetViewport(mWindow->GetContexttSize().Width, mWindow->GetContexttSize().Height);
+
+        // Load Core Layer
+        pCoreLayer = new GuiLayer();
+        PushOverlay(pCoreLayer);
+
+        // Runtime Properties
         Timer timer = {};
         double delay = {};
         double frames = {};
@@ -117,8 +143,17 @@ public:
             }
 
             // Update
+            mContext->Attach();
             for (Layer *layer : mLayers) layer->Update(deltaTime);
             Update(deltaTime);
+            if (mWindow->GetState(WindowState::Alive)) {
+                mWindow->Update();
+                pCoreLayer->Prepare();
+                for (Layer *layer : mLayers) layer->GuiUpdate();
+                pCoreLayer->Finish();
+            }
+            mContext->SwapBuffers();
+            mContext->Detach();
         }
 
         // Termination
@@ -133,6 +168,9 @@ public:
     // Accessors
     virtual string AsciiLogo() { return mProperties.Title; };
     static ApplicationProperties &GetProperties() { return Get().mProperties; }
+    static Context &GetContext() { return *Get().mContext; }
+    static Dialog &GetDialog() { return *Get().mDialog; };
+    static Window &GetWindow() { return *Get().mWindow; };
 
     ///
     /// Methods
@@ -152,13 +190,13 @@ public:
     // This method pushes a layer to the application.
     void PushLayer(Layer *layer) {
         mLayers.PushLayer(layer);
-        layer->Attach();
+        //layer->Attach();
     }
 
     // This method pushes an overlay on top of the application.
     void PushOverlay(Layer *overlay) {
         mLayers.PushOverlay(overlay);
-        overlay->Attach();
+        //overlay->Attach();
     }
 
 protected:
@@ -176,7 +214,11 @@ private:
     Arguments mArguments;
 
     // Objects
+    GuiLayer *pCoreLayer;
     LayerStack mLayers;
+    Reference<Dialog> mDialog;
+    Reference<Context> mContext;
+    Scope<Window> mWindow;
 
     // States
     bool mPaused = false;
@@ -184,9 +226,10 @@ private:
     bool mRunning = false;
 };
 
+// Application Instance
 Application *Application::pAppInstance = nullptr;
 
-// Symbol for Entry-Point
+// Symbol for Application Entry-Point
 Application *CreateApplication();
 
 }
