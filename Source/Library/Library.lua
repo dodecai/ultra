@@ -8,6 +8,7 @@
     cppdialectx "C++20"
     cppmodules "true"
     nativewchar "on"
+    staticruntime "on"
     toolset "msc"
     
     debugdir "%{wks.location}/Build/%{cfg.buildcfg}"

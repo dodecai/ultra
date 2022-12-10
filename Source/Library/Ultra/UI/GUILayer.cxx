@@ -149,7 +149,7 @@ void GuiLayer::GuiUpdate() {
 
 void GuiLayer::Update(Timestamp deltaTime) {
 	ImGuiIO &io = ImGui::GetIO();
-	io.DeltaTime = deltaTime;
+	io.DeltaTime = static_cast<float>(deltaTime);
 	return;
 }
 

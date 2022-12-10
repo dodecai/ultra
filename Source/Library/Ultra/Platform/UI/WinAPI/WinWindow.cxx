@@ -87,7 +87,7 @@ ITaskbarList3 *TaskbarList;
 namespace Ultra {
 
 // ToDo: Export these to String Utility
-wstring ConvertChar2WChar(const string &source) {
+inline wstring ConvertChar2WChar(const string &source) {
     wchar_t buffer[256] = {};
     std::mbstowcs(buffer, source.c_str(), source.length());
     wstring result = buffer;
