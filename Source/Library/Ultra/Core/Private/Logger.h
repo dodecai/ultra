@@ -1,4 +1,6 @@
 ﻿#pragma once
+#pragma warning(push)
+#pragma warning(disable: 4005)
 
 ///
 /// @brief Logger Extensions (cause performance matters ... sometimes)
@@ -37,3 +39,5 @@
     #define LOG_DEBUG(...);
     #define LOG_TRACE(...);
 #endif
+
+#pragma warning(pop)

@@ -5,9 +5,6 @@ export module Ultra.Logger;
 import <iostream>;
 import <source_location>;
 
-// Extensions
-export import "Ultra/Core/Private/Logger.h";
-
 // Library
 import Ultra.Core;
 import Ultra.System.Cli;
@@ -268,3 +265,6 @@ template<typename ...Args> void LogError(Args &&...args)	{ logger << LogLevel::E
 template<typename ...Args> void LogFatal(Args &&...args)	{ logger << LogLevel::Fatal  ; (logger << ... << args); logger << "\n"; }
 
 }
+
+// Extensions
+export import "Ultra/Core/Private/Logger.h";
