@@ -11,8 +11,8 @@
 [![Cpp-Badge]][Cpp-Url]
 [![C-Badge]][C-Url]
 [![License][License-Badge]][License-Url]
-[![MSBuild](https://github.com/larioteo/ultra/actions/workflows/msbuild.yml/badge.svg)](https://github.com/larioteo/ultra/actions/workflows/msbuild.yml)
 [![DevSkim](https://github.com/larioteo/ultra/actions/workflows/devskim.yml/badge.svg)](https://github.com/larioteo/ultra/actions/workflows/devskim.yml)
+[![MSBuild](https://github.com/larioteo/ultra/actions/workflows/msbuild.yml/badge.svg)](https://github.com/larioteo/ultra/actions/workflows/msbuild.yml)
 
 > Attention: This project was restarted from scratch, switch the branch to 'prototype' to get more of it.
 
