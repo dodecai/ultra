@@ -90,9 +90,10 @@ public:
     void Run() {
         // Initialization
         logger << LogLevel::Caption << AsciiLogo() << "\n";
-        logger << mProperties.Title << " started ...\n" <<
-            "  on : '" << apptime.GetDate() << "'\n" <<
-            "  at : '" << apptime.GetTime() << "'\n";
+        // ToDo: mProperties.Title not defined in Release Mode...
+        //logger << mProperties.Title << " started ...\n" <<
+        //    "  on : '" << apptime.GetDate() << "'\n" <<
+        //    "  at : '" << apptime.GetTime() << "'\n";
         logger << LogLevel::Caption << "Initialization" << "\n";
 
         // Load Configuration
@@ -168,9 +169,10 @@ public:
         logger << LogLevel::Caption << "Termination" << "\n";
         for (Layer *layer : mLayers) layer->Destroy();
         Destroy();
-        logger << mProperties.Title << " finished ...\n" <<
-            "  on : '" << apptime.GetDate() << "'\n" <<
-            "  at : '" << apptime.GetTime() << "'\n";
+        // ToDo: mProperties.Title not defined in Release Mode...
+        //logger << mProperties.Title << " finished ...\n" <<
+        //    "  on : '" << apptime.GetDate() << "'\n" <<
+        //    "  at : '" << apptime.GetTime() << "'\n";
     }
 
     // Accessors
