@@ -30,7 +30,7 @@
     filter { "configurations:Release" }
         kind "WindowedApp"
         defines { "NDEBUG" }
-        optimize "On"
+        optimize "Off"
         symbols "On"
     
     filter { "configurations:Distribution" }
