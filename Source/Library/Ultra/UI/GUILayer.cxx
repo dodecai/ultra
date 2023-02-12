@@ -17,7 +17,7 @@ import Ultra.Platform.GFX.VKSurface;
 namespace Ultra {
 
 const float FontSize = 16.0f;
-static bool ShowDemoWindow = true;
+static bool ShowDemoWindow = false;
 
 //static int ImGui_ImplWin32_CreateVkSurface(ImGuiViewport *viewport, ImU64 instance, const void *allocator, ImU64 *surface) {
 //    auto context = Application::GetContext().As<VKContext>();
@@ -30,14 +30,14 @@ GuiLayer::~GuiLayer() {}
 
 void GuiLayer::Attach() {
 	// Decide GL+GLSL versions
-	Application &app = Application::Get();
+    auto &app = Application::Instance();
 	//ImGui_ImplWin32_EnableDpiAwareness();
 
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO &io = ImGui::GetIO(); (void)io;
-	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
@@ -54,7 +54,8 @@ void GuiLayer::Attach() {
 	io.LogFilename = logTarget->c_str();
 	//io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 	//io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
-	io.DisplaySize = ImVec2((float)app.GetWindow().GetContexttSize().Width, (float)app.GetWindow().GetContexttSize().Height);
+    auto size = app.GetWindow().GetContexttSize();
+	io.DisplaySize = ImVec2((float)size.Width, (float)size.Height);
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
@@ -84,7 +85,7 @@ void GuiLayer::Attach() {
     //    ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
     //    platform_io.Platform_CreateVkSurface = ImGui_ImplWin32_CreateVkSurface;
 
-    //    Application &app = Application::Get();
+    //    Application &app = Application::Instance();
     //    auto context = Application::GetContext().As<VKContext>();
     //    ImGui_ImplWin32_Init(app.GetWindow().GetNativeWindow(), nullptr);
 
@@ -208,6 +209,7 @@ void GuiLayer::Finish() {
     io.DisplaySize = ImVec2((float)width, (float)height);
     
     if (Context::API == GraphicsAPI::OpenGL) {
+        Application::GetContext().Clear();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
     //if (Context::API == GraphicsAPI::Vulkan) {
@@ -224,103 +226,99 @@ void GuiLayer::Finish() {
 }
 
 
-//void GuiLayer::Event(void *event) {}
-//void GuiLayer::ControllerEvent(ControllerEventData data) {}
-//
-//void GuiLayer::KeyboardEvent(KeyboardEventData data) {
-//	if (ImGui::GetCurrentContext() == NULL) return;
-//
-//	ImGuiIO &io = ImGui::GetIO();
-//
-//	io.KeyAlt = data.Modifier.Alt;
-//	io.KeyCtrl = data.Modifier.Control;
-//	io.KeyShift = data.Modifier.Shift;
-//	io.KeySuper = data.Modifier.Super;
-//
-//	//case KeyCode::F1: {
-//	//	//Menu::show_demo_window = !Menu::show_demo_window;
-//	//	break;
-//	//}
-//	switch (data.Action) {
-//		case KeyboardAction::Input: {
-//			io.AddInputCharacterUTF16((uint32_t)data.Key);
-//			break;
-//		}
-//		case KeyboardAction::Default: {
-//			switch (data.State) {
-//				case KeyState::Press: {
-//					io.KeysDown[(uint32_t)data.Key] = true;
-//
-//					if (data.Key == KeyCode::F1) ShowDemoWindow = true;
-//
-//					break;
-//				}
-//				case KeyState::Release: {
-//					io.KeysDown[(uint32_t)data.Key] = false;
-//					break;
-//				}
-//
-//				default: {
-//					break;
-//				}
-//			}
-//		}
-//		default: {
-//			break;
-//		}
-//	}
-//}
-//
-//void GuiLayer::MouseEvent(MouseEventData data) {
-//	if (ImGui::GetCurrentContext() == NULL) return;
-//	ImGuiIO &io = ImGui::GetIO();
-//
-//	io.KeyAlt = data.Modifier.Alt;
-//	io.KeyCtrl = data.Modifier.Control;
-//	io.KeyShift = data.Modifier.Shift;
-//	io.KeySuper = data.Modifier.Super;
-//
-//	switch (data.Action) {
-//		case MouseAction::Move:	{
-//			io.MousePos = ImVec2(static_cast<float>(data.X), static_cast<float>(data.Y));
-//		}
-//
-//		case MouseAction::Wheel: {
-//			io.MouseWheel += data.DeltaWheelY;
-//			io.MouseWheelH += data.DeltaWheelX;
-//			break;
-//		}
-//
-//		default: {
-//			switch (data.State) {
-//				case ButtonState::Press: {
-//					if (data.Button == MouseButton::Left)	io.MouseDown[0] = true;
-//					if (data.Button == MouseButton::Right)	io.MouseDown[1] = true;
-//					if (data.Button == MouseButton::Middle)	io.MouseDown[2] = true;
-//					if (data.Button == MouseButton::X1)		io.MouseDown[3] = true;
-//					if (data.Button == MouseButton::X2)		io.MouseDown[4] = true;
-//					break;
-//				}
-//
-//				case ButtonState::Release: {
-//					if (data.Button == MouseButton::Left)	io.MouseDown[0] = false;
-//					if (data.Button == MouseButton::Right)	io.MouseDown[1] = false;
-//					if (data.Button == MouseButton::Middle) io.MouseDown[2] = false;
-//					if (data.Button == MouseButton::X1)		io.MouseDown[3] = false;
-//					if (data.Button == MouseButton::X2)		io.MouseDown[4] = false;
-//					break;
-//				}
-//
-//				default: {
-//					break;
-//				}
-//			}
-//		}
-//	}
-//}
-//
-//void GuiLayer::TouchEvent(TouchEventData data) {}
-//void GuiLayer::WindowEvent(WindowEventData data) {}
-//
+void GuiLayer::OnControllerEvent(ControllerEventData &data, const EventListener::EventEmitter &emitter) {}
+
+void GuiLayer::OnKeyboardEvent(KeyboardEventData &data, const EventListener::EventEmitter &emitter) {
+	if (ImGui::GetCurrentContext() == NULL) return;
+
+	ImGuiIO &io = ImGui::GetIO();
+
+    data.Handled = io.WantCaptureKeyboard;
+    
+	io.KeyAlt = data.Modifier.Alt;
+	io.KeyCtrl = data.Modifier.Control;
+	io.KeyShift = data.Modifier.Shift;
+	io.KeySuper = data.Modifier.Super;
+
+	switch (data.Action) {
+		case KeyboardAction::Input: {
+			io.AddInputCharacterUTF16((uint32_t)data.Key);
+			break;
+		}
+        case KeyboardAction::Null: {
+			switch (data.State) {
+				case KeyState::Press: {
+                    if (data.Key == KeyCode::F1) ShowDemoWindow = !ShowDemoWindow;
+                    //io.AddKeyEvent((ImGuiKey)data.Key, true);
+					break;
+				}
+				case KeyState::Release: {
+                    //io.AddKeyEvent((ImGuiKey)data.Key, false);
+					break;
+				}
+
+				default: {
+					break;
+				}
+			}
+		}
+		default: {
+			break;
+		}
+	}
+}
+
+void GuiLayer::OnMouseEvent(MouseEventData &data, const EventListener::EventEmitter &emitter) {
+	if (ImGui::GetCurrentContext() == NULL) return;
+	ImGuiIO &io = ImGui::GetIO();
+    data.Handled = io.WantCaptureMouse;
+    
+
+	io.KeyAlt = data.Modifier.Alt;
+	io.KeyCtrl = data.Modifier.Control;
+	io.KeyShift = data.Modifier.Shift;
+	io.KeySuper = data.Modifier.Super;
+
+	switch (data.Action) {
+		case MouseAction::Move:	{
+            io.AddMousePosEvent(static_cast<float>(data.X), static_cast<float>(data.Y));
+        }
+
+        case MouseAction::Wheel: {
+            io.AddMouseWheelEvent(data.DeltaWheelX, data.DeltaWheelY);
+            break;
+        }
+
+        default: {
+            switch (data.State) {
+                case ButtonState::Press: {
+					if (data.Button == MouseButton::Left)	io.AddMouseButtonEvent(ImGuiMouseButton_Left, true);
+					if (data.Button == MouseButton::Right)	io.AddMouseButtonEvent(ImGuiMouseButton_Right, true);
+					if (data.Button == MouseButton::Middle)	io.AddMouseButtonEvent(ImGuiMouseButton_Middle, true);
+					if (data.Button == MouseButton::X1)		io.AddMouseButtonEvent(3, true);
+					if (data.Button == MouseButton::X2)		io.AddMouseButtonEvent(4, true);
+					break;
+				}
+
+				case ButtonState::Release: {
+					if (data.Button == MouseButton::Left)	io.AddMouseButtonEvent(ImGuiMouseButton_Left, false);
+					if (data.Button == MouseButton::Right)	io.AddMouseButtonEvent(ImGuiMouseButton_Right, false);
+					if (data.Button == MouseButton::Middle) io.AddMouseButtonEvent(ImGuiMouseButton_Middle, false);
+					if (data.Button == MouseButton::X1)		io.AddMouseButtonEvent(3, false);
+					if (data.Button == MouseButton::X2)		io.AddMouseButtonEvent(4, false);
+					break;
+				}
+
+				default: {
+					break;
+				}
+			}
+		}
+	}
+}
+
+void GuiLayer::OnTouchEvent(TouchEventData &data, const EventListener::EventEmitter &emitter) {}
+void GuiLayer::OnWindowEvent(WindowEventData &data, const EventListener::EventEmitter &emitter) {}
+
 
 }

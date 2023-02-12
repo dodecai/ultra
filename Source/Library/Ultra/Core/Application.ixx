@@ -8,6 +8,7 @@ import Ultra.Core.LayerStack;
 import Ultra.Logger;
 
 import Ultra.GFX.Context;
+import Ultra.System.Event;
 import Ultra.UI.Dialog;
 import Ultra.UI.GUILayer;
 import Ultra.UI.Window;
@@ -40,7 +41,7 @@ struct ApplicationProperties {
     uint32_t Width;
     uint32_t Height;
 
-    Ultra::LogLevel LogLevel = Ultra::LogLevel::Warn;
+    Ultra::LogLevel LogLevel = Ultra::LogLevel::Trace;
     GraphicsAPI GfxApi = GraphicsAPI::OpenGL;
 
 private:
@@ -74,16 +75,16 @@ class Application {
 public:
     // Instance
     static Application *pAppInstance;
-    
+
     // Constructors and Destructor
-    Application(const ApplicationProperties & properties = {}):
+    Application(const ApplicationProperties &properties = {}):
         mRunning(true) {
         pAppInstance = this;
         mProperties = properties;
         logger.SetLevel(mProperties.LogLevel);
     };
     virtual ~Application() = default;
-    static Application &Get() { return *pAppInstance; }
+    static Application &Instance() { return *pAppInstance; }
 
     // With this method, everything begins.
     void Run() {
@@ -100,13 +101,20 @@ public:
         // Load Window, Context and Events
         // ToDo: Cannot be called outside this library, which doesn't make sense yet at all...
         mWindow = Window::Create(WindowProperties(mProperties.Title, mProperties.Width, mProperties.Height));
-        LogDebug("[Application] ", "Created window '", mProperties.Title, "' with size '", mProperties.Width, "x", mProperties.Height, "'");
+        mListener = EventListener::Create();
+        mWindow->mExternalInputEventListener = [&](auto value) -> bool { return mListener->Callback(value); };
+        mListener->Emitter.on<KeyboardEventData>([&]( auto &data, const auto &emitter) { OnKeyboardEvent(data, emitter); });
+        mListener->Emitter.on<MouseEventData>([&]( auto &data, const auto &emitter) { OnMouseEvent(data, emitter); });
+        mListener->Emitter.on<WindowEventData>([&]( auto &data, const auto &emitter) { OnWindowEvent(data, emitter); });
+
+        LogDebug("[Application] ", "Created window '", mProperties.Title, "' with size '", mProperties.Width, "x", mProperties.Height, "'.");
 
         Context::API = mProperties.GfxApi;
         mContext = Context::Create(mWindow->GetNativeWindow());
         mContext->Attach();
         mContext->Load();
         mContext->SetViewport(mWindow->GetContexttSize().Width, mWindow->GetContexttSize().Height);
+        mContext->Clear();
 
         // Load Core Layer
         pCoreLayer = new GuiLayer();
@@ -147,7 +155,7 @@ public:
             for (Layer *layer : mLayers) layer->Update(deltaTime);
             Update(deltaTime);
             if (mWindow->GetState(WindowState::Alive)) {
-                mWindow->Update();
+                mListener->Update();
                 pCoreLayer->Prepare();
                 for (Layer *layer : mLayers) layer->GuiUpdate();
                 pCoreLayer->Finish();
@@ -167,10 +175,10 @@ public:
 
     // Accessors
     virtual string AsciiLogo() { return mProperties.Title; };
-    static ApplicationProperties &GetProperties() { return Get().mProperties; }
-    static Context &GetContext() { return *Get().mContext; }
-    static Dialog &GetDialog() { return *Get().mDialog; };
-    static Window &GetWindow() { return *Get().mWindow; };
+    static ApplicationProperties &GetProperties() { return Instance().mProperties; }
+    static Context &GetContext() { return *Instance().mContext; }
+    static Dialog &GetDialog() { return *Instance().mDialog; };
+    static Window &GetWindow() { return *Instance().mWindow; };
 
     ///
     /// Methods
@@ -203,6 +211,43 @@ protected:
     // Attention: This method is used reload/switch the graphics context.
     static void Reload() {}
 
+    // Events
+    virtual void OnControllerEvent(ControllerEventData &data, const EventListener::EventEmitter &emitter) {
+        for (Layer *layer : mLayers) {
+            if (data.Handled) break;
+            layer->OnControllerEvent(data, emitter);
+        }
+    }
+    
+    virtual void OnKeyboardEvent(KeyboardEventData &data, const EventListener::EventEmitter &emitter) {
+        for (Layer *layer : mLayers) {
+            if (data.Handled) break;
+            layer->OnKeyboardEvent(data, emitter);
+        }
+    }
+    
+    virtual void OnMouseEvent(MouseEventData &data, const EventListener::EventEmitter &emitter) {
+        for (Layer *layer : mLayers) {
+            if (data.Handled) break;
+            layer->OnMouseEvent(data, emitter);
+        }
+    }
+    
+    virtual void OnTouchEvent(TouchEventData &data, const EventListener::EventEmitter &emitter) {
+        for (Layer *layer : mLayers) {
+            if (data.Handled) break;
+            layer->OnTouchEvent(data, emitter);
+        }
+    }
+
+    virtual void OnWindowEvent(WindowEventData &data, const EventListener::EventEmitter &emitter) {
+        if (data.Action == WindowAction::Destroy) { Exit(); }
+        for (Layer *layer : mLayers) {
+            if (data.Handled) break;
+            layer->OnWindowEvent(data, emitter);
+        }
+    }
+
     // This method sets the arguments passed during startup.
     void SetArguments(const Arguments &arguments) {
         mArguments = arguments;
@@ -216,8 +261,9 @@ private:
     // Objects
     GuiLayer *pCoreLayer;
     LayerStack mLayers;
-    Reference<Dialog> mDialog;
     Reference<Context> mContext;
+    Reference<Dialog> mDialog;
+    Scope<EventListener> mListener;
     Scope<Window> mWindow;
 
     // States

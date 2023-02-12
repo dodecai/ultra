@@ -38,6 +38,7 @@ public:
     virtual bool const IsCurrentContext() override;
 
     // Mutators
+    virtual void Clear() override;
     virtual void SetViewport(uint32_t width, uint32_t height, int32_t x = 0, int32_t y = 0) override;
     virtual void SwapBuffers() override;
 

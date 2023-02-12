@@ -1,8 +1,12 @@
 ﻿// Module
+module;
+
+#include <chrono> // ToDo: Remove this workaround, when the import below, works again!
+
 export module Ultra.Utility.Timer;
 
 // Library
-import Ultra.Core;
+//import Ultra.Core; // ToDo: Not working after update v17.5.0 Preview 2!
 
 // Usings
 using namespace std::literals::chrono_literals;

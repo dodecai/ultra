@@ -18,11 +18,12 @@
 	    "%{Headers.Library}",
 	    "%{Headers.ThirdParty}",
 	    "%{Headers.DearImGui}",
+	    "%{Headers.EnTT}",
     }
 
     links { 
-        "Glad",
         "DearImGui",
+        "Glad",
     }
 
     filter { "configurations:Debug" }

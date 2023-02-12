@@ -352,8 +352,7 @@ LRESULT CALLBACK WinWindow::MessageCallback(HWND hWnd, UINT uMsg, WPARAM wParam,
 // Methods
 void WinWindow::Update() {
 	MSG message = {};
-    // ToDo: Switch back to PM_NOREMOVE when event system is ready again!
-	while (PeekMessage(&message, nullptr, 0, 0, PM_REMOVE)) {
+	while (PeekMessage(&message, nullptr, 0, 0, PM_NOREMOVE)) {
 		TranslateMessage(&message);
 		DispatchMessage(&message);
 	}
@@ -454,7 +453,7 @@ intptr_t WinWindow::Message(void *event) {
         }
         case WM_ERASEBKGND: {
             // Prevent system clearing the window.
-            //result = 0;
+            result = 0;
             break;
         }
         case WM_MOVE: {
@@ -549,11 +548,10 @@ intptr_t WinWindow::Message(void *event) {
     }
 
     // Publish events to an external event system
-    //if (!EventCallback.Empty()) {
-    //    bool external = false;
-    //    EventCallback.Publish(external, event);
-    //    if (external && result) result = 0;
-    //}
+    if (mExternalInputEventListener) {
+        auto result = mExternalInputEventListener(event);
+        if (result && result) result = 0;
+    }
 
     if (!result) return result;
     return DefWindowProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);

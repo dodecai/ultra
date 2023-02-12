@@ -20,7 +20,7 @@ namespace Ultra {
 // Information
 constexpr auto LibCaption       = "Ultra Library";
 constexpr auto LibDescription   = "Game Engine Framework";
-constexpr auto LibRelease       = "2022-07-02";
+constexpr auto LibRelease       = "2023-07-02";
 constexpr auto LibVersion       = "0.0.0";
 constexpr auto LibVersionMajor  = 0u;
 constexpr auto LibVersionMinor  = 0u;

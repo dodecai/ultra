@@ -8,6 +8,7 @@ export import <chrono>;
 export import <cstdlib>;
 export import <cstdint>;
 export import <format>;
+export import <functional>;
 export import <memory>;
 export import <mutex>;
 export import <ostream>;
@@ -15,6 +16,7 @@ export import <string>;
 export import <string_view>;
 export import <type_traits>;
 export import <vector>;
+export import <utility>;
 
 ///
 /// @brief The following containers, literals and types are used quite often, therefore they are exposed under the root namespace.

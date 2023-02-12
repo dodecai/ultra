@@ -2,3 +2,6 @@
 	path = 3rd-Party/imgui
 	url = https://github.com/larioteo/imgui
 	branch = docking
+[submodule "3rd-Party/entt"]
+	path = 3rd-Party/entt
+	url = https://github.com/larioteo/entt

@@ -26,12 +26,12 @@ public:
     void Prepare();
     void Finish();
 
-    //virtual void Event(void *event) override;
-    //virtual void ControllerEvent(ControllerEventData data) override;
-    //virtual void KeyboardEvent(KeyboardEventData data) override;
-    //virtual void MouseEvent(MouseEventData data) override;
-    //virtual void TouchEvent(TouchEventData data) override;
-    //virtual void WindowEvent(WindowEventData data) override;
+    // EventListener
+    virtual void OnControllerEvent(ControllerEventData &data, const EventListener::EventEmitter &emitter) override;
+    virtual void OnKeyboardEvent(KeyboardEventData &data, const EventListener::EventEmitter &emitter) override;
+    virtual void OnMouseEvent(MouseEventData &data, const EventListener::EventEmitter &emitter) override;
+    virtual void OnTouchEvent(TouchEventData &data, const EventListener::EventEmitter &emitter) override;
+    virtual void OnWindowEvent(WindowEventData &data, const EventListener::EventEmitter &emitter) override;
 };
 
 // Helpers

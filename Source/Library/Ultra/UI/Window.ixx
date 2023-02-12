@@ -32,6 +32,9 @@ public:
     virtual void SetDisplaySize(const uint32_t width, const uint32_t height) = 0;
     virtual void SetProgress(const float progress) = 0;
     virtual void SetTitle(const string_view title) = 0;
+
+    // Properties
+    std::function<bool(void *)> mExternalInputEventListener = {};
 };
 
 }

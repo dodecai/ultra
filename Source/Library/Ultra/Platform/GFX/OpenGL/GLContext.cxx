@@ -242,13 +242,17 @@ GLContext::~GLContext() {
 
 void GLContext::Attach() {
 	#if defined(APP_PLATFORM_WINDOWS)
-		if(!IsCurrentContext()) wglMakeCurrent(Data->hDeviceContext, Data->hRenderingContext);
+    if (!IsCurrentContext()) {
+        wglMakeCurrent(Data->hDeviceContext, Data->hRenderingContext);
+    }
 	#endif
 }
 
 void GLContext::Detach() {
 	#if defined(APP_PLATFORM_WINDOWS)
-		if(IsCurrentContext()) wglMakeCurrent(Data->hDeviceContext, NULL);
+    if (IsCurrentContext()) {
+        wglMakeCurrent(Data->hDeviceContext, NULL);
+    }
 	#endif
 }
 
@@ -283,6 +287,10 @@ bool const GLContext::IsCurrentContext() {
 }
 
 
+void GLContext::Clear() {
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void GLContext::SetViewport(uint32_t width, uint32_t height, int32_t x, int32_t y) {
 	glViewport(x, y, width, height);
 }
@@ -293,7 +301,7 @@ void GLContext::SetVSync(bool activate) {
 
 void GLContext::SwapBuffers() {
 	#if defined(APP_PLATFORM_WINDOWS)
-		::SwapBuffers(Data->hDeviceContext);
+        if (Data->hDeviceContext) ::SwapBuffers(Data->hDeviceContext);
 	#endif
 }
 
