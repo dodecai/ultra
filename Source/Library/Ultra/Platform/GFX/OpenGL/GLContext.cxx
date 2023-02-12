@@ -6,11 +6,12 @@
 
 
 #if defined(APP_PLATFORM_WINDOWS)
-	#define VC_EXTRALEAN
-	#define WIN32_LEAN_AND_MEAN
-	#define NOMINMAX
-	#undef APIENTRY
-    #define __SPECSTRINGS_STRICT_LEVEL 0
+    #undef APIENTRY
+    #undef __nullnullterminated
+    #define NOMINMAX
+    #define VC_EXTRALEAN
+    #define WIN32_LEAN_AND_MEAN
+    #define __SPECSTRINGS_STRICT_LEVEL 0    // Hack: Workaround for problems with 'Windows.h' in combination with C++ modules!
 	#include <Windows.h>
 
 	#pragma comment(lib, "opengl32.lib")
