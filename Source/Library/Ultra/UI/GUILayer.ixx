@@ -5,7 +5,6 @@
 #include <imgui/imgui_internal.h>
 #pragma warning(pop)
 
-
 export module Ultra.UI.GUILayer;
 
 import Ultra.Core;

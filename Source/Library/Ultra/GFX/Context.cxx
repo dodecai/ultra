@@ -31,7 +31,7 @@ Reference<Context> Context::Create(void *window) {
         }
     }
     #else
-    APP_ASSERT(false, "This platform is currently not supported!");
+    //APP_ASSERT(false, "This platform is currently not supported!");
     return nullptr;
     #endif
 }

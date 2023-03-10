@@ -12,7 +12,7 @@ Scope<Dialog> Dialog::Create() {
     #ifdef APP_PLATFORM_WINDOWS
         return CreateScope<WinDialog>();
     #else
-        APP_ASSERT(nullptr, "The current platform isn't supported!");
+        //APP_ASSERT(nullptr, "The current platform isn't supported!");
         return nullptr;
     #endif
 }

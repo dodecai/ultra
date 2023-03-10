@@ -1,9 +1,9 @@
 project "Glad"
 	kind "StaticLib"
 	language "C"
-    cdialectx "C17"
+    cdialect "C17"
     staticruntime "on"
-    toolset "msc-v143"
+    toolset "msc"
 
 	files {
         "gl.h",

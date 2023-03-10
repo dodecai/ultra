@@ -13,7 +13,7 @@ class LayerStack {
 public:
     LayerStack() = default;
     ~LayerStack() {
-        for (Layer *layer : Layers) {
+        for (auto *layer : Layers) {
             layer->Detach();
             delete layer;
         }
@@ -44,15 +44,15 @@ public:
         }
     }
 
-    vector<Layer *>::iterator begin() { return Layers.begin(); }
-    vector<Layer *>::iterator end() { return Layers.end(); }
-    vector<Layer *>::reverse_iterator rbegin() { return Layers.rbegin(); }
-    vector<Layer *>::reverse_iterator rend() { return Layers.rend(); }
+    auto begin() { return Layers.begin(); }
+    auto end() { return Layers.end(); }
+    auto rbegin() { return Layers.rbegin(); }
+    auto rend() { return Layers.rend(); }
 
-    vector<Layer *>::const_iterator begin() const { return Layers.begin(); }
-    vector<Layer *>::const_iterator end() const { return Layers.end(); }
-    vector<Layer *>::const_reverse_iterator rbegin() const { return Layers.rbegin(); }
-    vector<Layer *>::const_reverse_iterator rend() const { return Layers.rend(); }
+    auto begin() const { return Layers.begin(); }
+    auto end() const { return Layers.end(); }
+    auto rbegin() const { return Layers.rbegin(); }
+    auto rend() const { return Layers.rend(); }
 };
 
 }

@@ -26,72 +26,72 @@ premake.override(premake.vstudio.sln2005, "projects", function(base, wks)
 	base(wks)
 end)
 
--- Visual Studio: C/C++ 20 Conformance Mode Support
-require('vstudio')
-premake.api.register {
-  name = "confromancemode",
-  scope = "project",
-  kind = "boolean",
-}
-premake.override(premake.vstudio.vc2010.elements, "clCompile", function(base, prj)
-	local m = premake.vstudio.vc2010
-	local calls = base(prj)
+-- Visual Studio: C/C++ 20 Conformance Mode Support (was fixed since 5.0-beta.1)
+----require('vstudio')
+----premake.api.register {
+----  name = "confromancemode",
+----  scope = "project",
+----  kind = "boolean",
+----}
+----premake.override(premake.vstudio.vc2010.elements, "clCompile", function(base, prj)
+----	local m = premake.vstudio.vc2010
+----	local calls = base(prj)
+----
+----	if premake.project.iscpp(prj) then
+----		if prj.confromancemode then
+----			table.insertafter(calls, premake.xmlDeclaration,  function()
+----				premake.w('<ConformanceMode>true</ConformanceMode>')
+----			end)
+----		else
+----			table.insertafter(calls, premake.xmlDeclaration,  function()
+----				premake.w('<ConformanceMode>false</ConformanceMode>')
+----			end)
+----		end
+----	end
+----	return calls
+----end)
 
-	if premake.project.iscpp(prj) then
-		if prj.confromancemode then
-			table.insertafter(calls, premake.xmlDeclaration,  function()
-				premake.w('<ConformanceMode>true</ConformanceMode>')
-			end)
-		else
-			table.insertafter(calls, premake.xmlDeclaration,  function()
-				premake.w('<ConformanceMode>false</ConformanceMode>')
-			end)
-		end
-	end
-	return calls
-end)
+-- Visual Studio: C 17 Dialect Support (was fixed since 5.0-beta.2)
+----require('vstudio')
+----premake.api.register {
+----  name = "cdialectx",
+----  scope = "project",
+----  kind = "string",
+----}
+----premake.override(premake.vstudio.vc2010.elements, "clCompile", function(base, prj)
+----	local m = premake.vstudio.vc2010
+----	local calls = base(prj)
+----
+----	if premake.project.iscpp(prj) then
+----		if prj.cdialectx then
+----			table.insertafter(calls, premake.xmlDeclaration,  function()
+----				premake.w('<LanguageStandard_C>stdc17</LanguageStandard_C>')
+----			end)
+----		end
+----	end
+----	return calls
+----end)
 
--- Visual Studio: C 17 Dialect Support
-require('vstudio')
-premake.api.register {
-  name = "cdialectx",
-  scope = "project",
-  kind = "string",
-}
-premake.override(premake.vstudio.vc2010.elements, "clCompile", function(base, prj)
-	local m = premake.vstudio.vc2010
-	local calls = base(prj)
-
-	if premake.project.iscpp(prj) then
-		if prj.cdialectx then
-			table.insertafter(calls, premake.xmlDeclaration,  function()
-				premake.w('<LanguageStandard_C>stdc17</LanguageStandard_C>')
-			end)
-		end
-	end
-	return calls
-end)
-
--- Visual Studio: C++ 20 Dialect Support
-require('vstudio')
-premake.api.register {
-  name = "cppdialectx",
-  scope = "project",
-  kind = "string",
-}
-premake.override(premake.vstudio.vc2010.elements, "clCompile", function(base, prj)
-	local m = premake.vstudio.vc2010
-	local calls = base(prj)
-
-	if premake.project.iscpp(prj) then
-		if prj.cdialectx then
-			table.insertafter(calls, premake.xmlDeclaration,  function()
-				premake.w('<LanguageStandard>stdcpp20</LanguageStandard>')
-			end)
-		end
-	end
-	return calls
-end)
+-- Visual Studio: C++ 20 Dialect Support (was fixed since 5.0-beta.2)
+----require('vstudio')
+----premake.api.register {
+----  name = "cppdialectx",
+----  scope = "project",
+----  kind = "string",
+----}
+----premake.override(premake.vstudio.vc2010.elements, "clCompile", function(base, prj)
+----	local m = premake.vstudio.vc2010
+----	local calls = base(prj)
+----
+----	if premake.project.iscpp(prj) then
+----		if prj.cdialectx then
+----			table.insertafter(calls, premake.xmlDeclaration,  function()
+----				premake.w('<LanguageStandard>stdcpp20</LanguageStandard>')
+----			end)
+----		end
+----	end
+----	return calls
+----end)
 
 -- Visual Studio: C++ 20 Modules Support
 table.insert(premake.vstudio.vc2010.categories.ClCompile.extensions, ".cppm")

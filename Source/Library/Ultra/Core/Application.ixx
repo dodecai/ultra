@@ -90,10 +90,11 @@ public:
     void Run() {
         // Initialization
         logger << LogLevel::Caption << AsciiLogo() << "\n";
-        // ToDo: mProperties.Title not defined in Release Mode...
-        //logger << mProperties.Title << " started ...\n" <<
-        //    "  on : '" << apptime.GetDate() << "'\n" <<
-        //    "  at : '" << apptime.GetTime() << "'\n";
+        // ToDo: apptime doesn't work in release mode...
+        //auto test = apptime.GetTime();
+        logger << "mProperties.Title" << " started ...\n" <<
+            "  on : '" << "apptime.GetDate()" << "'\n" <<
+            "  at : '" << "apptime.GetTime()" << "'\n";
         logger << LogLevel::Caption << "Initialization" << "\n";
 
         // Load Configuration
@@ -169,10 +170,10 @@ public:
         logger << LogLevel::Caption << "Termination" << "\n";
         for (Layer *layer : mLayers) layer->Destroy();
         Destroy();
-        // ToDo: mProperties.Title not defined in Release Mode...
-        //logger << mProperties.Title << " finished ...\n" <<
-        //    "  on : '" << apptime.GetDate() << "'\n" <<
-        //    "  at : '" << apptime.GetTime() << "'\n";
+        // ToDo: apptime doesn't work in release mode...
+        logger << mProperties.Title << " finished ...\n" <<
+            "  on : '" << "apptime.GetDate()" << "'\n" <<
+            "  at : '" << "apptime.GetTime()" << "'\n";
     }
 
     // Accessors

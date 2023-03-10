@@ -13,7 +13,7 @@ Scope<EventListener> EventListener::Create() {
         return CreateScope<WinEventListener>();
         return {};
     #else
-        APP_ASSERT(nullptr, "The current platform isn't supported!");
+        //APP_ASSERT(nullptr, "The current platform isn't supported!");
         return nullptr;
     #endif
 }

@@ -14,13 +14,22 @@ export using namespace std::literals::chrono_literals;
 export namespace Ultra { namespace Utility {
 
 class DateTime {
-public:
+    // Constructors and Deconstructor
     DateTime() = default;
+    DateTime(const DateTime &) = delete;
+    DateTime(DateTime &&) noexcept = delete;
+    ~DateTime() = default;
+
+public:
+    // Get the global instance to the logger (... and yeah thread-safe since C++11 accodring to researches!)
+    static DateTime &Instance() {
+        static DateTime instance;
+        return instance;
+    }
     template <typename Rep, typename Period>
     constexpr DateTime(const duration<Rep, Period> &duration):
         Nanoseconds(duration_cast<nanoseconds>(duration).count()) {
     }
-    ~DateTime() = default;
 
     // Converters
     auto AsNanoseconds() const { return duration_cast<nanoseconds>(Nanoseconds); }
@@ -91,6 +100,6 @@ inline const time_point<high_resolution_clock> DateTime::StartTime(high_resoluti
 
 }
 
-inline Utility::DateTime apptime;
+inline Utility::DateTime &apptime = Utility::DateTime::Instance();
 
 }

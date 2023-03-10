@@ -2,11 +2,12 @@
     defines { "PROJECT_NAME=Test" }
     language "C++"
     characterset "Unicode"
-    confromancemode "true"
-    cdialectx "C17"
-    cppdialectx "C++20"
+    conformancemode "true"
+    cdialect "C17"
+    cppdialect "C++20"
     cppmodules "true"
     nativewchar "on"
+    scanformoduledependencies "off"
     staticruntime "on"
     toolset "msc"
 		
@@ -28,7 +29,7 @@
         symbols "On"
 
     filter { "configurations:Release" }
-        kind "WindowedApp"
+        kind "ConsoleApp"
         defines { "NDEBUG" }
         optimize "On"
         symbols "On"

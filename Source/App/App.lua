@@ -1,12 +1,13 @@
 ﻿project "App"
-    defines { "PROJECT_NAME=Spectra" }
+    defines { "PROJECT_NAME=App" }
     language "C++"
     characterset "Unicode"
-    confromancemode "true"
-    cdialectx "C17"
-    cppdialectx "C++20"
+    conformancemode "true"
+    cdialect "C17"
+    cppdialect "C++20"
     cppmodules "true"
     nativewchar "on"
+    scanformoduledependencies "off"
     staticruntime "on"
     toolset "msc"
     

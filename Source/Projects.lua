@@ -6,7 +6,11 @@
         "Source/Projects.lua",
         "Source/App/App.lua",
         "Source/Library/Library.lua",
+        "Source/Spectra/Spectra.lua",
         "Source/Test/Test.lua",
+        "3rd-Party/imgui/DearImGui.lua",
+        "3rd-Party/entt/EnTT.lua",
+        "3rd-Party/glad/Glad.lua",
     },
     ["Config"] = {
         ".editorconfig",
@@ -39,5 +43,6 @@ filter {}
 
 include "App/App.lua"
 include "Library/Library.lua"
+include "Spectra/Spectra.lua"
 include "Test/Test.lua"
 
