@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 // Library
+#include <Ultra/Core/Private/Core.h> // ToDo: Since v17.6 preview.2 broken...
 import Ultra.Core;
 import Ultra.Core.Application;
 

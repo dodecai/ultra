@@ -1,4 +1,4 @@
-project "Glad"
+﻿project "Glad"
 	kind "StaticLib"
 	language "C"
     cdialect "C17"
@@ -10,8 +10,7 @@ project "Glad"
         "gl.c"
 	}
 
-    includedirs
-	{
+    includedirs {
 		"%{Headers.ThirdParty}"
     }
     

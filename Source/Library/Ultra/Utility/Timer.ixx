@@ -1,90 +1,91 @@
-﻿// Module
-module;
-
-#include <chrono> // ToDo: Remove this workaround, when the import below, works again!
-
-export module Ultra.Utility.Timer;
+﻿export module Ultra.Utility.Timer;
 
 // Library
-//import Ultra.Core; // ToDo: Not working after update v17.5.0 Preview 2!
-
-// Usings
-using namespace std::literals::chrono_literals;
+import Ultra.Core;
 
 export namespace Ultra {
 
-/// @brief Timestamp which holds milliseconds in a double.
+///
+/// @brief Timer Uints:
+/// Seconds (s), Milliseconds (ms), Microseconds (µs), Nanoseconds (ns)
+///
+enum class TimerUnit: uint8_t {
+    Seconds,
+    Milliseconds,
+    Microseconds,
+    Nanoseconds,
+};
+
+///
+/// @brief Timer: Counts ticks until GetDeltaTime or GetDeltaTimeAs is called.
+/// @tparam <T>:  Any supported floating-point type.
+/// 
+template <std::floating_point T = float>
+class Timer {
+    // Types
+    using Clock = std::chrono::steady_clock;
+    using Timespan = std::chrono::duration<T, std::milli>;
+    using Timestamp = std::chrono::time_point<std::chrono::steady_clock>;
+
+public:
+    // Default
+    Timer(): mStartTime(Clock::now()) {}
+    ~Timer() = default;
+
+    // Accessors
+    /// Retrive delta time in ms
+    inline const T GetDeltaTime() {
+        Timespan duration = CalculateDuration();
+        Reset();
+        return duration.count();
+    }
+    /// Retrive delta time in specified unit (s = default, ms, µs, ns)
+    inline const T GetDeltaTimeAs(TimerUnit unit = TimerUnit::Seconds) {
+        T duration {};
+        switch (unit) {
+            case TimerUnit::Seconds:		{ duration = std::chrono::duration<T>(CalculateDuration()).count();             break; }
+            case TimerUnit::Milliseconds:	{ duration = std::chrono::duration<T, std::milli>(CalculateDuration()).count(); break; }
+            case TimerUnit::Microseconds:	{ duration = std::chrono::duration<T, std::micro>(CalculateDuration()).count(); break; }
+            case TimerUnit::Nanoseconds:	{ duration = std::chrono::duration<T, std::nano>(CalculateDuration()).count();  break; }
+            default: { break; }
+        }
+        Reset();
+        return std::move(duration);
+    }
+    /// Retrive a delta time slice in ms
+    inline const T Now() {
+        return (Timespan{ CalculateDuration() }).count();
+    }
+
+private:
+    // Methods
+    inline Timespan CalculateDuration() { return { Clock::now() - mStartTime }; }
+    inline void Reset() { mStartTime = Clock::now(); }
+
+private:
+    // Properties
+    Timestamp mStartTime;
+};
+
+///
+/// @brief Timestamp: Holds the delta time in milliseconds for floating-point types.
+///
 class Timestamp {
 public:
     // Default
-    Timestamp(double time = 0.0): Time{ time } {}
+    Timestamp(double time = 0.0): mTime { time } {}
     ~Timestamp() = default;
 
     // Accessors
-    operator double() { return GetSeconds(); }
-    const double GetSeconds() { return Time / 1000.0; }
-    const double GetMilliseconds() { return Time; }
+    inline const double GetSeconds() { return mTime / 1000.0; }
+    inline const double GetMilliseconds() { return mTime; }
+
+    // Operators
+    inline operator double() { return GetSeconds(); }
 
 private:
     // Properties
-    double Time;
-};
-
-/// @brief Timer that counts ticks until GetDeltaTime or Reset is called.
-class Timer {
-    // Definitions
-    using Clock = std::chrono::high_resolution_clock;
-    using Timestamp = std::chrono::time_point<std::chrono::high_resolution_clock>;
-    using Timespan = std::chrono::duration<double>;
-
-public:
-    // Enumerations
-    enum class Unit: uint8_t {
-        Seconds,
-        Milliseconds,
-        Microseconds,
-        Nanoseconds,
-    };
-
-public:
-    // Default
-    Timer() { Reset(); }
-    ~Timer() = default;
-    /// Reset timer manually (automatically done by GetDeltaTimeX)
-    void Reset() { StartTime = Clock::now(); }
-
-    // Accessors
-    /// Retrive current clock tick
-    const double Now() { return std::chrono::duration_cast<std::chrono::microseconds>(CalculateDuration()).count() / 1000.0; }
-    /// Retrive delta time in milliseconds (default)
-    const double GetDeltaTime() {
-        double duration = std::chrono::duration_cast<std::chrono::microseconds>(CalculateDuration()).count() / 1000.0;
-        Reset();
-        return duration;
-    }
-    /// Retrive delta time in specified period (s, ms, µs, ns) */
-    const double GetDeltaTimeAs(Unit unit = Unit::Seconds) {
-        double duration = 0.0;
-        switch (unit) {
-            case Unit::Seconds:			{ duration = std::chrono::duration_cast<std::chrono::microseconds>(CalculateDuration()).count() / 1000000.0;    break; }
-            case Unit::Milliseconds:	{ duration = std::chrono::duration_cast<std::chrono::microseconds>(CalculateDuration()).count() / 1000.0;	    break; }
-            case Unit::Microseconds:	{ duration = (double)std::chrono::duration_cast<std::chrono::microseconds>(CalculateDuration()).count();			    break; }
-            case Unit::Nanoseconds:		{ duration = (double)std::chrono::duration_cast<std::chrono::nanoseconds>(CalculateDuration()).count();				    break; }
-            default:					{ break; }
-        }
-        Reset();
-        return duration;
-    }
-
-private:
-    // Internal
-    Timespan CalculateDuration() {
-        return { Clock::now() - StartTime };
-    }
-
-private:
-    // Properties
-    Timestamp StartTime;
+    double mTime;
 };
 
 }

@@ -1,4 +1,6 @@
-﻿module Ultra.System.Event;
+﻿#include <Ultra/Core/Private/Core.h> // ToDo: Since v17.6-preview.2 broken...
+
+module Ultra.System.Event;
 
 import Ultra.Logger;
 

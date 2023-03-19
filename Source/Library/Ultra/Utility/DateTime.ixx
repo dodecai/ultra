@@ -21,11 +21,11 @@ class DateTime {
     ~DateTime() = default;
 
 public:
-    // Get the global instance to the logger (... and yeah thread-safe since C++11 accodring to researches!)
     static DateTime &Instance() {
         static DateTime instance;
         return instance;
     }
+
     template <typename Rep, typename Period>
     constexpr DateTime(const duration<Rep, Period> &duration):
         Nanoseconds(duration_cast<nanoseconds>(duration).count()) {
@@ -62,6 +62,7 @@ public:
         ss << "{:" << format << "}";
 
         return std::format("{:%FT%T}", now);
+        return std::vformat(format, std::make_format_args(now));
         // ToDo: Dynamic Format
         // std::vformat(format, std::make_format_args(now));
     }
@@ -92,11 +93,11 @@ private:
     static const inline std::string DateFormat = "{:%F}"; // Default Date Format
     static const inline std::string TimeFormat = "{:%T}"; // Default Time Format
 
-    static const time_point<high_resolution_clock> StartTime; // StartTime: Automatically set during application startup
+    static const time_point<steady_clock> StartTime; // StartTime: Automatically set during application startup
     nanoseconds Nanoseconds = {};
 };
 
-inline const time_point<high_resolution_clock> DateTime::StartTime(high_resolution_clock::now());
+inline const time_point<steady_clock> DateTime::StartTime(steady_clock::now());
 
 }
 

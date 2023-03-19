@@ -91,10 +91,10 @@ public:
         // Initialization
         logger << LogLevel::Caption << AsciiLogo() << "\n";
         // ToDo: apptime doesn't work in release mode...
-        //auto test = apptime.GetTime();
-        logger << "mProperties.Title" << " started ...\n" <<
-            "  on : '" << "apptime.GetDate()" << "'\n" <<
-            "  at : '" << "apptime.GetTime()" << "'\n";
+        auto test = apptime.GetTime();
+        logger << mProperties.Title << " started ...\n" <<
+            "  on : '" << apptime.GetDate() << "'\n" <<
+            "  at : '" << apptime.GetTime() << "'\n";
         logger << LogLevel::Caption << "Initialization" << "\n";
 
         // Load Configuration
@@ -172,8 +172,8 @@ public:
         Destroy();
         // ToDo: apptime doesn't work in release mode...
         logger << mProperties.Title << " finished ...\n" <<
-            "  on : '" << "apptime.GetDate()" << "'\n" <<
-            "  at : '" << "apptime.GetTime()" << "'\n";
+            "  on : '" << apptime.GetDate() << "'\n" <<
+            "  at : '" << apptime.GetTime() << "'\n";
     }
 
     // Accessors

@@ -2,7 +2,7 @@
 
 // Properties
 #define __SPECSTRINGS_STRICT_LEVEL 0    // Hack: Workaround for problems with 'Windows.h' in combination with C++ modules!
-#define IMGUI_IMPL_OPENGL_LOADER_GLAD2
+//#define IMGUI_IMPL_OPENGL_LOADER_GLAD2
 
 // Library
 #include <Ultra/Core/Private/Core.h>

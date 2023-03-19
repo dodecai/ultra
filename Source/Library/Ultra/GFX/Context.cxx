@@ -1,4 +1,6 @@
-﻿module Ultra.GFX.Context;
+﻿#include <Ultra/Core/Private/Core.h> // ToDo: Since v17.6-preview.2 broken...
+
+module Ultra.GFX.Context;
 
 import Ultra.Core;
 import Ultra.Logger;

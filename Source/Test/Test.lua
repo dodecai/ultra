@@ -15,7 +15,9 @@
     dependson { "Ultra" }
     entrypoint "mainCRTStartup"
 
-    links { "Ultra" }
+    links {
+        "Ultra"
+    }
 
     files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx" }
     

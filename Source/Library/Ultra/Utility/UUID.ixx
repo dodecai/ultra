@@ -10,7 +10,7 @@
 /// [    1    |  timestamp based         ]
 /// [    2    |  DCE security version    ]
 /// [    3    |  name-based (MD5)        ]
-/// [    4    |  random generated        ]
+/// [    4    |  random generated        ]  -> Currently Supported
 /// [    5    |  name-based (SHA-1)      ]
 /// --------------------------------------
 /// Structure:
@@ -23,21 +23,23 @@
 // Module
 export module Ultra.Utility.UUID;
 
-// Default
-import <random>;
-
 // Library
 import Ultra.Core;
 
 export namespace Ultra {
 
-// Currently we use string to hold the 128-Bit value, cause in our usecase it doesn't really matter, all other unsigned integers hold a basic random number
+///
+/// @brief Currently we use a string to hold the 128-Bit value, cause in our usecase it doesn't really matter
+/// All other unsigned integers hold a basic random number, but we are ready for the future, if a build-in 128-Bit sized integer arrives.
+/// 
 template<typename T>
-concept typename_uuid = std::is_same_v<string, T> || std::is_unsigned_v<T>;
+concept typename_uuid = std::is_same_v<string, T> || (std::is_unsigned_v<T> && sizeof(T) <= 16);
 
+///
 /// @brief Universally Unique Identifier (v4: randomly generated)
-/// @param <string>:    128-Bit (full UUID, default)
-/// @param <uintN_t>:   [8|16|32|64]-Bit (partial UUID, based on type size)
+/// @tparam <string>:   128-Bit (full UUID, default)
+/// @tparam <uintN_t>:  [16|32|64]-Bit (partial UUID, based on type size)
+///
 template<typename_uuid T = string>
 class UUID {
 public:
@@ -57,57 +59,55 @@ public:
     UUID &operator=(const UUID &rhs) { Value = rhs.Value; return *this; }
     UUID &operator=(UUID &&rhs) { Value = std::move(rhs.Value); return *this; }
 
-    // Comparision
-    bool operator==(const T &rhs) { return (Value == rhs); }
-    bool operator!=(const T &rhs) { return (Value != rhs); }
-    bool operator==(const UUID &rhs) { return (Value == rhs.Value); }
-    bool operator!=(const UUID &rhs) { return (Value != rhs.Value); }
+    // Comparisions
+    bool operator==(const T &rhs) const { return Value == rhs; }
+    bool operator!=(const T &rhs) const { return Value != rhs; }
+    bool operator==(const UUID &rhs) const { return Value == rhs.Value; }
+    bool operator!=(const UUID &rhs) const { return Value != rhs.Value; }
 
-    // Operators
+    // Stream Support
     template<typename T>
     friend ostream &operator <<(ostream &os, const UUID<T> &rhs);
 
 private:
-    // Internal
+    // Methods
     void Generate() {
         if constexpr (std::is_unsigned_v<T>) {
-            Value = sUniformDistribution(sEngine);
+            // >128-Bit with random value (type dependent)
+            std::uniform_int_distribution<T> distribution { 0, std::numeric_limits<T>::max() };
+            Value = distribution(sGenerator);
         } else {
-            stringstream result;
-            result << std::hex;
-            for (int i = 0; i < 8; i++) result << sUniformDistribution(sEngine, 15);
-            result << "-";
-            for (int i = 0; i < 4; i++) result << sUniformDistribution(sEngine, 15);
-            result << "-";
-            for (int i = 0; i < 4; i++) result << sUniformDistribution(sEngine, 15);
-            result << "-";
-            for (int i = 0; i < 4; i++) result << sUniformDistribution(sEngine, 15);
-            result << "-";
-            for (int i = 0; i < 12; i++) result << sUniformDistribution(sEngine, 15);
-            Value = result.str();
+            // 128-Bit with random value
+            std::uniform_int_distribution<uint64_t> distribution { 0, std::numeric_limits<uint64_t>::max() };
+            array<uint8_t, 16> bytes;
+            for (size_t i = 0; i < 16; i += 8) {
+                uint64_t value = distribution(sGenerator);
+                std::memcpy(bytes.data() + i, &value, sizeof(value));
+            }
 
-            // Alternative: Every position is randomly generated
-            //static const char *ValidChars = "0123456789abcdef";
-            //static array<uint8_t, 36> DashPositions = {
-            //    0, 0, 0, 0, 0, 0, 0, 0, 1,
-            //    0, 0, 0, 0, 1,
-            //    0, 0, 0, 0, 1,
-            //    0, 0, 0, 0, 1,
-            //    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            //};
-            //for (int i = 0; i < 36; i++) {
-            //    mIDC += (DashPositions[i] == 1) ? '-' : ValidChars[(sUniformDistributionShort(sEngine) % 16)];
-            //}
+            // Update UUID field
+            bytes[6] = (bytes[6] & 0x0f) | 0x40;  // Version 4
+            bytes[8] = (bytes[8] & 0x3f) | 0x80;  // Variant RFC 4122
+            
+            // Convert bytes to string format
+            std::stringstream result;
+            result << std::hex << std::setfill('0');
+            
+            for (int i = 0; i < 16; i++) {
+                if (i == 4 || i == 6 || i == 8 || i == 10) {
+                    result << '-';
+                }
+                result << std::setw(2) << static_cast<int>(bytes[i]);
+            }
+            Value = result.str();
         }
     }
 
 private:
     // Properties
     T Value;
-
     static inline std::random_device sRandomDevice;
-    static inline std::mt19937_64 sEngine { sRandomDevice() };
-    static inline std::uniform_int_distribution<size_t> sUniformDistribution;
+    static inline std::mt19937_64 sGenerator { sRandomDevice() };
 };
 
 // Allow ostream to ouptut UUIDs without conversations
