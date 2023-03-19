@@ -1,106 +1,79 @@
 ﻿// Module
 export module Ultra.Utility.DateTime;
 
-// Default
-import <chrono>;
-import <format>;
+// Library
+import Ultra.Core;
 
-// Usings
-using namespace std::chrono;
-using namespace std::chrono_literals;
+export namespace Ultra {
 
-export using namespace std::literals::chrono_literals;
-
-export namespace Ultra { namespace Utility {
-
+///
+/// @brief DateTime: Delivers current date/time/runtime/timestamp in ISO 8601 format.
+/// Simply use apptime under the Ultra Namespace to retrieve the desired information.
+/// 
 class DateTime {
-    // Constructors and Deconstructor
-    DateTime() = default;
+    // Types
+    using SystemClock = std::chrono::system_clock;
+    using Timespan = std::chrono::duration<double, std::micro>;
+    using Timestamp = std::chrono::time_point<std::chrono::system_clock>;
+
+    // Default
+    DateTime(): mStartTime(SystemClock::now()) {}
     DateTime(const DateTime &) = delete;
     DateTime(DateTime &&) noexcept = delete;
     ~DateTime() = default;
 
 public:
+    /// Returns an intance to the global static object
     static DateTime &Instance() {
         static DateTime instance;
         return instance;
     }
 
-    template <typename Rep, typename Period>
-    constexpr DateTime(const duration<Rep, Period> &duration):
-        Nanoseconds(duration_cast<nanoseconds>(duration).count()) {
-    }
-
-    // Converters
-    auto AsNanoseconds() const { return duration_cast<nanoseconds>(Nanoseconds); }
-    auto AsMicroseconds() const { return duration_cast<microseconds>(Nanoseconds); }
-    auto AsMilliseconds() const { return duration_cast<milliseconds>(Nanoseconds); }
-    auto AsSeconds() const { return duration_cast<seconds>(Nanoseconds); }
-
     // Accessors
-    template <typename T = long long>
-    static constexpr DateTime GetNanoseconds(const T &nanoseconds) { return DateTime(duration<T, std::nano>(nanoseconds));	}
-    template <typename T = long long>
-    static constexpr DateTime GetMicroseconds(const T &microseconds) { return DateTime(duration<T, std::micro>(microseconds)); }
-    template <typename T = long long>
-    static constexpr DateTime GetMilliseconds(const T &milliseconds) { return DateTime(duration<T, std::micro>(milliseconds)); }
-    template <typename T = long long>
-    static constexpr DateTime GetSeconds(const T &seconds) { return DateTime(duration<T>(seconds)); }
-
-    static const std::string GetDate() {
-        return GetDateTime(DateFormat);
-    }
-    static const std::string GetTime() {
-        return GetDateTime(TimeFormat);
-    }
-    static const std::string GetTimeStamp(const std::string &format = "{%FT%T}") {
-        // Get timestamp
-        //auto nows = floor<std::chrono::microseconds>(high_resolution_clock::now());
-        auto now = floor<std::chrono::microseconds>(system_clock::now());
-
-        std::stringstream ss;
-        ss << "{:" << format << "}";
-
-        return std::format("{:%FT%T}", now);
-        return std::vformat(format, std::make_format_args(now));
-        // ToDo: Dynamic Format
-        // std::vformat(format, std::make_format_args(now));
-    }
-    static const DateTime Now() {
-        return duration_cast<nanoseconds>(high_resolution_clock::now() - StartTime);
-    }
-
-    // Comparision
-    auto operator<=>(const DateTime &rhs) const { return Nanoseconds.count() <=> rhs.Nanoseconds.count(); }
-
-    // Operators
-    template <typename Rep, typename Period>
-    operator duration<Rep, Period>() const { return duration_cast<duration<Rep, Period>>(Nanoseconds); }
-
-    template <typename Period = std::ratio<1, 1>>
-    float Mod(const DateTime &other) {
-        return std::modf(duration_cast<duration<double, Period>>(Nanoseconds), duration_cast<duration<double, Period>>(other.Nanoseconds));
-    }
+    /// Retrive current date in ISO 8601 format 'YYYY-mm-dd'
+    inline const string GetDate() { return GetTicks("{:%Y-%m-%d}"); }
+    /// Retrive current time in ISO 8601 format 'HH:mm:ss.cccccc'
+    inline const string GetTime() { return GetTicks("{:%H:%M:%S}"); }
+    /// Retrive runtime in ISO 8601 format 'PddTHH:mm:ss'
+    inline const string GetRuntime() { return GetRuntimeTicks(); }
+    /// Retrive timestamp in ISO 8601 format 'YYYY-mm-ddTHH:mm:ss.cccccc'
+    inline const string GetTimeStamp() { return GetTicks(); }
 
 private:
-    static const std::string GetDateTime(const std::string_view format = "{:%FT%T}") {
-        auto now = floor<std::chrono::microseconds>(system_clock::now());
-        return std::vformat(format, std::make_format_args(now));
+    // Methods
+    inline const std::string GetTicks(const std::string_view format = "{:%Y-%m-%dT%H:%M:%S}") {
+        auto args = std::make_format_args(SystemClock::now());
+        try {
+            string result = std::vformat(format, args);
+            return result;
+        } catch (const std::exception &ex) {
+            return {};
+        }
+    }
+    inline const std::string GetRuntimeTicks(const std::string_view format = "P{0:02d}DT{1:02d}:{2:02d}:{3:02d}") {
+        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(SystemClock::now() - mStartTime);
+        
+        //auto years = (elapsed / (86400 * 365));
+        //auto months = (elapsed % (86400 * 365)) / (86400 * 30);
+        auto days = ((elapsed % (86400 * 30)) / 86400);
+        auto hours = (elapsed % 86400) / 3600;
+        auto minutes = (elapsed % 3600) / 60;
+        auto seconds = elapsed % 60;
+
+        auto args = std::make_format_args(days.count(), hours.count(), minutes.count(), seconds.count());
+        try {
+            string result = std::vformat(format, args);
+            return result;
+        } catch (const std::exception &ex) {
+            return {};
+        }
     }
 
 private:
     // Properties
-    static const inline std::string DateFormat = "{:%F}"; // Default Date Format
-    static const inline std::string TimeFormat = "{:%T}"; // Default Time Format
-
-    static const time_point<steady_clock> StartTime; // StartTime: Automatically set during application startup
-    nanoseconds Nanoseconds = {};
+    const Timestamp mStartTime;
 };
 
-inline const time_point<steady_clock> DateTime::StartTime(steady_clock::now());
-
-}
-
-inline Utility::DateTime &apptime = Utility::DateTime::Instance();
+inline DateTime &apptime = DateTime::Instance();
 
 }

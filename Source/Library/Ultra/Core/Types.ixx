@@ -7,6 +7,7 @@ export import <array>;
 export import <chrono>;
 export import <cstdlib>;
 export import <cstdint>;
+export import <exception>;
 export import <format>;
 export import <functional>;
 export import <iomanip>;
@@ -46,6 +47,7 @@ using std::weak_ptr;
 using std::format;
 using std::ostream;
 using std::stringstream;
+using std::vformat;
 
 // Threading
 using std::mutex;

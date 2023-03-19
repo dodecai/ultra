@@ -102,34 +102,43 @@ public:
     void Update(Timestamp deltatime) {}
 
     void Test() {
-        
+        // DateTime
+        //logger << "DateTime" << "\n";
+        //logger << "CurrentDate: " << apptime.GetDate() << "\n";
+        //logger << "CurrentTime: " << apptime.GetTime() << "\n";
+        //logger << "CurrentTimestamp: " << apptime.GetTimeStamp() << "\n";
+        //logger << "CurrentRuntime: " << apptime.GetRuntime() << "\n";
+        //for (size_t i = 0; i < 10'000'000; i++) {
+        //    auto test = new string("");
+        //    delete test;
+        //}
+        //logger << "CurrentRuntime: " << apptime.GetRuntime() << "\n";
+
         // Timer
-        logger << "Timer" << "\n";
-        Timer timer {};
-        logger << "Now: " << timer.Now() << "\n";
-        logger << "Now: " << timer.Now() << "\n";
-        logger << "Duration: " << timer.GetDeltaTime() << "\n";
-        logger << "Now: " << timer.Now() << "\n";
-        logger << "Now: " << timer.Now() << "\n";
-        logger << "Duration(ns): " << timer.GetDeltaTimeAs(TimerUnit::Nanoseconds) << "\n";;
-        logger << "Now: " << timer.Now() << "\n";
-        logger << "Now: " << timer.Now() << "\n";
-        logger << "Duration(µs): " << timer.GetDeltaTimeAs(TimerUnit::Microseconds) << "\n";;
-        logger << "Now: " << timer.Now() << "\n";
-        logger << "Now: " << timer.Now() << "\n";
-        logger << "Duration(ms): " << timer.GetDeltaTimeAs(TimerUnit::Milliseconds) << "\n";;
-        logger << "Now: " << timer.Now() << "\n";
-        logger << "Now: " << timer.Now() << "\n";
-        logger << "Duration(s): " << timer.GetDeltaTimeAs(TimerUnit::Seconds) << "\n";;
+        //logger << "Timer" << "\n";
+        //Timer timer {};
+        //logger << "Now: " << timer.Now() << "\n";
+        //logger << "Now: " << timer.Now() << "\n";
+        //logger << "Duration: " << timer.GetDeltaTime() << "\n";
+        //logger << "Now: " << timer.Now() << "\n";
+        //logger << "Now: " << timer.Now() << "\n";
+        //logger << "Duration(ns): " << timer.GetDeltaTimeAs(TimerUnit::Nanoseconds) << "\n";;
+        //logger << "Now: " << timer.Now() << "\n";
+        //logger << "Now: " << timer.Now() << "\n";
+        //logger << "Duration(µs): " << timer.GetDeltaTimeAs(TimerUnit::Microseconds) << "\n";;
+        //logger << "Now: " << timer.Now() << "\n";
+        //logger << "Now: " << timer.Now() << "\n";
+        //logger << "Duration(ms): " << timer.GetDeltaTimeAs(TimerUnit::Milliseconds) << "\n";;
+        //logger << "Now: " << timer.Now() << "\n";
+        //logger << "Now: " << timer.Now() << "\n";
+        //logger << "Duration(s): " << timer.GetDeltaTimeAs(TimerUnit::Seconds) << "\n";;
 
         // UUID
-        logger << "UUID" << "\n";
-        logger << UUID<uint16_t>() << "\n";
-        logger << UUID<uint32_t>() << "\n";
-        logger << UUID<uint64_t>() << "\n";
-        logger << UUID() << "\n";
-
-        Timer<double> timerA {};
+        //logger << "UUID" << "\n";
+        //logger << UUID<uint16_t>() << "\n";
+        //logger << UUID<uint32_t>() << "\n";
+        //logger << UUID<uint64_t>() << "\n";
+        //logger << UUID() << "\n";
 
         return;
 
