@@ -6,7 +6,7 @@ import Ultra.Core;
 export namespace Ultra {
 
 ///
-/// @brief Timer Uints:
+/// @brief Timer Units:
 /// Seconds (s), Milliseconds (ms), Microseconds (µs), Nanoseconds (ns)
 ///
 enum class TimerUnit: uint8_t {
