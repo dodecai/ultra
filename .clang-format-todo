@@ -1,0 +1,174 @@
+# Ultra C++ Style
+BasedOnStyle: Google
+Language: Cpp
+AccessModifierOffset: -4
+#AlignAfterOpenBracket: Align
+#AlignConsecutiveAssignments: false                 # ToDo: Would be nice for numbers
+#AlignConsecutiveBitFields: true                    # CurrentlyNotSupported (new)
+#AlignConsecutiveDeclarations: false
+#AlignConsecutiveMacros: false                      # ToDo: Would be nice for numbers
+#AlignEscapedNewlines: Left
+#AlignOperands: true                                # CurrentlyNotSupported: AlignAfterOperator
+#AlignTrailingComments: true
+#AllowAllArgumentsOnNextLine: false
+#AllowAllConstructorInitializersOnNextLine: false
+#AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: true
+#AllowShortEnumsOnASingleLine: true                 # CurrentlyNotSupported
+#AllowShortFunctionsOnASingleLine: All
+#AllowShortIfStatementsOnASingleLine: WithoutElse
+#AllowShortLambdasOnASingleLine: All
+#AllowShortLoopsOnASingleLine: true
+#AlwaysBreakAfterDefinitionReturnType: None
+#AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+#AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: false
+BinPackParameters: false
+#BitFieldColonSpacing: After                         # CurrentlyNotSupported (new)
+BraceWrapping:
+#  AfterCaseLabel: false
+#  AfterClass: false
+#  AfterControlStatement: false                      # CurrentlyNotSupported: Never
+#  AfterEnum: false
+#  AfterFunction: false
+#  AfterNamespace: false
+#  AfterObjCDeclaration: false
+#  AfterStruct: false
+#  AfterUnion: false
+#  AfterExternBlock: false
+#  BeforeCatch: false
+#  BeforeElse: false
+#  BeforeLambdaBody: false                           # CurrentlyNotSupported
+#  BeforeWhile: false                                # CurrentlyNotSupported
+#  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+#BreakAfterJavaFieldAnnotations: false
+#BreakBeforeBinaryOperators: None
+#BreakBeforeBraces: Attach
+#BreakBeforeInheritanceComma: false
+#BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: AfterColon
+#BreakConstructorInitializersBeforeComma: false
+BreakInheritanceList: AfterColon
+BreakStringLiterals: false
+ColumnLimit: 0
+#CommentPragmas: '^ IWYU pragma:'                   # ToDo: Check possibilities
+CompactNamespaces: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+#ConstructorInitializerIndentWidth: 4
+#ContinuationIndentWidth: 4
+Cpp11BracedListStyle: false                         # ToDo: Think of it again
+#DeriveLineEnding: true                             # CurrentlyNotSupported
+DerivePointerAlignment: false
+#DisableFormat: false
+#ExperimentalAutoDetectBinPacking: false
+FixNamespaceComments: false
+#ForEachMacros:
+#  - foreach
+#  - Q_FOREACH
+#  - BOOST_FOREACH
+#IncludeBlocks: Regroup
+#IncludeCategories:                                 # ToDo: Check possibilities (google was only different!?)
+#  - Regex:  '^<ext/.*\.h>'
+#    Priority: 2
+#  - Regex:  '^<.*\.h>'
+#    Priority: 1
+#  - Regex:  '^<.*'
+#    Priority: 2
+#  - Regex:  '.*'
+#    Priority: 3
+#IncludeIsMainRegex: '([-_](test|unittest))?$'
+#IncludeIsMainSourceRegex: ' .c, .cpp'              # ToDo: Check possibilities (new)
+#IndentCaseBlocks: false                            # CurrentlyNotSupported (new)
+#IndentCaseLabels: true
+#IndentExternBlock: false                           # CurrentlyNotSupported (new)
+IndentGotoLabels: true
+IndentPPDirectives: BeforeHash
+IndentWidth: 4
+#IndentWrappedFunctionNames: false
+#InsertTrailingCommas: true                         # CurrentlyNotSupported (new)
+#JavaScriptQuotes: Leave
+#JavaScriptWrapImports: true
+#KeepEmptyLinesAtTheStartOfBlocks: false
+#MacroBlockBegin: ''
+#MacroBlockEnd: ''
+MaxEmptyLinesToKeep: 3
+#NamespaceIndentation: None
+#NamespaceMacros: ''                                # CurrentlyNotSupported
+#ObjCBinPackProtocolList: Never
+ObjCBlockIndentWidth: 4
+#ObjCBreakBeforeNestedBlockParam: false             # CurrentlyNotSupported (new)
+#ObjCSpaceAfterProperty: false
+ObjCSpaceBeforeProtocolList: false
+#PenaltyBreakAssignment: 2                          # ToDo: Check possibilities of penalty
+#PenaltyBreakBeforeFirstCallParameter: 1
+#PenaltyBreakComment: 300
+#PenaltyBreakFirstLessLess: 120
+#PenaltyBreakString: 1000
+#PenaltyBreakTemplateDeclaration: 10
+#PenaltyExcessCharacter: 1000000
+#PenaltyReturnTypeOnItsOwnLine: 200
+PointerAlignment: Right
+#RawStringFormats:
+#  - Language: Cpp
+#    Delimiters:
+#      - cc
+#      - CC
+#      - cpp
+#      - Cpp
+#      - CPP
+#      - 'c++'
+#      - 'C++'
+#    CanonicalDelimiter: ''
+#    BasedOnStyle: google
+#  - Language: TextProto
+#    Delimiters:
+#      - pb
+#      - PB
+#      - proto
+#      - PROTO
+#    EnclosingFunctions:
+#      - EqualsProto
+#      - EquivToProto
+#      - PARSE_PARTIAL_TEXT_PROTO
+#      - PARSE_TEST_PROTO
+#      - PARSE_TEXT_PROTO
+#      - ParseTextOrDie
+#      - ParseTextProtoOrDie
+#    CanonicalDelimiter: ''
+#    BasedOnStyle: google
+ReflowComments: false                               # ToDo: Think of it again
+#SortIncludes: true
+#SortUsingDeclarations: true
+#SpaceAfterCStyleCast: false
+#SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+#SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeCtorInitializerColon: false
+SpaceBeforeInheritanceColon: false
+#SpaceBeforeParens: ControlStatements
+#SpaceBeforeRangeBasedForLoopColon: true
+#SpaceBeforeSquareBrackets: false
+#SpaceInEmptyBlock: false
+#SpaceInEmptyParentheses: false
+#SpacesBeforeTrailingComments: 2
+#SpacesInAngles: false
+#SpacesInCStyleCastParentheses: false
+SpacesInContainerLiterals: false
+#SpacesInParentheses: false
+#SpacesInSquareBrackets: false
+#Standard: Auto
+#StatementMacros:
+#  - Q_UNUSED
+#  - QT_REQUIRE_VERSION
+TabWidth: 4
+#TypenameMacros: ''
+#UseCRLF: false
+UseTab: Always
+#WhitespaceSensitiveMacros: ''
+...
