@@ -18,14 +18,13 @@ inline wstring ConvertChar2WChar(const string &source) {
     wchar_t buffer[256] = {};
     std::mbstowcs(buffer, source.c_str(), source.length());
     wstring result = buffer;
-    //delete[] buffer;
     return result;
 }
+
 inline string ConvertWChar2Char(const wstring &source) {
     char buffer[256] = {};
     std::wcstombs(buffer, source.c_str(), source.length());
     string result = buffer;
-    //delete[] buffer;
     return result;
 }
 
