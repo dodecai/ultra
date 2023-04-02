@@ -5,7 +5,7 @@
     characterset "Unicode"
     conformancemode "true"
     cdialect "C17"
-    cppdialect "C++20"
+    cppdialect "C++latest"
     cppmodules "true"
     nativewchar "on"
     scanformoduledependencies "off"
@@ -15,11 +15,14 @@
     debugdir "%{wks.location}/Build/%{cfg.buildcfg}"
     files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx" }
     
-    includedirs {
-	    "%{Headers.Library}",
+    externalincludedirs {
 	    "%{Headers.ThirdParty}",
 	    "%{Headers.DearImGui}",
 	    "%{Headers.EnTT}",
+    }
+
+    includedirs {
+	    "%{Headers.Library}",
     }
 
     links { 

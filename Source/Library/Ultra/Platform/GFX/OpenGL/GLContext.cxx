@@ -4,7 +4,6 @@
 #define __SPECSTRINGS_STRICT_LEVEL 0
 #include <glad/gl.h>
 
-
 #if defined(APP_PLATFORM_WINDOWS)
     #undef APIENTRY
     #undef __nullnullterminated
@@ -112,6 +111,7 @@ bool GLContext::GetExtensions(int a) {
 }
 
 
+// Default
 GLContext::GLContext(void *window) {
 	// Prepare
 	Data = new ContextData();
@@ -240,7 +240,25 @@ GLContext::~GLContext() {
     gladLoaderUnloadGL();
 }
 
+void GLContext::Load() {
+    if (!gladLoaderLoadGL()) {
+        LogFatal("[Context: Failed to load OpenGL!");
+        return;
+    }
+    #ifdef APP_DEBUG_MODE
+    if (glDebugMessageCallback) {
+        glEnable(GL_DEBUG_OUTPUT);
+        //glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(GLMessageCallback, 0);
+        //glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
+    } else {
+        LogWarning("[Ultra::RendererAPI::GL]: ", "The feature 'DebugMessageCallback' isn't available!");
+    }
+    #endif
+}
 
+
+// Controls
 void GLContext::Attach() {
 	#if defined(APP_PLATFORM_WINDOWS)
     if (!IsCurrentContext()) {
@@ -257,39 +275,21 @@ void GLContext::Detach() {
 	#endif
 }
 
-void GLContext::Load() {
-	if (!gladLoaderLoadGL()) {
-        LogFatal("[Context: Failed to load OpenGL!");
-		return;
-	}
-    #ifdef APP_DEBUG_MODE
-    if (glDebugMessageCallback) {
-        glEnable(GL_DEBUG_OUTPUT);
-        //glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(GLMessageCallback, 0);
-        //glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
-    } else {
-        LogWarning("[Ultra::RendererAPI::GL]: ", "The feature 'DebugMessageCallback' isn't available!");
-    }
+void GLContext::Clear() {
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void GLContext::SwapBuffers() {
+    #if defined(APP_PLATFORM_WINDOWS)
+    if (Data->hDeviceContext) ::SwapBuffers(Data->hDeviceContext);
     #endif
 }
 
 
+// Accessors & Mutators
 void *GLContext::GetNativeContext() {
 	return reinterpret_cast<void *>(Data->hRenderingContext);
 	return nullptr;
-}
-
-bool const GLContext::IsCurrentContext() {
-	#if defined(APP_PLATFORM_WINDOWS)
-		return (wglGetCurrentContext() == Data->hRenderingContext);
-	#endif
-	return false;
-}
-
-
-void GLContext::Clear() {
-    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void GLContext::SetViewport(uint32_t width, uint32_t height, int32_t x, int32_t y) {
@@ -300,10 +300,13 @@ void GLContext::SetVSync(bool activate) {
 	wglSwapIntervalEXT(activate ? 1 : 0);
 }
 
-void GLContext::SwapBuffers() {
-	#if defined(APP_PLATFORM_WINDOWS)
-        if (Data->hDeviceContext) ::SwapBuffers(Data->hDeviceContext);
-	#endif
+
+// Methods
+bool const GLContext::IsCurrentContext() {
+    #if defined(APP_PLATFORM_WINDOWS)
+    return (wglGetCurrentContext() == Data->hRenderingContext);
+    #endif
+    return false;
 }
 
 }

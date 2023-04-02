@@ -6,7 +6,8 @@ export namespace Ultra {
 
 enum class GraphicsAPI {
     Null    = 0x0,
-    DirectX = 0x1,
+    Native  = 0x1,
+    DirectX = 0x2,
     Metal   = 0x3,
     OpenGL  = 0x4,
     Vulkan  = 0x5,

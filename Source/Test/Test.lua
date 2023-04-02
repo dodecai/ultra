@@ -4,25 +4,29 @@
     characterset "Unicode"
     conformancemode "true"
     cdialect "C17"
-    cppdialect "C++20"
+    cppdialect "C++latest"
     cppmodules "true"
     nativewchar "on"
     scanformoduledependencies "off"
     staticruntime "on"
     toolset "msc"
-		
+	
     debugdir "%{wks.location}/Build/%{cfg.buildcfg}"
     dependson { "Ultra" }
     entrypoint "mainCRTStartup"
+    files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx" }
+    postbuildcommands {
+        "robocopy /mir /nfl /ndl /njh /njs /np /r:2 /w:1 \"%{wks.location}Assets\" \"%{cfg.targetdir}/Assets\"",
+        "robocopy /mir /nfl /ndl /njh /njs /np /r:2 /w:1 \"%{wks.location}Data\" \"%{cfg.targetdir}/Data\"",
+        "exit /b 0",
+    }
+
+    includedirs {
+        "%{Headers.Library}"
+    }
 
     links {
         "Ultra"
-    }
-
-    files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx" }
-    
-    includedirs {
-        "%{Headers.Library}"
     }
 
     filter { "configurations:Debug" }
@@ -31,7 +35,7 @@
         symbols "On"
 
     filter { "configurations:Release" }
-        kind "ConsoleApp"
+        kind "WindowedApp"
         defines { "NDEBUG" }
         optimize "On"
         symbols "On"

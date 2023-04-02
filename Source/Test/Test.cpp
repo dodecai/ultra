@@ -1,6 +1,7 @@
 ﻿#include <Settings.h>
 #include <Ultra/EntryPoint.h>
 
+
 import Ultra;
 
 namespace Ultra {
