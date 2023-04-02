@@ -47,6 +47,7 @@ private:
             string result = std::vformat(format, args);
             return result;
         } catch (const std::exception &ex) {
+            auto message = ex.what();
             return {};
         }
     }
@@ -65,6 +66,7 @@ private:
             string result = std::vformat(format, args);
             return result;
         } catch (const std::exception &ex) {
+            auto message = ex.what();
             return {};
         }
     }

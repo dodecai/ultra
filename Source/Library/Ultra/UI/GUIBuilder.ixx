@@ -1,11 +1,16 @@
 ﻿module;
 
-#include <Ultra/Core/Private/Core.h>
+#include "Ultra/Core/Private/Core.h"
+#if __INTELLISENSE__
+    #include "Ultra/Core/Private/Logger.h"
+#endif
 
 ///
 /// @brief This module contains the needed backends from DearImGui
 ///
 export module Ultra.UI.GUIBuilder;
+
+import Ultra.Core;
 
 // We are not interested in warnings related to DearImGui
 #pragma warning(push, 0)

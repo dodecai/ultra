@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+///
+/// @brief Type Extensions
+///
+
 #include <chrono>
 #include <string>
 #include <string_view>

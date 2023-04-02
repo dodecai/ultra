@@ -1,19 +1,25 @@
 ﻿module;
 
 #include "Ultra/Core/Private/Core.h"
-#define __SPECSTRINGS_STRICT_LEVEL 0
+//#define __SPECSTRINGS_STRICT_LEVEL 0
 #include <glad/gl.h>
 
 #if defined(APP_PLATFORM_WINDOWS)
-    #undef APIENTRY
+    #pragma comment(lib, "opengl32.lib")
+
+    // Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
     #undef __nullnullterminated
+    #define __SPECSTRINGS_STRICT_LEVEL 0
+
+    #undef APIENTRY
     #define NOMINMAX
     #define VC_EXTRALEAN
     #define WIN32_LEAN_AND_MEAN
-    #define __SPECSTRINGS_STRICT_LEVEL 0    // Hack: Workaround for problems with 'Windows.h' in combination with C++ modules!
 	#include <Windows.h>
 
-	#pragma comment(lib, "opengl32.lib")
+    // Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
+    #undef __nullnullterminated
+
 	#include <GL/glext.h>
     #include <GL/wglext.h>
 #endif

@@ -1,6 +1,9 @@
 ﻿module;
 
-#include <Ultra/Core/Private/Core.h> // ToDo: Since v17.6-preview.2 broken...
+#if __INTELLISENSE__
+    #include "Ultra/Core/Private/Core.h"
+    #include "Ultra/Core/Private/Logger.h"
+#endif
 
 module Ultra.UI.Window;
 
@@ -16,7 +19,7 @@ Scope<Window> Window::Create(const WindowProperties &properties) {
     #ifdef APP_PLATFORM_WINDOWS
         return CreateScope<WinWindow>(properties);
     #else
-        //APP_ASSERT(nullptr, "The current platform isn't supported!");
+        AppAssert(nullptr, "The current platform isn't supported!");
         return nullptr;
     #endif
 }

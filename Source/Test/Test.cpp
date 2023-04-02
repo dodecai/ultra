@@ -1,7 +1,6 @@
 ﻿#include <Settings.h>
 #include <Ultra/EntryPoint.h>
 
-
 import Ultra;
 
 namespace Ultra {
@@ -103,6 +102,7 @@ public:
     void Update(Timestamp deltatime) {}
 
     void Test() {
+  
         // DateTime
         //logger << "DateTime" << "\n";
         //logger << "CurrentDate: " << apptime.GetDate() << "\n";

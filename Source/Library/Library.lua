@@ -19,6 +19,8 @@
 	    "%{Headers.ThirdParty}",
 	    "%{Headers.DearImGui}",
 	    "%{Headers.EnTT}",
+	    "%{Headers.Vulkan}",
+	    "%{Headers.VulkanVideo}",
     }
 
     includedirs {
@@ -28,6 +30,8 @@
     links { 
         "DearImGui",
         "Glad",
+	    "%{Library.Vulkan}",
+	    "%{Library.VulkanUtils}",
     }
 
     filter { "configurations:Debug" }

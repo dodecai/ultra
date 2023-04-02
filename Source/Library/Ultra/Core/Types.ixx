@@ -1,7 +1,6 @@
-﻿module;
+﻿export module Ultra.Core.Types;
 
-export module Ultra.Types;
-
+// Default
 export import <algorithm>;
 export import <array>;
 export import <chrono>;
@@ -12,6 +11,7 @@ export import <format>;
 export import <functional>;
 export import <iomanip>;
 export import <limits>;
+export import <map>;
 export import <memory>;
 export import <mutex>;
 export import <ostream>;
@@ -19,23 +19,27 @@ export import <random>;
 export import <string>;
 export import <string_view>;
 export import <type_traits>;
+export import <unordered_map>;
 export import <vector>;
 export import <utility>;
 
-export import "Private/Types.h";
+// Extensions
+//export import "Private/Types.h";
 
 ///
 /// @brief The following containers, literals and types are used quite often, therefore they are exposed under the root namespace.
 ///
-
 export namespace Ultra {
 
 // Container
 using std::array;
+using std::byte;
+using std::map;
 using std::string;
 using std::wstring;
 using std::string_view;
 using std::wstring_view;
+using std::unordered_map;
 using std::vector;
 
 // Smart-Pointer

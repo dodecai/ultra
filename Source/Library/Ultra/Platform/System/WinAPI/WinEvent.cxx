@@ -1,13 +1,18 @@
 ﻿module;
 
-#undef APIENTRY
+// Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
 #undef __nullnullterminated
+#define __SPECSTRINGS_STRICT_LEVEL 0
+
+#undef APIENTRY
 #define NOMINMAX
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
-#define __SPECSTRINGS_STRICT_LEVEL 0    // Hack: Workaround for problems with 'Windows.h' in combination with C++ modules!
 #include <Windows.h>
 #include <WindowsX.h>
+
+// Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
+#undef __nullnullterminated
 
 #ifndef HID_USAGE_PAGE_GENERIC
     #define HID_USAGE_PAGE_GENERIC         ((USHORT) 0x01)

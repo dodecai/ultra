@@ -3,7 +3,6 @@
 import Ultra.Core;
 import Ultra.GFX.Context;
 import Ultra.Utility.Property;
-
 import Ultra.Platform.GFX.OpenGL;
 
 export namespace Ultra {

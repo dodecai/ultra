@@ -1,4 +1,10 @@
-﻿// Module
+﻿module;
+
+#if __INTELLISENSE__
+    #include "Ultra/Core/Private/Core.h"
+    #include "Ultra/Core/Private/Logger.h"
+#endif
+
 export module Ultra.Core.Application;
 
 import Ultra.Config;
@@ -119,8 +125,8 @@ public:
         mContext->Clear();
 
         // Load Core Layer
-        pCoreLayer = new GuiLayer();
-        PushOverlay(pCoreLayer);
+        //pCoreLayer = new GuiLayer();
+        //PushOverlay(pCoreLayer);
 
         // Runtime Properties
         Timer timer = {};
@@ -158,9 +164,9 @@ public:
             Update(deltaTime);
             if (mWindow->GetState(WindowState::Alive)) {
                 mListener->Update();
-                pCoreLayer->Prepare();
-                for (Layer *layer : mLayers) layer->GuiUpdate();
-                pCoreLayer->Finish();
+                //pCoreLayer->Prepare();
+                //for (Layer *layer : mLayers) layer->GuiUpdate();
+                //pCoreLayer->Finish();
             }
             mContext->SwapBuffers();
             mContext->Detach();

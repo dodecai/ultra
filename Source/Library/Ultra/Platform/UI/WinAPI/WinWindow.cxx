@@ -1,20 +1,18 @@
 ﻿module;
 
+// Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
+#undef __nullnullterminated
+#define __SPECSTRINGS_STRICT_LEVEL 0
+
 #pragma comment(lib, "dwmapi.lib")
 #pragma comment(lib, "uxtheme.lib")
-
-#undef APIENTRY
-#define NOMINMAX
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
-#define __SPECSTRINGS_STRICT_LEVEL 0
-#include <windows.h>
 
 #include <DwmApi.h>
 #include <ShObjIdl.h>
 #include <WindowsX.h>
-#include <WinUser.h>
-//#include <windef.h>
+
+// Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
+#undef __nullnullterminated
 
 module Ultra.Platform.UI.WinAPI.Window;
 

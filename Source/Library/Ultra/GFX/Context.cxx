@@ -1,6 +1,9 @@
 ﻿module;
 
-#include <Ultra/Core/Private/Core.h> // ToDo: Since v17.6-preview.2 broken...
+#if __INTELLISENSE__
+    #include "Ultra/Core/Private/Core.h"
+    #include "Ultra/Core/Private/Logger.h"
+#endif
 
 module Ultra.GFX.Context;
 
@@ -8,39 +11,38 @@ import Ultra.Core;
 import Ultra.Logger;
 
 #ifdef APP_PLATFORM_WINDOWS
+    import Ultra.Platform.GFX.DXContext;
     import Ultra.Platform.GFX.GLContext;
+    import Ultra.Platform.GFX.SWContext;
     import Ultra.Platform.GFX.VKSurface;
 #endif
 
 namespace Ultra {
 
 Reference<Context> Context::Create(void *window) {
-    #ifdef APP_PLATFORM_WINDOWS
+#ifdef APP_PLATFORM_WINDOWS
     switch (API) {
         case GraphicsAPI::OpenGL: {
             LogDebug("[Application] ", "Created context for 'OpenGL'");
             return CreateReference<GLContext>(window);
-            return nullptr;
         }
 
         case GraphicsAPI::Vulkan: {
             LogDebug("[Application] ", "Created context for 'Vulkan'");
-            //return CreateReference<VKContext>(window);
-            return nullptr;
+            return CreateReference<VKContext>(window);
         }
 
         default: {
-            //AppAssert(false, "This API is currently not supportded!");
+            AppAssert(false, "The selected graphics api isn't implemented!");
             return nullptr;
         }
     }
-    #else
-    //APP_ASSERT(false, "This platform is currently not supported!");
+#else
+    AppAssert(false, "This platform is currently not supported!");
     return nullptr;
-    #endif
+#endif
 }
 
-void Context::Destroy() {
-}
+void Context::Destroy() {}
 
 }
