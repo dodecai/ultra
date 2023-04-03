@@ -16,7 +16,7 @@ public:
     // Methods
     void Create() {}
     void Destroy() {}
-    void Update(Timestamp deltatime) {
+    void Update(Timestamp deltaTime) {
         logger << "Duration: " << apptime.GetTimeStamp() << "\n";
     }
 

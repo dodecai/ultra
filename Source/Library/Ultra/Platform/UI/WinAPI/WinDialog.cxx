@@ -19,6 +19,10 @@ import Ultra.Core.Application;
 namespace Ultra {
 
 // ToDo: Export these to String Utility
+
+#pragma warning(push)
+#pragma warning(disable: 4996)
+
 inline wstring ConvertChar2WChar(const string &source) {
     wchar_t buffer[256] = {};
     std::mbstowcs(buffer, source.c_str(), source.length());
@@ -33,6 +37,7 @@ inline string ConvertWChar2Char(const wstring &source) {
     return result;
 }
 
+#pragma warning(pop)
 
 string WinDialog::OpenFile(const char *filter) const {
     OPENFILENAME dialog;       // common dialog box structure

@@ -96,7 +96,6 @@ public:
     void Run() {
         // Initialization
         logger << LogLevel::Caption << AsciiLogo() << "\n";
-        // ToDo: apptime doesn't work in release mode...
         auto test = apptime.GetTime();
         logger << mProperties.Title << " started ...\n" <<
             "  on : '" << apptime.GetDate() << "'\n" <<
@@ -147,7 +146,7 @@ public:
                 continue;
             }
 
-            // Calcualte 
+            // Calculate 
             Timestamp deltaTime = timer.GetDeltaTime();
             frames++;
             delay += deltaTime;
@@ -176,7 +175,6 @@ public:
         logger << LogLevel::Caption << "Termination" << "\n";
         for (Layer *layer : mLayers) layer->Destroy();
         Destroy();
-        // ToDo: apptime doesn't work in release mode...
         logger << mProperties.Title << " finished ...\n" <<
             "  on : '" << apptime.GetDate() << "'\n" <<
             "  at : '" << apptime.GetTime() << "'\n";
@@ -197,7 +195,7 @@ public:
     // This method executes your termination code.
     virtual void Destroy() {}
     // This method executes your main logic code.
-    virtual void Update(Timestamp deltatime) {}
+    virtual void Update(Timestamp deltaTime) {}
 
     // With this method, everything ends.
     void Exit() {

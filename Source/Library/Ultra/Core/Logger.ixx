@@ -266,15 +266,10 @@ inline Logger &logger = Logger::Instance();
 /// they will help removing unaccessary code in release and distribution builds, therefore they also override the log levels.
 ///
 
-template<typename ...Args> void Log(Args &&...args)			{ logger << LogLevel::Default; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void LogTrace(Args &&...args)	{ logger << LogLevel::Trace  ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void LogDebug(Args &&...args)	{ logger << LogLevel::Debug  ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void LogInfo(Args &&...args)		{ logger << LogLevel::Info	 ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void LogWarning(Args &&...args)  { logger << LogLevel::Warn	 ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void LogError(Args &&...args)	{ logger << LogLevel::Error	 ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void LogFatal(Args &&...args)	{ logger << LogLevel::Fatal  ; (logger << ... << args); logger << "\n"; }
-
+template<typename ...Args> void Log(Args &&...args)         { logger << LogLevel::Default; (logger << ... << args); logger << "\n"; }
 #ifdef APP_MODE_DEBUG
+    // Workaround, add the debug break after the message.
+    //#define AppAssert(x, ...)   if (AppAssert(x, __VA_ARGS__)) APP_DEBUGBREAK()
     template<typename T, typename ...Args> bool AppAssert(T *object, Args &&...args) {
         if (!object) {
             logger << LogLevel::Fatal; (logger << ... << args); logger << "\n";
@@ -289,20 +284,23 @@ template<typename ...Args> void LogFatal(Args &&...args)	{ logger << LogLevel::F
         }
         return false;
     }
+    template<typename ...Args> void LogTrace(Args &&...args)	{ logger << LogLevel::Trace  ; (logger << ... << args); logger << "\n"; }
+    template<typename ...Args> void LogDebug(Args &&...args)	{ logger << LogLevel::Debug  ; (logger << ... << args); logger << "\n"; }
+    template<typename ...Args> void LogInfo(Args &&...args)		{ logger << LogLevel::Info	 ; (logger << ... << args); logger << "\n"; }
 
-    // Workaround, add the debug break after the message.
-    //#define AppAssert(x, ...)   if (AppAssert(x, __VA_ARGS__)) APP_DEBUGBREAK()
 #elif APP_MODE_RELEASE
-    template<typename T, typename ...Args> void AppAssert(T *object, Args &&...args) {}
-    template<typename T, typename ...Args> void AppAssert(T object, Args &&...args) {}
-    template<typename ...Args> void LogTrace(Args &&...args) {}
-    template<typename ...Args> void LogDebug(Args &&...args) {}
+    template<typename ...Args> void AppAssert(Args &&...args)   {}
+    template<typename ...Args> void LogTrace(Args &&...args)    {}
+    template<typename ...Args> void LogDebug(Args &&...args)    {}
+    template<typename ...Args> void LogInfo(Args &&...args)		{ logger << LogLevel::Info	 ; (logger << ... << args); logger << "\n"; }
 #elif APP_MODE_DISTRIBUTION
-    template<typename T, typename ...Args> void AppAssert(T *object, Args &&...args) {}
-    template<typename T, typename ...Args> void AppAssert(T object, Args &&...args) {}
-    template<typename ...Args> void LogTrace(Args &&...args) {}
-    template<typename ...Args> void LogDebug(Args &&...args) {}
-    template<typename ...Args> void LogInfo(Args &&...args) {}
+    template<typename ...Args> void AppAssert(Args &&...args)   {}
+    template<typename ...Args> void LogTrace(Args &&...args)    {}
+    template<typename ...Args> void LogDebug(Args &&...args)    {}
+    template<typename ...Args> void LogInfo(Args &&...args)     {}
 #endif
+template<typename ...Args> void LogWarning(Args &&...args)  { logger << LogLevel::Warn	 ; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void LogError(Args &&...args)	{ logger << LogLevel::Error	 ; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void LogFatal(Args &&...args)	{ logger << LogLevel::Fatal  ; (logger << ... << args); logger << "\n"; }
 
 }

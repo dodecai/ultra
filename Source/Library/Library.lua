@@ -8,7 +8,7 @@
     cppdialect "C++latest"
     cppmodules "true"
     nativewchar "on"
-    scanformoduledependencies "off"
+    scanformoduledependencies "on"
     staticruntime "on"
     toolset "msc"
     

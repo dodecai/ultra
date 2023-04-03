@@ -199,7 +199,7 @@ public:
         string string16 = "01234567";
         string string17 = "012345678";
 
-        string string20 = "This is a very long sentance for a small string!";
+        string string20 = "This is a very long sentence for a small string!";
         string string21 = "What the ... should i do. Maybe it would be my 1st try to 3489032840921384092384902318490823149203945803294.";
         std::wstring wstring20 = L"Dies ist ein sehr langer Satz für einen String, deshalb sollter er mit bedacht eingesetzt werden!";
         std::wstring wstring21 = L"Ein paar Zeichen zum testen #+äü+ö€";

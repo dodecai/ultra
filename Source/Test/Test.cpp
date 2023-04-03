@@ -99,21 +99,21 @@ public:
         Test();
     }
     void Destroy() {}
-    void Update(Timestamp deltatime) {}
+    void Update(Timestamp deltaTime) {}
 
     void Test() {
   
         // DateTime
-        //logger << "DateTime" << "\n";
-        //logger << "CurrentDate: " << apptime.GetDate() << "\n";
-        //logger << "CurrentTime: " << apptime.GetTime() << "\n";
-        //logger << "CurrentTimestamp: " << apptime.GetTimeStamp() << "\n";
-        //logger << "CurrentRuntime: " << apptime.GetRuntime() << "\n";
+        logger << "DateTime" << "\n";
+        logger << "CurrentDate: " << apptime.GetDate() << "\n";
+        logger << "CurrentTime: " << apptime.GetTime() << "\n";
+        logger << "CurrentTimestamp: " << apptime.GetTimeStamp() << "\n";
+        logger << "CurrentRuntime: " << apptime.GetRuntime() << "\n";
         //for (size_t i = 0; i < 10'000'000; i++) {
         //    auto test = new string("");
         //    delete test;
         //}
-        //logger << "CurrentRuntime: " << apptime.GetRuntime() << "\n";
+        logger << "CurrentRuntime: " << apptime.GetRuntime() << "\n";
 
         // Timer
         //logger << "Timer" << "\n";
@@ -145,15 +145,8 @@ public:
 
 
         //auto a = "Test";
-
-
-
         ////Cli::Test();
         ////Logger::Test();
-
-        ////logger << apptime.GetDate() << "\n";
-        ////logger << apptime.GetTime() << "\n";
-        ////logger << apptime.GetTimeStamp() << "\n";
 
         //// Events
         ////Dispatcher<bool(string)> TestA;

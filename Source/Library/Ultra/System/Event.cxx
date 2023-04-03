@@ -1,6 +1,9 @@
 ﻿module;
 
-#include <Ultra/Core/Private/Core.h> // ToDo: Since v17.6-preview.2 broken...
+#include "Ultra/Core/Private/Core.h"
+#if __INTELLISENSE__
+    #include "Ultra/Core/Private/Logger.h"
+#endif
 
 module Ultra.System.Event;
 
