@@ -1,16 +1,14 @@
-﻿module;
+﻿export module Ultra.Engine.UniformBuffer;
 
-export module Ultra.Engine.Buffer;
-
-import Ultra.Core;
-import Ultra.Logger;
+export import Ultra.Core;
+export import Ultra.Logger;
 
 export namespace Ultra {
 
-class Buffer {
+class UniformBuffer {
 public:
-    Buffer() = default;
-    ~Buffer() = default;
+    UniformBuffer() = default;
+    ~UniformBuffer() = default;
 };
 
 }

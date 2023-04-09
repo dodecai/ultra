@@ -1,16 +1,16 @@
 ﻿module;
 
-export module Ultra.Engine.Pipeline;
+export module Ultra.Engine.ComputePipeline;
 
 import Ultra.Core;
 import Ultra.Logger;
 
 export namespace Ultra {
 
-class Pipeline {
+class ComputePipeline {
 public:
-    Pipeline() = default;
-    ~Pipeline() = default;
+    ComputePipeline() = default;
+    ~ComputePipeline() = default;
 };
 
 }

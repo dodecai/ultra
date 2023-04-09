@@ -1,6 +1,8 @@
 ﻿Headers["ThirdParty"] = "%{wks.location}/3rd-Party"
 Headers["DearImGui"] = "%{wks.location}/3rd-Party/imgui"
 Headers["EnTT"] = "%{wks.location}/3rd-Party/EnTT/single_include"
+Headers["glm"] = "%{wks.location}/3rd-Party/glm"
+Headers["stb"] = "%{wks.location}/3rd-Party/stb"
 Headers["Vulkan"] = "%{wks.location}/3rd-Party/vulkan"
 Headers["VulkanVideo"] = "%{wks.location}/3rd-Party/vk_video"
 

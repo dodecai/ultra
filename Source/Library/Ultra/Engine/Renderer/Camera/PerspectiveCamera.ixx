@@ -1,16 +1,18 @@
 ﻿module;
 
-export module Ultra.Engine.Camera;
+export module Ultra.Engine.PerspectiveCamera;
 
 import Ultra.Core;
 import Ultra.Logger;
 
+import Ultra.Engine.Camera;
+
 export namespace Ultra {
 
-class Camera {
+class PerspectiveCamera {
 public:
-    Camera() = default;
-    ~Camera() = default;
+    PerspectiveCamera() = default;
+    ~PerspectiveCamera() = default;
 };
 
 }

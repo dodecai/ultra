@@ -19,6 +19,8 @@
 	    "%{Headers.ThirdParty}",
 	    "%{Headers.DearImGui}",
 	    "%{Headers.EnTT}",
+	    "%{Headers.glm}",
+        "%{Headers.stb}",
 	    "%{Headers.Vulkan}",
 	    "%{Headers.VulkanVideo}",
     }

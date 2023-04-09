@@ -96,10 +96,17 @@ public:
 
     // Methods
     void Create() {
+        Renderer::Load();
+
+        Shaders.Load("./Assets/Shaders/Texture.glsl");
+
         Test();
     }
     void Destroy() {}
-    void Update(Timestamp deltaTime) {}
+    void Update(Timestamp deltaTime) {
+        Renderer::BeginScene();
+        Renderer::EndScene();
+    }
 
     void Test() {
   
@@ -246,6 +253,9 @@ public:
         ////TestA("Test A");
         //logger << "Duration: " << timer.GetDeltaTime() << "\n";
     }
+
+private:
+    ShaderLibrary Shaders;
 };
 
 // Application Entry-Point

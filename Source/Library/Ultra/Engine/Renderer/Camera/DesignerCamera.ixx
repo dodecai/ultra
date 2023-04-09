@@ -1,16 +1,21 @@
 ﻿module;
 
-export module Ultra.Engine.Camera;
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
+export module Ultra.Engine.DesignerCamera;
 
 import Ultra.Core;
 import Ultra.Logger;
 
+import Ultra.Engine.Camera;
+
 export namespace Ultra {
 
-class Camera {
+class DesignerCamera: public Camera {
 public:
-    Camera() = default;
-    ~Camera() = default;
+    DesignerCamera() = default;
+    ~DesignerCamera() = default;
 };
 
 }

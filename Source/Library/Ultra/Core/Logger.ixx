@@ -196,6 +196,13 @@ public:
         return (*this);
     }
 
+    // Operators
+    template <typename ...Args>
+    Logger operator()(const string &format, Args ...args) {
+        //<< location.function_name(), std::source_location location = std::source_location::current()
+        Logger::Instance() << std::format(format, args...);
+    }
+
     // Show whe what you got...
     static void Test() {
         // LogLevels

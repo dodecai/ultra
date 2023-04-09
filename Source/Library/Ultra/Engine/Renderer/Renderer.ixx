@@ -1,22 +1,38 @@
 ﻿module;
 
+#include <glm/glm.hpp>
+
 export module Ultra.Engine.Renderer;
 
-import Ultra.Core;
-import Ultra.Logger;
+export import Ultra.Core;
+export import Ultra.Logger;
+export import Ultra.GFX.Context;
+
+export import Ultra.Engine.Camera;
+
 
 export namespace Ultra {
 
 class Renderer {
+    struct SceneData {
+        glm::mat4 ViewProjectionMatrix;
+    };
+
 public:
     Renderer() = default;
     ~Renderer() = default;
-};
 
-class Renderer2D {
-public:
-    Renderer2D() = default;
-    ~Renderer2D() = default;
+    static void Load();
+
+    static void BeginScene();
+    static void EndScene();
+
+    static void Resize(const uint32_t width, const uint32_t height);
+
+    inline static GraphicsAPI GetAPI() { return Context::API; }
+
+private:
+    static SceneData *mSceneData;
 };
 
 }

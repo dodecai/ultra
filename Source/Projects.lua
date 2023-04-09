@@ -27,6 +27,10 @@
         "Manual/Concept.md",
         "Manual/Concept.mmd",
         "Manual/Style.md",
+    },
+    ["Shaders"] = {
+        "Assets/Shaders/Basic.glsl",
+        "Assets/Shaders/Texture.glsl",
     }
 }
 
