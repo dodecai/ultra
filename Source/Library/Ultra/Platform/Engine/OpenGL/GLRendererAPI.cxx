@@ -73,7 +73,8 @@ void GLRendererAPI::DrawIndexed(uint32_t count, PrimitiveType type, bool depthTe
         case PrimitiveType::Triangle:   { primitive = GL_TRIANGLES;	break; }
     }
 
-    glDrawElements(primitive, count, GL_UNSIGNED_INT, nullptr);
+    glDrawArrays(primitive, 0, count);
+    //glDrawElements(primitive, count, GL_UNSIGNED_INT, nullptr);
 
     if (!depthTest) glEnable(GL_DEPTH_TEST);
 }

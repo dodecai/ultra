@@ -19,16 +19,13 @@ public:
     virtual void Unbind() const override;
 
     virtual const RendererID GetRendererID() const override { return mRendererID; }
-    virtual const VertexBufferLayout &GetLayout() const override { return mLayout; }
     virtual const size_t GetSize() const override { return mBuffer.Size; };
 
     virtual void SetData(void *data, size_t size, size_t offset = 0) override;
-    virtual void SetLayout(const VertexBufferLayout &layout) override { mLayout = layout; }
 
 private:
     RendererID mRendererID = 0;
     VertexBufferType mType;
-    VertexBufferLayout mLayout;
     BufferData mBuffer;
 };
 

@@ -1,17 +1,15 @@
 ﻿export module Ultra.Engine.BufferData;
 
 import Ultra.Core;
+import Ultra.Logger;
 
 export namespace Ultra {
 
-class BufferData {
-public:
+struct BufferData {
     BufferData(): Data(nullptr), Size(0) {}
     BufferData(size_t size) { Allocate(size); }
-    BufferData(std::byte *data, size_t size): Data { data }, Size { size } {}
-    ~BufferData() { Release(); }
+    BufferData(byte *data, size_t size): Data((byte *)data), Size(size) {}
     
-
     static BufferData Copy(const BufferData &other) {
         BufferData buffer;
         buffer.Allocate(other.Size);
@@ -22,6 +20,7 @@ public:
         BufferData buffer;
         buffer.Allocate(size);
         memcpy(buffer.Data, data, size);
+        bool result = memcmp(data, buffer.Data, sizeof(data)) == 0 ? true : false;
         return buffer;
     }
 
@@ -45,10 +44,11 @@ public:
     template<typename T>
     T *As() const { return (T*)(Data); }
     template<typename T>
-    T &Read(uint32_t offset = 0) {
+    T &Read(size_t offset = 0) {
         return *(T *)(Data + offset);
     }
     void Write(const void *data, size_t size, size_t offset = 0) {
+        AppAssert(offset + size <= Size, "Renderer::Buffer: Buffer overflow detected!");
         memcpy(Data + offset, data, size);
     }
 

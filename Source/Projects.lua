@@ -30,6 +30,7 @@
     },
     ["Shaders"] = {
         "Assets/Shaders/Basic.glsl",
+        "Assets/Shaders/Sample.glsl",
         "Assets/Shaders/Texture.glsl",
     }
 }

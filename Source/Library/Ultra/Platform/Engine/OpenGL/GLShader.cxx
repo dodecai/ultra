@@ -18,10 +18,10 @@ GLShader::GLShader(const string &source) {
 
     ShaderName = GetFileName(source);
 
-    //auto test1 = GetFileExtension(source);
-    //auto test2 = GetFileName(source);
-    //auto test3 = GetFileRoot(source);
-    //auto test4 = GetFilePath(source);
+    auto test1 = GetFileExtension(source);
+    auto test2 = GetFileName(source);
+    auto test3 = GetFileRoot(source);
+    auto test4 = GetFilePath(source);
 }
 
 GLShader::GLShader(const string &vertexSource, const string &fragmentSource) {

@@ -3,6 +3,13 @@
 
 import Ultra;
 
+
+import Ultra.Engine.Pipeline;
+import Ultra.Engine.Shader;
+import Ultra.Engine.IndexBuffer;
+import Ultra.Engine.VertexBuffer;
+
+
 namespace Ultra {
 
 struct KeyboardEvent {
@@ -98,18 +105,34 @@ public:
     void Create() {
         Renderer::Load();
 
-        //Shaders.Load("./Assets/Shaders/Texture.glsl");
-
-        Test();
+        EngineTest();
     }
     void Destroy() {}
     void Update(Timestamp deltaTime) {
         Renderer::BeginScene();
+
+        Renderer2D::StartScene(SceneCamera);
+        Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+        BasicPipeline->Bind();
+        BasicShader->Bind();
+        Renderer::Submit();
+
+        BasicShader->Unbind();
+
+        Renderer2D::DrawQuad({ -0.2f, -0.2f }, { 0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+
+        Renderer2D::FinishScene();
+
+
         Renderer::EndScene();
     }
 
-    void Test() {
-  
+    ///
+    /// @brief App Tests
+    ///
+    void AppTest() {
+
         // DateTime
         logger << "DateTime" << "\n";
         logger << "CurrentDate: " << apptime.GetDate() << "\n";
@@ -254,8 +277,41 @@ public:
         //logger << "Duration: " << timer.GetDeltaTime() << "\n";
     }
 
+    ///
+    /// @brief Engine Tests
+    ///
+    void EngineTest() {
+        BasicPipeline = Pipeline::Create({
+            VertexBufferLayout {
+                { ShaderDataType::Float3, "position" }
+            }
+        });
+        BasicShader = Shader::Create("Assets/Shaders/Sample.glsl");
+
+        size_t indices[] = {
+            0, 1, 2
+        };
+        BasicIndex = IndexBuffer::Create(indices, sizeof(indices));
+        BasicIndex->Bind();
+
+        float vertices[] = {
+            -0.5f, -0.5f, 0.0f,
+             0.5f, -0.5f, 0.0f,
+             0.0f,  0.5f, 0.0f
+        };
+        BasicVertex = VertexBuffer::Create(vertices, sizeof(vertices));
+        BasicVertex->Bind();
+        BasicPipeline->Bind();
+        BasicVertex->Unbind();
+        BasicIndex->Unbind();
+    }
+
 private:
-    //ShaderLibrary Shaders;
+    Camera SceneCamera;
+    Reference<Pipeline> BasicPipeline;
+    Reference<Shader> BasicShader;
+    Reference<IndexBuffer> BasicIndex;
+    Reference<VertexBuffer> BasicVertex;
 };
 
 // Application Entry-Point

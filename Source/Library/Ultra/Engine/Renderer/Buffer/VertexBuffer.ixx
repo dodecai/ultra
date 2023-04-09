@@ -56,10 +56,10 @@ public:
     inline const std::vector<VertexBufferElement> &GetElements() const { return mElements; }
     inline const uint32_t GetStride() const { return mStride; }
 
-    auto begin() { return mElements.begin(); }
-    auto end() { return mElements.end(); }
-    auto begin() const { return mElements.begin(); }
-    auto end() const { return mElements.end(); }
+    [[nodiscard]] auto begin() { return mElements.begin(); }
+    [[nodiscard]] auto end() { return mElements.end(); }
+    [[nodiscard]] auto begin() const { return mElements.begin(); }
+    [[nodiscard]] auto end() const { return mElements.end(); }
 
 private:
     void CalculateOffsetAndStride() {
@@ -94,11 +94,9 @@ public:
     virtual void Unbind() const = 0;
 
     virtual const RendererID GetRendererID() const = 0;
-    virtual const VertexBufferLayout &GetLayout() const = 0;
     virtual const size_t GetSize() const = 0;
 
     virtual void SetData(void *data, size_t size, size_t offset = 0) = 0;
-    virtual void SetLayout(const VertexBufferLayout &layout) = 0;
 };
 
 }

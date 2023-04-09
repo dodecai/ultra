@@ -1,6 +1,6 @@
 ﻿module Ultra.Engine.Pipeline;
 
-//import Ultra.Platform.Engine.GLPipeline;
+import Ultra.Platform.Engine.GLPipeline;
 //import Ultra.Platform.Engine.VKPipeline;
 
 namespace Ultra {
@@ -8,7 +8,7 @@ namespace Ultra {
 Reference<Pipeline> Pipeline::Create(const PipelineProperties &properties) {
     switch (Context::API) {
         case GraphicsAPI::Null:		{ return nullptr; }
-        //case GraphicsAPI::OpenGL:	{ return CreateReference<GLPipeline>(properties); }
+        case GraphicsAPI::OpenGL:	{ return CreateReference<GLPipeline>(properties); }
         //case GraphicsAPI::Vulkan:	{ return CreateReference<VKPipeline>(properties); }
         default:                    { break; }
     }

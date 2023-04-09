@@ -13,6 +13,7 @@ GLUniformBuffer::GLUniformBuffer(size_t size, uint32_t binding): mBuffer(size), 
 }
 
 GLUniformBuffer::~GLUniformBuffer() {
+    mBuffer.Release();
     glDeleteBuffers(1, &mRendererID);
 }
 

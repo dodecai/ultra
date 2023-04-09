@@ -10,6 +10,13 @@ export import Ultra.Engine.RendererAPI;
 
 export namespace Ultra {
 
+enum class TextureFilter {
+    Null    = 0,
+    Linear  = 1,
+    Nearest = 2,
+    Cubic   = 3,
+};
+
 enum class TextureFormat {
 	Null	= 0x00,
 
@@ -17,18 +24,33 @@ enum class TextureFormat {
 	Green	= 0x02,
 	Blue	= 0x03,
 	Alpha	= 0x04,
-
-	RGB		= 0x10,
+    
 	BGR		= 0x11,
+	BGRA	= 0x12,
 
-	RGBA	= 0x20,
-	BGRA	= 0x21,
+	RGB		= 0x20,
+	RGBA	= 0x21,
+    RGBA16F = 0x22,
+    RGBA32F = 0x23,
 };
 
 enum class TextureWrap {
 	Null	= 0,
 	Clamp	= 1,
 	Repeat	= 2,
+};
+
+struct TextureProperties {
+    string Name;
+    
+    TextureFormat Format = TextureFormat::Null;
+    uint32_t Width = 0;
+    uint32_t Height = 0;
+
+    TextureWrap SamplerWrap = TextureWrap::Repeat;
+    TextureFilter SamplerFilter = TextureFilter::Linear;
+
+    bool GenerateMips = true;
 };
 
 class Texture {
@@ -38,20 +60,14 @@ public:
 	virtual ~Texture() = default;
 	
 	virtual void Bind(uint32_t slot = 0) const = 0;
-	virtual void UnBind(uint32_t slot = 0) const = 0;
+	virtual void Unbind(uint32_t slot = 0) const = 0;
 
 	// Accessors
-    virtual uint32_t GetRendererID() const = 0;
-	virtual TextureFormat GetFormat() const = 0;
-	virtual uint32_t GetHeight() const = 0;
-	virtual uint32_t GetWidth() const = 0;
-
-	// Mutators
-	virtual void SetData(void *data, uint32_t size) const = 0;
+    virtual RendererID GetRendererID() const = 0;
+    virtual const TextureProperties &GetProperties() const = 0;
 
 	// Operators
 	virtual bool operator==(const Texture &other) const = 0;
-	virtual operator RendererID() const = 0;
 };
 
 class Texture2D: public Texture {
@@ -60,8 +76,9 @@ public:
 	Texture2D() = default;
 	virtual ~Texture2D() = default;
 
-	static Reference<Texture2D> Create(const std::string &path);
-	static Reference<Texture2D> Create(const uint32_t width, const uint32_t height, TextureFormat format = TextureFormat::RGBA, TextureWrap wrap = TextureWrap::Clamp);
+    static Reference<Texture2D> Create(const TextureProperties &properties);
+    static Reference<Texture2D> Create(const TextureProperties &properties, const void *data, size_t size);
+	static Reference<Texture2D> Create(const TextureProperties &properties, const string &path);
 };
 
 class Texture3D: public Texture {
@@ -70,8 +87,9 @@ public:
 	Texture3D() = default;
 	virtual ~Texture3D() = default;
 
-	static Reference<Texture3D> Create(const std::string &path);
-	static Reference<Texture3D> Create(const uint32_t width, const uint32_t height, TextureFormat format = TextureFormat::RGBA, TextureWrap wrap = TextureWrap::Clamp);
+    static Reference<Texture3D> Create(const TextureProperties &properties);
+    static Reference<Texture3D> Create(const TextureProperties &properties, const void *data, size_t size);
+	static Reference<Texture3D> Create(const TextureProperties &properties, const string &path);
 };
 
 }

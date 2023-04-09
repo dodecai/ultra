@@ -51,7 +51,7 @@ public:
     Shader() = default;
     ~Shader() = default;
 
-    static Reference<Shader> Create(const string &source) { return {}; }
+    static Reference<Shader> Create(const string &source);
     virtual bool Reload() const = 0;
 
     virtual void Bind() const = 0;

@@ -78,12 +78,12 @@ void Renderer2D::Load() {
     {
         sData.LineShader = Shader::Create("Assets/Shaders/Line.glsl");
 
-        //PipelineProperties pipelineProperties;
-        //pipelineProperties.Layout = {
-        //    { ShaderDataType::Float3, "aPosition" },
-        //    { ShaderDataType::Float4, "aColor" }
-        //};
-        //sData.LinePipeline = Pipeline::Create(pipelineProperties);
+        PipelineProperties pipelineProperties;
+        pipelineProperties.Layout = {
+            { ShaderDataType::Float3, "aPosition" },
+            { ShaderDataType::Float4, "aColor" }
+        };
+        sData.LinePipeline = Pipeline::Create(pipelineProperties);
 
         sData.LineVertexBuffer = VertexBuffer::Create(sData.MaxLineVertices * sizeof(LineVertex));
         sData.LineVertexBufferBase = new LineVertex[sData.MaxLineVertices];
@@ -99,15 +99,15 @@ void Renderer2D::Load() {
 
     // Quads
     {
-        //PipelineProperties pipelineProperties;
-        //pipelineProperties.Layout = {
-        //    { ShaderDataType::Float3, "aPosition" },
-        //    { ShaderDataType::Float4, "aColor" },
-        //    { ShaderDataType::Float2, "aTexCoordinates" },
-        //    { ShaderDataType::Float, "aTextureIndex" },
-        //    { ShaderDataType::Float, "aTilingFactor" },
-        //};
-        //sData.QuadPipeline = Pipeline::Create(pipelineProperties);
+        PipelineProperties pipelineProperties;
+        pipelineProperties.Layout = {
+            { ShaderDataType::Float3, "aPosition" },
+            { ShaderDataType::Float4, "aColor" },
+            { ShaderDataType::Float2, "aTexCoordinates" },
+            { ShaderDataType::Float, "aTextureIndex" },
+            { ShaderDataType::Float, "aTilingFactor" },
+        };
+        sData.QuadPipeline = Pipeline::Create(pipelineProperties);
 
         sData.QVertexBuffer = VertexBuffer::Create(sData.MaxVertices * sizeof(QuadVertex));
         sData.QVertexBufferBase = new QuadVertex[sData.MaxVertices];
@@ -130,16 +130,15 @@ void Renderer2D::Load() {
     }
 
     // Miscelaneous
-    sData.WhiteTexture = Texture2D::Create(1, 1);
     uint32_t whiteTextureData = 0xffffffff;
-    sData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
+    sData.WhiteTexture = Texture2D::Create(TextureProperties(), &whiteTextureData, sizeof(uint32_t));
 
     int32_t samplers[sData.MaxTextureSlots];
     for (uint32_t i = 0; i < sData.MaxTextureSlots; i++) samplers[i] = i;
 
-    //sData.TextureShader = Shader::Create("./Assets/Shaders/Texture.glsl");
-    //sData.TextureShader->Bind();
-    //sData.TextureShader->SetUniformBuffer("uTextures", (void *)samplers, sData.MaxTextureSlots);
+    sData.TextureShader = Shader::Create("./Assets/Shaders/Texture.glsl");
+    sData.TextureShader->Bind();
+    sData.TextureShader->SetUniformBuffer("uTextures", (void *)samplers, sData.MaxTextureSlots);
 
     // Set all texture slots to 0
     sData.TextureSlots[0] = sData.WhiteTexture;
@@ -174,7 +173,7 @@ void Renderer2D::Unload() {
 
 void Renderer2D::StartScene(const Camera &camera) {
     sData.DepthTest = true;
-    //sData.ViewProjectionMatrix = camera.GetProjection();
+    sData.ViewProjectionMatrix = camera.GetProjection();
 
     sData.LineIndexCount = 0;
     sData.LineVertexBufferPtr = sData.LineVertexBufferBase;
@@ -187,7 +186,7 @@ void Renderer2D::StartScene(const Camera &camera) {
 
 void Renderer2D::StartScene(const Camera &camera, const glm::mat4 &transform) {
     sData.DepthTest = true;
-    //sData.ViewProjectionMatrix = camera.GetProjection() * glm::inverse(transform);
+    sData.ViewProjectionMatrix = camera.GetProjection() * glm::inverse(transform);
 
     sData.LineIndexCount = 0;
     sData.LineVertexBufferPtr = sData.LineVertexBufferBase;

@@ -18,6 +18,7 @@ GLIndexBuffer::GLIndexBuffer(size_t size): mBuffer(size) {
 }
 
 GLIndexBuffer::~GLIndexBuffer() {
+    mBuffer.Release();
     glDeleteBuffers(1, &mRendererID);
 }
 

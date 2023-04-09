@@ -1,7 +1,10 @@
-﻿module Ultra.Engine.Renderer;
+﻿module;
+
+#include <glad/gl.h>
+
+module Ultra.Engine.Renderer;
 
 import Ultra.Engine.RenderCommand;
-import Ultra.Engine.Renderer2D;
 
 namespace Ultra {
 
@@ -18,10 +21,23 @@ void Renderer::Load() {
 
 void Renderer::BeginScene() {
     RenderCommand::Clear();
+
     //mSceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 }
 
 void Renderer::EndScene() {
+}
+
+void Renderer::Submit() {
+    RenderCommand::DrawIndexed(3, PrimitiveType::Triangle);
+}
+
+void Renderer::Unload() {
+    Renderer2D::Unload();
+}
+
+void Renderer::SetClearColor(float red, float green, float blue, float alpha) {
+    RenderCommand::SetClearColor({ red, green, blue, alpha });
 }
 
 void Renderer::Resize(const uint32_t width, const uint32_t height) {
