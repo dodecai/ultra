@@ -4,7 +4,7 @@ workspace "Ultra Spectra"
     defines { "SOLUTION_NAME=Ultra" }
     architecture "x64"
     configurations { "Debug", "Release", "Distribution" }
-    buildoptions "/utf-8"
+    buildoptions "/utf-8 /bigobj"
     flags { "MultiProcessorCompile" }
     startproject "App"
     systemversion "latest"

@@ -41,10 +41,10 @@ public:
 	virtual void UnBind(uint32_t slot = 0) const = 0;
 
 	// Accessors
+    virtual uint32_t GetRendererID() const = 0;
 	virtual TextureFormat GetFormat() const = 0;
 	virtual uint32_t GetHeight() const = 0;
 	virtual uint32_t GetWidth() const = 0;
-	virtual uint32_t GetRendererID() const = 0;
 
 	// Mutators
 	virtual void SetData(void *data, uint32_t size) const = 0;

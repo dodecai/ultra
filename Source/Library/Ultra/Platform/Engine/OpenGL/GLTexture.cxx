@@ -101,32 +101,14 @@ void GLTexture2D::UnBind(uint32_t slot) const {
     glBindTextureUnit(slot, 0);
 }
 
-
-// Accessors
-TextureFormat GLTexture2D::GetFormat() const {
-    return TextureFormat();
-}
-
-
 // Mutators
 void GLTexture2D::SetData(void *data, uint32_t size) const {
-    // ToDo: Thread Syns (Lock, Unlock)
+    // ToDo: Thread Sync (Lock, Unlock)
     uint32_t bpc = DataFormat == GL_RGB8 ? 4 : 3;
     //if (size == (Width * Height * bpc)) {
     //	//Data must be entire texture!
     //}
     glTextureSubImage2D(mRendererID, 0, 0, 0, Width, Height, DataFormat, GL_UNSIGNED_BYTE, data);
-}
-
-
-// Operators
-bool GLTexture2D::operator==(const Texture &other) const {
-    return mRendererID == ((GLTexture2D &)other).mRendererID;
-
-}
-
-GLTexture2D::operator RendererID() const {
-    return mRendererID;
 }
 
 
@@ -202,30 +184,14 @@ void GLTexture3D::UnBind(uint32_t slot) const {
 }
 
 
-// Accessors
-TextureFormat GLTexture3D::GetFormat() const {
-    return TextureFormat();
-}
-
-
 // Mutators
 void GLTexture3D::SetData(void *data, uint32_t size) const {
-    // ToDo: Thread Syns (Lock, Unlock)
+    // ToDo: Thread Sycs (Lock, Unlock)
     uint32_t bpc = DataFormat == GL_RGB8 ? 4 : 3;
     //if (size == (Width * Height * bpc)) {
     //	//Data must be entire texture!
     //}
     glTextureSubImage2D(mRendererID, 0, 0, 0, Width, Height, DataFormat, GL_UNSIGNED_BYTE, data);
-}
-
-
-// Operators
-bool GLTexture3D::operator==(const Texture &other) const {
-    return mRendererID == ((GLTexture3D &)other).mRendererID;
-}
-
-GLTexture3D::operator RendererID() const {
-    return mRendererID;
 }
 
 

@@ -15,7 +15,7 @@ public:
 	virtual void UnBind(uint32_t slot) const override;
 
 	// Accessors
-	virtual TextureFormat GetFormat() const;
+	virtual TextureFormat GetFormat() const { return TextureFormat(); }
 	virtual uint32_t GetHeight() const override { return Height; }
 	virtual uint32_t GetWidth() const override { return Width; }
 	virtual uint32_t GetRendererID() const override { return mRendererID; };
@@ -24,16 +24,16 @@ public:
 	virtual void SetData(void *data, uint32_t size) const override;
 
 	// Operators
-	virtual bool operator==(const Texture &other) const override;
-	virtual operator RendererID() const override;
+	virtual bool operator==(const Texture &other) const override { return mRendererID == ((GLTexture2D &)other).mRendererID; }
+    virtual operator RendererID() const override { return mRendererID; }
 
 private:
-    std::string Patch;
-    uint32_t DataFormat;    //GLenum
-    uint32_t RenderFormat;  //GLenum
+    RendererID mRendererID;
     uint32_t Height;
     uint32_t Width;
-    RendererID mRendererID;
+    string Patch;
+    uint32_t DataFormat;
+    uint32_t RenderFormat;
 };
 
 class GLTexture3D: public Texture3D {
@@ -47,7 +47,7 @@ public:
 	virtual void UnBind(uint32_t slot) const override;
 
 	// Accessors
-	virtual TextureFormat GetFormat() const;
+	virtual TextureFormat GetFormat() const { return TextureFormat(); }
 	virtual uint32_t GetHeight() const override { return Height; }
 	virtual uint32_t GetWidth() const override { return Width; }
 	virtual uint32_t GetRendererID() const override { return mRendererID; };
@@ -56,16 +56,16 @@ public:
 	virtual void SetData(void *data, uint32_t size) const override;
 
 	// Operators
-	virtual bool operator==(const Texture &other) const override;
-	virtual operator RendererID() const override;
+	virtual bool operator==(const Texture &other) const override { return mRendererID == ((GLTexture3D &)other).mRendererID; }
+	virtual operator RendererID() const override { return mRendererID; }
 
 private:
-    std::string Patch;
-    uint32_t DataFormat;    //GLenum
-    uint32_t RenderFormat;  //GLenum
+    RendererID mRendererID;
     uint32_t Height;
     uint32_t Width;
-    RendererID mRendererID;
+    string Patch;
+    uint32_t DataFormat;
+    uint32_t RenderFormat;
 };
 
 }

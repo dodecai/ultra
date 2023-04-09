@@ -9,6 +9,8 @@ export import Ultra.Logger;
 export import Ultra.GFX.Context;
 
 export import Ultra.Engine.Camera;
+export import Ultra.Engine.Shader;
+export import Ultra.Engine.Texture;
 
 
 export namespace Ultra {

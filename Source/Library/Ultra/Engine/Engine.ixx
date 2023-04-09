@@ -8,5 +8,3 @@ export import Ultra.Engine.IndexBuffer;
 export import Ultra.Engine.VertexBuffer;
 export import Ultra.Engine.Scene;
 export import Ultra.Engine.Script;
-
-export import Ultra.Engine.Shader;
