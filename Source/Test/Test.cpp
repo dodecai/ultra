@@ -98,7 +98,7 @@ public:
     void Create() {
         Renderer::Load();
 
-        Shaders.Load("./Assets/Shaders/Texture.glsl");
+        //Shaders.Load("./Assets/Shaders/Texture.glsl");
 
         Test();
     }
@@ -255,7 +255,7 @@ public:
     }
 
 private:
-    ShaderLibrary Shaders;
+    //ShaderLibrary Shaders;
 };
 
 // Application Entry-Point
