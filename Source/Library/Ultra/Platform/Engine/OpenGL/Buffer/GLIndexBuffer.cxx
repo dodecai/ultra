@@ -6,20 +6,15 @@ module Ultra.Platform.Engine.GLIndexBuffer;
 
 namespace Ultra {
 
-GLIndexBuffer::GLIndexBuffer(uint32_t size): mSize(size) {
+GLIndexBuffer::GLIndexBuffer(const void *data, size_t size) {
+    mBuffer = BufferData::Copy(data, size);
     glCreateBuffers(1, &mRendererID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererID); // ToDo: Remove
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW); // ToDo: Remove
-    glNamedBufferData(mRendererID, size, nullptr, GL_DYNAMIC_DRAW);
+    glNamedBufferData(mRendererID, mBuffer.Size, mBuffer.Data, GL_STATIC_DRAW);
 }
 
-GLIndexBuffer::GLIndexBuffer(void *data, uint32_t size): mSize(size) {
-    mBuffer = BufferData::Copy(data, size);
-
+GLIndexBuffer::GLIndexBuffer(size_t size): mBuffer(size) {
     glCreateBuffers(1, &mRendererID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRendererID); // ToDo: Remove
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size * sizeof(uint32_t), (uint32_t *)data, GL_STATIC_DRAW); // ToDo: Remove
-    glNamedBufferData(mRendererID, size, mBuffer.Data, GL_STATIC_DRAW);
+    glNamedBufferData(mRendererID, mBuffer.Size, nullptr, GL_DYNAMIC_DRAW);
 }
 
 GLIndexBuffer::~GLIndexBuffer() {
@@ -31,13 +26,12 @@ void GLIndexBuffer::Bind() const {
 }
 
 void GLIndexBuffer::Unbind() const {
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0u);
 }
 
-void GLIndexBuffer::SetData(void *data, uint32_t size, uint32_t offset) {
+void GLIndexBuffer::SetData(const void *data, size_t size, size_t offset) {
     mBuffer = BufferData::Copy(data, size);
-    mSize = size;
-    glNamedBufferSubData(mRendererID, offset, mSize, mBuffer.Data);
+    glNamedBufferSubData(mRendererID, offset, mBuffer.Size, mBuffer.Data);
 }
 
 }

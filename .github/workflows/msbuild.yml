@@ -34,6 +34,7 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.2
       with:
+        msbuild-architecture: x64
         vs-prerelease: true
 
 #    - name: Restore NuGet packages

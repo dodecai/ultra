@@ -7,23 +7,23 @@ export namespace Ultra {
 
 class GLIndexBuffer: public IndexBuffer {
 public:
-    GLIndexBuffer(uint32_t size);
-    GLIndexBuffer(void *data, uint32_t size);
+    GLIndexBuffer() = default;
+    GLIndexBuffer(const void *data, size_t size);
+    GLIndexBuffer(size_t size);
     virtual ~GLIndexBuffer();
 
     virtual void Bind() const override;
     virtual void Unbind() const override;
 
-    virtual const RendererID GetRendererID() const override { return static_cast<RendererID>(mRendererID); }
-    virtual const uint32_t GetCount() const override { return static_cast<uint32_t>(mSize) / sizeof(uint32_t); };
-    virtual const uint32_t GetSize() const override { return static_cast<uint32_t>(mSize); };
+    virtual const RendererID GetRendererID() const override { return mRendererID; }
+    virtual const size_t GetCount() const override { return mBuffer.Size / sizeof(size_t); };
+    virtual const size_t GetSize() const override { return mBuffer.Size; };
 
-    virtual void SetData(void *data, uint32_t size, uint32_t offset = 0);
+    virtual void SetData(const void *data, size_t size, size_t offset = 0);
 
 private:
-    GLuint mRendererID = 0;
+    RendererID mRendererID = 0;
     BufferData mBuffer;
-    GLsizei mSize;
 };
 
 }

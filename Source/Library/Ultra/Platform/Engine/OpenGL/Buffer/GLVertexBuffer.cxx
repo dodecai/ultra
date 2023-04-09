@@ -8,46 +8,27 @@ namespace Ultra {
 
 static GLenum GetGLDrawType(VertexBufferType type) {
     switch (type) {
+        case VertexBufferType::Static:  return GL_STATIC_DRAW;
         case VertexBufferType::Dynamic: return GL_DYNAMIC_DRAW;
-        case VertexBufferType::Static: return GL_STATIC_DRAW;
     }
     LogFatal("The specified buffer draw type is unknown!");
     return 0;
 }
 
-// Vertex Buffer
-GLVertexBuffer::GLVertexBuffer(uint32_t size, VertexBufferType type): mSize(size), mType(type) {
+GLVertexBuffer::GLVertexBuffer(const void *data, size_t size, VertexBufferType type): mType(type) {
+    mBuffer = BufferData::Copy(data, size);
     glCreateBuffers(1, &mRendererID);
-    glBindBuffer(GL_ARRAY_BUFFER, mRendererID); // ToDo: Remove
-    glBufferData(GL_ARRAY_BUFFER, size, nullptr, GetGLDrawType(mType)); // ToDo: Remove
-    glNamedBufferData(mRendererID, size, nullptr, GetGLDrawType(mType));
+    glNamedBufferData(mRendererID, size, mBuffer.Data, GetGLDrawType(mType));
 }
 
-GLVertexBuffer::GLVertexBuffer(void *data, uint32_t size, VertexBufferType type): mSize(size), mType(type) {
-    mBuffer = BufferData::Copy(data, size);
-
+GLVertexBuffer::GLVertexBuffer(size_t size, VertexBufferType type): mType(type) {
+    mBuffer = BufferData(size);
     glCreateBuffers(1, &mRendererID);
-    glBindBuffer(GL_ARRAY_BUFFER, mRendererID); // ToDo: Remove
-    glBufferData(GL_ARRAY_BUFFER, size, data, GetGLDrawType(mType)); // ToDo: Remove
-    glNamedBufferData(mRendererID, size, mBuffer.Data, GetGLDrawType(mType));
+    glNamedBufferData(mRendererID, size, nullptr, GetGLDrawType(mType));
 }
 
 GLVertexBuffer::~GLVertexBuffer() {
     glDeleteBuffers(1, &mRendererID);
-}
-
-const VertexBufferLayout &GLVertexBuffer::GetLayout() const {
-    return mLayout;
-}
-
-void GLVertexBuffer::SetLayout(const VertexBufferLayout &layout) {
-    mLayout = layout;
-}
-
-void GLVertexBuffer::SetData(void *data, uint32_t size, uint32_t offset) {
-    mBuffer = BufferData::Copy(data, size);
-    mSize = size;
-    glNamedBufferSubData(mRendererID, offset, mSize, mBuffer.Data);
 }
 
 void GLVertexBuffer::Bind() const {
@@ -56,6 +37,11 @@ void GLVertexBuffer::Bind() const {
 
 void GLVertexBuffer::Unbind() const {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void GLVertexBuffer::SetData(void *data, size_t size, size_t offset) {
+    mBuffer = BufferData::Copy(data, size);
+    glNamedBufferSubData(mRendererID, offset, mBuffer.Size, mBuffer.Data);
 }
 
 }

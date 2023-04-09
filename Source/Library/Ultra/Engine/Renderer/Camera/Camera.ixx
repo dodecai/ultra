@@ -17,17 +17,17 @@ enum class CameraTypes {
 class Camera {
 public:
     Camera() = default;
-    Camera(const glm::mat4 &projection): Projection(projection) {}
-    ~Camera() = default;
+    Camera(const glm::mat4 &projection): mProjection(projection) {}
+    virtual ~Camera() = default;
 
-    const float GetExposure() const { return Exposure; }
-    const glm::mat4 &GetProjection() const { return Projection; }
+    const float GetExposure() const { return mExposure; }
+    const glm::mat4 &GetProjection() const { return mProjection; }
 
-    void SetProjection(const glm::mat4 &projection) { Projection = projection; }
+    void SetProjection(const glm::mat4 &projection) { mProjection = projection; }
 
 protected:
-    float Exposure = 1.0f;
-    glm::mat4 Projection = glm::mat4(1.0f);
+    float mExposure = 1.0f;
+    glm::mat4 mProjection = glm::mat4(1.0f);
 };
 
 }

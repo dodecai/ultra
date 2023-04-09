@@ -41,8 +41,8 @@ struct VertexBufferElement {
 
     string Name;
     ShaderDataType Type;
-    uint32_t Offset;
     uint32_t Size;
+    uint32_t Offset;
     bool Normalized;
 };
 
@@ -82,24 +82,23 @@ enum class VertexBufferType {
 	Dynamic = 0x2,
 };
 
-
 class VertexBuffer {
 public:
     VertexBuffer() = default;
     virtual ~VertexBuffer() = default;
 
-    static Reference<VertexBuffer> Create(uint32_t size, VertexBufferType type = VertexBufferType::Dynamic);
-    static Reference<VertexBuffer> Create(void *data, uint32_t size, VertexBufferType type = VertexBufferType::Static);
+    static Reference<VertexBuffer> Create(const void *data, size_t size, VertexBufferType type = VertexBufferType::Static);
+    static Reference<VertexBuffer> Create(size_t size, VertexBufferType type = VertexBufferType::Dynamic);
 
     virtual void Bind() const = 0;
     virtual void Unbind() const = 0;
 
     virtual const RendererID GetRendererID() const = 0;
     virtual const VertexBufferLayout &GetLayout() const = 0;
-    virtual const uint32_t GetSize() const = 0;
+    virtual const size_t GetSize() const = 0;
 
+    virtual void SetData(void *data, size_t size, size_t offset = 0) = 0;
     virtual void SetLayout(const VertexBufferLayout &layout) = 0;
-    virtual void SetData(void *data, uint32_t size, uint32_t offset = 0) = 0;
 };
 
 }
