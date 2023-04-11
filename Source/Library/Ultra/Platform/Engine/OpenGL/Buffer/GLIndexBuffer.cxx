@@ -6,19 +6,32 @@ module Ultra.Platform.Engine.GLIndexBuffer;
 
 namespace Ultra {
 
-GLIndexBuffer::GLIndexBuffer(const void *data, size_t size) {
-    mBuffer = BufferData::Copy(data, size);
+GLIndexBuffer::GLIndexBuffer(size_t size) {
+    mData.Allocate(size);
     glCreateBuffers(1, &mRendererID);
-    glNamedBufferData(mRendererID, mBuffer.Size, mBuffer.Data, GL_STATIC_DRAW);
+    glNamedBufferData(mRendererID, size, nullptr, GL_DYNAMIC_DRAW);
 }
 
-GLIndexBuffer::GLIndexBuffer(size_t size): mBuffer(size) {
+GLIndexBuffer::GLIndexBuffer(const uint32_t *data, size_t size) {
+    DetectCompressionLevel(data, size);
+    mProperties.Count = size / (size_t)mProperties.Type;
+
+    void *optimizedData = nullptr;
+    if (mProperties.Type == IndexType::UINT8) {
+        optimizedData = reinterpret_cast<void *>(CompressIndices<uint8_t>(data, size));
+        mData = BufferData::Copy(optimizedData, size);
+    } else if (mProperties.Type == IndexType::UINT16) {
+        optimizedData = reinterpret_cast<void *>(CompressIndices<uint16_t>(data, size));
+        mData = BufferData::Copy(optimizedData, size);
+    } else {
+        optimizedData = (void *)data;
+        mData = BufferData::Copy(optimizedData, size);
+    }
     glCreateBuffers(1, &mRendererID);
-    glNamedBufferData(mRendererID, mBuffer.Size, nullptr, GL_DYNAMIC_DRAW);
+    glNamedBufferData(mRendererID, mProperties.Count, optimizedData, GL_STATIC_DRAW);
 }
 
 GLIndexBuffer::~GLIndexBuffer() {
-    mBuffer.Release();
     glDeleteBuffers(1, &mRendererID);
 }
 
@@ -27,12 +40,12 @@ void GLIndexBuffer::Bind() const {
 }
 
 void GLIndexBuffer::Unbind() const {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0u);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void GLIndexBuffer::SetData(const void *data, size_t size, size_t offset) {
-    mBuffer = BufferData::Copy(data, size);
-    glNamedBufferSubData(mRendererID, offset, mBuffer.Size, mBuffer.Data);
+void GLIndexBuffer::SetData(const uint32_t *data, size_t size, intptr_t offset) {
+    mData = BufferData::Copy(data, size);
+    glNamedBufferSubData(mRendererID, offset, size, data);
 }
 
 }

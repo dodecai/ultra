@@ -7,6 +7,23 @@ module Ultra.Platform.Engine.GLRendererAPI;
 
 namespace Ultra {
 
+static void GLMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
+    switch (severity) {
+        case GL_DEBUG_SEVERITY_HIGH:
+            LogError("Platform::OpenGL: ", message);
+            break;
+        case GL_DEBUG_SEVERITY_MEDIUM:
+            LogWarning("Platform::OpenGL: ", message);
+            break;
+        case GL_DEBUG_SEVERITY_LOW:
+            LogInfo("Platform::OpenGL: ", message);
+            break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION:
+            LogTrace("Platform::OpenGL: ", message);
+            break;
+    }
+}
+
 // Default
 void GLRendererAPI::Load() {
     uint32_t vao;
@@ -14,10 +31,15 @@ void GLRendererAPI::Load() {
     glBindVertexArray(vao);
 
     // Properties
+    glDebugMessageCallback(GLMessage, nullptr);
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
     glFrontFace(GL_CCW);
@@ -46,12 +68,6 @@ void GLRendererAPI::Load() {
 
     glBindVertexArray(0);
     capabilities.Log();
-
-    // Show Errors
-    auto error = glGetError();
-    if (error != GL_NO_ERROR) {
-        LogError("[Ultra::RendererAPI::GL]: Error occured while initializing { Code:", error, " }");
-    }
 }
 
 void GLRendererAPI::Unload() {
@@ -64,17 +80,23 @@ void GLRendererAPI::Clear() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void GLRendererAPI::DrawIndexed(uint32_t count, PrimitiveType type, bool depthTest) {
+void GLRendererAPI::DrawIndexed(const IndexProperties &properties, PrimitiveType primitive, bool depthTest) {
     if (!depthTest) glDisable(GL_DEPTH_TEST);
 
-    GLenum primitive = 0;
-    switch (type) {
-        case PrimitiveType::Line:       { primitive = GL_LINES;		break; }
-        case PrimitiveType::Triangle:   { primitive = GL_TRIANGLES;	break; }
+    GLenum mode = 0;
+    GLenum type = 0;
+    switch (properties.Type) {
+        case IndexType::UINT8:  { type = GL_UNSIGNED_BYTE; break; }
+        case IndexType::UINT16: { type = GL_UNSIGNED_INT; break; }
+        case IndexType::UINT32: { type = GL_UNSIGNED_INT; break; }
     }
 
-    glDrawArrays(primitive, 0, count);
-    //glDrawElements(primitive, count, GL_UNSIGNED_INT, nullptr);
+    switch (primitive) {
+        case PrimitiveType::Line:       { mode = GL_LINES; break; }
+        case PrimitiveType::Triangle:   { mode = GL_TRIANGLES; break; }
+    }
+
+    glDrawElements(mode, properties.Count, type, nullptr);
 
     if (!depthTest) glEnable(GL_DEPTH_TEST);
 }

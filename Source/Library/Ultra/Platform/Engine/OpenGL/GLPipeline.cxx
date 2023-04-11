@@ -30,9 +30,7 @@ static GLenum ShaderDataTypeToGLBaseType(ShaderDataType type) {
 	return 0;
 }
 
-GLPipeline::GLPipeline(const PipelineProperties &properties):
-    mProperties(properties)
-{
+GLPipeline::GLPipeline(const PipelineProperties &properties): mProperties(properties) {
     Invalidate();
 }
 
@@ -43,24 +41,39 @@ GLPipeline::~GLPipeline() {
 void GLPipeline::Bind() const {
     glBindVertexArray(mRendererID);
 
-    auto index = 0;
+    auto attributeIndex = 0;
     const auto &layout = mProperties.Layout;
     for (const auto &attribute : layout) {
         auto baseType = ShaderDataTypeToGLBaseType(attribute.Type);
-        glEnableVertexAttribArray(index);
+        glEnableVertexAttribArray(attributeIndex);
         if (baseType == GL_INT) {
-            glVertexAttribIPointer(index, attribute.GetComponentCount(), baseType, layout.GetStride(), (const void *)attribute.Offset);
+            glVertexAttribIPointer(
+                attributeIndex,
+                attribute.GetComponentCount(),
+                baseType,
+                layout.GetStride(),
+                (const void *)(intptr_t)attribute.Offset
+            );
         } else {
-            glVertexAttribPointer(index, attribute.GetComponentCount(), baseType, attribute.Normalized ? GL_TRUE : GL_FALSE, layout.GetStride(), (const void *)attribute.Offset);
+            glVertexAttribPointer(
+                attributeIndex,
+                attribute.GetComponentCount(),
+                baseType,
+                attribute.Normalized ? GL_TRUE : GL_FALSE,
+                layout.GetStride(),
+                (const void *)(intptr_t)attribute.Offset
+            );
         }
-        index++;
+        attributeIndex++;
     }
 }
 
 void GLPipeline::Invalidate() {
     if (mRendererID) glDeleteVertexArrays(1, &mRendererID);
-    glGenVertexArrays(1, &mRendererID);
-    glBindVertexArray(mRendererID);
+    glCreateVertexArrays(1, &mRendererID);
+}
+
+void GLPipeline::Unbind() const {
     glBindVertexArray(0);
 }
 

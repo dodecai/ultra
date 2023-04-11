@@ -14,14 +14,24 @@ export namespace Ultra {
 class ShaderUniform {
 public:
     ShaderUniform() = default;
-    ShaderUniform(const string &name, ShaderUniformType type, uint32_t size, uint32_t offset);
+    ShaderUniform(const string &name, ShaderUniformType type, uint32_t size, uint32_t offset):
+        mName(name),
+        mType(type),
+        mSize(size),
+        mOffset(offset) {
+    }
 
     const string &GetName() const { return mName; }
     const ShaderUniformType GetType() const { return mType; }
     const uint32_t GetSize() const { return mSize; }
     const uint32_t GetOffset() const { return mOffset; }
 
-    static const string UniformTypeToString(ShaderUniformType type);
+    static const string UniformTypeToString(ShaderUniformType type) {
+        if (type == ShaderUniformType::Bool)        return "Boolean";
+        else if (type == ShaderUniformType::Int)    return "Int";
+        else if (type == ShaderUniformType::Float)  return "Float";
+        return "Null";
+    }
 
 private:
     string mName;
@@ -45,6 +55,26 @@ struct ShaderBuffer {
     unordered_map<string, ShaderUniform> Uniforms;
 };
 
+class ShaderResourceDeclaration {
+public:
+    ShaderResourceDeclaration() = default;
+    ShaderResourceDeclaration(const string &name, uint32_t resourceRegister, uint32_t count):
+        mName(name),
+        mRegister(resourceRegister),
+        mCount(count) {
+    }
+
+    virtual const string &GetName() const { return mName; }
+    virtual const uint32_t GetRegister() const { return mRegister; }
+    virtual const uint32_t GetCount() const { return mCount; }
+
+private:
+    string mName;
+    uint32_t mRegister = 0;
+    uint32_t mCount = 0;
+};
+
+
 class Shader {
 public:
     // Default
@@ -59,6 +89,8 @@ public:
 
     // Accessors
     virtual const string &GetName() const = 0;
+    virtual const unordered_map<string, ShaderBuffer> &GetBuffers() const = 0;
+    virtual const unordered_map<string, ShaderResourceDeclaration> &GetResources() const = 0;
 
     // Mutators
     virtual void SetUniformBuffer(const string &name, const void *data, size_t size) = 0;
@@ -79,20 +111,24 @@ public:
     ShaderLibrary() = default;
     ~ShaderLibrary() = default;
 
-    void Load(const string &directory) {}
-
-    // Accessors
-    const Reference<Shader> &Get(const string &name) {
-        return mShaders.at(name);
+    void Load(const string &source) {
+        auto shader = Shader::Create(source);
+        Add(shader);
     }
-    size_t GetSize() const {
-        return mShaders.size();
+    const Reference<Shader> &Get(const string &name) {
+        if (!Exist(name)) return nullptr;
+        return mShaders[name];
+    }
+    bool Exist(const string &name) {
+        if (mShaders.empty()) return false;
+        return mShaders.find(name) != mShaders.end();
     }
 
 private:
     // Methods
     void Add(const Reference<Shader> &shader) {
         auto &name = shader->GetName();
+        if (Exist(name)) { return; }
         mShaders[name] = shader;
     }
 

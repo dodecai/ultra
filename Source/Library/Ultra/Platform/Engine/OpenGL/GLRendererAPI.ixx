@@ -16,7 +16,7 @@ public:
 
 	// 
 	virtual void Clear() override;
-	virtual void DrawIndexed(uint32_t count, PrimitiveType type, bool depthTest = true) override;
+	virtual void DrawIndexed(const IndexProperties &properties, PrimitiveType type, bool depthTest = true) override;
 
 	// Mutators
 	virtual void SetClearColor(const glm::vec4 &color) override;

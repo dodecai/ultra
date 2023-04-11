@@ -18,7 +18,7 @@ static GLenum GetGLDrawType(VertexBufferType type) {
 GLVertexBuffer::GLVertexBuffer(const void *data, size_t size, VertexBufferType type): mType(type) {
     mBuffer = BufferData::Copy(data, size);
     glCreateBuffers(1, &mRendererID);
-    glNamedBufferData(mRendererID, mBuffer.Size, mBuffer.Data, GetGLDrawType(mType));
+    glNamedBufferData(mRendererID, static_cast<GLsizeiptr>(size), mBuffer.Data, GetGLDrawType(type));
 }
 
 GLVertexBuffer::GLVertexBuffer(size_t size, VertexBufferType type): mType(type) {
@@ -37,7 +37,7 @@ void GLVertexBuffer::Bind() const {
 }
 
 void GLVertexBuffer::Unbind() const {
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0u);
 }
 
 void GLVertexBuffer::SetData(void *data, size_t size, size_t offset) {

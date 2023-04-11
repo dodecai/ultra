@@ -17,11 +17,6 @@ GLShader::GLShader(const string &source) {
     Compile(sources);
 
     ShaderName = GetFileName(source);
-
-    auto test1 = GetFileExtension(source);
-    auto test2 = GetFileName(source);
-    auto test3 = GetFileRoot(source);
-    auto test4 = GetFilePath(source);
 }
 
 GLShader::GLShader(const string &vertexSource, const string &fragmentSource) {
@@ -55,15 +50,15 @@ const std::string &GLShader::GetName() const {
     return ShaderName;
 }
 
-//const unordered_map<string, ShaderBuffer> &GLShader::GetBuffers() const {
-//    static unordered_map<string, ShaderBuffer> result;
-//    return result;
-//}
-//
-//const unordered_map<string, ShaderResourceDeclaration> &GLShader::GetResources() const {
-//    static unordered_map<string, ShaderResourceDeclaration> result;
-//    return result;
-//}
+const unordered_map<string, ShaderBuffer> &GLShader::GetBuffers() const {
+    static unordered_map<string, ShaderBuffer> result;
+    return result;
+}
+
+const unordered_map<string, ShaderResourceDeclaration> &GLShader::GetResources() const {
+    static unordered_map<string, ShaderResourceDeclaration> result;
+    return result;
+}
 
 
 void GLShader::SetUniformBuffer(const string &name, const void *data, size_t size) {

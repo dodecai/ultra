@@ -23,8 +23,8 @@ public:
 
     // Accessors
     virtual const string &GetName() const override;
-    //virtual const unordered_map<string, ShaderBuffer> &GetBuffers() const override;
-    //virtual const unordered_map<string, ShaderResourceDeclaration> &GetResources() const override;
+    virtual const unordered_map<string, ShaderBuffer> &GetBuffers() const override;
+    virtual const unordered_map<string, ShaderResourceDeclaration> &GetResources() const override;
 
     // Mutators
     virtual void SetUniformBuffer(const string &name, const void *data, size_t size) override;

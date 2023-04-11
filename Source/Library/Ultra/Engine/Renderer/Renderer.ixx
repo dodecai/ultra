@@ -13,6 +13,9 @@ export import Ultra.Engine.Camera;
 export import Ultra.Engine.Shader;
 export import Ultra.Engine.Texture;
 
+import Ultra.Engine.Pipeline;
+import Ultra.Engine.IndexBuffer;
+import Ultra.Engine.VertexBuffer;
 
 export namespace Ultra {
 
@@ -30,12 +33,14 @@ public:
 
     static void BeginScene();
     static void EndScene();
-    static void Submit();
+    static void Submit(const IndexProperties &properties, PrimitiveType type = PrimitiveType::Triangle, bool depthTest = false);
 
     inline static GraphicsAPI GetAPI() { return Context::API; }
 
     static void SetClearColor(float red, float green, float blue, float alpha);
     static void Resize(const uint32_t width, const uint32_t height);
+
+    static void Test();
 
 private:
     static SceneData *mSceneData;

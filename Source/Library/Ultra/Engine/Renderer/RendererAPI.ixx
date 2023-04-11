@@ -8,6 +8,8 @@ export import Ultra.Core;
 export import Ultra.Logger;
 export import Ultra.GFX.Context;
 
+export import Ultra.Engine.IndexBuffer;
+
 export namespace Ultra {
 
 enum class PrimitiveType {
@@ -64,7 +66,7 @@ public:
 
 	// Commands
 	virtual void Clear() = 0;
-	virtual void DrawIndexed(uint32_t count, PrimitiveType type, bool depthTest = true) = 0;
+	virtual void DrawIndexed(const IndexProperties &properties, PrimitiveType type, bool depthTest = true) = 0;
 
 	// Accessors
     static const GraphicsAPI GetAPI();

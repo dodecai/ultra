@@ -43,9 +43,9 @@ enum class TextureWrap {
 struct TextureProperties {
     string Name;
     
-    TextureFormat Format = TextureFormat::Null;
-    uint32_t Width = 0;
-    uint32_t Height = 0;
+    TextureFormat Format = TextureFormat::RGBA;
+    uint32_t Width = 1;
+    uint32_t Height = 1;
 
     TextureWrap SamplerWrap = TextureWrap::Repeat;
     TextureFilter SamplerFilter = TextureFilter::Linear;

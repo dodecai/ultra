@@ -13,6 +13,7 @@ public:
 
     virtual void Bind() const override;
     virtual void Invalidate() override;
+    virtual void Unbind() const override;
 
     virtual PipelineProperties &GetProperties() override { return mProperties; };
     virtual const PipelineProperties &GetProperties() const override { return mProperties; };

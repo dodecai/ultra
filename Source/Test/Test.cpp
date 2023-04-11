@@ -104,27 +104,27 @@ public:
     // Methods
     void Create() {
         Renderer::Load();
+        Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
         EngineTest();
     }
     void Destroy() {}
     void Update(Timestamp deltaTime) {
+        // Begin
         Renderer::BeginScene();
-
         Renderer2D::StartScene(SceneCamera);
-        Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-        BasicPipeline->Bind();
-        BasicShader->Bind();
-        Renderer::Submit();
+        // 3D Renderer: Primitives
+        Renderer::Test();
 
-        BasicShader->Unbind();
+        // 2D Renderer: Primitives
+        Renderer2D::DrawLine({  0.1f,  0.1f,  0.0f }, {  0.7f,  0.7f,  0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+        Renderer2D::DrawLine({ -0.1f, -0.1f,  0.0f }, { -0.5f,  0.5f,  0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+        Renderer2D::DrawQuad({ -0.2f, -0.2f,  0.0f }, {  0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+        Renderer2D::DrawQuad({  0.2f,  0.2f,  0.0f }, {  0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f });
 
-        Renderer2D::DrawQuad({ -0.2f, -0.2f }, { 0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
-
+        // Finish
         Renderer2D::FinishScene();
-
-
         Renderer::EndScene();
     }
 
@@ -281,37 +281,10 @@ public:
     /// @brief Engine Tests
     ///
     void EngineTest() {
-        BasicPipeline = Pipeline::Create({
-            VertexBufferLayout {
-                { ShaderDataType::Float3, "position" }
-            }
-        });
-        BasicShader = Shader::Create("Assets/Shaders/Sample.glsl");
-
-        size_t indices[] = {
-            0, 1, 2
-        };
-        BasicIndex = IndexBuffer::Create(indices, sizeof(indices));
-        BasicIndex->Bind();
-
-        float vertices[] = {
-            -0.5f, -0.5f, 0.0f,
-             0.5f, -0.5f, 0.0f,
-             0.0f,  0.5f, 0.0f
-        };
-        BasicVertex = VertexBuffer::Create(vertices, sizeof(vertices));
-        BasicVertex->Bind();
-        BasicPipeline->Bind();
-        BasicVertex->Unbind();
-        BasicIndex->Unbind();
     }
 
 private:
     Camera SceneCamera;
-    Reference<Pipeline> BasicPipeline;
-    Reference<Shader> BasicShader;
-    Reference<IndexBuffer> BasicIndex;
-    Reference<VertexBuffer> BasicVertex;
 };
 
 // Application Entry-Point
