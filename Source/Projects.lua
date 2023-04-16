@@ -22,6 +22,7 @@
         "Data/Config.yml"
     },
     ["Manual"] = {
+        "3rd-Party/3rd-Party.md",
         "License",
         "ReadMe.md",
         "Manual/Concept.md",

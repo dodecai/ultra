@@ -118,7 +118,7 @@ public:
         Renderer::Test();
 
         // 2D Renderer: Primitives
-        Renderer2D::DrawLine({  0.1f,  0.1f,  0.0f }, {  0.7f,  0.7f,  0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+        Renderer2D::DrawLine({  0.1f,  0.1f,  0.0f }, {  0.7f,  0.7f,  0.0f }, { 1.0f, 0.0f, 1.0f, 1.0f });
         Renderer2D::DrawLine({ -0.1f, -0.1f,  0.0f }, { -0.5f,  0.5f,  0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
         Renderer2D::DrawQuad({ -0.2f, -0.2f,  0.0f }, {  0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
         Renderer2D::DrawQuad({  0.2f,  0.2f,  0.0f }, {  0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f });

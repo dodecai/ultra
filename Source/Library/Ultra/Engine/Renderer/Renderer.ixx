@@ -1,49 +1,46 @@
-﻿module;
-
-#include <glm/glm.hpp>
-
-export module Ultra.Engine.Renderer;
+﻿export module Ultra.Renderer;
 
 export import Ultra.Core;
 export import Ultra.Logger;
-export import Ultra.GFX.Context;
 
-export import Ultra.Engine.Renderer2D;
-export import Ultra.Engine.Camera;
-export import Ultra.Engine.Shader;
-export import Ultra.Engine.Texture;
-
-import Ultra.Engine.Pipeline;
-import Ultra.Engine.IndexBuffer;
-import Ultra.Engine.VertexBuffer;
+import Ultra.Renderer.RenderDevice;
+import Ultra.Renderer.Shader;
 
 export namespace Ultra {
 
+enum class RenderAPI {
+    DirectX,
+    OpenGL,
+    Software,
+    Vulkan,
+};
+
+/// 
+/// @brief Agnostic Renderer
+/// 
+/// @example: How-To
+/// auto renderer = Renderer::Create(RenderAPI::OpenGL);
+/// 
+/// renderer->Load();
+/// while (...) { renderer->RenderFrame();
+/// renderer->Unload();
+///
 class Renderer {
-    struct SceneData {
-        glm::mat4 ViewProjectionMatrix;
-    };
+protected:
+    Renderer() = default;
 
 public:
-    Renderer() = default;
-    ~Renderer() = default;
+    virtual ~Renderer() = default;
 
-    static void Load();
-    static void Unload();
+    static Scope<Renderer> Create(RenderAPI api);
 
-    static void BeginScene();
-    static void EndScene();
-    static void Submit(const IndexProperties &properties, PrimitiveType type = PrimitiveType::Triangle, bool depthTest = false);
+    virtual void Load() = 0;
+    virtual void LoadShader(ShaderType type, const string &source, const string &entryPoint) = 0;
+    virtual void RenderFrame() = 0;
+    virtual void Dispose() = 0;
 
-    inline static GraphicsAPI GetAPI() { return Context::API; }
-
-    static void SetClearColor(float red, float green, float blue, float alpha);
-    static void Resize(const uint32_t width, const uint32_t height);
-
-    static void Test();
-
-private:
-    static SceneData *mSceneData;
+protected:
+    Scope<RenderDevice> mRenderDevice;
 };
 
 }

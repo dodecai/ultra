@@ -249,7 +249,9 @@ protected:
     }
 
     virtual void OnWindowEvent(WindowEventData &data, const EventListener::EventEmitter &emitter) {
-        if (data.Action == WindowAction::Destroy) { Exit(); }
+        if (data.Action == WindowAction::Destroy) { 
+            Exit();
+        }
         for (Layer *layer : mLayers) {
             if (data.Handled) break;
             layer->OnWindowEvent(data, emitter);

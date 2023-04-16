@@ -25,13 +25,13 @@ classDiagram
     Application "1" <.. ApplicationData
     
     Application <--> Config
-    Application <--> Surface
+    Application <--> Context
     Application <--> Window
     
     class Config {
     }
 
-    class Surface {
+    class Context {
     }
     
     class Window {

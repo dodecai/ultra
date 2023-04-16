@@ -1,8 +1,9 @@
 # Ultra C++ Style
+---
 BasedOnStyle: Google
 Language: Cpp
 AccessModifierOffset: -4
-#AlignAfterOpenBracket: Align
+AlignAfterOpenBracket: Align
 #AlignConsecutiveAssignments: false                 # ToDo: Would be nice for numbers
 #AlignConsecutiveBitFields: true                    # CurrentlyNotSupported (new)
 #AlignConsecutiveDeclarations: false
@@ -16,7 +17,7 @@ AccessModifierOffset: -4
 AllowShortBlocksOnASingleLine: Always
 AllowShortCaseLabelsOnASingleLine: true
 #AllowShortEnumsOnASingleLine: true                 # CurrentlyNotSupported
-#AllowShortFunctionsOnASingleLine: All
+AllowShortFunctionsOnASingleLine: Empty
 #AllowShortIfStatementsOnASingleLine: WithoutElse
 #AllowShortLambdasOnASingleLine: All
 #AllowShortLoopsOnASingleLine: true
@@ -84,7 +85,7 @@ FixNamespaceComments: false
 #IncludeIsMainRegex: '([-_](test|unittest))?$'
 #IncludeIsMainSourceRegex: ' .c, .cpp'              # ToDo: Check possibilities (new)
 #IndentCaseBlocks: false                            # CurrentlyNotSupported (new)
-#IndentCaseLabels: true
+IndentCaseLabels: true
 #IndentExternBlock: false                           # CurrentlyNotSupported (new)
 IndentGotoLabels: true
 IndentPPDirectives: BeforeHash
@@ -96,7 +97,7 @@ IndentWidth: 4
 #KeepEmptyLinesAtTheStartOfBlocks: false
 #MacroBlockBegin: ''
 #MacroBlockEnd: ''
-MaxEmptyLinesToKeep: 3
+MaxEmptyLinesToKeep: 2
 #NamespaceIndentation: None
 #NamespaceMacros: ''                                # CurrentlyNotSupported
 #ObjCBinPackProtocolList: Never
