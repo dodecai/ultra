@@ -9,11 +9,6 @@ VKRenderDevice::VKRenderDevice() {}
 VKRenderDevice::~VKRenderDevice() {}
 
 
-Scope<Shader> VKRenderDevice::CreateShader(ShaderType type, const string &source, const string &entryPoint) {
-    return Shader::Create(type, source, entryPoint);
-}
-
-
 void VKRenderDevice::Load() {};
 
 void VKRenderDevice::BeginFrame() {};

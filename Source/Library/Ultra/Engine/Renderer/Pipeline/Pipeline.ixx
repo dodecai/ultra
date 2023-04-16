@@ -7,7 +7,7 @@ export import Ultra.Logger;
 export import Ultra.GFX.Context;
 
 export import Ultra.Engine.RendererData;
-export import Ultra.Engine.Shader;
+export import Ultra.Engine.ZShader;
 import Ultra.Engine.Buffer;
 import Ultra.Engine.RenderPass;
 import Ultra.Engine.VertexBuffer;
@@ -17,7 +17,7 @@ export namespace Ultra {
 struct PipelineProperties {
     VertexBufferLayout Layout;
     Reference<RenderPass> RenderPass;
-    Reference<Shader> Shader;
+    Reference<ZShader> ZShader;
 };
 
 class Pipeline {

@@ -8,7 +8,7 @@ import Ultra.Engine.RenderCommand;
 import Ultra.Engine.Pipeline;
 import Ultra.Engine.IndexBuffer;
 import Ultra.Engine.VertexBuffer;
-import Ultra.Engine.Shader;
+import Ultra.Engine.ZShader;
 
 namespace Ultra {
 
@@ -40,7 +40,7 @@ struct RendererData {
     Reference<Pipeline> LinePipeline;
     Reference<VertexBuffer> LineVertexBuffer;
     Reference<IndexBuffer> LineIndexBuffer;
-    Reference<Shader> LineShader;
+    Reference<ZShader> LineShader;
 
     uint32_t LineIndexCount = 0;
     LineVertex *LineVertexBufferBase = nullptr;
@@ -61,7 +61,7 @@ struct RendererData {
     QuadVertex *QVertexBufferPtr = nullptr;
 
     // Textures
-    Reference<Shader> TextureShader;
+    Reference<ZShader> TextureShader;
     Reference<Texture2D> WhiteTexture;
     std::array<Reference<Texture2D>, MaxTextureSlots> TextureSlots;
     uint32_t TextureSlotIndex = 1; // 0 = White
@@ -76,7 +76,7 @@ static RendererData sData;
 void Renderer2D::Load() {
     // Lines
     {
-        sData.LineShader = Shader::Create("Assets/Shaders/Line.glsl");
+        sData.LineShader = ZShader::Create("Assets/Shaders/Line.glsl");
 
         PipelineProperties pipelineProperties;
         pipelineProperties.Layout = {
@@ -136,7 +136,7 @@ void Renderer2D::Load() {
     int32_t samplers[sData.MaxTextureSlots];
     for (uint32_t i = 0; i < sData.MaxTextureSlots; i++) samplers[i] = i;
 
-    sData.TextureShader = Shader::Create("./Assets/Shaders/Texture.glsl");
+    sData.TextureShader = ZShader::Create("./Assets/Shaders/Texture.glsl");
     sData.TextureShader->Bind();
     sData.TextureShader->SetUniformBuffer("uTextures", (void *)samplers, sData.MaxTextureSlots);
 

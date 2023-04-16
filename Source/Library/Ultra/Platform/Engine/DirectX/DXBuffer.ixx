@@ -6,7 +6,7 @@ export namespace Ultra {
 
 class DXBuffer: public Buffer {
 public:
-    DXBuffer(BufferType type, const void *data, size_t size);
+    DXBuffer(BufferType type, const void *data, size_t size, BufferUsage usage);
     virtual ~DXBuffer() override;
 
     virtual void Bind() const override;

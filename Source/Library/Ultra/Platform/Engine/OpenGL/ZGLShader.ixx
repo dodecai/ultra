@@ -4,18 +4,18 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-export module Ultra.Platform.Engine.GLShader;
+export module Ultra.Platform.Engine.ZGLShader;
 
-import Ultra.Engine.Shader;
+import Ultra.Engine.ZShader;
 
 export namespace Ultra {
 
-class GLShader: public Shader {
+class ZGLShader: public ZShader {
 public:
     // Default
-    GLShader(const string &source);
-    GLShader(const string &vertexSource, const string &fragmentSource);
-    virtual ~GLShader();
+    ZGLShader(const string &source);
+    ZGLShader(const string &vertexSource, const string &fragmentSource);
+    virtual ~ZGLShader();
     virtual bool Reload() const override;
 
     virtual void Bind() const override;

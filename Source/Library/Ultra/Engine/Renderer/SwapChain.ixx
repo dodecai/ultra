@@ -1,9 +1,9 @@
 ﻿export module Ultra.Renderer.Swapchain;
 
-import Ultra.Core;
-import Ultra.Logger;
+export import Ultra.Core;
+export import Ultra.Logger;
 
-import Ultra.Renderer.Texture;
+export import Ultra.Renderer.Texture;
 
 export namespace Ultra {
 

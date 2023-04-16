@@ -1,8 +1,4 @@
-﻿module;
-
-#include <bitset>
-
-export module Ultra.Core.Event.Data;
+﻿export module Ultra.Core.Event.Data;
 
 import Ultra.Core;
 import Ultra.Utility.Enum;

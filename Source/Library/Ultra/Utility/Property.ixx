@@ -1,7 +1,5 @@
 ﻿export module Ultra.Utility.Property;
 
-import <algorithm>;
-
 import Ultra.Core;
 
 export namespace Ultra {

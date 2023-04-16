@@ -2,7 +2,7 @@
 
 namespace Ultra {
 
-VKBuffer::VKBuffer(BufferType type, const void *data, size_t size): Buffer(type, data, size) {}
+VKBuffer::VKBuffer(BufferType type, const void *data, size_t size, BufferUsage usage): Buffer(type, data, size, usage) {}
 
 VKBuffer::~VKBuffer() {}
 

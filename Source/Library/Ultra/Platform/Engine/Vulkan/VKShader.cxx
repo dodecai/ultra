@@ -2,12 +2,12 @@
 
 namespace Ultra {
 
-VKShader::VKShader(ShaderType type, const string &source, const string &entryPoint): Shader(type, source, entryPoint) {}
+VKShader::VKShader(const string &source, const string &entryPoint, const ShaderType type): Shader(source, entryPoint, type) {}
 
 VKShader::~VKShader() {}
 
 
-void VKShader::Compile() {}
+void VKShader::Compile(ShaderList shaders) {}
 
 void VKShader::Bind() const {}
 

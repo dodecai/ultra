@@ -10,7 +10,13 @@ enum class TextureFormat {
     RGB,
     RGBA,
     Depth,
-    Stencil
+    Stencil,
+};
+
+enum class TextureType {
+    Diffuse,
+    Normal,
+    Specular,
 };
 
 /// 

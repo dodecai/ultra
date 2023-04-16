@@ -2,7 +2,7 @@
 
 namespace Ultra {
 
-DXBuffer::DXBuffer(BufferType type, const void *data, size_t size): Buffer(type, data, size) {}
+DXBuffer::DXBuffer(BufferType type, const void *data, size_t size, BufferUsage usage): Buffer(type, data, size, usage) {}
 
 DXBuffer::~DXBuffer() {}
 

@@ -172,16 +172,16 @@ public:
         }
         return tokens;
     }
-    template<typename T = string> // ToDo: Concept doesn't work as expected after 16.10 Preview 2
-    static T &ToLower(T &value) noexcept {
-        std::transform(value.begin(), value.end(), value.begin(), ::tolower);
-        return value;
-    }
-    template<typename T = string> // ToDo: Concept doesn't work as expected after 16.10 Preview 2
-    static T &ToUpper(T &value) noexcept {
-        std::transform(value.begin(), value.end(), value.begin(), ::toupper);
-        return value;
-    }
+    //template<typename T = string> // ToDo: Concept doesn't work as expected after 16.10 Preview 2
+    //static T &ToLower(T &value) noexcept {
+    //    std::transform(value.begin(), value.end(), value.begin(), ::tolower);
+    //    return value;
+    //}
+    //template<typename T = string> // ToDo: Concept doesn't work as expected after 16.10 Preview 2
+    //static T &ToUpper(T &value) noexcept {
+    //    std::transform(value.begin(), value.end(), value.begin(), ::toupper);
+    //    return value;
+    //}
 
     static void Test() {
         string string00 = "First Second and SeConD Third";
@@ -237,15 +237,15 @@ public:
         auto vector1 = String::Split(string00, ' ');
         auto vector2 = String::Split(string10, ',');
 
-        String::ToLower(string20);
-        String::ToUpper(string20);
-        String::ToLower(string21);
-        String::ToUpper(string21);
+        //String::ToLower(string20);
+        //String::ToUpper(string20);
+        //String::ToLower(string21);
+        //String::ToUpper(string21);
 
-        String::ToLower(wstring20);
-        String::ToUpper(wstring20);
-        String::ToLower(wstring21);
-        String::ToUpper(wstring21);
+        //String::ToLower(wstring20);
+        //String::ToUpper(wstring20);
+        //String::ToLower(wstring21);
+        //String::ToUpper(wstring21);
 
         auto hashstring = "b"_hash;
     }

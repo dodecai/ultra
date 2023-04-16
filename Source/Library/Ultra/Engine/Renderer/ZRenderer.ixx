@@ -10,7 +10,7 @@ export import Ultra.GFX.Context;
 
 export import Ultra.Engine.Renderer2D;
 export import Ultra.Engine.Camera;
-export import Ultra.Engine.Shader;
+export import Ultra.Engine.ZShader;
 export import Ultra.Engine.Texture;
 
 import Ultra.Engine.Pipeline;

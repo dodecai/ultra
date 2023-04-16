@@ -4,13 +4,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-module Ultra.Platform.Engine.GLShader;
+module Ultra.Platform.Engine.ZGLShader;
 
 import Ultra.System.FileSystem;
 
 namespace Ultra {
 
-GLShader::GLShader(const string &source) {
+ZGLShader::ZGLShader(const string &source) {
     string shaderSource = ReadFile(source);
     auto sources = Prepare(shaderSource);
 
@@ -19,7 +19,7 @@ GLShader::GLShader(const string &source) {
     ShaderName = GetFileName(source);
 }
 
-GLShader::GLShader(const string &vertexSource, const string &fragmentSource) {
+ZGLShader::ZGLShader(const string &vertexSource, const string &fragmentSource) {
     std::unordered_map<uint32_t, std::string> sources;
     sources[GL_VERTEX_SHADER] = ReadFile(vertexSource);
     sources[GL_FRAGMENT_SHADER] = ReadFile(fragmentSource);
@@ -29,80 +29,80 @@ GLShader::GLShader(const string &vertexSource, const string &fragmentSource) {
     ShaderName = GetFileName(vertexSource);
 }
 
-GLShader::~GLShader() {
+ZGLShader::~ZGLShader() {
     glDeleteProgram(RendererID);
 }
 
-void GLShader::Bind() const {
+void ZGLShader::Bind() const {
     glUseProgram(RendererID);
 }
 
-bool GLShader::Reload() const {
+bool ZGLShader::Reload() const {
     return true;
 }
 
-void GLShader::Unbind() const {
+void ZGLShader::Unbind() const {
     glUseProgram(0);
 }
 
 
-const std::string &GLShader::GetName() const {
+const std::string &ZGLShader::GetName() const {
     return ShaderName;
 }
 
-const unordered_map<string, ShaderBuffer> &GLShader::GetBuffers() const {
+const unordered_map<string, ShaderBuffer> &ZGLShader::GetBuffers() const {
     static unordered_map<string, ShaderBuffer> result;
     return result;
 }
 
-const unordered_map<string, ShaderResourceDeclaration> &GLShader::GetResources() const {
+const unordered_map<string, ShaderResourceDeclaration> &ZGLShader::GetResources() const {
     static unordered_map<string, ShaderResourceDeclaration> result;
     return result;
 }
 
 
-void GLShader::SetUniformBuffer(const string &name, const void *data, size_t size) {
+void ZGLShader::SetUniformBuffer(const string &name, const void *data, size_t size) {
     // ToDo: Check for better OpenGL Function
     auto location = GetUniformLocation(name);
     glUniform1iv(location, size, (int *)data);
 }
 
-void GLShader::SetUniform(const string &name, bool data) {
+void ZGLShader::SetUniform(const string &name, bool data) {
     auto location = GetUniformLocation(name);
     glUniform1ui(location, data);
 }
 
-void GLShader::SetUniform(const string &name, int data) {
+void ZGLShader::SetUniform(const string &name, int data) {
     auto location = GetUniformLocation(name);
     glUniform1i(location, data);
 }
 
-void GLShader::SetUniform(const string &name, float data) {
+void ZGLShader::SetUniform(const string &name, float data) {
     auto location = GetUniformLocation(name);
     glUniform1f(location, data);
 }
 
-void GLShader::SetUniform(const string &name, glm::vec2 &data) {
+void ZGLShader::SetUniform(const string &name, glm::vec2 &data) {
     auto location = GetUniformLocation(name);
     glUniform2f(location, data.x, data.y);
 }
 
-void GLShader::SetUniform(const string &name, glm::vec3 &data) {
+void ZGLShader::SetUniform(const string &name, glm::vec3 &data) {
     auto location = GetUniformLocation(name);
     glUniform3f(location, data.x, data.y, data.z);
 }
 
-void GLShader::SetUniform(const string &name, glm::vec4 &data) {
+void ZGLShader::SetUniform(const string &name, glm::vec4 &data) {
     auto location = GetUniformLocation(name);
     glUniform4f(location, data.x, data.y, data.z, data.w);
 }
 
-void GLShader::SetUniform(const string &name, glm::mat3 &data) {
+void ZGLShader::SetUniform(const string &name, glm::mat3 &data) {
     auto location = GetUniformLocation(name);
     glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(data));
 }
 
-void GLShader::SetUniform(const string &name, glm::mat4 &data) {
+void ZGLShader::SetUniform(const string &name, glm::mat4 &data) {
     auto location = GetUniformLocation(name);
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(data));
 }
@@ -135,7 +135,7 @@ static GLenum ShaderTypeFromString(const std::string &type) {
 }
 
 
-void GLShader::Compile(std::unordered_map<uint32_t, std::string> sources) {
+void ZGLShader::Compile(std::unordered_map<uint32_t, std::string> sources) {
 
     // Vertex and fragment shaders are successfully compiled.
     // Now time to link them together into a program.
@@ -217,7 +217,7 @@ void GLShader::Compile(std::unordered_map<uint32_t, std::string> sources) {
     }
 }
 
-std::unordered_map<uint32_t, std::string> GLShader::Prepare(std::string &source) {
+std::unordered_map<uint32_t, std::string> ZGLShader::Prepare(std::string &source) {
     std::unordered_map<GLenum, std::string> shaderSources;
 
     const char *typeToken = "#type";
@@ -240,7 +240,7 @@ std::unordered_map<uint32_t, std::string> GLShader::Prepare(std::string &source)
     return shaderSources;
 }
 
-int32_t GLShader::GetUniformLocation(const string &name) const {
+int32_t ZGLShader::GetUniformLocation(const string &name) const {
     auto location = glGetUniformLocation(RendererID, name.c_str());
     return location;
 

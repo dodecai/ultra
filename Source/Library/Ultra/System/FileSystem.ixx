@@ -14,6 +14,11 @@ export namespace Ultra {
 /// @brief Helper: File System Object Information
 ///
 
+// Check if string contains a file system object.
+bool CheckValidPath(const string &object) {
+    return std::filesystem::exists(object);
+}
+
 // Retrieve the extension of a given file system object.
 bool FileSystemObjectExists(const std::string &object) {
     return std::filesystem::exists(object);

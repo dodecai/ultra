@@ -3,12 +3,7 @@
 
 import Ultra;
 
-
-import Ultra.Engine.Pipeline;
-import Ultra.Engine.Shader;
-import Ultra.Engine.IndexBuffer;
-import Ultra.Engine.VertexBuffer;
-
+import Ultra.Renderer.Shader;
 
 namespace Ultra {
 
@@ -91,6 +86,43 @@ struct Tester {
         return false;
     }
 };
+
+const auto VertexShader = R"(
+#version 450
+layout (location = 0) in vec3 position;
+
+void main() {
+	gl_Position = vec4(position.x, position.y, position.z, 1.0);
+}
+)";
+
+constexpr auto FragmentShader = R"(
+#version 450
+out vec4 color;
+
+void main() {
+	color = vec4(1.0, 0.5, 0.2, 1.0);
+}
+)";
+
+constexpr auto LinkedShaders = R"(
+// Sample Shader (Hello Triangle!)
+#type vertex
+#version 450
+layout (location = 0) in vec3 position;
+
+void main() {
+	gl_Position = vec4(position.x, position.y, position.z, 1.0);
+}
+
+#type fragment
+#version 450
+out vec4 color;
+
+void main() {
+	color = vec4(1.0, 0.5, 0.2, 1.0);
+}
+)";
 
 // Application
 class App: public Application {
@@ -281,6 +313,46 @@ public:
     /// @brief Engine Tests
     ///
     void EngineTest() {
+        Scope<Shader> vertexShader = Shader::Create(VertexShader, ShaderType::Vertex);
+        Scope<Shader> fragmentShader = Shader::Create(FragmentShader, ShaderType::Fragment);
+        Scope<Shader> linkedShaders = Shader::Create(LinkedShaders);
+
+        Scope<Shader> linkedShader = Shader::Create("Assets/Shaders/Sample.glsl");
+
+    //    RenderAPI::Set(RenderAPI::OpenGL); // Set the desired rendering API (OpenGL, DirectX, Vulkan, etc)
+    //    auto renderDevice = RenderDevice::Create();               // Create the render device
+    //    auto swapchain = Swapchain::Create(nullptr, 1280, 720);   // Create the swapchain
+    //    auto commandBuffer = CommandBuffer::Create();             // Create a command buffer
+    //
+    //    // Load shaders, buffers, textures
+    //    auto vertexShader = Shader::Create(ShaderType::Vertex, "path/to/vertex_shader.glsl");
+    //    auto fragmentShader = Shader::Create(ShaderType::Fragment, "path/to/fragment_shader.glsl");
+    //    auto vertexBuffer = Buffer::Create(BufferType::VertexBuffer, vertices, vertexCount);
+    //    auto indexBuffer = Buffer::Create(BufferType::IndexBuffer, indices, indexCount);
+    //    auto texture = Texture::Create(TextureType::Texture2D, "path/to/texture.png");
+
+    //    // Create render states
+    //    auto renderState = RenderState::Create();
+    //    while (!windowShouldClose) {
+    //        // ... Poll events, handle input, etc.
+    // 
+    //        // Begin recording commands
+    //        commandBuffer->Begin();
+    //        commandBuffer->Clear(0.2f, 0.3f, 0.3f, 1.0f);     // Clear the framebuffer
+    //        commandBuffer->BindRenderState(renderState);      // Set up the render state
+    //
+    //        // Bind shaders, buffers, textures
+    //        commandBuffer->BindShader(vertexShader);
+    //        commandBuffer->BindShader(fragmentShader);
+    //        commandBuffer->BindVertexBuffer(vertexBuffer);
+    //        commandBuffer->BindIndexBuffer(indexBuffer);
+    //        commandBuffer->BindTexture(0, texture);
+    // 
+    //        commandBuffer->DrawIndexed(indexCount);           // Draw the mesh
+    //        commandBuffer->End();                             // End recording commands
+    //        commandBuffer->Execute();                         // Execute the command buffer
+    //        swapchain->Present();                             // Present the rendered image to the screen
+    //    }
     }
 
 private:

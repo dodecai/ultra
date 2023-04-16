@@ -18,7 +18,6 @@ public:
     virtual ~RenderDevice() = default;
 
     static Scope<RenderDevice> Create();
-    virtual Scope<Shader> CreateShader(ShaderType type, const string &source, const string &entryPoint) = 0;
 
     virtual void Load() = 0;
     virtual void BeginFrame() = 0;

@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-export module Ultra.Engine.Shader;
+export module Ultra.Engine.ZShader;
 
 export import Ultra.Core;
 export import Ultra.Logger;
@@ -75,13 +75,13 @@ private:
 };
 
 
-class Shader {
+class ZShader {
 public:
     // Default
-    Shader() = default;
-    ~Shader() = default;
+    ZShader() = default;
+    ~ZShader() = default;
 
-    static Reference<Shader> Create(const string &source);
+    static Reference<ZShader> Create(const string &source);
     virtual bool Reload() const = 0;
 
     virtual void Bind() const = 0;
@@ -112,10 +112,10 @@ public:
     ~ShaderLibrary() = default;
 
     void Load(const string &source) {
-        auto shader = Shader::Create(source);
+        auto shader = ZShader::Create(source);
         Add(shader);
     }
-    const Reference<Shader> &Get(const string &name) {
+    const Reference<ZShader> &Get(const string &name) {
         if (!Exist(name)) return nullptr;
         return mShaders[name];
     }
@@ -126,14 +126,14 @@ public:
 
 private:
     // Methods
-    void Add(const Reference<Shader> &shader) {
+    void Add(const Reference<ZShader> &shader) {
         auto &name = shader->GetName();
         if (Exist(name)) { return; }
         mShaders[name] = shader;
     }
 
     // Properties
-    unordered_map<string, Reference<Shader>> mShaders;
+    unordered_map<string, Reference<ZShader>> mShaders;
 };
 
 }

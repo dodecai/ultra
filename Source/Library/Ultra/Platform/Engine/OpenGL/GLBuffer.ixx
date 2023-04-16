@@ -1,4 +1,8 @@
-﻿export module Ultra.Platform.Renderer.GLBuffer;
+﻿module;
+
+#include <glad/gl.h>
+
+export module Ultra.Platform.Renderer.GLBuffer;
 
 import Ultra.Renderer.Buffer;
 
@@ -6,7 +10,7 @@ export namespace Ultra {
 
 class GLBuffer: public Buffer {
 public:
-    GLBuffer(BufferType type, const void *data, size_t size);
+    GLBuffer(BufferType type, const void *data, size_t size, BufferUsage usage);
     virtual ~GLBuffer() override;
 
     virtual void Bind() const override;
@@ -14,6 +18,7 @@ public:
     virtual void UpdateData(const void *data, size_t size) override;
 
 private:
+    GLenum mNativeType;
 };
 
 }

@@ -29,7 +29,8 @@ public:
     virtual Reference<Texture> GetDepthAttachment() const = 0;
 
 protected:
-    RendererID mTextureID;
+    RendererID mFramebufferID;
+    RendererID mColorTextureID;
     TextureFormat mFormat;
     uint32_t mHeight;
     uint32_t mWidth;

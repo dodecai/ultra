@@ -9,11 +9,6 @@ GLRenderDevice::GLRenderDevice() {}
 GLRenderDevice::~GLRenderDevice() {}
 
 
-Scope<Shader> GLRenderDevice::CreateShader(ShaderType type, const string &source, const string &entryPoint) {
-    return Shader::Create(type, source, entryPoint);
-}
-
-
 void GLRenderDevice::Load() {};
 
 void GLRenderDevice::BeginFrame() {};

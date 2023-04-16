@@ -2,7 +2,7 @@
 
 namespace Ultra {
 
-VKSwapchain::VKSwapchain(void *windowHandle, uint32_t width, uint32_t height): Swapchain(windowHandle, width, height) {}
+VKSwapchain::VKSwapchain(void *windowHandle, uint32_t width, uint32_t height) {}
 
 VKSwapchain::~VKSwapchain() {}
 

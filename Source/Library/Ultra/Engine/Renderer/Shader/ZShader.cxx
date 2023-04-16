@@ -1,13 +1,13 @@
-﻿module Ultra.Engine.Shader;
+﻿module Ultra.Engine.ZShader;
 
-import Ultra.Platform.Engine.GLShader;
+import Ultra.Platform.Engine.ZGLShader;
 
 namespace Ultra {
 
-Reference<Shader> Shader::Create(const string &source) {
+Reference<ZShader> ZShader::Create(const string &source) {
     switch (Context::API) {
         case GraphicsAPI::Null: { return nullptr; }
-        case GraphicsAPI::OpenGL: { return CreateReference<GLShader>(source); }
+        case GraphicsAPI::OpenGL: { return CreateReference<ZGLShader>(source); }
         //case GraphicsAPI::Vulkan: { return CreateReference<VKShader>(source); }
         default: { break; }
     }

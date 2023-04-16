@@ -10,10 +10,6 @@ export module Ultra.Logger;
 // Extensions
 export import "Private/Logger.h";
 
-// Default
-import <iostream>;
-import <source_location>;
-
 // Library
 import Ultra.Core;
 import Ultra.System.Cli;

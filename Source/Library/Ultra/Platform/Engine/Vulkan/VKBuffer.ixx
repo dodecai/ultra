@@ -6,7 +6,7 @@ export namespace Ultra {
 
 class VKBuffer: public Buffer {
 public:
-    VKBuffer(BufferType type, const void *data, size_t size);
+    VKBuffer(BufferType type, const void *data, size_t size, BufferUsage usage);
     virtual ~VKBuffer() override;
 
     virtual void Bind() const override;

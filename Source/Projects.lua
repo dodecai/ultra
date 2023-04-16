@@ -10,13 +10,15 @@
         "Source/Test/Test.lua",
         "3rd-Party/imgui/DearImGui.lua",
         "3rd-Party/entt/EnTT.lua",
-        "3rd-Party/glad/Glad.lua",
+        "3rd-Party/glad/glad.lua",
     },
     ["Config"] = {
         ".editorconfig",
         ".gitignore",
         "vcpkg.json",
         "Source/Settings.h",
+        ".clang-format-todo",
+        ".clang-tidy-todo",
     },
     ["Data"] = {
         "Data/Config.yml"

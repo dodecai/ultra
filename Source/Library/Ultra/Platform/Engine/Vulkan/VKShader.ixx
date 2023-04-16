@@ -6,10 +6,10 @@ export namespace Ultra {
 
 class VKShader: public Shader {
 public:
-    VKShader(ShaderType type, const string &source, const string &entryPoint);
+    VKShader(const string &source, const string &entryPoint, const ShaderType type);
     virtual ~VKShader();
 
-    virtual void Compile() override;
+    virtual void Compile(ShaderList shaders) override;
     virtual void Bind() const override;
     virtual void Unbind() const override;
 private:

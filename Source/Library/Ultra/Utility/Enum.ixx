@@ -1,7 +1,5 @@
 ﻿export module Ultra.Utility.Enum;
 
-import <type_traits>;
-
 import Ultra.Core;
 
 export namespace Ultra {
