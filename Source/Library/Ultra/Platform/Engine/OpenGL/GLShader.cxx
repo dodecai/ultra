@@ -22,7 +22,7 @@ GLenum GetGLShaderType(ShaderType type) {
 
 GLShader::GLShader(const string &source, const string &entryPoint, const ShaderType type): Shader(source, entryPoint, type) {
     auto shaderCode = source;
-    auto shaders = DetectType(shaderCode);
+    auto shaders = Convert(shaderCode);
     Compile(shaders);
 }
 
