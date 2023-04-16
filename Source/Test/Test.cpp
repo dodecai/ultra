@@ -319,40 +319,40 @@ public:
 
         Scope<Shader> linkedShader = Shader::Create("Assets/Shaders/Sample.glsl");
 
-    //    RenderAPI::Set(RenderAPI::OpenGL); // Set the desired rendering API (OpenGL, DirectX, Vulkan, etc)
-    //    auto renderDevice = RenderDevice::Create();               // Create the render device
-    //    auto swapchain = Swapchain::Create(nullptr, 1280, 720);   // Create the swapchain
-    //    auto commandBuffer = CommandBuffer::Create();             // Create a command buffer
-    //
-    //    // Load shaders, buffers, textures
-    //    auto vertexShader = Shader::Create(ShaderType::Vertex, "path/to/vertex_shader.glsl");
-    //    auto fragmentShader = Shader::Create(ShaderType::Fragment, "path/to/fragment_shader.glsl");
-    //    auto vertexBuffer = Buffer::Create(BufferType::VertexBuffer, vertices, vertexCount);
-    //    auto indexBuffer = Buffer::Create(BufferType::IndexBuffer, indices, indexCount);
-    //    auto texture = Texture::Create(TextureType::Texture2D, "path/to/texture.png");
+        //RenderAPI::Set(RenderAPI::OpenGL); // Set the desired rendering API (OpenGL, DirectX, Vulkan, etc)
+        //auto renderDevice = RenderDevice::Create();               // Create the render device
+        //auto swapchain = Swapchain::Create(nullptr, 1280, 720);   // Create the swapchain
+        //auto commandBuffer = CommandBuffer::Create();             // Create a command buffer
+    
+        //// Load shaders, buffers, textures
+        //auto vertexShader = Shader::Create(ShaderType::Vertex, "path/to/vertex_shader.glsl");
+        //auto fragmentShader = Shader::Create(ShaderType::Fragment, "path/to/fragment_shader.glsl");
+        //auto vertexBuffer = Buffer::Create(BufferType::VertexBuffer, vertices, vertexCount);
+        //auto indexBuffer = Buffer::Create(BufferType::IndexBuffer, indices, indexCount);
+        //auto texture = Texture::Create(TextureType::Texture2D, "path/to/texture.png");
 
-    //    // Create render states
-    //    auto renderState = RenderState::Create();
-    //    while (!windowShouldClose) {
-    //        // ... Poll events, handle input, etc.
-    // 
-    //        // Begin recording commands
-    //        commandBuffer->Begin();
-    //        commandBuffer->Clear(0.2f, 0.3f, 0.3f, 1.0f);     // Clear the framebuffer
-    //        commandBuffer->BindRenderState(renderState);      // Set up the render state
-    //
-    //        // Bind shaders, buffers, textures
-    //        commandBuffer->BindShader(vertexShader);
-    //        commandBuffer->BindShader(fragmentShader);
-    //        commandBuffer->BindVertexBuffer(vertexBuffer);
-    //        commandBuffer->BindIndexBuffer(indexBuffer);
-    //        commandBuffer->BindTexture(0, texture);
-    // 
-    //        commandBuffer->DrawIndexed(indexCount);           // Draw the mesh
-    //        commandBuffer->End();                             // End recording commands
-    //        commandBuffer->Execute();                         // Execute the command buffer
-    //        swapchain->Present();                             // Present the rendered image to the screen
-    //    }
+        //// Create render states
+        //auto renderState = RenderState::Create();
+        //while (!windowShouldClose) {
+        //    // ... Poll events, handle input, etc.
+     
+        //    // Begin recording commands
+        //    commandBuffer->Begin();
+        //    commandBuffer->Clear(0.2f, 0.3f, 0.3f, 1.0f);     // Clear the framebuffer
+        //    commandBuffer->BindRenderState(renderState);      // Set up the render state
+    
+        //    // Bind shaders, buffers, textures
+        //    commandBuffer->BindShader(vertexShader);
+        //    commandBuffer->BindShader(fragmentShader);
+        //    commandBuffer->BindVertexBuffer(vertexBuffer);
+        //    commandBuffer->BindIndexBuffer(indexBuffer);
+        //    commandBuffer->BindTexture(0, texture);
+     
+        //    commandBuffer->DrawIndexed(indexCount);           // Draw the mesh
+        //    commandBuffer->End();                             // End recording commands
+        //    commandBuffer->Execute();                         // Execute the command buffer
+        //    swapchain->Present();                             // Present the rendered image to the screen
+        //}
     }
 
 private:

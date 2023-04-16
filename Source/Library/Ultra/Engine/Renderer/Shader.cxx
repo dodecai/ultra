@@ -31,7 +31,7 @@ Scope<Shader> Shader::Create(const string &source, const string &entryPoint, con
 }
 
 
-Shader::ShaderList Shader::SplitSources(string &source) {
+Shader::ShaderList Shader::Convert(string &source) {
     // Check if source is file path and load the code
     if (CheckValidPath(source)) {
         mShaderName = GetFileName(source);

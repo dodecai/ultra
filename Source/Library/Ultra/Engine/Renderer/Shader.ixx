@@ -57,7 +57,7 @@ public:
     virtual void Unbind() const = 0;
 
 protected:
-    ShaderList SplitSources(string &source);
+    ShaderList Convert(string &source);
 
     RendererID mShaderID;
     string mShaderName;
