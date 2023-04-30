@@ -1,19 +1,11 @@
 ﻿module Ultra.Engine.Renderer;
 
-import Ultra.GFX.Context;
 import Ultra.Platform.DXRenderer;
 import Ultra.Platform.GLRenderer;
 import Ultra.Platform.VKRenderer;
 import Ultra.Platform.Renderer.DXRenderDevice;
 import Ultra.Platform.Renderer.GLRenderDevice;
 import Ultra.Platform.Renderer.VKRenderDevice;
-
-// Only for Tests
-import Ultra.Engine.Renderer2D;
-import Ultra.Engine.Renderer.Buffer;
-import Ultra.Engine.Renderer.PipelineState;
-import Ultra.Engine.Renderer.Shader;
-import Ultra.Engine.Renderer.Texture;
 
 namespace Ultra {
 
@@ -55,7 +47,7 @@ void Renderer::Load() {
     mRenderDevice->Load();
     mRenderDevice->SetLineThickness(3.0f);
     mCommandBuffer = CommandBuffer::Create();
-    mCommandBuffer->SetViewport(0,0,800,600);
+    mCommandBuffer->SetViewport(0, 0, 800, 600);
     Renderer2D::Load();
 }
 

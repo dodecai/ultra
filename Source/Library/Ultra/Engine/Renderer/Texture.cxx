@@ -40,4 +40,5 @@ Scope<Texture> Texture::Create(const TextureProperties &properties, const string
         }
     }
 }
+
 }

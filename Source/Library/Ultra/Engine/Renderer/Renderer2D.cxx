@@ -132,8 +132,7 @@ void Renderer2D::Load() {
 
     // Miscelaneous
     uint32_t whiteTextureData = 0xffffffff;
-    //sData.WhiteTexture = Texture::Create(TextureProperties(), &whiteTextureData, sizeof(uint32_t)); // ToDo: Doesn't work anymore cause data is not set
-    sData.WhiteTexture = Texture::Create(TextureProperties(), "./Assets/Textures/CheckerBoard.png");
+    sData.WhiteTexture = Texture::Create(TextureProperties(), &whiteTextureData, sizeof(uint32_t));
 
     int32_t samplers[sData.MaxTextureSlots];
     for (uint32_t i = 0; i < sData.MaxTextureSlots; i++) samplers[i] = i;

@@ -101,6 +101,7 @@ public:
         //Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         //auto swapchain = Swapchain::Create(nullptr, 1280, 720);
         auto commandBuffer = CommandBuffer::Create();
+        mCheckerBoard = Texture::Create(TextureProperties(), "./Assets/Textures/CheckerBoard.png");
 
         // Load shaders, buffers, textures
         //auto linkedShaders = Shader::Create("Assets/Shaders/Sample.glsl");
@@ -270,9 +271,24 @@ public:
     ///
     void EngineTest(Timestamp deltaTime) {
         //// Begin
+        //    // Begin recording commands
+        //    commandBuffer->Begin();
+        //    commandBuffer->Clear(0.2f, 0.3f, 0.3f, 1.0f);     // Clear the framebuffer
+        //    commandBuffer->BindRenderState(renderState);      // Set up the render state
         mRenderer->RenderFrame();
         Renderer2D::StartScene(SceneCamera);
 
+
+        //    // Bind shaders, buffers, textures
+        //    commandBuffer->BindShader(vertexShader);
+        //    commandBuffer->BindShader(fragmentShader);
+        //    commandBuffer->BindVertexBuffer(vertexBuffer);
+        //    commandBuffer->BindIndexBuffer(indexBuffer);
+        //    commandBuffer->BindTexture(0, texture);
+
+        //    commandBuffer->DrawIndexed(indexCount);           // Draw the mesh
+         
+        
         // 3D Renderer: Primitives
         mRenderer->Test();
 
@@ -281,38 +297,25 @@ public:
         Renderer2D::DrawLine({ 0.1f,  0.1f,  0.0f }, { 0.7f,  0.7f,  0.0f }, { 1.0f, 0.0f, 1.0f, 1.0f });
         Renderer2D::DrawLine({ -0.1f, -0.1f,  -1.0f }, { -0.5f,  0.5f,  0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
 
-        //auto texture = Texture::Create(TextureProperties(), "./Assets/Textures/CheckerBoard.png");
-        Renderer2D::DrawQuad({ -0.6f,  -0.6f,  -1.0f }, { 0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
-        Renderer2D::DrawQuad({ 0.2f,  0.2f,  0.0f }, { 0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f });
+        Renderer2D::DrawQuad({ -0.6f,  -0.6f,  -1.0f }, { 0.5f,  0.5f }, mCheckerBoard, 1.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
+        Renderer2D::DrawQuad({ 0.2f,  0.2f,  0.0f }, { 0.5f,  0.5f }, mCheckerBoard, 1.0f, {0.0f, 0.0f, 1.0f, 1.0f});
 
         static float rotation = 0.0f;
         rotation += 1.0f;
         if (rotation >= 360.0f) rotation = 0.0f;
-        Renderer2D::DrawRotatedQuad({ 0.7f,  0.7f,  0.0f }, { 0.2f,  0.2f }, rotation * (3.14f / 180.0f), { 0.0f, 1.0f, 0.0f, 1.0f });
+        Renderer2D::DrawRotatedQuad({ 0.7f,  0.7f,  0.0f }, { 0.2f,  0.2f }, rotation * (3.14f / 180.0f), mCheckerBoard, 1.0f, { 0.0f, 1.0f, 0.0f, 1.0f });
 
         //// Finish
         Renderer2D::FinishScene();
         //Renderer::EndScene();
      
-        //    // Begin recording commands
-        //    commandBuffer->Begin();
-        //    commandBuffer->Clear(0.2f, 0.3f, 0.3f, 1.0f);     // Clear the framebuffer
-        //    commandBuffer->BindRenderState(renderState);      // Set up the render state
-    
-        //    // Bind shaders, buffers, textures
-        //    commandBuffer->BindShader(vertexShader);
-        //    commandBuffer->BindShader(fragmentShader);
-        //    commandBuffer->BindVertexBuffer(vertexBuffer);
-        //    commandBuffer->BindIndexBuffer(indexBuffer);
-        //    commandBuffer->BindTexture(0, texture);
-     
-        //    commandBuffer->DrawIndexed(indexCount);           // Draw the mesh
         //    commandBuffer->End();                             // End recording commands
         //    commandBuffer->Execute();                         // Execute the command buffer
         //    swapchain->Present();                             // Present the rendered image to the screen
     }
 
 private:
+    Reference<Texture> mCheckerBoard;
     Scope<Renderer> mRenderer;
     Camera SceneCamera;
 };
