@@ -1,4 +1,8 @@
-﻿export module Ultra.Renderer.Texture;
+﻿module;
+
+#include <glm/glm.hpp>
+
+export module Ultra.Renderer.Texture;
 
 export import Ultra.Core;
 export import Ultra.Logger;
@@ -12,6 +16,7 @@ export namespace Ultra {
 enum class TextureDimension {
     Texture2D,
     Texture3D,
+    TextureCube = Texture3D,
 };
  
 enum class TextureFilter {
@@ -35,7 +40,10 @@ enum class TextureFormat {
     RGBA16F,
     RGBA32F,
 
-    Depth,
+    DEPTH32F,
+    DEPTH24STENCIL8,
+
+    Depth = DEPTH24STENCIL8,
     Stencil,
 };
 
@@ -43,6 +51,11 @@ enum class TextureType {
     Diffuse,
     Normal,
     Specular,
+};
+
+enum class TextureUsage {
+    Attachment,
+    Texture,
 };
 
 enum class TextureWrap {
@@ -61,9 +74,11 @@ struct TextureProperties {
     TextureFilter SamplerFilter = TextureFilter::Linear;
     TextureWrap SamplerWrap = TextureWrap::Repeat;
 
+    uint32_t Mips = 1;
+    uint32_t Layers = 1;
+
     bool GenerateMips = true;
 };
-
 
 
 /// 
@@ -101,5 +116,36 @@ protected:
 
 using Texture2D = Texture;
 using Texture3D = Texture;
+
+
+namespace Helpers {
+
+inline uint32_t GetTextureFormatBPP(TextureFormat format) {
+    switch (format) {
+        case TextureFormat::RGB:     return 3;
+        case TextureFormat::RGBA:    return 4;
+        case TextureFormat::RGBA16F: return 2 * 4;
+        case TextureFormat::RGBA32F: return 4 * 4;
+    }
+    return 0;
+}
+
+inline uint32_t CalculateMipCount(uint32_t width, uint32_t height) {
+    return (uint32_t)std::floor(std::log2(glm::min(width, height))) + 1;
+}
+
+inline uint32_t GetImageMemorySize(TextureFormat format, uint32_t width, uint32_t height) {
+    return width * height * GetTextureFormatBPP(format);
+}
+
+inline bool IsDepthFormat(TextureFormat format) {
+    if (format == TextureFormat::DEPTH24STENCIL8 || format == TextureFormat::DEPTH32F)
+        return true;
+
+    return false;
+}
+
+}
+
 
 }

@@ -3,11 +3,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 module Ultra.Engine.Renderer2D;
-
 import Ultra.Engine.RenderCommand;
-import Ultra.Engine.Pipeline;
 
 import Ultra.Renderer.Buffer;
+import Ultra.Renderer.PipelineState;
 import Ultra.Renderer.Shader;
 import Ultra.Renderer.Texture;
 
@@ -38,7 +37,7 @@ struct RendererData {
     static const uint32_t MaxLineVertices = MaxLines * 4;
     static const uint32_t MaxLineIndices = MaxLines * 6;
 
-    Reference<Pipeline> LinePipeline;
+    Reference<PipelineState> LinePipeline;
     Reference<Buffer> LineVertexBuffer;
     Reference<Buffer> LineIndexBuffer;
     Reference<Shader> LineShader;
@@ -53,7 +52,7 @@ struct RendererData {
     static const uint32_t MaxIndices = MaxQuads * 6;
     static const uint32_t MaxTextureSlots = 32; // ToDo: Context::GetCapabilities().MaxTextureUnits
 
-    Reference<Pipeline> QuadPipeline;
+    Reference<PipelineState> QuadPipeline;
     Reference<Buffer> QVertexBuffer;
     Reference<Buffer> QIndexBuffer;
 
@@ -84,7 +83,7 @@ void Renderer2D::Load() {
             { ShaderDataType::Float3, "aPosition" },
             { ShaderDataType::Float4, "aColor" }
         };
-        sData.LinePipeline = Pipeline::Create(pipelineProperties);
+        sData.LinePipeline = PipelineState::Create(pipelineProperties);
 
         sData.LineVertexBuffer = Buffer::Create(BufferType::Vertex, nullptr, sData.MaxLineVertices * sizeof(LineVertex));
         sData.LineVertexBufferBase = new LineVertex[sData.MaxLineVertices];
@@ -108,7 +107,7 @@ void Renderer2D::Load() {
             { ShaderDataType::Float, "aTexIndex" },
             { ShaderDataType::Float, "aTilingFactor" },
         };
-        sData.QuadPipeline = Pipeline::Create(pipelineProperties);
+        sData.QuadPipeline = PipelineState::Create(pipelineProperties);
 
         sData.QVertexBuffer = Buffer::Create(BufferType::Vertex, nullptr, sData.MaxVertices * sizeof(QuadVertex));
         sData.QVertexBufferBase = new QuadVertex[sData.MaxVertices];

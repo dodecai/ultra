@@ -1,7 +1,10 @@
 ﻿export module Ultra.Renderer.PipelineState;
 
-import Ultra.Core;
-import Ultra.Logger;
+export import Ultra.Core;
+export import Ultra.Logger;
+export import Ultra.Renderer.Data;
+export import Ultra.Renderer.Buffer;
+export import Ultra.Renderer.Shader;
 
 export namespace Ultra {
 
@@ -18,6 +21,13 @@ enum class BlendMode {
     Multiply
 };
 
+struct PipelineProperties {
+    VertexBufferLayout Layout;
+    Reference<Shader> Shader;
+    CullMode CullMode;
+    BlendMode BlendMode;
+};
+
 /// 
 /// @brief Agnostic Pipeline
 ///
@@ -27,18 +37,21 @@ enum class BlendMode {
 /// 
 class PipelineState {
 protected:
-    PipelineState(CullMode cullMode, BlendMode blendMode): mCullMode(cullMode), mBlendMode(blendMode) {}
+    PipelineState(const PipelineProperties &properties): mProperties(properties) {}
 
 public:
     virtual ~PipelineState() = default;
 
-    static Scope<PipelineState> Create(CullMode cullMode, BlendMode blendMode);
+    static Scope<PipelineState> Create(const PipelineProperties &properties);
 
     virtual void Apply() = 0;
+    virtual void Bind() = 0;
+    virtual void Unbind() = 0;
+
 
 protected:
-    CullMode mCullMode;
-    BlendMode mBlendMode;
+    PipelineProperties mProperties;
+    RendererID mPipelineID;
 };
 
 }

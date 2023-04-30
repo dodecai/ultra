@@ -51,14 +51,14 @@ size_t vectorsizeof(const typename std::vector<T> &vec) {
 
 void Renderer::Test() {
 
-    static Reference<Pipeline> BasicPipeline;
+    static Reference<PipelineState> BasicPipeline;
     static Reference<Shader> BasicShader;
     static Reference<Buffer> BasicIndex;
     static Reference<Buffer> BasicVertex;
 
 
     BasicShader = Shader::Create("Assets/Shaders/Sample.glsl");
-    BasicPipeline = Pipeline::Create({
+    BasicPipeline = PipelineState::Create({
         VertexBufferLayout {
             { ShaderDataType::Float3, "position" }
         }

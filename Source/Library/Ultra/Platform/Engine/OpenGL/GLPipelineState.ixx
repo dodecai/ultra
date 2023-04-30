@@ -6,10 +6,12 @@ export namespace Ultra {
 
 class GLPipelineState: public PipelineState {
 public:
-    GLPipelineState(CullMode cullMode, BlendMode blendMode);
+    GLPipelineState(const PipelineProperties &properties);
     virtual ~GLPipelineState();
 
     virtual void Apply() override;
+    virtual void Bind() override;
+    virtual void Unbind() override;
 };
 
 }

@@ -7,11 +7,11 @@ import Ultra.Platform.Renderer.VKPipelineState;
 
 namespace Ultra {
 
-Scope<PipelineState> PipelineState::Create(CullMode cullMode, BlendMode blendMode) {
+Scope<PipelineState> PipelineState::Create(const PipelineProperties &properties) {
     switch (Context::API) {
-        case GraphicsAPI::DirectX:  { return CreateScope<DXPipelineState>(cullMode, blendMode); }
-        case GraphicsAPI::OpenGL:   { return CreateScope<GLPipelineState>(cullMode, blendMode); }
-        case GraphicsAPI::Vulkan:   { return CreateScope<VKPipelineState>(cullMode, blendMode); }
+        case GraphicsAPI::DirectX:  { return CreateScope<DXPipelineState>(properties); }
+        case GraphicsAPI::OpenGL:   { return CreateScope<GLPipelineState>(properties); }
+        case GraphicsAPI::Vulkan:   { return CreateScope<VKPipelineState>(properties); }
 
         default: {
         #if APP_MODE_DEBUG

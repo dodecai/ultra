@@ -2,10 +2,14 @@
 
 namespace Ultra {
 
-DXPipelineState::DXPipelineState(CullMode cullMode, BlendMode blendMode): PipelineState(cullMode, blendMode) {}
+DXPipelineState::DXPipelineState(const PipelineProperties &properties): PipelineState(properties) {}
 
 DXPipelineState::~DXPipelineState() {}
 
 void DXPipelineState::Apply() {}
+
+void DXPipelineState::Bind() {}
+
+void DXPipelineState::Unbind() {}
 
 }

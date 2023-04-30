@@ -6,10 +6,12 @@ export namespace Ultra {
 
 class VKPipelineState: public PipelineState {
 public:
-    VKPipelineState(CullMode cullMode, BlendMode blendMode);
+    VKPipelineState(const PipelineProperties &properties);
     virtual ~VKPipelineState();
 
     virtual void Apply() override;
+    virtual void Bind() override;
+    virtual void Unbind() override;
 };
 
 }

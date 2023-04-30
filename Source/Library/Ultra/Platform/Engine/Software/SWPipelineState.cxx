@@ -2,10 +2,14 @@
 
 namespace Ultra {
 
-SWPipelineState::SWPipelineState(CullMode cullMode, BlendMode blendMode): PipelineState(cullMode, blendMode) {}
+SWPipelineState::SWPipelineState(const PipelineProperties &properties): PipelineState(properties) {}
 
 SWPipelineState::~SWPipelineState() {}
 
 void SWPipelineState::Apply() {}
+
+void SWPipelineState::Bind() {}
+
+void SWPipelineState::Unbind() {}
 
 }

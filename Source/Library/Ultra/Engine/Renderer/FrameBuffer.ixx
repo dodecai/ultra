@@ -1,10 +1,29 @@
-﻿export module Ultra.Renderer.Framebuffer;
+﻿module;
+
+#include <glm/glm.hpp>
+
+export module Ultra.Renderer.Framebuffer;
 
 export import Ultra.Core;
 export import Ultra.Logger;
 export import Ultra.Renderer.Texture;
 
 export namespace Ultra {
+
+struct FramebufferProperties {
+    string Name = {};
+
+    uint32_t Height = {};
+    uint32_t Width = {};
+    float Scale = 1.0f;
+
+    glm::vec4 ClearColor = { 0.1f, 0.1f, 0.1f, 1.0f };
+
+    vector<TextureFormat> Attachments;
+
+    uint32_t Samples = 1;
+};
+
 
 /// 
 /// @brief Agnostic Framebuffer
@@ -30,6 +49,7 @@ public:
 protected:
     RendererID mFramebufferID;
     RendererID mColorTextureID;
+    RendererID mDepthTextureID;
     TextureFormat mFormat;
     uint32_t mHeight;
     uint32_t mWidth;

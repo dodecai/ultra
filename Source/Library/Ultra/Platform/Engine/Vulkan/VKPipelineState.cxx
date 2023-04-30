@@ -2,10 +2,16 @@
 
 namespace Ultra {
 
-VKPipelineState::VKPipelineState(CullMode cullMode, BlendMode blendMode): PipelineState(cullMode, blendMode) {}
+VKPipelineState::VKPipelineState(const PipelineProperties &properties): PipelineState(properties) {}
 
 VKPipelineState::~VKPipelineState() {}
 
 void VKPipelineState::Apply() {}
+
+void VKPipelineState::Bind() {
+}
+
+void VKPipelineState::Unbind() {
+}
 
 }
