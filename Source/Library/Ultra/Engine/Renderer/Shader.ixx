@@ -6,7 +6,7 @@ export module Ultra.Renderer.Shader;
 
 export import Ultra.Core;
 export import Ultra.Logger;
-export import Ultra.Engine.RendererData;
+import Ultra.Renderer.Data;
 
 export namespace Ultra {
 

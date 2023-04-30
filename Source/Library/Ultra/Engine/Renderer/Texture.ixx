@@ -2,7 +2,7 @@
 
 export import Ultra.Core;
 export import Ultra.Logger;
-export import Ultra.Engine.RendererData;
+export import Ultra.Renderer.Data;
 
 export namespace Ultra {
 

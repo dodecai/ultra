@@ -5,8 +5,7 @@ export module Ultra.Engine.Pipeline;
 export import Ultra.Core;
 export import Ultra.Logger;
 export import Ultra.GFX.Context;
-
-export import Ultra.Engine.RendererData;
+export import Ultra.Renderer.Data;
 export import Ultra.Renderer.Buffer;
 export import Ultra.Renderer.Shader;
 
