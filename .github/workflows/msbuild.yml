@@ -35,6 +35,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
       with:
         msbuild-architecture: x64
+        vs-version: '[17.6,17.7)'
         vs-prerelease: true
 
 #    - name: Restore NuGet packages
