@@ -1,4 +1,4 @@
-﻿module Ultra.Renderer.Texture;
+﻿module Ultra.Engine.Renderer.Texture;
 
 import Ultra.GFX.Context;
 import Ultra.Platform.Renderer.DXTexture;

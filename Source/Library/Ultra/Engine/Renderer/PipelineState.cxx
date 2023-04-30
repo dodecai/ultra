@@ -1,4 +1,4 @@
-﻿module Ultra.Renderer.PipelineState;
+﻿module Ultra.Engine.Renderer.PipelineState;
 
 import Ultra.GFX.Context;
 import Ultra.Platform.Renderer.DXPipelineState;

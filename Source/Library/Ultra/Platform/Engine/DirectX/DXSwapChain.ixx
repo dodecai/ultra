@@ -1,6 +1,6 @@
 ﻿export module Ultra.Platform.Renderer.DXSwapchain;
 
-import Ultra.Renderer.Swapchain;
+import Ultra.Engine.Renderer.Swapchain;
 
 export namespace Ultra {
 

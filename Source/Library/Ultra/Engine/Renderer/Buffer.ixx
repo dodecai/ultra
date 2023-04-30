@@ -1,9 +1,10 @@
-﻿export module Ultra.Renderer.Buffer;
+﻿export module Ultra.Engine.Renderer.Buffer;
 
 export import Ultra.Core;
 export import Ultra.Logger;
-export import Ultra.Renderer.Data;
-import Ultra.Renderer.Shader;
+export import Ultra.Engine.Renderer.Data;
+
+import Ultra.Engine.Renderer.Shader;
 
 export namespace Ultra {
 

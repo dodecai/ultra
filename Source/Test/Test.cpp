@@ -96,31 +96,16 @@ public:
 
     // Methods
     void Create() {
+        //RenderAPI::Set(RenderAPI::OpenGL); // Set the desired rendering API (OpenGL, DirectX, Vulkan, etc)
         mRenderer = Renderer::Create(RenderAPI::OpenGL);
         mRenderer->Load();
         //Renderer::Load();
         //Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-        EngineTest();
     }
     void Destroy() {}
     void Update(Timestamp deltaTime) {
-        //// Begin
-        mRenderer->RenderFrame();
-        Renderer2D::StartScene(SceneCamera);
-
-        // 3D Renderer: Primitives
-        mRenderer->Test();
-
-        // 2D Renderer: Primitives
-        Renderer2D::DrawLine({  0.1f,  0.1f,  0.0f }, {  0.7f,  0.7f,  0.0f }, { 1.0f, 0.0f, 1.0f, 1.0f });
-        Renderer2D::DrawLine({ -0.1f, -0.1f,  0.0f }, { -0.5f,  0.5f,  0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
-        Renderer2D::DrawQuad({ -0.2f, -0.2f,  0.0f }, {  0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
-        Renderer2D::DrawQuad({  0.2f,  0.2f,  0.0f }, {  0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f });
-
-        //// Finish
-        Renderer2D::FinishScene();
-        //Renderer::EndScene();
+        EngineTest();
     }
 
     ///
@@ -276,7 +261,23 @@ public:
     /// @brief Engine Tests
     ///
     void EngineTest() {
-        //RenderAPI::Set(RenderAPI::OpenGL); // Set the desired rendering API (OpenGL, DirectX, Vulkan, etc)
+        //// Begin
+        mRenderer->RenderFrame();
+        Renderer2D::StartScene(SceneCamera);
+
+        // 3D Renderer: Primitives
+        mRenderer->Test();
+
+        // 2D Renderer: Primitives
+        Renderer2D::DrawLine({ 0.1f,  0.1f,  0.0f }, { 0.7f,  0.7f,  0.0f }, { 1.0f, 0.0f, 1.0f, 1.0f });
+        Renderer2D::DrawLine({ -0.1f, -0.1f,  0.0f }, { -0.5f,  0.5f,  0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+        Renderer2D::DrawQuad({ -0.2f, -0.2f,  0.0f }, { 0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+        Renderer2D::DrawQuad({ 0.2f,  0.2f,  0.0f }, { 0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f });
+
+        //// Finish
+        Renderer2D::FinishScene();
+        //Renderer::EndScene();
+        
         //auto renderDevice = RenderDevice::Create();               // Create the render device
         //auto swapchain = Swapchain::Create(nullptr, 1280, 720);   // Create the swapchain
         //auto commandBuffer = CommandBuffer::Create();             // Create a command buffer

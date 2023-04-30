@@ -4,7 +4,7 @@
 
 export module Ultra.Platform.Renderer.GLShader;
 
-import Ultra.Renderer.Shader;
+import Ultra.Engine.Renderer.Shader;
 
 export namespace Ultra {
 

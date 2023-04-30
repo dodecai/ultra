@@ -4,7 +4,7 @@
 
 export module Ultra.Platform.Renderer.GLBuffer;
 
-import Ultra.Renderer.Buffer;
+import Ultra.Engine.Renderer.Buffer;
 
 export namespace Ultra {
 

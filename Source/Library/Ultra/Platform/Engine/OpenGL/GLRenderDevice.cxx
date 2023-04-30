@@ -4,7 +4,7 @@
 
 module Ultra.Platform.Renderer.GLRenderDevice;
 
-import Ultra.Renderer;
+import Ultra.Engine.Renderer;
 
 namespace Ultra {
 

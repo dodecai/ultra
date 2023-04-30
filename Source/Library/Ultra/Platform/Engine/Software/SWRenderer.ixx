@@ -1,6 +1,6 @@
 ﻿export module Ultra.Platform.SWRenderer;
 
-import Ultra.Renderer;
+import Ultra.Engine.Renderer;
 
 export namespace Ultra {
 

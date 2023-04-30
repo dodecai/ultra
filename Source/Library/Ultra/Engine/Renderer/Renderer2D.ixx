@@ -10,9 +10,9 @@ import Ultra.Logger;
 import Ultra.Engine.Camera;
 import Ultra.Engine.DesignerCamera;
 import Ultra.Engine.PerspectiveCamera;
-import Ultra.Renderer.CommandBuffer;
-import Ultra.Renderer.RenderDevice;
-import Ultra.Renderer.Texture;
+import Ultra.Engine.Renderer.CommandBuffer;
+import Ultra.Engine.Renderer.RenderDevice;
+import Ultra.Engine.Renderer.Texture;
 
 export namespace Ultra {
 

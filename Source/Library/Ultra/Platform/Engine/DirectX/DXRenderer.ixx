@@ -1,6 +1,6 @@
 ﻿export module Ultra.Platform.DXRenderer;
 
-import Ultra.Renderer;
+import Ultra.Engine.Renderer;
 
 export namespace Ultra {
 

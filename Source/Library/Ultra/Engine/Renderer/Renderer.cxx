@@ -1,4 +1,4 @@
-﻿module Ultra.Renderer;
+﻿module Ultra.Engine.Renderer;
 
 import Ultra.GFX.Context;
 import Ultra.Platform.DXRenderer;
@@ -10,10 +10,10 @@ import Ultra.Platform.Renderer.VKRenderDevice;
 
 // Only for Tests
 import Ultra.Engine.Renderer2D;
-import Ultra.Renderer.Buffer;
-import Ultra.Renderer.PipelineState;
-import Ultra.Renderer.Shader;
-import Ultra.Renderer.Texture;
+import Ultra.Engine.Renderer.Buffer;
+import Ultra.Engine.Renderer.PipelineState;
+import Ultra.Engine.Renderer.Shader;
+import Ultra.Engine.Renderer.Texture;
 
 namespace Ultra {
 

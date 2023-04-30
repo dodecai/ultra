@@ -1,6 +1,6 @@
 ﻿export module Ultra.Platform.Renderer.GLPipelineState;
 
-import Ultra.Renderer.PipelineState;
+import Ultra.Engine.Renderer.PipelineState;
 
 export namespace Ultra {
 

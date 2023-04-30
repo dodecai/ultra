@@ -1,4 +1,4 @@
-﻿module Ultra.Renderer.Swapchain;
+﻿module Ultra.Engine.Renderer.Swapchain;
 
 import Ultra.GFX.Context;
 import Ultra.Platform.Renderer.DXSwapchain;

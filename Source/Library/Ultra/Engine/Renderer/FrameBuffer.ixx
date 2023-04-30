@@ -2,11 +2,11 @@
 
 #include <glm/glm.hpp>
 
-export module Ultra.Renderer.Framebuffer;
+export module Ultra.Engine.Renderer.Framebuffer;
 
 export import Ultra.Core;
 export import Ultra.Logger;
-export import Ultra.Renderer.Texture;
+export import Ultra.Engine.Renderer.Texture;
 
 export namespace Ultra {
 

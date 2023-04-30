@@ -1,6 +1,6 @@
 ﻿export module Ultra.Platform.Renderer.VKBuffer;
 
-import Ultra.Renderer.Buffer;
+import Ultra.Engine.Renderer.Buffer;
 
 export namespace Ultra {
 

@@ -1,10 +1,10 @@
-﻿export module Ultra.Renderer.PipelineState;
+﻿export module Ultra.Engine.Renderer.PipelineState;
 
 export import Ultra.Core;
 export import Ultra.Logger;
-export import Ultra.Renderer.Data;
-export import Ultra.Renderer.Buffer;
-export import Ultra.Renderer.Shader;
+export import Ultra.Engine.Renderer.Data;
+export import Ultra.Engine.Renderer.Buffer;
+export import Ultra.Engine.Renderer.Shader;
 
 export namespace Ultra {
 

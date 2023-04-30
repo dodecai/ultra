@@ -1,6 +1,6 @@
 ﻿export module Ultra.Platform.Renderer.DXCommandBuffer;
 
-import Ultra.Renderer.CommandBuffer;
+import Ultra.Engine.Renderer.CommandBuffer;
 
 export namespace Ultra {
 

@@ -1,4 +1,4 @@
-﻿module Ultra.Renderer.Buffer;
+﻿module Ultra.Engine.Renderer.Buffer;
 
 import Ultra.GFX.Context;
 import Ultra.Platform.Renderer.DXBuffer;

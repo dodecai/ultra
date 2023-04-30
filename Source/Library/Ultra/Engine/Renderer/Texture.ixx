@@ -2,11 +2,11 @@
 
 #include <glm/glm.hpp>
 
-export module Ultra.Renderer.Texture;
+export module Ultra.Engine.Renderer.Texture;
 
 export import Ultra.Core;
 export import Ultra.Logger;
-export import Ultra.Renderer.Data;
+export import Ultra.Engine.Renderer.Data;
 
 export namespace Ultra {
 

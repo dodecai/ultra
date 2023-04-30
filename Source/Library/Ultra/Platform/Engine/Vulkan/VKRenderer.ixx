@@ -1,6 +1,6 @@
 ﻿export module Ultra.Platform.VKRenderer;
 
-import Ultra.Renderer;
+import Ultra.Engine.Renderer;
 
 export namespace Ultra {
 

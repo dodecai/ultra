@@ -1,6 +1,6 @@
 ﻿export module Ultra.Platform.Renderer.SWFramebuffer;
 
-import Ultra.Renderer.Framebuffer;
+import Ultra.Engine.Renderer.Framebuffer;
 
 export namespace Ultra {
 

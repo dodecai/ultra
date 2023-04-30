@@ -1,6 +1,6 @@
 ﻿export module Ultra.Platform.Renderer.SWTexture;
 
-import Ultra.Renderer.Texture;
+import Ultra.Engine.Renderer.Texture;
 
 export namespace Ultra {
 

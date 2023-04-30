@@ -1,6 +1,6 @@
 ﻿module Ultra.Platform.Renderer.SWRenderDevice;
 
-import Ultra.Renderer;
+import Ultra.Engine.Renderer;
 
 namespace Ultra {
 

@@ -1,6 +1,6 @@
 ﻿module Ultra.Platform.Renderer.VKRenderDevice;
 
-import Ultra.Renderer;
+import Ultra.Engine.Renderer;
 
 namespace Ultra {
 

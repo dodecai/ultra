@@ -1,4 +1,4 @@
-﻿export module Ultra.Renderer;
+﻿export module Ultra.Engine.Renderer;
 
 export import Ultra.Core;
 export import Ultra.Logger;
@@ -6,9 +6,9 @@ export import Ultra.Engine.Camera;
 export import Ultra.Engine.Renderer2D;
 
 import Ultra.GFX.Context;
-import Ultra.Renderer.RenderDevice;
-import Ultra.Renderer.CommandBuffer;
-import Ultra.Renderer.Shader;
+import Ultra.Engine.Renderer.RenderDevice;
+import Ultra.Engine.Renderer.CommandBuffer;
+import Ultra.Engine.Renderer.Shader;
 
 export namespace Ultra {
 

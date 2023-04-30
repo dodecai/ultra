@@ -1,4 +1,4 @@
-﻿export module Ultra.Renderer.Data;
+﻿export module Ultra.Engine.Renderer.Data;
 
 import Ultra.Core;
 

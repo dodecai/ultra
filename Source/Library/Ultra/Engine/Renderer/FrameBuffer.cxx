@@ -1,4 +1,4 @@
-﻿module Ultra.Renderer.Framebuffer;
+﻿module Ultra.Engine.Renderer.Framebuffer;
 
 import Ultra.GFX.Context;
 import Ultra.Platform.Renderer.DXFramebuffer;

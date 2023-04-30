@@ -1,4 +1,4 @@
-﻿module Ultra.Renderer.Shader;
+﻿module Ultra.Engine.Renderer.Shader;
 
 import Ultra.System.FileSystem;
 

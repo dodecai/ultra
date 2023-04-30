@@ -1,4 +1,4 @@
-﻿module Ultra.Renderer.RenderDevice;
+﻿module Ultra.Engine.Renderer.RenderDevice;
 
 import Ultra.GFX.Context;
 import Ultra.Platform.Renderer.DXRenderDevice;

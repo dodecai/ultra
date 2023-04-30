@@ -1,6 +1,6 @@
 ﻿export module Ultra.Platform.Renderer.VKTexture;
 
-import Ultra.Renderer.Texture;
+import Ultra.Engine.Renderer.Texture;
 
 export namespace Ultra {
 
