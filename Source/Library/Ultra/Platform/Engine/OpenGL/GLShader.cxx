@@ -1,6 +1,8 @@
 ﻿module;
 
 #include <glad/gl.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 module Ultra.Platform.Renderer.GLShader;
 
@@ -18,6 +20,7 @@ GLenum GetGLShaderType(ShaderType type) {
         case ShaderType::Vertex:            { return GL_VERTEX_SHADER; }
     }
 }
+
 
 
 GLShader::GLShader(const string &source, const string &entryPoint, const ShaderType type): Shader(source, entryPoint, type) {
@@ -100,6 +103,97 @@ void GLShader::Bind() const {
 
 void GLShader::Unbind() const {
     glUseProgram(0);
+}
+
+
+int32_t GLShader::GetUniformLocation(const string &name) const {
+    return glGetUniformLocation(mShaderID, name.c_str());
+}
+
+
+void GLShader::SetUniformBuffer(const string &name, const void *data, size_t size) {
+    auto location = GetUniformLocation(name);
+    glUniform1iv(location, size, (int *)data);
+}
+
+void GLShader::SetUniform(const string &name, bool data) {
+    auto location = GetUniformLocation(name);
+    glUniform1i(location, data);
+}
+
+void GLShader::SetUniform(const string &name, float data) {
+    auto location = GetUniformLocation(name);
+    glUniform1fv(location, 1, &data);
+}
+
+void GLShader::SetUniform(const string &name, glm::vec2 &data) {
+    auto location = GetUniformLocation(name);
+    glUniform2fv(location, 1, glm::value_ptr(data));
+}
+
+void GLShader::SetUniform(const string &name, glm::vec3 &data) {
+    auto location = GetUniformLocation(name);
+    glUniform3fv(location, 1, glm::value_ptr(data));
+}
+
+void GLShader::SetUniform(const string &name, glm::vec4 &data) {
+    auto location = GetUniformLocation(name);
+    glUniform4fv(location, 1, glm::value_ptr(data));
+}
+
+void GLShader::SetUniform(const string &name, int data) {
+    auto location = GetUniformLocation(name);
+    glUniform1iv(location, 1, &data);
+}
+
+void GLShader::SetUniform(const string &name, glm::ivec2 &data) {
+    auto location = GetUniformLocation(name);
+    glUniform2iv(location, 1, glm::value_ptr(data));
+}
+
+void GLShader::SetUniform(const string &name, glm::ivec3 &data) {
+    auto location = GetUniformLocation(name);
+    glUniform3iv(location, 1, glm::value_ptr(data));
+}
+
+void GLShader::SetUniform(const string &name, glm::ivec4 &data) {
+    auto location = GetUniformLocation(name);
+    glUniform4iv(location, 1, glm::value_ptr(data));
+}
+
+void GLShader::SetUniform(const string &name, unsigned int data) {
+    auto location = GetUniformLocation(name);
+    glUniform1uiv(location, 1, &data);
+}
+
+void GLShader::SetUniform(const string &name, glm::uvec2 &data) {
+    auto location = GetUniformLocation(name);
+    glUniform2uiv(location, 1, glm::value_ptr(data));
+}
+
+void GLShader::SetUniform(const string &name, glm::uvec3 &data) {
+    auto location = GetUniformLocation(name);
+    glUniform3uiv(location, 1, glm::value_ptr(data));
+}
+
+void GLShader::SetUniform(const string &name, glm::uvec4 &data) {
+    auto location = GetUniformLocation(name);
+    glUniform4uiv(location, 1, glm::value_ptr(data));
+}
+
+void GLShader::SetUniform(const string &name, glm::mat2 &data) {
+    auto location = GetUniformLocation(name);
+    glUniformMatrix2fv(location, 1, GL_FALSE, glm::value_ptr(data));
+}
+
+void GLShader::SetUniform(const string &name, glm::mat3 &data) {
+    auto location = GetUniformLocation(name);
+    glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(data));
+}
+
+void GLShader::SetUniform(const string &name, glm::mat4 &data) {
+    auto location = GetUniformLocation(name);
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(data));
 }
 
 }

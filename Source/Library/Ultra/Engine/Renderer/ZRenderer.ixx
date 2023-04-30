@@ -8,14 +8,14 @@ export import Ultra.Core;
 export import Ultra.Logger;
 export import Ultra.GFX.Context;
 
-export import Ultra.Engine.Renderer2D;
 export import Ultra.Engine.Camera;
-export import Ultra.Engine.ZShader;
-export import Ultra.Engine.Texture;
+export import Ultra.Engine.Renderer2D;
+export import Ultra.Engine.Pipeline;
+import Ultra.Engine.RendererAPI;
 
-import Ultra.Engine.Pipeline;
-import Ultra.Engine.IndexBuffer;
-import Ultra.Engine.VertexBuffer;
+export import Ultra.Renderer.Buffer;
+export import Ultra.Renderer.Shader;
+export import Ultra.Renderer.Texture;
 
 export namespace Ultra {
 
@@ -33,7 +33,7 @@ public:
 
     static void BeginScene();
     static void EndScene();
-    static void Submit(const IndexProperties &properties, PrimitiveType type = PrimitiveType::Triangle, bool depthTest = false);
+    static void Submit(size_t count, PrimitiveType type = PrimitiveType::Triangle, bool depthTest = false);
 
     inline static GraphicsAPI GetAPI() { return Context::API; }
 

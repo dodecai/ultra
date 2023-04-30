@@ -6,11 +6,12 @@ export namespace Ultra {
 
 class SWTexture: public Texture {
 public:
-    SWTexture(const void *data, uint32_t width, uint32_t height, TextureFormat format);
+    SWTexture(const TextureProperties &properties, const void *data, size_t size);
+    SWTexture(const TextureProperties &properties, string &path);
     virtual ~SWTexture();
 
-    virtual void Bind() const override;
-    virtual void Unbind() const override;
+    virtual void Bind(uint32_t slot) const override;
+    virtual void Unbind(uint32_t slot) const override;
 
 private:
 };

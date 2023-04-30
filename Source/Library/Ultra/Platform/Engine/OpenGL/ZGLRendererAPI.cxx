@@ -80,23 +80,23 @@ void GLRendererAPI::Clear() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void GLRendererAPI::DrawIndexed(const IndexProperties &properties, PrimitiveType primitive, bool depthTest) {
+void GLRendererAPI::DrawIndexed(size_t count, PrimitiveType primitive, bool depthTest) {
     if (!depthTest) glDisable(GL_DEPTH_TEST);
 
     GLenum mode = 0;
-    GLenum type = 0;
-    switch (properties.Type) {
-        case IndexType::UINT8:  { type = GL_UNSIGNED_BYTE; break; }
-        case IndexType::UINT16: { type = GL_UNSIGNED_INT; break; }
-        case IndexType::UINT32: { type = GL_UNSIGNED_INT; break; }
-    }
+    GLenum type = GL_UNSIGNED_INT;
+    //switch (properties.Type) {
+    //    case IndexType::UINT8:  { type = GL_UNSIGNED_BYTE; break; }
+    //    case IndexType::UINT16: { type = GL_UNSIGNED_INT; break; }
+    //    case IndexType::UINT32: { type = GL_UNSIGNED_INT; break; }
+    //}
 
     switch (primitive) {
         case PrimitiveType::Line:       { mode = GL_LINES; break; }
         case PrimitiveType::Triangle:   { mode = GL_TRIANGLES; break; }
     }
 
-    glDrawElements(mode, properties.Count, type, nullptr);
+    glDrawElements(mode, count, type, nullptr);
 
     if (!depthTest) glEnable(GL_DEPTH_TEST);
 }

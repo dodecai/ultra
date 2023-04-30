@@ -6,10 +6,11 @@ export module Ultra.Engine.Image;
 
 export import Ultra.Core;
 export import Ultra.Logger;
-export import Ultra.Engine.BufferData;
 export import Ultra.Engine.RendererData;
 
 export namespace Ultra {
+
+using BufferData = void *;
 
 enum class ImageFormat {
     None = 0,

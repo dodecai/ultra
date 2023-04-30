@@ -7,10 +7,10 @@ import Ultra.Logger;
 
 export namespace Ultra {
 
-class Material {
+class Mesh {
 public:
-    Material() = default;
-    ~Material() = default;
+    Mesh() = default;
+    ~Mesh() = default;
 };
 
 }

@@ -7,11 +7,11 @@ import Ultra.Platform.Renderer.VKTexture;
 
 namespace Ultra {
 
-Scope<Texture> Texture::Create(const void *data, uint32_t width, uint32_t height, TextureFormat format) {
+Scope<Texture> Texture::Create(const TextureProperties &properties, const void *data, size_t size) {
     switch (Context::API) {
-        case GraphicsAPI::DirectX:  { return CreateScope<DXTexture>(data, width, height, format); }
-        case GraphicsAPI::OpenGL:   { return CreateScope<GLTexture>(data, width, height, format); }
-        case GraphicsAPI::Vulkan:   { return CreateScope<VKTexture>(data, width, height, format); }
+        case GraphicsAPI::DirectX:  { return CreateScope<DXTexture>(properties, data, size); }
+        case GraphicsAPI::OpenGL:   { return CreateScope<GLTexture>(properties, data, size); }
+        case GraphicsAPI::Vulkan:   { return CreateScope<VKTexture>(properties, data, size); }
 
         default: {
         #if APP_MODE_DEBUG
@@ -24,4 +24,20 @@ Scope<Texture> Texture::Create(const void *data, uint32_t width, uint32_t height
     }
 }
 
+Scope<Texture> Texture::Create(const TextureProperties &properties, string &path) {
+    switch (Context::API) {
+        case GraphicsAPI::DirectX:  { return CreateScope<DXTexture>(properties, path); }
+        case GraphicsAPI::OpenGL:   { return CreateScope<GLTexture>(properties, path); }
+        case GraphicsAPI::Vulkan:   { return CreateScope<VKTexture>(properties, path); }
+
+        default: {
+        #if APP_MODE_DEBUG
+            throw std::runtime_error("Renderer::Texture: RenderAPI not supported!");
+        #else
+            LogFatal("Renderer::Texture: RenderAPI not supported!");
+        #endif
+            return nullptr;
+        }
+    }
+}
 }

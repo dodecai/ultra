@@ -6,9 +6,10 @@ module Ultra.Engine.Renderer2D;
 
 import Ultra.Engine.RenderCommand;
 import Ultra.Engine.Pipeline;
-import Ultra.Engine.IndexBuffer;
-import Ultra.Engine.VertexBuffer;
-import Ultra.Engine.ZShader;
+
+import Ultra.Renderer.Buffer;
+import Ultra.Renderer.Shader;
+import Ultra.Renderer.Texture;
 
 namespace Ultra {
 
@@ -38,9 +39,9 @@ struct RendererData {
     static const uint32_t MaxLineIndices = MaxLines * 6;
 
     Reference<Pipeline> LinePipeline;
-    Reference<VertexBuffer> LineVertexBuffer;
-    Reference<IndexBuffer> LineIndexBuffer;
-    Reference<ZShader> LineShader;
+    Reference<Buffer> LineVertexBuffer;
+    Reference<Buffer> LineIndexBuffer;
+    Reference<Shader> LineShader;
 
     uint32_t LineIndexCount = 0;
     LineVertex *LineVertexBufferBase = nullptr;
@@ -53,17 +54,17 @@ struct RendererData {
     static const uint32_t MaxTextureSlots = 32; // ToDo: Context::GetCapabilities().MaxTextureUnits
 
     Reference<Pipeline> QuadPipeline;
-    Reference<VertexBuffer> QVertexBuffer;
-    Reference<IndexBuffer> QIndexBuffer;
+    Reference<Buffer> QVertexBuffer;
+    Reference<Buffer> QIndexBuffer;
 
     uint32_t QIndexCount = 0;
     QuadVertex *QVertexBufferBase = nullptr;
     QuadVertex *QVertexBufferPtr = nullptr;
 
     // Textures
-    Reference<ZShader> TextureShader;
-    Reference<Texture2D> WhiteTexture;
-    std::array<Reference<Texture2D>, MaxTextureSlots> TextureSlots;
+    Reference<Shader> TextureShader;
+    Reference<Texture> WhiteTexture;
+    std::array<Reference<Texture>, MaxTextureSlots> TextureSlots;
     uint32_t TextureSlotIndex = 1; // 0 = White
 
     glm::vec4 QVertexPositions[4];
@@ -76,7 +77,7 @@ static RendererData sData;
 void Renderer2D::Load() {
     // Lines
     {
-        sData.LineShader = ZShader::Create("Assets/Shaders/Line.glsl");
+        sData.LineShader = Shader::Create("Assets/Shaders/Line.glsl");
 
         PipelineProperties pipelineProperties;
         pipelineProperties.Layout = {
@@ -85,7 +86,7 @@ void Renderer2D::Load() {
         };
         sData.LinePipeline = Pipeline::Create(pipelineProperties);
 
-        sData.LineVertexBuffer = VertexBuffer::Create(sData.MaxLineVertices * sizeof(LineVertex));
+        sData.LineVertexBuffer = Buffer::Create(BufferType::Vertex, nullptr, sData.MaxLineVertices * sizeof(LineVertex));
         sData.LineVertexBufferBase = new LineVertex[sData.MaxLineVertices];
 
         uint32_t *lineIndices = new uint32_t[sData.MaxLineIndices];
@@ -93,7 +94,7 @@ void Renderer2D::Load() {
             lineIndices[i] = i;
         }
 
-        sData.LineIndexBuffer = IndexBuffer::Create(lineIndices, sData.MaxLineIndices * sizeof(uint32_t));
+        sData.LineIndexBuffer = Buffer::Create(BufferType::Index, lineIndices, sData.MaxLineIndices * sizeof(uint32_t));
         delete[] lineIndices;
     }
 
@@ -109,7 +110,7 @@ void Renderer2D::Load() {
         };
         sData.QuadPipeline = Pipeline::Create(pipelineProperties);
 
-        sData.QVertexBuffer = VertexBuffer::Create(sData.MaxVertices * sizeof(QuadVertex));
+        sData.QVertexBuffer = Buffer::Create(BufferType::Vertex, nullptr, sData.MaxVertices * sizeof(QuadVertex));
         sData.QVertexBufferBase = new QuadVertex[sData.MaxVertices];
 
         uint32_t offset = 0;
@@ -125,18 +126,18 @@ void Renderer2D::Load() {
             offset += 4;
         }
 
-        sData.QIndexBuffer = IndexBuffer::Create(quadIndicies, sData.MaxIndices * sizeof(uint32_t));
+        sData.QIndexBuffer = Buffer::Create(BufferType::Index, quadIndicies, sData.MaxIndices * sizeof(uint32_t));
         delete[] quadIndicies;
     }
 
     // Miscelaneous
     uint32_t whiteTextureData = 0xffffffff;
-    sData.WhiteTexture = Texture2D::Create(TextureProperties(), &whiteTextureData, sizeof(uint32_t));
+    sData.WhiteTexture = Texture::Create(TextureProperties(), &whiteTextureData, sizeof(uint32_t));
 
     int32_t samplers[sData.MaxTextureSlots];
     for (uint32_t i = 0; i < sData.MaxTextureSlots; i++) samplers[i] = i;
 
-    sData.TextureShader = ZShader::Create("./Assets/Shaders/Texture.glsl");
+    sData.TextureShader = Shader::Create("./Assets/Shaders/Texture.glsl");
     sData.TextureShader->Bind();
     sData.TextureShader->SetUniformBuffer("uTextures", (void *)samplers, sData.MaxTextureSlots);
 
@@ -159,7 +160,7 @@ void Renderer2D::Unload() {
     sData.QVertexBuffer.reset();
     sData.QIndexBuffer.reset();
 
-    //sData.TextureShader.reset();
+    sData.TextureShader.reset();
     sData.WhiteTexture.reset();
     for (auto &texture : sData.TextureSlots) {
         texture.reset();
@@ -232,7 +233,7 @@ void Renderer2D::FinishScene() {
 void Renderer2D::Flush() {
     uint32_t dataSizeL = (uint32_t)((uint8_t *)sData.LineVertexBufferPtr - (uint8_t *)sData.LineVertexBufferBase);
     if (dataSizeL) {
-        sData.LineVertexBuffer->SetData(sData.LineVertexBufferBase, dataSizeL);
+        sData.LineVertexBuffer->UpdateData(sData.LineVertexBufferBase, dataSizeL);
 
         sData.LineShader->Bind();
         sData.LineShader->SetUniform("uViewProjection", sData.ViewProjectionMatrix);
@@ -247,7 +248,7 @@ void Renderer2D::Flush() {
 
     uint32_t dataSize = (uint32_t)((uint8_t *)sData.QVertexBufferPtr - (uint8_t *)sData.QVertexBufferBase);
     if (dataSize) {
-        sData.QVertexBuffer->SetData(sData.QVertexBufferBase, dataSize);
+        sData.QVertexBuffer->UpdateData(sData.QVertexBufferBase, dataSize);
 
         sData.TextureShader->Bind();
         sData.TextureShader->SetUniform("uViewProjection", sData.ViewProjectionMatrix);
@@ -350,7 +351,7 @@ void Renderer2D::DrawQuad(const glm::mat4 &transform, const glm::vec4 &color) {
     sData.Stats.QuadCount++;
 }
 
-void Renderer2D::DrawQuad(const glm::mat4 &transform, const Reference<Texture2D> &texture, const float tilingFactor, const glm::vec4 &color) {
+void Renderer2D::DrawQuad(const glm::mat4 &transform, const Reference<Texture> &texture, const float tilingFactor, const glm::vec4 &color) {
     constexpr size_t quadVertexCount = 4;
     constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 
@@ -386,10 +387,10 @@ void Renderer2D::DrawQuad(const glm::mat4 &transform, const Reference<Texture2D>
     sData.Stats.QuadCount++;
 }
 
-//void Renderer2D::DrawQuad(const glm::mat4 &transform, const Reference<SubTexture2D> &subTexture, const float tilingFactor, const glm::vec4 &color) {
+//void Renderer2D::DrawQuad(const glm::mat4 &transform, const Reference<SubTexture> &subTexture, const float tilingFactor, const glm::vec4 &color) {
 //    constexpr size_t quadVertexCount = 4;
 //    const glm::vec2 *textureCoords = subTexture->GetTextCoordinates();
-//    const Reference<Texture2D> texture = subTexture->GetTexture();
+//    const Reference<Texture> texture = subTexture->GetTexture();
 //
 //    if (sData.QIndexCount >= RendererData::MaxIndices) FlushAndReset();
 //
@@ -445,7 +446,7 @@ void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotatio
     sData.Stats.QuadCount++;
 }
 
-void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotation, const Reference<Texture2D> &texture, const float tilingFactor, const glm::vec4 &color) {
+void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotation, const Reference<Texture> &texture, const float tilingFactor, const glm::vec4 &color) {
     constexpr size_t quadVertexCount = 4;
     constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 
@@ -481,10 +482,10 @@ void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotatio
     sData.Stats.QuadCount++;
 }
 
-//void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotation, const Reference<SubTexture2D> &subTexture, const float tilingFactor, const glm::vec4 &color) {
+//void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotation, const Reference<SubTexture> &subTexture, const float tilingFactor, const glm::vec4 &color) {
 //    constexpr size_t quadVertexCount = 4;
 //    const glm::vec2 *textureCoords = subTexture->GetTextCoordinates();
-//    const Reference<Texture2D> texture = subTexture->GetTexture();
+//    const Reference<Texture> texture = subTexture->GetTexture();
 //
 //    if (sData.QIndexCount >= RendererData::MaxIndices) FlushAndReset();
 //
@@ -530,21 +531,21 @@ void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, cons
     DrawQuad(transform, color);
 }
 
-void Renderer2D::DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const Reference<Texture2D> &texture, const float tilingFactor, const glm::vec4 &color) {
+void Renderer2D::DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const Reference<Texture> &texture, const float tilingFactor, const glm::vec4 &color) {
     DrawQuad({ position.x, position.y, 0.0f }, size, texture, tilingFactor, color);
 }
 
-void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const Reference<Texture2D> &texture, const float tilingFactor, const glm::vec4 &color) {
+void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const Reference<Texture> &texture, const float tilingFactor, const glm::vec4 &color) {
     glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
     DrawQuad(transform, texture, tilingFactor, color);
 }
 
-//void Renderer2D::DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const Reference<SubTexture2D> &subTexture, const float tilingFactor, const glm::vec4 &color) {
+//void Renderer2D::DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const Reference<SubTexture> &subTexture, const float tilingFactor, const glm::vec4 &color) {
 //    DrawQuad({ position.x, position.y, 0.0f }, size, subTexture, tilingFactor, color);
 //}
 //
-//void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const Reference<SubTexture2D> &subTexture, const float tilingFactor, const glm::vec4 &color) {
+//void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const Reference<SubTexture> &subTexture, const float tilingFactor, const glm::vec4 &color) {
 //    glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 //
 //    DrawQuad(transform, subTexture, tilingFactor, color);
@@ -562,11 +563,11 @@ void Renderer2D::DrawRotatedQuad(const glm::vec3 &position, const glm::vec2 &siz
     DrawRotatedQuad(transform, rotation, color);
 }
 
-void Renderer2D::DrawRotatedQuad(const glm::vec2 &position, const glm::vec2 &size, const float rotation, const Reference<Texture2D> &texture, const float tilingFactor, const glm::vec4 &color) {
+void Renderer2D::DrawRotatedQuad(const glm::vec2 &position, const glm::vec2 &size, const float rotation, const Reference<Texture> &texture, const float tilingFactor, const glm::vec4 &color) {
     DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, texture, tilingFactor, color);
 }
 
-void Renderer2D::DrawRotatedQuad(const glm::vec3 &position, const glm::vec2 &size, const float rotation, const Reference<Texture2D> &texture, const float tilingFactor, const glm::vec4 &color) {
+void Renderer2D::DrawRotatedQuad(const glm::vec3 &position, const glm::vec2 &size, const float rotation, const Reference<Texture> &texture, const float tilingFactor, const glm::vec4 &color) {
     glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
         * glm::rotate(glm::mat4(1.0f), rotation, { 0.0f, 0.0f, 1.0f })
         * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
@@ -574,11 +575,11 @@ void Renderer2D::DrawRotatedQuad(const glm::vec3 &position, const glm::vec2 &siz
     DrawRotatedQuad(transform, rotation, texture, tilingFactor, color);
 }
 
-//void Renderer2D::DrawRotatedQuad(const glm::vec2 &position, const glm::vec2 &size, const float rotation, const Reference<SubTexture2D> &subTexture, const float tilingFactor, const glm::vec4 &color) {
+//void Renderer2D::DrawRotatedQuad(const glm::vec2 &position, const glm::vec2 &size, const float rotation, const Reference<SubTexture> &subTexture, const float tilingFactor, const glm::vec4 &color) {
 //    DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, subTexture, tilingFactor, color);
 //}
 //
-//void Renderer2D::DrawRotatedQuad(const glm::vec3 &position, const glm::vec2 &size, const float rotation, const Reference<SubTexture2D> &subTexture, const float tilingFactor, const glm::vec4 &color) {
+//void Renderer2D::DrawRotatedQuad(const glm::vec3 &position, const glm::vec2 &size, const float rotation, const Reference<SubTexture> &subTexture, const float tilingFactor, const glm::vec4 &color) {
 //    glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 //        * glm::rotate(glm::mat4(1.0f), rotation, { 0.0f, 0.0f, 1.0f })
 //        * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });

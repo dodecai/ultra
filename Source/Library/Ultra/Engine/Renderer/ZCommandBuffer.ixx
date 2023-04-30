@@ -29,8 +29,8 @@ public:
     static void Clear() {
         sRendererAPI->Clear();
     }
-    static void DrawIndexed(const IndexProperties &properties, PrimitiveType type, bool depthTest = true) {
-        sRendererAPI->DrawIndexed(properties, type, depthTest);
+    static void DrawIndexed(size_t count, PrimitiveType type, bool depthTest = true) {
+        sRendererAPI->DrawIndexed(count, type, depthTest);
     }
     
     static GraphicsAPI GetAPI() {

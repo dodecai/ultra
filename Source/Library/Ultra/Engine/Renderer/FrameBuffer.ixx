@@ -2,7 +2,6 @@
 
 export import Ultra.Core;
 export import Ultra.Logger;
-
 export import Ultra.Renderer.Texture;
 
 export namespace Ultra {

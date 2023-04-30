@@ -6,11 +6,12 @@ export namespace Ultra {
 
 class DXTexture: public Texture {
 public:
-    DXTexture(const void *data, uint32_t width, uint32_t height, TextureFormat format);
+    DXTexture(const TextureProperties &properties, const void *data, size_t size);
+    DXTexture(const TextureProperties &properties, string &path);
     virtual ~DXTexture();
 
-    virtual void Bind() const override;
-    virtual void Unbind() const override;
+    virtual void Bind(uint32_t slot) const override;
+    virtual void Unbind(uint32_t slot) const override;
 
 private:
 };

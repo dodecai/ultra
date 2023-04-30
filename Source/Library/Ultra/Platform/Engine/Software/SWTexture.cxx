@@ -2,13 +2,15 @@
 
 namespace Ultra {
 
-SWTexture::SWTexture(const void *data, uint32_t width, uint32_t height, TextureFormat format): Texture(data, width, height, format) {}
+SWTexture::SWTexture(const TextureProperties &properties, const void *data, size_t size): Texture(properties, data, size) {}
+
+SWTexture::SWTexture(const TextureProperties &properties, string &path): Texture(properties, nullptr, 0) {}
 
 SWTexture::~SWTexture() {}
 
 
-void SWTexture::Bind() const {}
+void SWTexture::Bind(uint32_t slot) const {}
 
-void SWTexture::Unbind() const {}
+void SWTexture::Unbind(uint32_t slot) const {}
 
 }

@@ -28,7 +28,6 @@ GLBuffer::GLBuffer(BufferType type, const void *data, size_t size, BufferUsage u
     auto bufferUsage = GetGLBufferUsage(usage);
     mNativeType = GetGLBufferType(type);
 
-    
     glCreateBuffers(1, &mBufferID);
     glNamedBufferData(mBufferID, size, data, bufferUsage);
 }
@@ -49,5 +48,24 @@ void GLBuffer::Unbind() const {
 void GLBuffer::UpdateData(const void *data, size_t size) {
     glNamedBufferSubData(mBufferID, 0, size, data);
 }
+
+#if UNDEFINED
+
+DetectCompressionLevel(data, size);
+mProperties.Count = size / (size_t)mProperties.Type;
+
+void *optimizedData = nullptr;
+if (mProperties.Type == IndexType::UINT8) {
+    optimizedData = reinterpret_cast<void *>(CompressIndices<uint8_t>(data, size));
+    mData = BufferData::Copy(optimizedData, size);
+} else if (mProperties.Type == IndexType::UINT16) {
+    optimizedData = reinterpret_cast<void *>(CompressIndices<uint16_t>(data, size));
+    mData = BufferData::Copy(optimizedData, size);
+} else {
+    optimizedData = (void *)data;
+    mData = BufferData::Copy(optimizedData, size);
+}
+#endif
+
 
 }

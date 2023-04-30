@@ -28,8 +28,8 @@ void Renderer::BeginScene() {
 void Renderer::EndScene() {
 }
 
-void Renderer::Submit(const IndexProperties &properties, PrimitiveType type, bool depthTest) {
-    RenderCommand::DrawIndexed(properties, type, depthTest);
+void Renderer::Submit(size_t count, PrimitiveType type, bool depthTest) {
+    RenderCommand::DrawIndexed(count, type, depthTest);
 }
 
 void Renderer::Unload() {
@@ -52,12 +52,12 @@ size_t vectorsizeof(const typename std::vector<T> &vec) {
 void Renderer::Test() {
 
     static Reference<Pipeline> BasicPipeline;
-    static Reference<ZShader> BasicShader;
-    static Reference<IndexBuffer> BasicIndex;
-    static Reference<VertexBuffer> BasicVertex;
+    static Reference<Shader> BasicShader;
+    static Reference<Buffer> BasicIndex;
+    static Reference<Buffer> BasicVertex;
 
 
-    BasicShader = ZShader::Create("Assets/Shaders/Sample.glsl");
+    BasicShader = Shader::Create("Assets/Shaders/Sample.glsl");
     BasicPipeline = Pipeline::Create({
         VertexBufferLayout {
             { ShaderDataType::Float3, "position" }
@@ -69,17 +69,17 @@ void Renderer::Test() {
          0.5f, -0.5f, 0.0f,
          0.0f,  0.5f, 0.0f
     };
-    BasicVertex = VertexBuffer::Create(vertices, sizeof(vertices));
+    BasicVertex = Buffer::Create(BufferType::Vertex, vertices, sizeof(vertices));
 
     uint32_t indices[] = { 0, 1, 2 };
-    BasicIndex = IndexBuffer::Create(indices, sizeof(indices));
+    BasicIndex = Buffer::Create(BufferType::Index, indices, sizeof(indices));
 
     // Renderer
     BasicShader->Bind();
     BasicVertex->Bind();
     BasicPipeline->Bind();
     BasicIndex->Bind();
-    Renderer::Submit(BasicIndex->GetProperties());
+    Renderer::Submit(3);
 
     return;
 

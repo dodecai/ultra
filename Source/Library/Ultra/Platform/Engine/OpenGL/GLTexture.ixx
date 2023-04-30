@@ -6,11 +6,12 @@ export namespace Ultra {
 
 class GLTexture: public Texture {
 public:
-    GLTexture(const void *data, uint32_t width, uint32_t height, TextureFormat format);
+    GLTexture(const TextureProperties &properties, const void *data, size_t size);
+    GLTexture(const TextureProperties &properties, string &path);
     virtual ~GLTexture();
 
-    virtual void Bind() const override;
-    virtual void Unbind() const override;
+    virtual void Bind(uint32_t slot) const override;
+    virtual void Unbind(uint32_t slot) const override;
 
 private:
 };

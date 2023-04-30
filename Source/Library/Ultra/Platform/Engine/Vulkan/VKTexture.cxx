@@ -2,13 +2,15 @@
 
 namespace Ultra {
 
-VKTexture::VKTexture(const void *data, uint32_t width, uint32_t height, TextureFormat format): Texture(data, width, height, format) {}
+VKTexture::VKTexture(const TextureProperties &properties, const void *data, size_t size): Texture(properties, data, size) {}
+
+VKTexture::VKTexture(const TextureProperties &properties, string &path): Texture(properties, nullptr, 0) {}
 
 VKTexture::~VKTexture() {}
 
 
-void VKTexture::Bind() const {}
+void VKTexture::Bind(uint32_t slot) const {}
 
-void VKTexture::Unbind() const {}
+void VKTexture::Unbind(uint32_t slot) const {}
 
 }

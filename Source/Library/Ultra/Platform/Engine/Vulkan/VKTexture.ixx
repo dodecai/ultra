@@ -6,11 +6,12 @@ export namespace Ultra {
 
 class VKTexture: public Texture {
 public:
-    VKTexture(const void *data, uint32_t width, uint32_t height, TextureFormat format);
+    VKTexture(const TextureProperties &properties, const void *data, size_t size);
+    VKTexture(const TextureProperties &properties, string &path);
     virtual ~VKTexture();
 
-    virtual void Bind() const override;
-    virtual void Unbind() const override;
+    virtual void Bind(uint32_t slot) const override;
+    virtual void Unbind(uint32_t slot) const override;
 
 private:
 };

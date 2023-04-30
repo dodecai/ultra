@@ -6,9 +6,35 @@ export import Ultra.Engine.RendererData;
 
 export namespace Ultra {
 
+///
+/// @brief Texture Data
+///
+enum class TextureDimension {
+    Texture2D,
+    Texture3D,
+};
+ 
+enum class TextureFilter {
+    Linear,
+    Nearest,
+    Cubic,
+};
+
 enum class TextureFormat {
+    Blue,
+    Green,
+    Red,
+    Alpha,
+
+    BGR,
+    BGRA,
+
     RGB,
     RGBA,
+
+    RGBA16F,
+    RGBA32F,
+
     Depth,
     Stencil,
 };
@@ -19,6 +45,27 @@ enum class TextureType {
     Specular,
 };
 
+enum class TextureWrap {
+    Clamp,
+    Repeat,
+};
+
+struct TextureProperties {
+    string Name;
+
+    TextureDimension Dimension = TextureDimension::Texture2D;
+    TextureFormat Format = TextureFormat::RGBA;
+    uint32_t Width = 1;
+    uint32_t Height = 1;
+
+    TextureFilter SamplerFilter = TextureFilter::Linear;
+    TextureWrap SamplerWrap = TextureWrap::Repeat;
+
+    bool GenerateMips = true;
+};
+
+
+
 /// 
 /// @brief Agnostic Texture
 ///
@@ -27,23 +74,32 @@ enum class TextureType {
 /// 
 class Texture {
 protected:
-    Texture(const void *data, uint32_t width, uint32_t height, TextureFormat format): mWidth(width), mHeight(height), mFormat(format), mData(data) {}
+    Texture(const TextureProperties &properties, const void *data, size_t size): mProperties(properties), mData(data), mSize(size) {}
 
 public:
     Texture() = default;
     virtual ~Texture() = default;
 
-    static Scope<Texture> Create(const void *data, uint32_t width, uint32_t height, TextureFormat format);
+    static Scope<Texture> Create(const TextureProperties &properties, const void *data, size_t size);
+    static Scope<Texture> Create(const TextureProperties &properties, string &path);
 
-    virtual void Bind() const = 0;
-    virtual void Unbind() const = 0;
+    virtual void Bind(uint32_t slot = 0) const = 0;
+    virtual void Unbind(uint32_t slot = 0) const = 0;
+
+    // Accessors
+    const TextureProperties &GetProperties() const { return mProperties; }
+
+    // Operators
+    bool operator==(const Texture &other) const { return mTextureID == other.mTextureID; }
 
 protected:
     RendererID mTextureID;
     const void *mData;
-    TextureFormat mFormat;
-    uint32_t mHeight;
-    uint32_t mWidth;
+    size_t mSize;
+    TextureProperties mProperties;
 };
+
+using Texture2D = Texture;
+using Texture3D = Texture;
 
 }

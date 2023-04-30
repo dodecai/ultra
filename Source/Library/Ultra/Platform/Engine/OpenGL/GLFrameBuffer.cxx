@@ -7,7 +7,7 @@ module Ultra.Platform.Renderer.GLFramebuffer;
 namespace Ultra {
 
 GLFramebuffer::GLFramebuffer(uint32_t width, uint32_t height, TextureFormat format): Framebuffer(width, height, format) {
-    glGenFramebuffers(1, &mFramebufferID);
+    glCreateFramebuffers(1, &mFramebufferID);
     glBindFramebuffer(GL_FRAMEBUFFER, mFramebufferID);
 
     // Attach a texture, renderbuffer, or other attachment as needed
@@ -34,9 +34,14 @@ GLFramebuffer::~GLFramebuffer() {
 }
 
 
-void GLFramebuffer::Bind() const {}
+void GLFramebuffer::Bind() const {
+    glBindFramebuffer(GL_FRAMEBUFFER, mFramebufferID);
+    //glViewport(0, 0, Properties.Width, Properties.Height);
+}
 
-void GLFramebuffer::Unbind() const {}
+void GLFramebuffer::Unbind() const {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
 
 Reference<Texture> GLFramebuffer::GetColorAttachment() const {
