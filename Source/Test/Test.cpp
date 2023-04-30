@@ -1,5 +1,6 @@
 ﻿#include <Settings.h>
 #include <Ultra/EntryPoint.h>
+#include <cmath>
 
 import Ultra;
 
@@ -112,7 +113,7 @@ public:
     }
     void Destroy() {}
     void Update(Timestamp deltaTime) {
-        EngineTest();
+        EngineTest(deltaTime);
     }
 
     ///
@@ -267,7 +268,7 @@ public:
     ///
     /// @brief Engine Tests
     ///
-    void EngineTest() {
+    void EngineTest(Timestamp deltaTime) {
         //// Begin
         mRenderer->RenderFrame();
         Renderer2D::StartScene(SceneCamera);
@@ -276,13 +277,18 @@ public:
         mRenderer->Test();
 
         // 2D Renderer: Primitives
-        Renderer2D::DrawLine({ -0.9f,  -0.9f,  0.0f }, { 0.9f,  -0.9f,  0.0f }, { 0.9f, 0.9f, 0.9f, 1.0f });
+        Renderer2D::DrawLine({ -0.9f,  -0.9f,  -1.0f }, { 0.9f,  -0.9f,  0.0f }, { 0.9f, 0.9f, 0.9f, 1.0f });
         Renderer2D::DrawLine({ 0.1f,  0.1f,  0.0f }, { 0.7f,  0.7f,  0.0f }, { 1.0f, 0.0f, 1.0f, 1.0f });
-        Renderer2D::DrawLine({ -0.1f, -0.1f,  0.0f }, { -0.5f,  0.5f,  0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+        Renderer2D::DrawLine({ -0.1f, -0.1f,  -1.0f }, { -0.5f,  0.5f,  0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
 
         //auto texture = Texture::Create(TextureProperties(), "./Assets/Textures/CheckerBoard.png");
-        Renderer2D::DrawQuad({ -0.6f,  -0.6f,  0.0f }, { 0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+        Renderer2D::DrawQuad({ -0.6f,  -0.6f,  -1.0f }, { 0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
         Renderer2D::DrawQuad({ 0.2f,  0.2f,  0.0f }, { 0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f });
+
+        static float rotation = 0.0f;
+        rotation += 1.0f;
+        if (rotation >= 360.0f) rotation = 0.0f;
+        Renderer2D::DrawRotatedQuad({ 0.7f,  0.7f,  0.0f }, { 0.2f,  0.2f }, rotation * (3.14f / 180.0f), { 0.0f, 1.0f, 0.0f, 1.0f });
 
         //// Finish
         Renderer2D::FinishScene();
