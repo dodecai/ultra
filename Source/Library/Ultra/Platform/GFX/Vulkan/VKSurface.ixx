@@ -62,7 +62,7 @@ public:
     //const vk::RenderPass &GetRenderPass() const { return mSwapChain->GetRenderPass(); }
 
 private:
-    HWND mWindowHandle;
+    //HWND mWindowHandle;
 
     Reference<VKInstance> mInstance;
     //Reference<VKPhysicalDevice> mPhysicalDevice;
