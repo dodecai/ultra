@@ -1,4 +1,23 @@
-﻿module Ultra.Platform.GFX.VKSurface;
+﻿module;
+
+#include "Ultra/Core/Private/Core.h"
+
+#if defined(APP_PLATFORM_WINDOWS)
+    // Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
+#undef __nullnullterminated
+#define __SPECSTRINGS_STRICT_LEVEL 0
+
+#undef APIENTRY
+#define NOMINMAX
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+
+// Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
+#undef __nullnullterminated
+#endif
+
+module Ultra.Platform.GFX.VKSurface;
 
 import Ultra.Logger;
 import Ultra.UI.Window;

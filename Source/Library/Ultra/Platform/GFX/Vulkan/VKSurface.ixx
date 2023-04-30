@@ -1,6 +1,6 @@
 ﻿module;
 
-#include <Ultra/Core/Private/Core.h>
+#include "Ultra/Core/Private/Core.h"
 
 #if defined(APP_PLATFORM_WINDOWS)
     // Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
