@@ -11,7 +11,7 @@ include "entt/EnTT.lua"
 include "glad/glad.lua"
 
 Library["Vulkan"] = "%{wks.location}/3rd-Party/vulkan/lib/vulkan-1.lib"
-Library["VulkanUtils"] = "%{wks.location}/3rd-Party/vulkan/lib/VkLayer_utils.lib"
+--Library["VulkanUtils"] = "%{wks.location}/3rd-Party/vulkan/lib/VkLayer_utils.lib"
 -- VulkanSdkPath = os.get('VULKANK_SDK')
--- Library["Vulkan"] = "${VulkanSdkPath}/Lib/vulkan-1.lib"
--- Library["VulkanUtils"] = "${VulkanSdkPath}/Lib/VkLayer_utils.lib"
+--Library["Vulkan"] = "${VulkanSdkPath}/Lib/vulkan-1.lib"
+--Library["VulkanUtils"] = "${VulkanSdkPath}/Lib/VkLayer_utils.lib"

@@ -33,7 +33,7 @@
         "DearImGui",
         "Glad",
 	    "%{Library.Vulkan}",
-	    "%{Library.VulkanUtils}",
+	    --"%{Library.VulkanUtils}",
     }
 
     filter { "configurations:Debug" }
