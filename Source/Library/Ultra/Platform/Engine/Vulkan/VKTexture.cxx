@@ -4,7 +4,7 @@ namespace Ultra {
 
 VKTexture::VKTexture(const TextureProperties &properties, const void *data, size_t size): Texture(properties, data, size) {}
 
-VKTexture::VKTexture(const TextureProperties &properties, string &path): Texture(properties, nullptr, 0) {}
+VKTexture::VKTexture(const TextureProperties &properties, const string &path): Texture(properties, nullptr, 0) {}
 
 VKTexture::~VKTexture() {}
 

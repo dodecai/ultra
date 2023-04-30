@@ -47,9 +47,9 @@ Scope<Renderer> Renderer::Create(RenderAPI api) {
     }
     renderer->mRenderDevice = std::move(device);
     SetAPI(api);
+    renderer->Load();
     return renderer;
 }
-
 
 void Renderer::Load() {
     mRenderDevice->Load();
@@ -99,49 +99,6 @@ void Renderer::Test() {
     BasicPipeline->Bind();
     BasicIndex->Bind();
     mCommandBuffer->DrawIndexed(3);
-
-    return;
-
-#ifdef BASIC_OPENGL_WORKFLOW
-    // Data: Vertices and Indices
-    auto vertices = std::to_array<float>({
-        -0.5f, -0.5f,  0.0f,
-         0.5f, -0.5f,  0.0f,
-         0.0f,  0.5f,  0.0f
-    });
-    auto indices = std::to_array<uint32_t>({
-        0u, 1u, 2u
-    });
-
-    // IndexBuffer
-    uint32_t ib;
-    glCreateBuffers(1, &ib);
-    glNamedBufferData(ib, sizeof(indices), indices.data(), GL_STATIC_DRAW);
-
-    // VertexBuffer
-    uint32_t vb;
-    glCreateBuffers(1, &vb);
-    glNamedBufferData(vb, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
-
-    // Pipeline (VertexArray)
-    glBindBuffer(GL_ARRAY_BUFFER, vb);
-
-    uint32_t VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void *)0);
-
-    //glBindVertexArray(0);
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    // Draw the triangle using glDrawElements
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib);
-
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-#endif
 }
 
 }

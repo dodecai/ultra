@@ -51,7 +51,7 @@ struct RendererData {
     static const uint32_t MaxQuads = 21000;
     static const uint32_t MaxVertices = MaxQuads * 4;
     static const uint32_t MaxIndices = MaxQuads * 6;
-    static const uint32_t MaxTextureSlots = 32; // ToDo: Context::GetCapabilities().MaxTextureUnits
+    static const uint32_t MaxTextureSlots = 160; // ToDo: RenderDevice::GetCapabilities().MaxTextureUnits
 
     Reference<PipelineState> QuadPipeline;
     Reference<Buffer> QVertexBuffer;
@@ -132,7 +132,8 @@ void Renderer2D::Load() {
 
     // Miscelaneous
     uint32_t whiteTextureData = 0xffffffff;
-    sData.WhiteTexture = Texture::Create(TextureProperties(), &whiteTextureData, sizeof(uint32_t));
+    //sData.WhiteTexture = Texture::Create(TextureProperties(), &whiteTextureData, sizeof(uint32_t)); // ToDo: Doesn't work anymore cause data is not set
+    sData.WhiteTexture = Texture::Create(TextureProperties(), "./Assets/Textures/CheckerBoard.png");
 
     int32_t samplers[sData.MaxTextureSlots];
     for (uint32_t i = 0; i < sData.MaxTextureSlots; i++) samplers[i] = i;

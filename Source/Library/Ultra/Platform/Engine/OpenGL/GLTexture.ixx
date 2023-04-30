@@ -7,7 +7,7 @@ export namespace Ultra {
 class GLTexture: public Texture {
 public:
     GLTexture(const TextureProperties &properties, const void *data, size_t size);
-    GLTexture(const TextureProperties &properties, string &path);
+    GLTexture(const TextureProperties &properties, const string &path);
     virtual ~GLTexture();
 
     virtual void Bind(uint32_t slot) const override;

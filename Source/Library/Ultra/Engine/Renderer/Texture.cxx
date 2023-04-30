@@ -24,7 +24,7 @@ Scope<Texture> Texture::Create(const TextureProperties &properties, const void *
     }
 }
 
-Scope<Texture> Texture::Create(const TextureProperties &properties, string &path) {
+Scope<Texture> Texture::Create(const TextureProperties &properties, const string &path) {
     switch (Context::API) {
         case GraphicsAPI::DirectX:  { return CreateScope<DXTexture>(properties, path); }
         case GraphicsAPI::OpenGL:   { return CreateScope<GLTexture>(properties, path); }

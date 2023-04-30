@@ -35,7 +35,18 @@ static GLenum ConvertTextureFormat(TextureFormat format) {
 
 namespace Helpers {
 
-inline GLenum OpenGLTextureFormat(TextureFormat format) {
+void CreateSampler(TextureProperties properties) {
+    //glCreateSamplers(1, &mTextureID);
+    //glSamplerParameteri(mTextureID, GL_TEXTURE_MIN_FILTER, GLSamplerFilter(properties.SamplerFilter, properties.GenerateMips));
+    //glSamplerParameteri(mTextureID, GL_TEXTURE_MAG_FILTER, GLSamplerFilter(properties.SamplerFilter, false));
+    //glSamplerParameteri(mTextureID, GL_TEXTURE_WRAP_R, GLSamplerWrap(properties.SamplerWrap));
+    //glSamplerParameteri(mTextureID, GL_TEXTURE_WRAP_S, GLSamplerWrap(properties.SamplerWrap));
+    //glSamplerParameteri(mTextureID, GL_TEXTURE_WRAP_T, GLSamplerWrap(properties.SamplerWrap));
+}
+
+
+
+inline GLenum GLTextureFormat(TextureFormat format) {
     switch (format) {
         case TextureFormat::RGB:     return GL_RGB;
         case TextureFormat::RGBA:
@@ -45,7 +56,7 @@ inline GLenum OpenGLTextureFormat(TextureFormat format) {
     return 0;
 }
 
-inline GLenum OpenGLImageInternalFormat(TextureFormat format) {
+inline GLenum GLImageInternalFormat(TextureFormat format) {
     switch (format) {
         case TextureFormat::RGB:             return GL_RGB8;
         case TextureFormat::RGBA:            return GL_RGBA8;
@@ -58,7 +69,7 @@ inline GLenum OpenGLImageInternalFormat(TextureFormat format) {
     return 0;
 }
 
-inline GLenum OpenGLFormatDataType(TextureFormat format) {
+inline GLenum GLFormatDataType(TextureFormat format) {
     switch (format) {
         case TextureFormat::RGB:
         case TextureFormat::RGBA:    return GL_UNSIGNED_BYTE;
@@ -69,7 +80,7 @@ inline GLenum OpenGLFormatDataType(TextureFormat format) {
     return 0;
 }
 
-inline GLenum OpenGLSamplerWrap(TextureWrap wrap) {
+inline GLenum GLSamplerWrap(TextureWrap wrap) {
     switch (wrap) {
         case TextureWrap::Clamp:   return GL_CLAMP_TO_EDGE;
         case TextureWrap::Repeat:  return GL_REPEAT;
@@ -79,7 +90,7 @@ inline GLenum OpenGLSamplerWrap(TextureWrap wrap) {
 }
 
 // Note: should always be called with mipmap = false for magnification filtering
-inline GLenum OpenGLSamplerFilter(TextureFilter filter, bool mipmap) {
+inline GLenum GLSamplerFilter(TextureFilter filter, bool mipmap) {
     switch (filter) {
         case TextureFilter::Linear:   return mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR;
         case TextureFilter::Nearest:  return mipmap ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST;
@@ -92,35 +103,24 @@ inline GLenum OpenGLSamplerFilter(TextureFilter filter, bool mipmap) {
 
 
 GLTexture::GLTexture(const TextureProperties &properties, const void *data, size_t size): Texture(properties, data, size) {
-    auto renderFormat = GL_RGBA8;
     if (properties.Dimension == TextureDimension::Texture2D) {
+        auto renderFormat = GL_RGBA8;
         glCreateTextures(GL_TEXTURE_2D, 1, &mTextureID);
         glTextureStorage2D(mTextureID, 1, renderFormat, mProperties.Width, mProperties.Height);
-
-        glTextureParameteri(mTextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTextureParameteri(mTextureID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        GLenum wrapType = mProperties.SamplerWrap == TextureWrap::Clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT;
-        glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_R, wrapType);
-        glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_S, wrapType);
-        glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_T, wrapType);
-        //glTextureParameterf(mTextureID, GL_TEXTURE_MAX_ANISOTROPY, RendererAPI::GetCapabilities().MaxAnisotropy);
     } else {
         glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &mTextureID);
         glTextureStorage2D(mTextureID, 1, ConvertTextureFormat(mProperties.Format), mProperties.Width, mProperties.Height);
-
-        glTextureParameteri(mTextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTextureParameteri(mTextureID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        GLenum wrapType = mProperties.SamplerWrap == TextureWrap::Clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT;
-        glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_R, wrapType);
-        glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_S, wrapType);
-        glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_T, wrapType);
-        //glTextureParameterf(mTextureID, GL_TEXTURE_MAX_ANISOTROPY, RendererAPI::GetCapabilities().MaxAnisotropy);
     }
+    GLenum wrapType = mProperties.SamplerWrap == TextureWrap::Clamp ? GL_CLAMP_TO_EDGE : GL_REPEAT;
+    glTextureParameteri(mTextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTextureParameteri(mTextureID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_R, wrapType);
+    glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_S, wrapType);
+    glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_T, wrapType);
+    glTextureParameterf(mTextureID, GL_TEXTURE_MAX_ANISOTROPY, 16); // ToDo: RenderDevice::GetCapabilities().MaxAnisotropy
 }
 
-GLTexture::GLTexture(const TextureProperties &properties, string &path): Texture(properties, nullptr, 0) {
+GLTexture::GLTexture(const TextureProperties &properties, const string &path): Texture(properties, nullptr, 0) {
     int channels = {};
     int height = {};
     int width = {};
@@ -140,7 +140,7 @@ GLTexture::GLTexture(const TextureProperties &properties, string &path): Texture
                 mProperties.Format = TextureFormat::RGB;
                 renderFormat = GL_RGB16;
             } else if (channels == 1) {
-                renderFormat = GL_RED;
+                renderFormat = GL_RGBA16;
             }
         }
         mProperties.Height = height;
@@ -228,15 +228,5 @@ void GLTexture::Unbind(uint32_t slot) const {
 //        glGenerateTextureMipmap(m_RendererID); // TODO: optional
 //    }
 //}
-
-//void GLImage::CreateSampler(TextureProperties properties) {
-//    glCreateSamplers(1, &m_SamplerRendererID);
-//    glSamplerParameteri(m_SamplerRendererID, GL_TEXTURE_MIN_FILTER, Utils::OpenGLSamplerFilter(properties.SamplerFilter, properties.GenerateMips));
-//    glSamplerParameteri(m_SamplerRendererID, GL_TEXTURE_MAG_FILTER, Utils::OpenGLSamplerFilter(properties.SamplerFilter, false));
-//    glSamplerParameteri(m_SamplerRendererID, GL_TEXTURE_WRAP_R, Utils::OpenGLSamplerWrap(properties.SamplerWrap));
-//    glSamplerParameteri(m_SamplerRendererID, GL_TEXTURE_WRAP_S, Utils::OpenGLSamplerWrap(properties.SamplerWrap));
-//    glSamplerParameteri(m_SamplerRendererID, GL_TEXTURE_WRAP_T, Utils::OpenGLSamplerWrap(properties.SamplerWrap));
-//}
-
 
 }

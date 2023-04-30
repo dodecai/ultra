@@ -96,12 +96,19 @@ public:
 
     // Methods
     void Create() {
-        //RenderAPI::Set(RenderAPI::OpenGL); // Set the desired rendering API (OpenGL, DirectX, Vulkan, etc)
-        mRenderer = Renderer::Create(RenderAPI::OpenGL);
-        mRenderer->Load();
-        //Renderer::Load();
+        mRenderer = Renderer::Create(RenderAPI::OpenGL);  // Set the desired rendering API (OpenGL, DirectX, Vulkan, etc)
         //Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        //auto swapchain = Swapchain::Create(nullptr, 1280, 720);
+        auto commandBuffer = CommandBuffer::Create();
 
+        // Load shaders, buffers, textures
+        //auto linkedShaders = Shader::Create("Assets/Shaders/Sample.glsl");
+        //auto vertexBuffer = Buffer::Create(BufferType::VertexBuffer, vertices, vertexCount);
+        //auto indexBuffer = Buffer::Create(BufferType::IndexBuffer, indices, indexCount);
+        //auto texture = Texture::Create(TextureType::Texture2D, "path/to/texture.png");
+
+        //// Create render states
+        //auto renderState = RenderState::Create();
     }
     void Destroy() {}
     void Update(Timestamp deltaTime) {
@@ -269,30 +276,17 @@ public:
         mRenderer->Test();
 
         // 2D Renderer: Primitives
+        Renderer2D::DrawLine({ -0.9f,  -0.9f,  0.0f }, { 0.9f,  -0.9f,  0.0f }, { 0.9f, 0.9f, 0.9f, 1.0f });
         Renderer2D::DrawLine({ 0.1f,  0.1f,  0.0f }, { 0.7f,  0.7f,  0.0f }, { 1.0f, 0.0f, 1.0f, 1.0f });
         Renderer2D::DrawLine({ -0.1f, -0.1f,  0.0f }, { -0.5f,  0.5f,  0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
-        Renderer2D::DrawQuad({ -0.2f, -0.2f,  0.0f }, { 0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+
+        //auto texture = Texture::Create(TextureProperties(), "./Assets/Textures/CheckerBoard.png");
+        Renderer2D::DrawQuad({ -0.6f,  -0.6f,  0.0f }, { 0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
         Renderer2D::DrawQuad({ 0.2f,  0.2f,  0.0f }, { 0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f });
 
         //// Finish
         Renderer2D::FinishScene();
         //Renderer::EndScene();
-        
-        //auto renderDevice = RenderDevice::Create();               // Create the render device
-        //auto swapchain = Swapchain::Create(nullptr, 1280, 720);   // Create the swapchain
-        //auto commandBuffer = CommandBuffer::Create();             // Create a command buffer
-    
-        //// Load shaders, buffers, textures
-        //auto vertexShader = Shader::Create(ShaderType::Vertex, "path/to/vertex_shader.glsl");
-        //auto fragmentShader = Shader::Create(ShaderType::Fragment, "path/to/fragment_shader.glsl");
-        //auto vertexBuffer = Buffer::Create(BufferType::VertexBuffer, vertices, vertexCount);
-        //auto indexBuffer = Buffer::Create(BufferType::IndexBuffer, indices, indexCount);
-        //auto texture = Texture::Create(TextureType::Texture2D, "path/to/texture.png");
-
-        //// Create render states
-        //auto renderState = RenderState::Create();
-        //while (!windowShouldClose) {
-        //    // ... Poll events, handle input, etc.
      
         //    // Begin recording commands
         //    commandBuffer->Begin();
@@ -310,7 +304,6 @@ public:
         //    commandBuffer->End();                             // End recording commands
         //    commandBuffer->Execute();                         // Execute the command buffer
         //    swapchain->Present();                             // Present the rendered image to the screen
-        //}
     }
 
 private:
