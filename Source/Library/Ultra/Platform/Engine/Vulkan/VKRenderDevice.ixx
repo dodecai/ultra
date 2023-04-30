@@ -13,6 +13,9 @@ public:
     virtual void BeginFrame() override;
     virtual void EndFrame() override;
     virtual void Dispose() override;
+
+    virtual void SetLineThickness(float value) override;
+    virtual void SetPolygonMode(PolygonMode mode) override;
 };
 
 }

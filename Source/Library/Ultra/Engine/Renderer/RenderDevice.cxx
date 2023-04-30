@@ -24,4 +24,11 @@ Scope<RenderDevice> RenderDevice::Create() {
     }
 }
 
+
+//static void Reload() {
+//    delete sRendererAPI;
+//    sRendererAPI = RendererAPI::Create();
+//    sRendererAPI->Load();
+//}
+
 }

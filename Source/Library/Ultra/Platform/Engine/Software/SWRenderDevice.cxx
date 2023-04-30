@@ -15,6 +15,11 @@ void SWRenderDevice::BeginFrame() {};
 
 void SWRenderDevice::EndFrame() {};
 
-void SWRenderDevice::Dispose() {};
+void SWRenderDevice::Dispose() {}
+
+void SWRenderDevice::SetLineThickness(float value) {}
+
+void SWRenderDevice::SetPolygonMode(PolygonMode mode) {}
+;
 
 }

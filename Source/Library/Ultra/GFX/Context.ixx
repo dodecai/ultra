@@ -5,12 +5,10 @@ import Ultra.Core;
 export namespace Ultra {
 
 enum class GraphicsAPI {
-    Null     = 0x0,
-    Software = 0x1,
-    DirectX  = 0x2,
-    Metal    = 0x3,
-    OpenGL   = 0x4,
-    Vulkan   = 0x5,
+    DirectX,
+    OpenGL,
+    Software,
+    Vulkan,
 };
 
 // The data structure is platform specific, so we only forward declare it here.
@@ -50,6 +48,6 @@ public:
     static GraphicsAPI API;
 };
 
-GraphicsAPI Context::API = GraphicsAPI::Null;
+GraphicsAPI Context::API = GraphicsAPI::OpenGL;
 
 }

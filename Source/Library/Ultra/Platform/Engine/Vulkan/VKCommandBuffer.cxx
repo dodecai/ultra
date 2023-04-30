@@ -21,6 +21,8 @@ void VKCommandBuffer::Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_
 
 void VKCommandBuffer::DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance) {}
 
+void VKCommandBuffer::DrawIndexed(size_t count, PrimitiveType type, bool depthTest) {}
+
 
 void VKCommandBuffer::Execute() {}
 

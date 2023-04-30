@@ -3,7 +3,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 module Ultra.Engine.Renderer2D;
-import Ultra.Engine.RenderCommand;
 
 import Ultra.Renderer.Buffer;
 import Ultra.Renderer.PipelineState;
@@ -11,6 +10,8 @@ import Ultra.Renderer.Shader;
 import Ultra.Renderer.Texture;
 
 namespace Ultra {
+
+static Scope<CommandBuffer> sCommandBuffer = CommandBuffer::Create();
 
 // Properties (hidden)
 struct LineVertex {
@@ -240,8 +241,8 @@ void Renderer2D::Flush() {
         sData.LineVertexBuffer->Bind();
         sData.LinePipeline->Bind();
         sData.LineIndexBuffer->Bind();
-        RenderCommand::SetLineThickness(3.0f);
-        RenderCommand::DrawIndexed({ sData.LineIndexCount }, PrimitiveType::Line, sData.DepthTest);
+        //RenderCommand::SetLineThickness(3.0f);
+        sCommandBuffer->DrawIndexed({ sData.LineIndexCount }, PrimitiveType::Line, sData.DepthTest);
         sData.Stats.DrawCalls++;
     }
 
@@ -259,7 +260,7 @@ void Renderer2D::Flush() {
         sData.QVertexBuffer->Bind();
         sData.QuadPipeline->Bind();
         sData.QIndexBuffer->Bind();
-        RenderCommand::DrawIndexed({ sData.QIndexCount }, PrimitiveType::Triangle, sData.DepthTest);
+        sCommandBuffer->DrawIndexed({ sData.QIndexCount }, PrimitiveType::Triangle, sData.DepthTest);
         sData.Stats.DrawCalls++;
     }
 }

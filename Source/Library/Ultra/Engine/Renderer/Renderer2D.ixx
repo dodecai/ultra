@@ -7,10 +7,11 @@ export module Ultra.Engine.Renderer2D;
 import Ultra.Core;
 import Ultra.Logger;
 
-import Ultra.Engine.RendererAPI;
 import Ultra.Engine.Camera;
 import Ultra.Engine.DesignerCamera;
 import Ultra.Engine.PerspectiveCamera;
+import Ultra.Renderer.CommandBuffer;
+import Ultra.Renderer.RenderDevice;
 import Ultra.Renderer.Texture;
 
 export namespace Ultra {

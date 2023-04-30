@@ -3,8 +3,6 @@
 
 import Ultra;
 
-import Ultra.Renderer.Shader;
-
 namespace Ultra {
 
 struct KeyboardEvent {
@@ -87,43 +85,6 @@ struct Tester {
     }
 };
 
-const auto VertexShader = R"(
-#version 450
-layout (location = 0) in vec3 position;
-
-void main() {
-	gl_Position = vec4(position.x, position.y, position.z, 1.0);
-}
-)";
-
-constexpr auto FragmentShader = R"(
-#version 450
-out vec4 color;
-
-void main() {
-	color = vec4(1.0, 0.5, 0.2, 1.0);
-}
-)";
-
-constexpr auto LinkedShaders = R"(
-// Sample Shader (Hello Triangle!)
-#type vertex
-#version 450
-layout (location = 0) in vec3 position;
-
-void main() {
-	gl_Position = vec4(position.x, position.y, position.z, 1.0);
-}
-
-#type fragment
-#version 450
-out vec4 color;
-
-void main() {
-	color = vec4(1.0, 0.5, 0.2, 1.0);
-}
-)";
-
 // Application
 class App: public Application {
     struct EventEmitter: Emitter<EventEmitter> {};
@@ -135,19 +96,21 @@ public:
 
     // Methods
     void Create() {
-        Renderer::Load();
-        Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        mRenderer = Renderer::Create(RenderAPI::OpenGL);
+        mRenderer->Load();
+        //Renderer::Load();
+        //Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
         EngineTest();
     }
     void Destroy() {}
     void Update(Timestamp deltaTime) {
-        // Begin
-        Renderer::BeginScene();
+        //// Begin
+        mRenderer->RenderFrame();
         Renderer2D::StartScene(SceneCamera);
 
         // 3D Renderer: Primitives
-        Renderer::Test();
+        mRenderer->Test();
 
         // 2D Renderer: Primitives
         Renderer2D::DrawLine({  0.1f,  0.1f,  0.0f }, {  0.7f,  0.7f,  0.0f }, { 1.0f, 0.0f, 1.0f, 1.0f });
@@ -155,9 +118,9 @@ public:
         Renderer2D::DrawQuad({ -0.2f, -0.2f,  0.0f }, {  0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f });
         Renderer2D::DrawQuad({  0.2f,  0.2f,  0.0f }, {  0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f });
 
-        // Finish
+        //// Finish
         Renderer2D::FinishScene();
-        Renderer::EndScene();
+        //Renderer::EndScene();
     }
 
     ///
@@ -313,12 +276,6 @@ public:
     /// @brief Engine Tests
     ///
     void EngineTest() {
-        Scope<Shader> vertexShader = Shader::Create(VertexShader, ShaderType::Vertex);
-        Scope<Shader> fragmentShader = Shader::Create(FragmentShader, ShaderType::Fragment);
-        Scope<Shader> linkedShaders = Shader::Create(LinkedShaders);
-
-        Scope<Shader> linkedShader = Shader::Create("Assets/Shaders/Sample.glsl");
-
         //RenderAPI::Set(RenderAPI::OpenGL); // Set the desired rendering API (OpenGL, DirectX, Vulkan, etc)
         //auto renderDevice = RenderDevice::Create();               // Create the render device
         //auto swapchain = Swapchain::Create(nullptr, 1280, 720);   // Create the swapchain
@@ -356,6 +313,7 @@ public:
     }
 
 private:
+    Scope<Renderer> mRenderer;
     Camera SceneCamera;
 };
 

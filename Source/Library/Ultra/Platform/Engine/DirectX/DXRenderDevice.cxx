@@ -15,6 +15,11 @@ void DXRenderDevice::BeginFrame() {};
 
 void DXRenderDevice::EndFrame() {};
 
-void DXRenderDevice::Dispose() {};
+void DXRenderDevice::Dispose() {}
+
+
+void DXRenderDevice::SetLineThickness(float value) {}
+
+void DXRenderDevice::SetPolygonMode(PolygonMode mode) {}
 
 }

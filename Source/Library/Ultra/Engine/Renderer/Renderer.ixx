@@ -2,8 +2,12 @@
 
 export import Ultra.Core;
 export import Ultra.Logger;
+export import Ultra.Engine.Camera;
+export import Ultra.Engine.Renderer2D;
 
+import Ultra.GFX.Context;
 import Ultra.Renderer.RenderDevice;
+import Ultra.Renderer.CommandBuffer;
 import Ultra.Renderer.Shader;
 
 export namespace Ultra {
@@ -34,13 +38,23 @@ public:
 
     static Scope<Renderer> Create(RenderAPI api);
 
-    virtual void Load() = 0;
-    virtual void LoadShader(ShaderType type, const string &source, const string &entryPoint) = 0;
-    virtual void RenderFrame() = 0;
-    virtual void Dispose() = 0;
+    void Load();
+    void RenderFrame();
+    void Dispose();
+    void Test();
+
+    // Accessors
+    static const RenderAPI GetAPI() { return sAPI; }
+
+    // Mutators
+    static void SetAPI(const RenderAPI &api) { sAPI = api; }
 
 protected:
+    Scope<CommandBuffer> mCommandBuffer;
     Scope<RenderDevice> mRenderDevice;
+    static RenderAPI sAPI;
 };
+
+RenderAPI Renderer::sAPI = RenderAPI::OpenGL;
 
 }
