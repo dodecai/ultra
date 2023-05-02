@@ -18,43 +18,57 @@ void DXShader::Bind() const {}
 void DXShader::Unbind() const {}
 
 
-int32_t DXShader::GetUniformLocation(const string &name) const {
+int32_t DXShader::FindUniformLocation(const string &name) const {
     return 0;
 }
 
 
-void DXShader::SetUniformBuffer(const string &name, const void *data, size_t size) {}
+void DXShader::UpdateUniformBuffer(const string &name, const void *data, size_t size) {}
 
-void DXShader::SetUniform(const string &name, bool data) {}
+void DXShader::UpdateUniform(const string &name, const Bool &data) {}
 
-void DXShader::SetUniform(const string &name, float data) {}
+void DXShader::UpdateUniform(const string &name, const Bool2 &data) {}
 
-void DXShader::SetUniform(const string &name, glm::vec2 &data) {}
+void DXShader::UpdateUniform(const string &name, const Bool3 &data) {}
 
-void DXShader::SetUniform(const string &name, glm::vec3 &data) {}
+void DXShader::UpdateUniform(const string &name, const Bool4 &data) {}
 
-void DXShader::SetUniform(const string &name, glm::vec4 &data) {}
+void DXShader::UpdateUniform(const string &name, const Double &data) {}
 
-void DXShader::SetUniform(const string &name, int data) {}
+void DXShader::UpdateUniform(const string &name, const Double2 &data) {}
 
-void DXShader::SetUniform(const string &name, glm::ivec2 &data) {}
+void DXShader::UpdateUniform(const string &name, const Double3 &data) {}
 
-void DXShader::SetUniform(const string &name, glm::ivec3 &data) {}
+void DXShader::UpdateUniform(const string &name, const Double4 &data) {}
 
-void DXShader::SetUniform(const string &name, glm::ivec4 &data) {}
+void DXShader::UpdateUniform(const string &name, const Float &data) {}
 
-void DXShader::SetUniform(const string &name, unsigned int data) {}
+void DXShader::UpdateUniform(const string &name, const Float2 &data) {}
 
-void DXShader::SetUniform(const string &name, glm::uvec2 &data) {}
+void DXShader::UpdateUniform(const string &name, const Float3 &data) {}
 
-void DXShader::SetUniform(const string &name, glm::uvec3 &data) {}
+void DXShader::UpdateUniform(const string &name, const Float4 &data) {}
 
-void DXShader::SetUniform(const string &name, glm::uvec4 &data) {}
+void DXShader::UpdateUniform(const string &name, const Int &data) {}
 
-void DXShader::SetUniform(const string &name, glm::mat2 &data) {}
+void DXShader::UpdateUniform(const string &name, const Int2 &data) {}
 
-void DXShader::SetUniform(const string &name, glm::mat3 &data) {}
+void DXShader::UpdateUniform(const string &name, const Int3 &data) {}
 
-void DXShader::SetUniform(const string &name, glm::mat4 &data) {}
+void DXShader::UpdateUniform(const string &name, const Int4 &data) {}
+
+void DXShader::UpdateUniform(const string &name, const UInt &data) {}
+
+void DXShader::UpdateUniform(const string &name, const UInt2 &data) {}
+
+void DXShader::UpdateUniform(const string &name, const UInt3 &data) {}
+
+void DXShader::UpdateUniform(const string &name, const UInt4 &data) {}
+
+void DXShader::UpdateUniform(const string &name, const Matrix2 &data) {}
+
+void DXShader::UpdateUniform(const string &name, const Matrix3 &data) {}
+
+void DXShader::UpdateUniform(const string &name, const Matrix4 &data) {}
 
 }

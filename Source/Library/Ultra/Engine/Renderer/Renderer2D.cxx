@@ -139,7 +139,7 @@ void Renderer2D::Load() {
 
     sData.TextureShader = Shader::Create("./Assets/Shaders/Texture.glsl");
     sData.TextureShader->Bind();
-    sData.TextureShader->SetUniformBuffer("uTextures", (void *)samplers, sData.MaxTextureSlots);
+    sData.TextureShader->UpdateUniformBuffer("uTextures", (void *)samplers, sData.MaxTextureSlots);
 
     // Set all texture slots to 0
     sData.TextureSlots[0] = sData.WhiteTexture;
@@ -236,7 +236,7 @@ void Renderer2D::Flush() {
         sData.LineVertexBuffer->UpdateData(sData.LineVertexBufferBase, dataSizeL);
 
         sData.LineShader->Bind();
-        sData.LineShader->SetUniform("uViewProjection", sData.ViewProjectionMatrix);
+        sData.LineShader->UpdateUniform("uViewProjection", sData.ViewProjectionMatrix);
 
         sData.LineVertexBuffer->Bind();
         sData.LinePipeline->Bind();
@@ -251,7 +251,7 @@ void Renderer2D::Flush() {
         sData.QVertexBuffer->UpdateData(sData.QVertexBufferBase, dataSize);
 
         sData.TextureShader->Bind();
-        sData.TextureShader->SetUniform("uViewProjection", sData.ViewProjectionMatrix);
+        sData.TextureShader->UpdateUniform("uViewProjection", sData.ViewProjectionMatrix);
 
         for (uint32_t i = 0; i < sData.TextureSlotIndex; i++) {
             sData.TextureSlots[i]->Bind(i);

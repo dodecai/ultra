@@ -610,7 +610,7 @@ enum class KeyCode: uint8_t {
 	RAlt		= 0xA5,
 	
 	BrowserBack			= 0xA6,
-	BrwoserForward		= 0xA7,
+	BrowserForward		= 0xA7,
 	BrowserReload		= 0xA8,
 	BrowserStop			= 0xA9,
 	BrowserSearch		= 0xAA,
@@ -702,7 +702,7 @@ enum class KeyCode: uint8_t {
 };
 inline std::ostream &operator<<(std::ostream &stream, KeyCode code) {
 	switch (code) {
-		case KeyCode::Null:				    { stream << "Null";				break; }
+		case KeyCode::Null:				    { stream << "Null";				    break; }
 		case KeyCode::Cancel:				{ stream << "Cancel";				break; }
 		case KeyCode::Back:					{ stream << "Back";					break; }
 		case KeyCode::Tab:					{ stream << "Tab";					break; }
@@ -831,7 +831,7 @@ inline std::ostream &operator<<(std::ostream &stream, KeyCode code) {
 		case KeyCode::LAlt:					{ stream << "LAlt";					break; }
 		case KeyCode::RAlt:					{ stream << "RAlt";					break; }
 		case KeyCode::BrowserBack:			{ stream << "BrowserBack";			break; }
-		case KeyCode::BrwoserForward:		{ stream << "BrwoserForward";		break; }
+		case KeyCode::BrowserForward:		{ stream << "BrowserForward";		break; }
 		case KeyCode::BrowserReload:		{ stream << "BrowserReload";		break; }
 		case KeyCode::BrowserStop:			{ stream << "BrowserStop";			break; }
 		case KeyCode::BrowserSearch:		{ stream << "BrowserSearch";		break; }

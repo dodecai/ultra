@@ -1,11 +1,8 @@
-﻿module;
-
-#include <glm/glm.hpp>
-
-export module Ultra.Engine.Renderer.Shader;
+﻿export module Ultra.Engine.Renderer.Shader;
 
 export import Ultra.Core;
 export import Ultra.Logger;
+export import Ultra.Math;
 import Ultra.Engine.Renderer.Data;
 
 export namespace Ultra {
@@ -139,7 +136,7 @@ size_t ShaderTypeFromString(const string &type) {
 /// 
 /// @example: Linked
 /// auto linkedShaders = Shader::Create("example.glsl");
-/// 
+///
 class Shader {
 protected:
     using ShaderList = unordered_map<size_t, string>;
@@ -158,26 +155,33 @@ public:
     virtual void Unbind() const = 0;
 
     // Accessors
-    virtual int32_t GetUniformLocation(const string &name) const = 0;
+    virtual int32_t FindUniformLocation(const string &name) const = 0;
 
     // Mutators
-    virtual void SetUniformBuffer(const string &name, const void *data, size_t size) = 0;
-    virtual void SetUniform(const string &name, bool data) = 0;
-    virtual void SetUniform(const string &name, float data) = 0;
-    virtual void SetUniform(const string &name, glm::vec2 &data) = 0;
-    virtual void SetUniform(const string &name, glm::vec3 &data) = 0;
-    virtual void SetUniform(const string &name, glm::vec4 &data) = 0;
-    virtual void SetUniform(const string &name, int data) = 0;
-    virtual void SetUniform(const string &name, glm::ivec2 &data) = 0;
-    virtual void SetUniform(const string &name, glm::ivec3 &data) = 0;
-    virtual void SetUniform(const string &name, glm::ivec4 &data) = 0;
-    virtual void SetUniform(const string &name, unsigned int data) = 0;
-    virtual void SetUniform(const string &name, glm::uvec2 &data) = 0;
-    virtual void SetUniform(const string &name, glm::uvec3 &data) = 0;
-    virtual void SetUniform(const string &name, glm::uvec4 &data) = 0;
-    virtual void SetUniform(const string &name, glm::mat2 &data) = 0;
-    virtual void SetUniform(const string &name, glm::mat3 &data) = 0;
-    virtual void SetUniform(const string &name, glm::mat4 &data) = 0;
+    virtual void UpdateUniformBuffer(const string &name, const void *data, size_t size) = 0;
+    virtual void UpdateUniform(const string &name, const Bool &data) = 0;
+    virtual void UpdateUniform(const string &name, const Bool2 &data) = 0;
+    virtual void UpdateUniform(const string &name, const Bool3 &data) = 0;
+    virtual void UpdateUniform(const string &name, const Bool4 &data) = 0;
+    virtual void UpdateUniform(const string &name, const Double &data) = 0;
+    virtual void UpdateUniform(const string &name, const Double2 &data) = 0;
+    virtual void UpdateUniform(const string &name, const Double3 &data) = 0;
+    virtual void UpdateUniform(const string &name, const Double4 &data) = 0;
+    virtual void UpdateUniform(const string &name, const Float &data) = 0;
+    virtual void UpdateUniform(const string &name, const Float2 &data) = 0;
+    virtual void UpdateUniform(const string &name, const Float3 &data) = 0;
+    virtual void UpdateUniform(const string &name, const Float4 &data) = 0;
+    virtual void UpdateUniform(const string &name, const Int &data) = 0;
+    virtual void UpdateUniform(const string &name, const Int2 &data) = 0;
+    virtual void UpdateUniform(const string &name, const Int3 &data) = 0;
+    virtual void UpdateUniform(const string &name, const Int4 &data) = 0;
+    virtual void UpdateUniform(const string &name, const UInt &data) = 0;
+    virtual void UpdateUniform(const string &name, const UInt2 &data) = 0;
+    virtual void UpdateUniform(const string &name, const UInt3 &data) = 0;
+    virtual void UpdateUniform(const string &name, const UInt4 &data) = 0;
+    virtual void UpdateUniform(const string &name, const Matrix2 &data) = 0;
+    virtual void UpdateUniform(const string &name, const Matrix3 &data) = 0;
+    virtual void UpdateUniform(const string &name, const Matrix4 &data) = 0;
 
 protected:
     ShaderList Convert(string &source);

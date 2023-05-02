@@ -1,7 +1,5 @@
 ﻿#include <Settings.h>
 #include <Ultra/EntryPoint.h>
-#include <cmath>
-
 import Ultra;
 
 namespace Ultra {

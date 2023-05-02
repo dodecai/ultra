@@ -28,6 +28,7 @@ export import Ultra.Logger;
 #ifdef LIB_EXTENSION_GFX
     export import Ultra.GFX.Context;
     export import Ultra.Engine;
+    export import Ultra.Math;
 #endif
 
 // System Extensions
