@@ -300,10 +300,10 @@ public:
         // 2D Renderer: Primitives
         Renderer2D::DrawCircle({ -0.3f, -0.3f }, { 0.5f,   0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f});
         Renderer2D::DrawLine({ -0.9f, -0.9f }, {  0.9f,  -0.9f }, { 0.9f, 0.9f, 0.9f, 1.0f });
-        Renderer2D::DrawLine({  0.1f,  0.1f }, {  0.7f,   0.7f }, { 1.0f, 0.0f, 1.0f, 1.0f });
-        Renderer2D::DrawLine({ -0.1f, -0.1f }, { -0.5f,   0.5f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+        Renderer2D::DrawLine({ -0.9f, -0.9f }, { -0.9f,   0.9f }, { 1.0f, 0.0f, 1.0f, 1.0f });
+        Renderer2D::DrawLine({  0.2f,  0.2f }, {  0.7f,   0.7f }, { 1.0f, 1.0f, 1.0f, 1.0f });
         Renderer2D::DrawQuad({ -0.6f, -0.6f }, {  0.5f,   0.5f }, mCheckerBoard, 1.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
-        Renderer2D::DrawQuad({  0.2f,  0.2f }, {  0.5f,   0.5f }, mCheckerBoard, 1.0f, {0.0f, 0.0f, 1.0f, 1.0f});
+        Renderer2D::DrawQuad({  0.2f,  0.2f }, {  0.7f,   0.7f }, mCheckerBoard, 1.0f, { 0.0f, 0.0f, 1.0f, 1.0f });
         Renderer2D::DrawRect({ -0.9f,  0.9f }, {  0.5f,   0.5f }, { 0.2f, 0.2f, 0.2f, 1.0f });
 
         static float rotation = 0.0f;
@@ -311,7 +311,7 @@ public:
         rotation += speed * deltaTime;
         if (rotation >= 360.0f) rotation = 0.0f;
         Renderer2D::DrawRotatedQuad({  0.7f,   0.7f }, { 0.2f,  0.2f }, rotation * (3.14f / 180.0f), mCheckerBoard, 1.0f, { 0.0f, 1.0f, 0.0f, 1.0f });
-        Renderer2D::DrawRotatedQuad({  0.7f,  -0.7f }, { 0.2f,  0.2f }, rotation * (3.14f / 180.0f) *-1.0f, mCheckerBoard, 1.0f, { 0.7f, 0.7f, 0.7f, 1.0f });
+        Renderer2D::DrawRotatedQuad({  0.7f,  -0.6f }, { 0.4f,  0.4f }, rotation * (3.14f / 180.0f) * -1.0f, mCheckerBoard, 1.0f, { 0.7f, 0.7f, 0.7f, 1.0f });
 
         //// Finish
         Renderer2D::FinishScene();
