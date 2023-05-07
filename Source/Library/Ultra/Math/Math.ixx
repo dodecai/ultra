@@ -6,7 +6,7 @@ export module Ultra.Math;
 
 export import <glm/glm.hpp>;
 export import <glm/gtc/type_ptr.hpp>;
-export import <glm/gtx/quaternion.hpp>;
+//export import <glm/gtx/quaternion.hpp>;
 export import <glm/gtx/string_cast.hpp>;
 
 import Ultra.Core;
@@ -69,6 +69,6 @@ using DoubleMatrix4x3 = glm::dmat4x3;
 using DoubleMatrix4x4 = glm::dmat4x4;
 
 // Other
-using Quaternion = glm::quat;
+//using Quaternion = glm::quat;
 
 }
