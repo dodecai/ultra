@@ -186,13 +186,12 @@ public:
 protected:
     ShaderList Convert(string &source);
 
+    ShaderList mShaders;
     RendererID mShaderID;
     string mShaderName;
     string mEntryPoint;
     string mSource;
     ShaderType mType;
-
-    ShaderList mShaders;
 };
 
 }

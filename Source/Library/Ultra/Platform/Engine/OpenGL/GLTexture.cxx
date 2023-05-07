@@ -120,7 +120,7 @@ GLTexture::GLTexture(const TextureProperties &properties, const void *data, size
     glTextureParameterf(mTextureID, GL_TEXTURE_MAX_ANISOTROPY, 16); // ToDo: RenderDevice::GetCapabilities().MaxAnisotropy
 
     glTextureSubImage2D(mTextureID, 0, 0, 0, mProperties.Width, mProperties.Height, ConvertTextureFormat(mProperties.Format), GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    //glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 GLTexture::GLTexture(const TextureProperties &properties, const string &path): Texture(properties, nullptr, 0) {

@@ -18,6 +18,7 @@ export import <map>;
 export import <memory>;
 export import <mutex>;
 export import <ostream>;
+export import <queue>;
 export import <random>;
 export import <ranges>;
 export import <source_location>;

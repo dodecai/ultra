@@ -1,10 +1,15 @@
-﻿export module Ultra.Math;
+﻿module;
+
+#define GLM_ENABLE_EXPERIMENTAL
+
+export module Ultra.Math;
 
 export import <glm/glm.hpp>;
 export import <glm/gtc/type_ptr.hpp>;
+export import <glm/gtx/quaternion.hpp>;
+export import <glm/gtx/string_cast.hpp>;
 
 import Ultra.Core;
-import Ultra.Logger;
 
 export namespace Ultra {
 
@@ -62,5 +67,8 @@ using DoubleMatrix3x4 = glm::dmat3x4;
 using DoubleMatrix4x2 = glm::dmat4x2;
 using DoubleMatrix4x3 = glm::dmat4x3;
 using DoubleMatrix4x4 = glm::dmat4x4;
+
+// Other
+using Quaternion = glm::quat;
 
 }

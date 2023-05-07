@@ -57,32 +57,29 @@ void Renderer::RenderFrame() {
 }
 
 void Renderer::Dispose() {
-    Renderer2D::Unload();
+    Renderer2D::Dispose();
     mRenderDevice->Dispose();
 }
 
 
 void Renderer::Test() {
-    static Reference<PipelineState> BasicPipeline;
-    static Reference<Shader> BasicShader;
-    static Reference<Buffer> BasicIndex;
-    static Reference<Buffer> BasicVertex;
-
-    BasicShader = Shader::Create("Assets/Shaders/Sample.glsl");
-    BasicPipeline = PipelineState::Create({
-        VertexBufferLayout {
-            { ShaderDataType::Float3, "position" }
-        }
-    });
-
-    float vertices[] = {
+    static float vertices[] = {
         -0.5f, -0.5f, 0.0f,
          0.5f, -0.5f, 0.0f,
          0.0f,  0.5f, 0.0f
     };
-    BasicVertex = Buffer::Create(BufferType::Vertex, vertices, sizeof(vertices));
+    static uint32_t indices[] = { 0, 1, 2 };
 
-    uint32_t indices[] = { 0, 1, 2 };
+    static Reference<Shader> BasicShader = Shader::Create("Assets/Shaders/Sample.glsl");
+    static Reference<PipelineState> BasicPipeline = PipelineState::Create({
+        VertexBufferLayout {
+            { ShaderDataType::Float3, "position" }
+        }
+    });
+    static Reference<Buffer> BasicVertex;
+    static Reference<Buffer> BasicIndex;
+
+    BasicVertex = Buffer::Create(BufferType::Vertex, vertices, sizeof(vertices));
     BasicIndex = Buffer::Create(BufferType::Index, indices, sizeof(indices));
 
     // Renderer

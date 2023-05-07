@@ -7,18 +7,16 @@
 
 export module Ultra.Core.Application;
 
-import Ultra.Config;
 import Ultra.Core;
 import Ultra.Core.Layer;
 import Ultra.Core.LayerStack;
+import Ultra.Config;
 import Ultra.Logger;
-
 import Ultra.GFX.Context;
 import Ultra.System.Event;
 import Ultra.UI.Dialog;
 import Ultra.UI.GUILayer;
 import Ultra.UI.Window;
-
 import Ultra.Utility.DateTime;
 import Ultra.Utility.Timer;
 
@@ -44,11 +42,10 @@ struct ApplicationProperties {
     // Properties
     string Title;
     string Resolution;
+    LogLevel LogLevel = LogLevel::Trace;
+    GraphicsAPI GfxApi = GraphicsAPI::OpenGL;
     uint32_t Width;
     uint32_t Height;
-
-    Ultra::LogLevel LogLevel = Ultra::LogLevel::Trace;
-    GraphicsAPI GfxApi = GraphicsAPI::OpenGL;
 
 private:
     void CalculateResolution() {
@@ -61,8 +58,8 @@ private:
 
         if (!rwidth || !rheight) {
             Resolution = "1024x768";
-            Width = 1024;
-            Height = 768;
+            width = 1024;
+            height = 768;
             return;
         }
 
@@ -77,6 +74,15 @@ private:
 class Application {
     // Friends
     friend int ::main(int, char**);
+
+    // Types
+    struct Statistics {
+        std::queue<float> fpsData;
+        std::queue<float> msPFData;
+
+        float fps = {};
+        float msPF = {};
+    };
 
 public:
     // Instance
@@ -129,9 +135,10 @@ public:
         //PushOverlay(pCoreLayer);
 
         // Runtime Properties
+        string title(64, ' ');
         Timer timer = {};
-        double delay = {};
-        double frames = {};
+        float delay = {};
+        float frames = {};
 
         // Creation
         Create();
@@ -151,9 +158,14 @@ public:
             Timestamp deltaTime = timer.GetDeltaTime();
             frames++;
             delay += deltaTime;
+            mStatistics.msPF = deltaTime.GetMilliseconds();
             if (delay >= 1.0f) {
-                float msPF = 1000.0f / (float)frames;
+                mStatistics.fps = frames;
+                mStatistics.msPF = 1000.0f / frames;
 
+                title = mProperties.Title + std::format(" [fps: {:.0f} | msPF: {:.3f}]", mStatistics.fps, mStatistics.msPF);
+
+                mWindow->SetTitle(title);
                 frames = 0;
                 delay = 0.0f;
             }
@@ -267,6 +279,7 @@ private:
     // Properties
     ApplicationProperties mProperties;
     Arguments mArguments;
+    Statistics mStatistics;
 
     // Objects
     GuiLayer *pCoreLayer;

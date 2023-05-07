@@ -67,6 +67,7 @@ void GLCommandBuffer::DrawIndexed(size_t count, PrimitiveType primitive, bool de
     //}
 
     switch (primitive) {
+        case PrimitiveType::Circle:   { mode = GL_TRIANGLES; break; }
         case PrimitiveType::Line:     { mode = GL_LINES; break; }
         case PrimitiveType::Triangle: { mode = GL_TRIANGLES; break; }
     }
