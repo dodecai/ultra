@@ -11,3 +11,6 @@
 [submodule "3rd-Party/stb"]
 	path = 3rd-Party/stb
 	url = https://github.com/larioteo/stb.git
+[submodule "3rd-Party/assimp"]
+	path = 3rd-Party/assimp
+	url = https://github.com/larioteo/assimp.git
