@@ -34,8 +34,8 @@
     ["Shaders"] = {
         "Assets/Shaders/Basic.glsl",
         "Assets/Shaders/Circle.glsl",
+        "Assets/Shaders/Grid.glsl",
         "Assets/Shaders/Line.glsl",
-        "Assets/Shaders/Sample.glsl",
         "Assets/Shaders/Texture.glsl",
     }
 }

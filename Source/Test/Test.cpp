@@ -298,13 +298,13 @@ public:
         //mRenderer->Test();
 
         // 2D Renderer: Primitives
-        Renderer2D::DrawCircle({ -0.3f, -0.3f }, { 0.5f,   0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f});
         Renderer2D::DrawLine({ -0.9f, -0.9f }, {  0.9f,  -0.9f }, { 0.9f, 0.9f, 0.9f, 1.0f });
         Renderer2D::DrawLine({ -0.9f, -0.9f }, { -0.9f,   0.9f }, { 1.0f, 0.0f, 1.0f, 1.0f });
         Renderer2D::DrawLine({  0.2f,  0.2f }, {  0.7f,   0.7f }, { 1.0f, 1.0f, 1.0f, 1.0f });
         Renderer2D::DrawQuad({ -0.6f, -0.6f }, {  0.5f,   0.5f }, mCheckerBoard, 1.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
         Renderer2D::DrawQuad({  0.2f,  0.2f }, {  0.7f,   0.7f }, mCheckerBoard, 1.0f, { 0.0f, 0.0f, 1.0f, 1.0f });
         Renderer2D::DrawRect({ -0.9f,  0.9f }, {  0.5f,   0.5f }, { 0.2f, 0.2f, 0.2f, 1.0f });
+        Renderer2D::DrawCircle({ 1.0f, 1.0f }, { 0.5f,   0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f }, 0.1f, 0.1f);
 
         static float rotation = 0.0f;
         const float speed = 180.0f;
@@ -315,6 +315,7 @@ public:
 
         //// Finish
         Renderer2D::FinishScene();
+        mRenderer->DrawGrid(mDesignerCamera);
         //Renderer::EndScene();
      
         //    commandBuffer->End();                             // End recording commands

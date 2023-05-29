@@ -58,8 +58,8 @@ private:
 
         if (!rwidth || !rheight) {
             Resolution = "1024x768";
-            width = 1024;
-            height = 768;
+            width = "1024";
+            height = "768";
             return;
         }
 
@@ -80,8 +80,8 @@ class Application {
         std::queue<float> fpsData;
         std::queue<float> msPFData;
 
-        float fps = {};
-        float msPF = {};
+        double fps = {};
+        double msPF = {};
     };
 
 public:
@@ -137,8 +137,8 @@ public:
         // Runtime Properties
         string title(64, ' ');
         Timer timer = {};
-        float delay = {};
-        float frames = {};
+        double delay = {};
+        double frames = {};
 
         // Creation
         Create();

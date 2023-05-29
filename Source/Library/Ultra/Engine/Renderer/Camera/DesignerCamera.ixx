@@ -64,10 +64,12 @@ public:
     glm::vec3 GetForwardDirection() const {
         return glm::rotate(GetOrientation(), glm::vec3(0.0f, 0.0f, -1.0f));
     }
-    glm::vec3 &GetPosition() { return mPosition; }
+    glm::vec3 GetPosition() const { return mPosition; }
     glm::quat GetOrientation() const {
         return glm::quat(glm::vec3(-mPitch, -mYaw, 0.0f));
     }
+    float GetNearPoint() const { return mNearClip; }
+    float GetFarPoint() const { return mFarClip; }
 
     float GetPitch() const { return mPitch; }
     float GetYaw() const { return mYaw; }
@@ -78,13 +80,13 @@ private:
         mProjection = glm::perspective(glm::radians(mFOV), mAspectRatio, mNearClip, mFarClip);
     }
     void UpdateView() {
-    // Lock the camera's rotation
-    // mYaw = mPitch = 0.0f;
+        // Lock the camera's rotation
+        // mYaw = mPitch = 0.0f;
         mPosition = CalculatePosition();
-
-        glm::quat orientation = GetOrientation();
-        mViewMatrix = glm::translate(glm::mat4(1.0f), mPosition) * glm::toMat4(orientation);
-        mViewMatrix = glm::inverse(mViewMatrix);
+        mViewMatrix = glm::lookAt(mPosition, mFocalPoint, glm::vec3(0.0f, 1.0f, 0.0f));
+        //glm::quat orientation = GetOrientation();
+        //mViewMatrix = glm::translate(glm::mat4(1.0f), mPosition) * glm::toMat4(orientation);
+        //mViewMatrix = glm::inverse(mViewMatrix);
     }
 
     void Pan(const glm::vec2 &delta) {

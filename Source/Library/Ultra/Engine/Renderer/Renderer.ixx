@@ -5,6 +5,7 @@ import Ultra.GFX.Context;
 export import Ultra.Core;
 export import Ultra.Logger;
 export import Ultra.Engine.Camera;
+export import Ultra.Engine.DesignerCamera;
 export import Ultra.Engine.Renderer.Buffer;
 export import Ultra.Engine.Renderer.CommandBuffer;
 export import Ultra.Engine.Renderer.PipelineState;
@@ -46,6 +47,8 @@ public:
     void RenderFrame();
     void Dispose();
     void Test();
+
+    void DrawGrid(const DesignerCamera &camera);
 
     // Accessors
     static const RenderAPI GetAPI() { return sAPI; }

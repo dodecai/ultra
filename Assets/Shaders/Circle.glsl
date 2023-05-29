@@ -8,9 +8,7 @@ layout(location = 2) in vec4 aColor;
 layout(location = 3) in float aThickness;
 layout(location = 4) in float aFade;
 
-layout(std140, binding = 0) uniform Camera {
-	mat4 uViewProjection;
-};
+uniform mat4 uViewProjection;
 
 struct VertexOutput {
 	vec3 LocalPosition;

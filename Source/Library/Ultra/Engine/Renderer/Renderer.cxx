@@ -62,32 +62,35 @@ void Renderer::Dispose() {
 }
 
 
-void Renderer::Test() {
+void Renderer::DrawGrid(const DesignerCamera &camera) {
+    static unsigned int indices[] = { 0, 1, 2, 2, 3, 0 };
     static float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f
+        -1.0f, -1.0f,  0.0f,
+         1.0f, -1.0f,  0.0f,
+         1.0f,  1.0f,  0.0f,
+        -1.0f,  1.0f,  0.0f,
     };
-    static uint32_t indices[] = { 0, 1, 2 };
 
-    static Reference<Shader> BasicShader = Shader::Create("Assets/Shaders/Sample.glsl");
+    static Reference<Shader> BasicShader = Shader::Create("Assets/Shaders/Grid.glsl");
     static Reference<PipelineState> BasicPipeline = PipelineState::Create({
-        VertexBufferLayout {
-            { ShaderDataType::Float3, "position" }
+        .Layout = {
+            { ShaderDataType::Float3, "aPosition" },
         }
     });
-    static Reference<Buffer> BasicVertex;
-    static Reference<Buffer> BasicIndex;
-
-    BasicVertex = Buffer::Create(BufferType::Vertex, vertices, sizeof(vertices));
-    BasicIndex = Buffer::Create(BufferType::Index, indices, sizeof(indices));
+    static Reference<Buffer> BasicVertex = Buffer::Create(BufferType::Vertex, vertices, sizeof(vertices));
+    static Reference<Buffer> BasicIndex = Buffer::Create(BufferType::Index, indices, sizeof(indices));
 
     // Renderer
     BasicShader->Bind();
+    BasicShader->UpdateUniform("uViewProjection", camera.GetViewProjection());
+    BasicShader->UpdateUniform("uProjection", camera.GetProjection());
+    BasicShader->UpdateUniform("uView", camera.GetViewMatrix());
+    BasicShader->UpdateUniform("uNearClip", camera.GetNearPoint());
+    BasicShader->UpdateUniform("uFarClip", camera.GetFarPoint());
     BasicVertex->Bind();
     BasicPipeline->Bind();
     BasicIndex->Bind();
-    mCommandBuffer->DrawIndexed(3);
+    mCommandBuffer->DrawIndexed(6, PrimitiveType::Triangle, true);
 }
 
 }

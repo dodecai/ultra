@@ -13,7 +13,7 @@ export namespace Ultra {
 class DateTime {
     // Types
     using SystemClock = std::chrono::system_clock;
-    using Timespan = std::chrono::duration<double, std::micro>;
+    //using Timespan = std::chrono::duration<double, std::micro>;
     using Timestamp = std::chrono::time_point<std::chrono::system_clock>;
 
     // Default
@@ -42,33 +42,35 @@ public:
 private:
     // Methods
     inline const std::string GetTicks(const std::string_view format = "{:%Y-%m-%dT%H:%M:%S}") {
-        auto args = std::make_format_args(SystemClock::now());
-        try {
-            string result = std::vformat(format, args);
-            return result;
-        } catch (const std::exception &ex) {
-            auto message = ex.what();
-            return {};
-        }
+        //auto args = std::make_format_args(SystemClock::now());
+        //try {
+        //    string result = "";// std::vformat(format, args);
+        //    return result;
+        //} catch (const std::exception &ex) {
+        //    auto message = ex.what();
+        //    return {};
+        //}
+        return {};
     }
     inline const std::string GetRuntimeTicks(const std::string_view format = "P{0:02d}DT{1:02d}:{2:02d}:{3:02d}") {
-        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(SystemClock::now() - mStartTime);
-        
-        //auto years = (elapsed / (86400 * 365));
-        //auto months = (elapsed % (86400 * 365)) / (86400 * 30);
-        auto days = ((elapsed % (86400 * 30)) / 86400);
-        auto hours = (elapsed % 86400) / 3600;
-        auto minutes = (elapsed % 3600) / 60;
-        auto seconds = elapsed % 60;
+        //auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(SystemClock::now() - mStartTime);
+        //
+        ////auto years = (elapsed / (86400 * 365));
+        ////auto months = (elapsed % (86400 * 365)) / (86400 * 30);
+        //auto days = ((elapsed % (86400 * 30)) / 86400);
+        //auto hours = (elapsed % 86400) / 3600;
+        //auto minutes = (elapsed % 3600) / 60;
+        //auto seconds = elapsed % 60;
 
-        auto args = std::make_format_args(days.count(), hours.count(), minutes.count(), seconds.count());
-        try {
-            string result = std::vformat(format, args);
-            return result;
-        } catch (const std::exception &ex) {
-            auto message = ex.what();
-            return {};
-        }
+        //auto args = std::make_format_args(days.count(), hours.count(), minutes.count(), seconds.count());
+        //try {
+        //    string result = "";// std::vformat(format, args);
+        //    return result;
+        //} catch (const std::exception &ex) {
+        //    auto message = ex.what();
+        //    return {};
+        //}
+        return {};
     }
 
 private:
