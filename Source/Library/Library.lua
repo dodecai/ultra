@@ -17,6 +17,7 @@
     
     externalincludedirs {
 	    "%{Headers.ThirdParty}",
+	    "%{Headers.assimp}",
 	    "%{Headers.DearImGui}",
 	    "%{Headers.EnTT}",
 	    "%{Headers.glm}",
@@ -30,6 +31,7 @@
     }
 
     links { 
+        "assmimp",
         "DearImGui",
         "Glad",
 	    "%{Library.Vulkan}",
