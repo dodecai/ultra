@@ -6,6 +6,7 @@
     toolset "msc"
 
 	files {
+        "glad.lua",
         "gl.h",
         "gl.c"
 	}

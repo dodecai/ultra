@@ -1,7 +1,10 @@
-﻿{ 
+﻿{
   "name": "Ultra Spectra",
-  "version-string": "0.0.0",
-  "description":  "Game Engine Framework",
+  "version": "0.0.0",
+  "description": "Game Engine Framework",
+  "homepage": "https://github.com/larioteo/ultra",
+  "license": "MIT",
   "dependencies": [
-  ] 
+    "assimp"
+  ]
 }

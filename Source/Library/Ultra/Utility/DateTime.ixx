@@ -8,12 +8,12 @@ export namespace Ultra {
 
 ///
 /// @brief DateTime: Delivers current date/time/runtime/timestamp in ISO 8601 format.
-/// Simply use apptime under the Ultra Namespace to retrieve the desired information.
+/// Simply use 'apptime' under the Ultra Namespace to retrieve the desired information.
 /// 
 class DateTime {
     // Types
     using SystemClock = std::chrono::system_clock;
-    //using Timespan = std::chrono::duration<double, std::micro>;
+    using Timespan = std::chrono::duration<double, std::micro>;
     using Timestamp = std::chrono::time_point<std::chrono::system_clock>;
 
     // Default
@@ -23,54 +23,66 @@ class DateTime {
     ~DateTime() = default;
 
 public:
-    /// Returns an intance to the global static object
+    /// Returns an instance to the global static object
     static DateTime &Instance() {
         static DateTime instance;
         return instance;
     }
 
     // Accessors
-    /// Retrive current date in ISO 8601 format 'YYYY-mm-dd'
+    /// Retrieve current date in ISO 8601 format 'YYYY-mm-dd'
     inline const string GetDate() { return GetTicks("{:%Y-%m-%d}"); }
-    /// Retrive current time in ISO 8601 format 'HH:mm:ss.cccccc'
+    /// Retrieve current time in ISO 8601 format 'HH:mm:ss.cccccc'
     inline const string GetTime() { return GetTicks("{:%H:%M:%S}"); }
-    /// Retrive runtime in ISO 8601 format 'PddTHH:mm:ss'
+    /// Retrieve runtime in ISO 8601 format 'PddTHH:mm:ss'
     inline const string GetRuntime() { return GetRuntimeTicks(); }
-    /// Retrive timestamp in ISO 8601 format 'YYYY-mm-ddTHH:mm:ss.cccccc'
+    /// Retrieve timestamp in ISO 8601 format 'YYYY-mm-ddTHH:mm:ss.cccccc'
     inline const string GetTimeStamp() { return GetTicks(); }
 
 private:
     // Methods
-    inline const std::string GetTicks(const std::string_view format = "{:%Y-%m-%dT%H:%M:%S}") {
-        //auto args = std::make_format_args(SystemClock::now());
-        //try {
-        //    string result = "";// std::vformat(format, args);
-        //    return result;
-        //} catch (const std::exception &ex) {
-        //    auto message = ex.what();
-        //    return {};
-        //}
-        return {};
+    inline const std::string GetTicks(const string_view format = "{:%Y-%m-%dT%H:%M:%S}") {
+        auto args = std::make_format_args(SystemClock::now());
+        try {
+            return std::vformat(format, args);
+        } catch (const std::exception &ex) {
+            return ex.what();
+        }
     }
-    inline const std::string GetRuntimeTicks(const std::string_view format = "P{0:02d}DT{1:02d}:{2:02d}:{3:02d}") {
-        //auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(SystemClock::now() - mStartTime);
-        //
-        ////auto years = (elapsed / (86400 * 365));
-        ////auto months = (elapsed % (86400 * 365)) / (86400 * 30);
-        //auto days = ((elapsed % (86400 * 30)) / 86400);
-        //auto hours = (elapsed % 86400) / 3600;
-        //auto minutes = (elapsed % 3600) / 60;
-        //auto seconds = elapsed % 60;
-
-        //auto args = std::make_format_args(days.count(), hours.count(), minutes.count(), seconds.count());
+    inline const std::string GetRuntimeTicks(const string_view format = "P{:02d}DT{:02d}:{:02d}:{:02d}.{:06d}") {
+        //// Option A: "P{:%H:%M:%S}" (lacks support for years, months and days)
+        //auto elapsed = SystemClock::now() - mStartTime;
+        //auto args = std::make_format_args(elapsed);
         //try {
-        //    string result = "";// std::vformat(format, args);
-        //    return result;
+        //    return std::vformat(format, args);
         //} catch (const std::exception &ex) {
-        //    auto message = ex.what();
-        //    return {};
+        //    return ex.what();
         //}
-        return {};
+
+        // Option B: "P{0:02d}DT{1:02d}:{2:02d}:{3:02d}"
+        using namespace std::chrono;
+        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(SystemClock::now() - mStartTime);
+
+        auto year = duration_cast<years>(elapsed);
+        elapsed -= year;
+        auto month = duration_cast<months>(elapsed);
+        elapsed -= month;
+        auto day = duration_cast<days>(elapsed);
+        elapsed -= day;
+        auto hour = duration_cast<hours>(elapsed);
+        elapsed -= hour;
+        auto minute = duration_cast<minutes>(elapsed);
+        elapsed -= minute;
+        auto second = duration_cast<seconds>(elapsed);
+        elapsed -= second;
+        auto millisecond = duration_cast<microseconds>(elapsed);
+
+        auto args = std::make_format_args(day.count(), hour.count(), minute.count(), second.count(), millisecond.count());
+        try {
+            return std::vformat(format, args);
+        } catch (const std::exception &ex) {
+            return ex.what();
+        }
     }
 
 private:

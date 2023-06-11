@@ -4,7 +4,7 @@
     characterset "Unicode"
     conformancemode "true"
     cdialect "C17"
-    cppdialect "C++latest"
+    cppdialect "C++20"
     cppmodules "true"
     nativewchar "on"
     scanformoduledependencies "on"

@@ -6,6 +6,18 @@ import Ultra.Engine.DesignerCamera;
 
 namespace Ultra {
 
+#pragma region Basic
+
+struct alignas(128) Object {
+    char a;
+    int64_t b;
+};
+
+#pragma endregion
+
+
+#pragma region Events
+
 struct KeyboardEvent {
     int KeyCode = 0;
 };
@@ -86,6 +98,9 @@ struct Tester {
     }
 };
 
+#pragma endregion
+
+
 // Application
 class App: public Application {
     struct EventEmitter: Emitter<EventEmitter> {};
@@ -98,8 +113,7 @@ public:
     // Methods
     void Create() {
         mRenderer = Renderer::Create(RenderAPI::OpenGL);  // Set the desired rendering API (OpenGL, DirectX, Vulkan, etc)
-        //Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        //auto swapchain = Swapchain::Create(nullptr, 1280, 720);
+        auto swapchain = Swapchain::Create(nullptr, 1280, 720);
 
         auto aspectRatio = 800.0f / 600.0f;
         mDesignerCamera = DesignerCamera(45.0f, aspectRatio, 0.1f, 1000.0f);
@@ -115,10 +129,12 @@ public:
 
         //// Create render states
         //auto renderState = RenderState::Create();
+        //AppTest();
     }
     void Destroy() {}
     void Update(Timestamp deltaTime) {
         EngineTest(deltaTime);
+        //Test();
     }
 
     ///
@@ -137,6 +153,10 @@ public:
         //    delete test;
         //}
         logger << "CurrentRuntime: " << apptime.GetRuntime() << "\n";
+
+        // Logger
+        logger << LogLevel::Trace << "Hello World! 🦄" << "\n";
+        LogTrace("{}: {} {:.2}", "Hello", "World!", 1.234567f);
 
         // Timer
         //logger << "Timer" << "\n";
@@ -307,7 +327,7 @@ public:
         Renderer2D::DrawCircle({ 1.0f, 1.0f }, { 0.5f,   0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f }, 0.1f, 0.1f);
 
         static float rotation = 0.0f;
-        const float speed = 180.0f;
+        const double speed = 180.0f;
         rotation += speed * deltaTime;
         if (rotation >= 360.0f) rotation = 0.0f;
         Renderer2D::DrawRotatedQuad({  0.7f,   0.7f }, { 0.2f,  0.2f }, rotation * (3.14f / 180.0f), mCheckerBoard, 1.0f, { 0.0f, 1.0f, 0.0f, 1.0f });
@@ -321,6 +341,22 @@ public:
         //    commandBuffer->End();                             // End recording commands
         //    commandBuffer->Execute();                         // Execute the command buffer
         //    swapchain->Present();                             // Present the rendered image to the screen
+    }
+
+    ///
+    /// @brief  Miscellaneous Tests
+    ///
+    void Test() {
+
+        Object test { 1, 2 };
+
+        test.a += 1;
+        test.b += 2;
+
+        logger << "a.size: " << sizeof(test.a) << " + b.size: " << sizeof(test.b) << " = sigma.size:" << sizeof(test) << "/n";
+
+
+        auto result = false;
     }
 
 private:

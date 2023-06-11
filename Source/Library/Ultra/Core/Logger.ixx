@@ -63,6 +63,13 @@ class Logger {
     Logger(Logger &&) noexcept = delete;
     ~Logger() = default;
 
+    // Types
+    struct Message {
+        Message(Logger &logger, auto location = std::source_location::current()) {
+            *this << location.file_name() << ":" << location.line();
+        }
+    };
+
 public:
     // Get the global instance to the logger (... and yeah thread-safe since C++11 accodring to researches!)
     static Logger &Instance() {
@@ -194,9 +201,13 @@ public:
 
     // Operators
     template <typename ...Args>
-    Logger operator()(const string &format, Args ...args) {
-        //<< location.function_name(), std::source_location location = std::source_location::current()
-        Logger::Instance() << std::format(format, args...);
+    Logger &operator()(const string &format, const Args &...args) {
+        //<< location.function_name(), std::source_location location = std::source_location::current
+        try {
+            return Logger::Instance() << std::vformat(format, std::make_format_args(args...));
+        } catch (std::exception ex) {
+            return Logger::Instance() << "Internal Error while formatting your log message, please check logger call!\n\t" << ex.what();
+        }
     }
 
     // Show whe what you got...
@@ -287,23 +298,23 @@ template<typename ...Args> void Log(Args &&...args)         { logger << LogLevel
         }
         return false;
     }
-    template<typename ...Args> void LogTrace(Args &&...args)	{ logger << LogLevel::Trace  ; (logger << ... << args); logger << "\n"; }
-    template<typename ...Args> void LogDebug(Args &&...args)	{ logger << LogLevel::Debug  ; (logger << ... << args); logger << "\n"; }
-    template<typename ...Args> void LogInfo(Args &&...args)		{ logger << LogLevel::Info	 ; (logger << ... << args); logger << "\n"; }
+    template<typename ...Args> void LogTrace(Args &&...args)	{ logger << LogLevel::Trace;    (logger(args...)); logger << "\n"; }
+    template<typename ...Args> void LogDebug(Args &&...args)	{ logger << LogLevel::Debug;    (logger(args...)); logger << "\n"; }
+    template<typename ...Args> void LogInfo(Args &&...args)		{ logger << LogLevel::Info;     (logger(args...)); logger << "\n"; }
 
 #elif APP_MODE_RELEASE
     template<typename ...Args> void AppAssert(Args &&...args)   {}
     template<typename ...Args> void LogTrace(Args &&...args)    {}
     template<typename ...Args> void LogDebug(Args &&...args)    {}
-    template<typename ...Args> void LogInfo(Args &&...args)		{ logger << LogLevel::Info	 ; (logger << ... << args); logger << "\n"; }
+    template<typename ...Args> void LogInfo(Args &&...args)		{ logger << LogLevel::Info;     (logger(args...)); logger << "\n"; }
 #elif APP_MODE_DISTRIBUTION
     template<typename ...Args> void AppAssert(Args &&...args)   {}
     template<typename ...Args> void LogTrace(Args &&...args)    {}
     template<typename ...Args> void LogDebug(Args &&...args)    {}
     template<typename ...Args> void LogInfo(Args &&...args)     {}
 #endif
-template<typename ...Args> void LogWarning(Args &&...args)  { logger << LogLevel::Warn	 ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void LogError(Args &&...args)	{ logger << LogLevel::Error	 ; (logger << ... << args); logger << "\n"; }
-template<typename ...Args> void LogFatal(Args &&...args)	{ logger << LogLevel::Fatal  ; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void LogWarning(Args &&...args)  { logger << LogLevel::Warn;     (logger(args...)); logger << "\n"; }
+template<typename ...Args> void LogError(Args &&...args)	{ logger << LogLevel::Error;    (logger(args...)); logger << "\n"; }
+template<typename ...Args> void LogFatal(Args &&...args)	{ logger << LogLevel::Fatal;    (logger(args...)); logger << "\n"; }
 
 }

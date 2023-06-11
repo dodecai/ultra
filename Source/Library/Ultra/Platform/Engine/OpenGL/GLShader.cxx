@@ -113,7 +113,7 @@ int32_t GLShader::FindUniformLocation(const string &name) const {
 
 void GLShader::UpdateUniformBuffer(const string &name, const void *data, size_t size) {
     auto location = FindUniformLocation(name);
-    glUniform1iv(location, size, reinterpret_cast<const GLint *>(data));
+    glUniform1iv(location, static_cast<GLsizei>(size), reinterpret_cast<const GLint *>(data));
 }
 
 void GLShader::UpdateUniform(const string &name, const Bool &data) {

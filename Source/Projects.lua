@@ -1,45 +1,68 @@
-﻿workspace_files {
+﻿solutionitems {
+    ["Assets"] = {
+        ["Fonts"] = {
+            ["Roboto"] = {
+                "Assets/Fonts/Roboto/*",
+            },
+        },
+        ["Meshes"] = {
+            ["Cube"] = {
+                "Assets/Meshes/Cube/*",
+            },
+        },
+        ["Shaders"] = {
+            "Assets/Shaders/*",
+        },
+    },
     ["Build"] = {
-        "Solution.lua",
-        "3rd-Party/Build/Modules.lua",
+        ["Projects"] = {
+            "Source/App/App.lua",
+            "Source/Library/Library.lua",
+            "Source/Spectra/Spectra.lua",
+            "Source/Test/Test.lua",
+        },
         "3rd-Party/3rd-Party.lua",
+        "3rd-Party/Build/Modules.lua",
+        "Prepare.bat",
+        "Scripts/Prepare.ps1",
         "Source/Projects.lua",
-        "Source/App/App.lua",
-        "Source/Library/Library.lua",
-        "Source/Spectra/Spectra.lua",
-        "Source/Test/Test.lua",
-        "3rd-Party/imgui/DearImGui.lua",
-        "3rd-Party/entt/EnTT.lua",
-        "3rd-Party/glad/glad.lua",
+        "Solution.lua",
     },
     ["Config"] = {
+        ".clang-*",
         ".editorconfig",
-        ".gitignore",
-        "vcpkg.json",
+        ".git*",
         "Source/Settings.h",
-        ".clang-format-todo",
-        ".clang-tidy-todo",
+        "vcpkg.json",
     },
     ["Data"] = {
-        "Data/Config.yml"
+        "Data/*.*",
     },
     ["Manual"] = {
-        "3rd-Party/3rd-Party.md",
-        "License",
-        "ReadMe.md",
-        "Manual/Concept.md",
-        "Manual/Concept.mmd",
-        "Manual/Style.md",
+        ["3rd-Party"] = {
+            "3rd-Party/*.md",
+        },
+        "Manual/*",
     },
-    ["Shaders"] = {
-        "Assets/Shaders/Basic.glsl",
-        "Assets/Shaders/Circle.glsl",
-        "Assets/Shaders/Grid.glsl",
-        "Assets/Shaders/Line.glsl",
-        "Assets/Shaders/Texture.glsl",
-    }
+    "License",
+    "ReadMe.md",
+    "Security.md",
 }
-
+--solutionitems {
+--	"./README.md",
+--	["GitHub"] = {
+--		"./.github/dependabot.yml",
+--		["workflows"] = {
+--			"./.github/workflows/**.yml",
+--		}
+--	},
+--	["Premake"] = {
+--		"./premake5.lua",
+--		["Deps"] = {
+--			"./deps/premake/**.lua"
+--		}
+--	},
+--}
 filter { "configurations:Debug" }
     defines { "APP_MODE_DEBUG" }
 
