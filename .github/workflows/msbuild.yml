@@ -42,7 +42,8 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
       with:
         msbuild-architecture: x64
-        vs-prerelease: true
+        vs-version: "[17.7"
+        #vs-prerelease: true
 
 #    - name: Restore NuGet packages
 #      working-directory: ${{env.GITHUB_WORKSPACE}}
