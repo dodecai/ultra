@@ -501,7 +501,7 @@ void Renderer2D::DrawRotatedQuad(const glm::vec3 &position, const glm::vec2 &siz
 
 void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotation, const glm::vec4 &color, [[maybe_unused]] const string &id) {
     // ToDo: rotation missing
-    if (rotation > 0) { LogWarning("Renderer2D: Implement rotation!"); }
+    if (rotation > 0) {}
     constexpr size_t quadVertexCount = 4;
     const float textureIndex = 0.0f; // White Texture
     constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
@@ -525,7 +525,7 @@ void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotatio
 
 void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotation, const Reference<Texture> &texture, const float tilingFactor, const glm::vec4 &color, [[maybe_unused]] const string &id) {
     // ToDo: rotation missing
-    if (rotation > 0) { LogWarning("Renderer2D: Implement rotation!"); }
+    if (rotation > 0) {}
     constexpr size_t quadVertexCount = 4;
     constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 

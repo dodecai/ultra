@@ -76,4 +76,4 @@ void SWShader::UpdateUniform(const string &name, const Matrix4 &data) {}
 
 }
 
-#pragma warning(push)
+#pragma warning(pop)

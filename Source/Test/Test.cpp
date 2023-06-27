@@ -5,17 +5,12 @@ import Ultra;
 import Ultra.Engine.DesignerCamera;
 import Ultra.Utility.ThreadPool;
 
+// Switches
+#define ENGINE_TESTS
+//#define LIBRARY_TESTS
+//#define MISCELLANEOUS_TESTS
+
 namespace Ultra {
-
-#pragma region Basic
-
-struct alignas(128) Object {
-    char a;
-    int64_t b;
-};
-
-#pragma endregion
-
 
 #pragma region Events
 
@@ -101,7 +96,6 @@ struct Tester {
 
 #pragma endregion
 
-
 // Application
 class App: public Application {
     struct EventEmitter: Emitter<EventEmitter> {};
@@ -113,37 +107,96 @@ public:
 
     // Methods
     void Create() {
-        AppTest();
-        return;
+        #ifdef ENGINE_TESTS
+            mRenderer = Renderer::Create(RenderAPI::OpenGL);  // Set the desired rendering API (OpenGL, DirectX, Vulkan, etc)
+            auto swapchain = Swapchain::Create(nullptr, 1280, 720);
 
-        mRenderer = Renderer::Create(RenderAPI::OpenGL);  // Set the desired rendering API (OpenGL, DirectX, Vulkan, etc)
-        auto swapchain = Swapchain::Create(nullptr, 1280, 720);
+            auto aspectRatio = 800.0f / 600.0f;
+            mDesignerCamera = DesignerCamera(45.0f, aspectRatio, 0.1f, 1000.0f);
 
-        auto aspectRatio = 800.0f / 600.0f;
-        mDesignerCamera = DesignerCamera(45.0f, aspectRatio, 0.1f, 1000.0f);
+            auto commandBuffer = CommandBuffer::Create();
+            mCheckerBoard = Texture::Create(TextureProperties(), "./Assets/Textures/CheckerBoard.png");
 
-        auto commandBuffer = CommandBuffer::Create();
-        mCheckerBoard = Texture::Create(TextureProperties(), "./Assets/Textures/CheckerBoard.png");
+            // Load shaders, buffers, textures
+            //auto linkedShaders = Shader::Create("Assets/Shaders/Sample.glsl");
+            //auto vertexBuffer = Buffer::Create(BufferType::VertexBuffer, vertices, vertexCount);
+            //auto indexBuffer = Buffer::Create(BufferType::IndexBuffer, indices, indexCount);
+            //auto texture = Texture::Create(TextureType::Texture2D, "path/to/texture.png");
 
-        // Load shaders, buffers, textures
-        //auto linkedShaders = Shader::Create("Assets/Shaders/Sample.glsl");
-        //auto vertexBuffer = Buffer::Create(BufferType::VertexBuffer, vertices, vertexCount);
-        //auto indexBuffer = Buffer::Create(BufferType::IndexBuffer, indices, indexCount);
-        //auto texture = Texture::Create(TextureType::Texture2D, "path/to/texture.png");
-
-        //// Create render states
-        //auto renderState = RenderState::Create();
+            //// Create render states
+            //auto renderState = RenderState::Create();
+        #endif
+        #ifdef LIBRARY_TESTS
+            LibraryTest();
+        #endif
+        #ifdef MISCELLANEOUS_TESTS
+            Test();
+        #endif
     }
     void Destroy() {}
-    void Update(Timestamp deltaTime) {
-        //EngineTest(deltaTime);
-        //Test();
+    void Update([[maybe_unused]] Timestamp deltaTime) {
+        #ifdef ENGINE_TESTS
+            EngineTest(deltaTime);
+        #endif
     }
 
     ///
-    /// @brief App Tests
+    /// @brief Engine Tests
     ///
-    void AppTest() {
+    void EngineTest(Timestamp deltaTime) {
+        //// Begin
+        //    // Begin recording commands
+        //    commandBuffer->Begin();
+        //    commandBuffer->Clear(0.2f, 0.3f, 0.3f, 1.0f);     // Clear the framebuffer
+        //    commandBuffer->BindRenderState(renderState);      // Set up the render state
+
+        mRenderer->RenderFrame();
+        mDesignerCamera.Update(deltaTime);
+        Renderer2D::StartScene(mDesignerCamera);
+
+        //    // Bind shaders, buffers, textures
+        //    commandBuffer->BindShader(vertexShader);
+        //    commandBuffer->BindShader(fragmentShader);
+        //    commandBuffer->BindVertexBuffer(vertexBuffer);
+        //    commandBuffer->BindIndexBuffer(indexBuffer);
+        //    commandBuffer->BindTexture(0, texture);
+
+        //    commandBuffer->DrawIndexed(indexCount);           // Draw the mesh
+         
+        
+        // 3D Renderer: Primitives
+        //mRenderer->Test();
+
+        // 2D Renderer: Primitives
+        Renderer2D::DrawLine({ -0.9f, -0.9f }, {  0.9f,  -0.9f }, { 0.9f, 0.9f, 0.9f, 1.0f });
+        Renderer2D::DrawLine({ -0.9f, -0.9f }, { -0.9f,   0.9f }, { 1.0f, 0.0f, 1.0f, 1.0f });
+        Renderer2D::DrawLine({  0.2f,  0.2f }, {  0.7f,   0.7f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+        Renderer2D::DrawQuad({ -0.6f, -0.6f }, {  0.5f,   0.5f }, mCheckerBoard, 1.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
+        Renderer2D::DrawQuad({  0.2f,  0.2f }, {  0.7f,   0.7f }, mCheckerBoard, 1.0f, { 0.0f, 0.0f, 1.0f, 1.0f });
+        Renderer2D::DrawRect({ -0.9f,  0.9f }, {  0.5f,   0.5f }, { 0.2f, 0.2f, 0.2f, 1.0f });
+        Renderer2D::DrawCircle({ 1.0f, 1.0f }, { 0.5f,   0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f }, 0.1f, 0.1f);
+
+        static float rotation = 0.0f;
+        const float speed = 180.0f;
+        rotation += speed * deltaTime;
+        if (rotation >= 360.0f) rotation = 0.0f;
+        Renderer2D::DrawRotatedQuad({  0.7f,   0.7f }, { 0.2f,  0.2f }, rotation * (3.14f / 180.0f), mCheckerBoard, 1.0f, { 0.0f, 1.0f, 0.0f, 1.0f });
+        Renderer2D::DrawRotatedQuad({  0.7f,  -0.6f }, { 0.4f,  0.4f }, rotation * (3.14f / 180.0f) * -1.0f, mCheckerBoard, 1.0f, { 0.7f, 0.7f, 0.7f, 1.0f });
+
+        //// Finish
+        Renderer2D::FinishScene();
+        mRenderer->DrawGrid(mDesignerCamera);
+        //Renderer::EndScene();
+     
+        //    commandBuffer->End();                             // End recording commands
+        //    commandBuffer->Execute();                         // Execute the command buffer
+        //    swapchain->Present();                             // Present the rendered image to the screen
+    }
+
+    ///
+    /// @brief Library Tests
+    ///
+    void LibraryTest() {
 
         // DateTime
         logger << "DateTime" << "\n";
@@ -308,72 +361,9 @@ public:
     }
 
     ///
-    /// @brief Engine Tests
-    ///
-    void EngineTest(Timestamp deltaTime) {
-        //// Begin
-        //    // Begin recording commands
-        //    commandBuffer->Begin();
-        //    commandBuffer->Clear(0.2f, 0.3f, 0.3f, 1.0f);     // Clear the framebuffer
-        //    commandBuffer->BindRenderState(renderState);      // Set up the render state
-
-        mRenderer->RenderFrame();
-        mDesignerCamera.Update(deltaTime);
-        Renderer2D::StartScene(mDesignerCamera);
-
-        //    // Bind shaders, buffers, textures
-        //    commandBuffer->BindShader(vertexShader);
-        //    commandBuffer->BindShader(fragmentShader);
-        //    commandBuffer->BindVertexBuffer(vertexBuffer);
-        //    commandBuffer->BindIndexBuffer(indexBuffer);
-        //    commandBuffer->BindTexture(0, texture);
-
-        //    commandBuffer->DrawIndexed(indexCount);           // Draw the mesh
-         
-        
-        // 3D Renderer: Primitives
-        //mRenderer->Test();
-
-        // 2D Renderer: Primitives
-        Renderer2D::DrawLine({ -0.9f, -0.9f }, {  0.9f,  -0.9f }, { 0.9f, 0.9f, 0.9f, 1.0f });
-        Renderer2D::DrawLine({ -0.9f, -0.9f }, { -0.9f,   0.9f }, { 1.0f, 0.0f, 1.0f, 1.0f });
-        Renderer2D::DrawLine({  0.2f,  0.2f }, {  0.7f,   0.7f }, { 1.0f, 1.0f, 1.0f, 1.0f });
-        Renderer2D::DrawQuad({ -0.6f, -0.6f }, {  0.5f,   0.5f }, mCheckerBoard, 1.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
-        Renderer2D::DrawQuad({  0.2f,  0.2f }, {  0.7f,   0.7f }, mCheckerBoard, 1.0f, { 0.0f, 0.0f, 1.0f, 1.0f });
-        Renderer2D::DrawRect({ -0.9f,  0.9f }, {  0.5f,   0.5f }, { 0.2f, 0.2f, 0.2f, 1.0f });
-        Renderer2D::DrawCircle({ 1.0f, 1.0f }, { 0.5f,   0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f }, 0.1f, 0.1f);
-
-        static float rotation = 0.0f;
-        const double speed = 180.0f;
-        rotation += speed * deltaTime;
-        if (rotation >= 360.0f) rotation = 0.0f;
-        Renderer2D::DrawRotatedQuad({  0.7f,   0.7f }, { 0.2f,  0.2f }, rotation * (3.14f / 180.0f), mCheckerBoard, 1.0f, { 0.0f, 1.0f, 0.0f, 1.0f });
-        Renderer2D::DrawRotatedQuad({  0.7f,  -0.6f }, { 0.4f,  0.4f }, rotation * (3.14f / 180.0f) * -1.0f, mCheckerBoard, 1.0f, { 0.7f, 0.7f, 0.7f, 1.0f });
-
-        //// Finish
-        Renderer2D::FinishScene();
-        mRenderer->DrawGrid(mDesignerCamera);
-        //Renderer::EndScene();
-     
-        //    commandBuffer->End();                             // End recording commands
-        //    commandBuffer->Execute();                         // Execute the command buffer
-        //    swapchain->Present();                             // Present the rendered image to the screen
-    }
-
-    ///
     /// @brief  Miscellaneous Tests
     ///
     void Test() {
-
-        Object test { 1, 2 };
-
-        test.a += 1;
-        test.b += 2;
-
-        logger << "a.size: " << sizeof(test.a) << " + b.size: " << sizeof(test.b) << " = sigma.size:" << sizeof(test) << "/n";
-
-
-        auto result = false;
     }
 
 private:

@@ -7,6 +7,8 @@
     cdialect "C17"
     cppdialect "C++20"
     cppmodules "true"
+    externalanglebrackets "on"
+    externalwarnings "Default"
     nativewchar "on"
     scanformoduledependencies "on"
     staticruntime "on"
@@ -26,11 +28,9 @@
 	    "%{Headers.Vulkan}",
 	    "%{Headers.VulkanVideo}",
     }
-
     includedirs {
 	    "%{Headers.Library}",
     }
-
     links { 
         --"assimp",
         "DearImGui",
@@ -41,16 +41,21 @@
 
     filter { "configurations:Debug" }
         defines { "_DEBUG" }
-        symbols "On"
-
-    filter { "configurations:Release" }
-        defines { "NDEBUG" }
-        optimize "On"
-        symbols "On"
+        runtime "Debug"
+        --sanitize { "Address", "Fuzzer" }
+        symbols "on"
     
     filter { "configurations:Distribution" }
         defines { "NDEBUG" }
-        optimize "On"
-        symbols "Off"
+        optimize "on"
+        runtime "Release"
+        --sanitize { "Address", "Fuzzer" }
+        symbols "on"
+
+    filter { "configurations:Release" }
+        defines { "NDEBUG" }
+        optimize "on"
+        runtime "Release"
+        symbols "off"
     
     filter { }

@@ -33,13 +33,13 @@ public:
     ~Timer() = default;
 
     // Accessors
-    /// Retrive delta time in ms
+    /// Retrieve delta time in ms
     inline const T GetDeltaTime() {
         Timespan duration = CalculateDuration();
         Reset();
         return duration.count();
     }
-    /// Retrive delta time in specified unit (s = default, ms, µs, ns)
+    /// Retrieve delta time in specified unit (s = default, ms, µs, ns)
     inline const T GetDeltaTimeAs(TimerUnit unit = TimerUnit::Seconds) {
         T duration {};
         switch (unit) {
@@ -52,7 +52,7 @@ public:
         Reset();
         return std::move(duration);
     }
-    /// Retrive a delta time slice in ms
+    /// Retrieve a delta time slice in ms
     inline const T Now() {
         return (Timespan{ CalculateDuration() }).count();
     }

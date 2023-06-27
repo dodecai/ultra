@@ -6,6 +6,8 @@
     cdialect "C17"
     cppdialect "C++20"
     cppmodules "true"
+    externalanglebrackets "on"
+    externalwarnings "Default"
     nativewchar "on"
     scanformoduledependencies "on"
     staticruntime "on"
@@ -21,11 +23,13 @@
         "robocopy /mir /nfl /ndl /njh /njs /np /r:2 /w:1 \"%{wks.location}Data\" \"%{cfg.targetdir}/Data\"",
         "exit /b 0",
     }
-
+    
+    externalincludedirs {
+	    "%{Headers.ThirdParty}/**"
+    }
     includedirs {
         "%{Headers.Library}"
     }
-    
     links {
         "Ultra"
     }
@@ -33,18 +37,23 @@
     filter { "configurations:Debug" }
         kind "ConsoleApp"
         defines { "_DEBUG" }
-        symbols "On"
-
-    filter { "configurations:Release" }
-        kind "WindowedApp"
-        defines { "NDEBUG" }
-        optimize "On"
-        symbols "On"
+        runtime "Debug"
+        --sanitize { "Address", "Fuzzer" }
+        symbols "on"
     
     filter { "configurations:Distribution" }
         kind "WindowedApp"
         defines { "NDEBUG" }
-        optimize "On"
-        symbols "Off"
+        optimize "on"
+        runtime "Release"
+        --sanitize { "Address", "Fuzzer" }
+        symbols "on"
+
+    filter { "configurations:Release" }
+        kind "WindowedApp"
+        defines { "NDEBUG" }
+        optimize "on"
+        runtime "Release"
+        symbols "off"
     
     filter { }
