@@ -18,8 +18,8 @@ Scope<Texture> Texture::Create(const TextureProperties &properties, const void *
             throw std::runtime_error("Renderer::Texture: RenderAPI not supported!");
         #else
             LogFatal("Renderer::Texture: RenderAPI not supported!");
-        #endif
             return nullptr;
+        #endif
         }
     }
 }
@@ -35,8 +35,8 @@ Scope<Texture> Texture::Create(const TextureProperties &properties, const string
             throw std::runtime_error("Renderer::Texture: RenderAPI not supported!");
         #else
             LogFatal("Renderer::Texture: RenderAPI not supported!");
-        #endif
             return nullptr;
+        #endif
         }
     }
 }

@@ -1,5 +1,8 @@
 ﻿module Ultra.Platform.Renderer.SWCommandBuffer;
 
+#pragma warning(push)
+#pragma warning(disable: 4100)
+
 namespace Ultra {
 
 SWCommandBuffer::SWCommandBuffer() {}
@@ -27,3 +30,5 @@ void SWCommandBuffer::DrawIndexed(size_t count, PrimitiveType type, bool depthTe
 void SWCommandBuffer::Execute() {}
 
 }
+
+#pragma warning(pop)

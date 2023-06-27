@@ -9,13 +9,13 @@ export namespace Ultra {
 // All-String Types
 template<typename T>
 struct is_xstring: public std::disjunction<
-    std::is_same<char *,            typename std::decay_t<T>>,
-    std::is_same<const char *,      typename std::decay_t<T>>,
-    std::is_same<std::string,       typename std::decay_t<T>>,
-    std::is_same<std::string_view,  typename std::decay_t<T>>,
-    std::is_same<wchar_t *,         typename std::decay_t<T>>,
-    std::is_same<const wchar_t *,   typename std::decay_t<T>>,
-    std::is_same<std::wstring,      typename std::decay_t<T>>,
+    std::is_same<char *, typename std::decay_t<T>>,
+    std::is_same<const char *, typename std::decay_t<T>>,
+    std::is_same<std::string, typename std::decay_t<T>>,
+    std::is_same<std::string_view, typename std::decay_t<T>>,
+    std::is_same<wchar_t *, typename std::decay_t<T>>,
+    std::is_same<const wchar_t *, typename std::decay_t<T>>,
+    std::is_same<std::wstring, typename std::decay_t<T>>,
     std::is_same<std::wstring_view, typename std::decay_t<T>>
 > {};
 
@@ -25,10 +25,10 @@ constexpr bool is_xstring_v = is_xstring<T>::value;
 // Default-String Types
 template<typename T>
 struct is_string: public std::disjunction<
-    std::is_same<char *,            typename std::decay_t<T>>,
-    std::is_same<const char *,      typename std::decay_t<T>>,
-    std::is_same<std::string,       typename std::decay_t<T>>,
-    std::is_same<std::string_view,  typename std::decay_t<T>>
+    std::is_same<char *, typename std::decay_t<T>>,
+    std::is_same<const char *, typename std::decay_t<T>>,
+    std::is_same<std::string, typename std::decay_t<T>>,
+    std::is_same<std::string_view, typename std::decay_t<T>>
 > {};
 
 template<typename T>
@@ -37,9 +37,9 @@ constexpr bool is_string_v = is_string<T>::value;
 // Wide-String Types
 template<typename T>
 struct is_wstring: public std::disjunction<
-    std::is_same<wchar_t *,         typename std::decay_t<T>>,
-    std::is_same<const wchar_t *,   typename std::decay_t<T>>,
-    std::is_same<std::wstring,      typename std::decay_t<T>>,
+    std::is_same<wchar_t *, typename std::decay_t<T>>,
+    std::is_same<const wchar_t *, typename std::decay_t<T>>,
+    std::is_same<std::wstring, typename std::decay_t<T>>,
     std::is_same<std::wstring_view, typename std::decay_t<T>>
 > {};
 
@@ -49,20 +49,20 @@ constexpr bool is_wstring_v = is_wstring<T>::value;
 // All-String Concept
 template<typename T>
 concept typename_string =
-    std::is_same_v<char *,              std::decay<T>> ||
-    std::is_same_v<wchar_t *,           std::decay<T>> ||
-    std::is_same_v<const char *,        std::decay<T>> ||
-    std::is_same_v<const wchar_t *,     std::decay<T>> ||
-    std::is_same_v<std::string,         std::decay<T>> ||
-    std::is_same_v<std::string_view,    std::decay<T>> ||
-    std::is_same_v<std::wstring,        std::decay<T>> ||
-    std::is_same_v<std::wstring_view,   std::decay<T>>;
+std::is_same_v<char *, std::decay<T>> ||
+std::is_same_v<wchar_t *, std::decay<T>> ||
+std::is_same_v<const char *, std::decay<T>> ||
+std::is_same_v<const wchar_t *, std::decay<T>> ||
+std::is_same_v<std::string, std::decay<T>> ||
+std::is_same_v<std::string_view, std::decay<T>> ||
+std::is_same_v<std::wstring, std::decay<T>> ||
+std::is_same_v<std::wstring_view, std::decay<T>>;
 
 // All-StringView Concept
 template<typename T>
 concept typename_string_view =
-    std::is_same_v<std::string_view,    std::decay<T>> ||
-    std::is_same_v<std::wstring_view,   std::decay<T>>;
+std::is_same_v<std::string_view, std::decay<T>> ||
+std::is_same_v<std::wstring_view, std::decay<T>>;
 
 template<typename T>
 concept hashable = requires(T a) {
@@ -70,7 +70,10 @@ concept hashable = requires(T a) {
 };
 
 constexpr inline size_t operator"" _hash(const char *value, size_t count) {
-    return value == "" ? 0 : std::hash<string>{}(value);
+    if (count > 0) {
+        return !value ? 0 : std::hash<string> {}(value);
+    }
+    return 0;
 }
 
 /// @brief This class offers easy to use string extensions
@@ -82,7 +85,12 @@ class String {
     ~String() = delete;
 
 public:
-    static bool Contains(string_view value, string_view token, bool caseSensitive = false) noexcept {
+    template <typename CharT, typename Traits, typename Allocator>
+    static bool ContainsW(const std::basic_string<CharT, Traits, Allocator> &value, const std::basic_string<CharT, Traits, Allocator> &token) {
+        return std::ranges::search(string, token) != value.end();
+    }
+
+    static bool Contains(const string_view &value, const string_view &token, bool caseSensitive = false) noexcept {
         if (value.length() < token.length()) return false;
         if (caseSensitive) {
             return value.find(token) != string::npos;
@@ -93,7 +101,6 @@ public:
             return (it != value.end());
         }
     }
-
     static bool EndsWith(string_view value, string_view token, bool caseSensitive = false) noexcept {
         if (value.length() < token.length()) return false;
         if (caseSensitive) {
@@ -105,7 +112,6 @@ public:
             return (it == value.end() - token.length());
         }
     }
-
     static bool StartsWith(string_view value, string_view token, bool caseSensitive = false) noexcept {
         if (value.length() < token.length()) return false;
         if (caseSensitive) {
@@ -172,16 +178,16 @@ public:
         }
         return tokens;
     }
-    //template<typename T = string> // ToDo: Concept doesn't work as expected after 16.10 Preview 2
-    //static T &ToLower(T &value) noexcept {
-    //    std::transform(value.begin(), value.end(), value.begin(), ::tolower);
-    //    return value;
-    //}
-    //template<typename T = string> // ToDo: Concept doesn't work as expected after 16.10 Preview 2
-    //static T &ToUpper(T &value) noexcept {
-    //    std::transform(value.begin(), value.end(), value.begin(), ::toupper);
-    //    return value;
-    //}
+    template<typename T> // ToDo: Concept doesn't work as expected after 16.10 Preview 2
+    static T &ToLower(T &value) noexcept {
+        std::transform(value.begin(), value.end(), value.begin(), ::tolower);
+        return value;
+    }
+    template<typename T> // ToDo: Concept doesn't work as expected after 16.10 Preview 2
+    static T &ToUpper(T &value) noexcept {
+        std::transform(value.begin(), value.end(), value.begin(), ::toupper);
+        return value;
+    }
 
     static void Test() {
         string string00 = "First Second and SeConD Third";
@@ -247,7 +253,9 @@ public:
         //String::ToLower(wstring21);
         //String::ToUpper(wstring21);
 
-        auto hashstring = "b"_hash;
+        const auto stringA0 = "a"_hash;
+        const auto stringA1 = "a"_hash;
+        if (stringA0 != stringA1) {}
     }
 };
 

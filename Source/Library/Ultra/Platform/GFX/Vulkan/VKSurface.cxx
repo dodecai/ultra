@@ -5,6 +5,9 @@ import Ultra.UI.Window;
 
 // Sources: https://alain.xyz/blog/raw-vulkan | https://gist.github.com/graphitemaster/e162a24e57379af840d4
 
+#pragma warning(push)
+#pragma warning(disable: 4100)
+
 namespace Ultra {
 
 VKContext::VKContext(void *window) {
@@ -90,3 +93,5 @@ void VKContext::SetVSync(bool activate) {
 }
 
 }
+
+#pragma warning(pop)

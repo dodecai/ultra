@@ -1,5 +1,8 @@
 ﻿module Ultra.Platform.Renderer.VKSwapchain;
 
+#pragma warning(push)
+#pragma warning(disable: 4100)
+
 namespace Ultra {
 
 VKSwapchain::VKSwapchain(void *windowHandle, uint32_t width, uint32_t height) {}
@@ -21,3 +24,5 @@ uint32_t VKSwapchain::GetCurrentImageIndex() {
 }
 
 }
+
+#pragma warning(pop)

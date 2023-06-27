@@ -10,6 +10,7 @@
     scanformoduledependencies "on"
     staticruntime "on"
     toolset "msc"
+    warnings "Extra"
     
     debugdir "%{wks.location}/Build/%{cfg.buildcfg}"
     dependson { "Ultra" }

@@ -208,7 +208,7 @@ public:
     // This method executes your termination code.
     virtual void Destroy() {}
     // This method executes your main logic code.
-    virtual void Update(Timestamp deltaTime) {}
+    virtual void Update([[maybe_unused]] Timestamp deltaTime) {}
 
     // With this method, everything ends.
     void Exit() {

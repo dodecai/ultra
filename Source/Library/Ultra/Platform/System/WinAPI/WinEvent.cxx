@@ -53,10 +53,10 @@ intptr_t WinEventListener::Register(void *event) {
 	// Properties
 	LRESULT result = 1;
 	MSG &msg = *reinterpret_cast<MSG *>(event);
-	HWND &hWnd = msg.hwnd;
-	UINT &uMsg = msg.message;
-	WPARAM &wParam = msg.wParam;
-	LPARAM &lParam = msg.lParam;
+    [[maybe_unused]] HWND &hWnd = msg.hwnd;
+    [[maybe_unused]] UINT &uMsg = msg.message;
+    [[maybe_unused]] WPARAM &wParam = msg.wParam;
+    [[maybe_unused]] LPARAM &lParam = msg.lParam;
 
 	static bool Initialized = false;
 	if (!Initialized) {
@@ -121,7 +121,7 @@ intptr_t WinEventListener::Register(void *event) {
 		// Keyboard
 		case WM_KEYDOWN:	case WM_SYSKEYDOWN:
 		case WM_KEYUP:		case WM_SYSKEYUP: {
-			// Perparation
+			// Preparation
 			KeyboardEventData data;
 			data.Action = KeyboardAction::Null;
 

@@ -13,6 +13,7 @@ GLenum GetGLBufferType(BufferType type) {
         case BufferType::Uniform:   { return GL_UNIFORM_BUFFER; }
         case BufferType::Staging:   { return GL_COPY_READ_BUFFER; }
         case BufferType::Storage:   { return GL_SHADER_STORAGE_BUFFER; }
+        default:                    { return GL_ARRAY_BUFFER; } // ToDo: Fixes compiler warning, but we don't need a default path.
     }
 }
 
@@ -21,6 +22,7 @@ GLenum GetGLBufferUsage(BufferUsage usage) {
         case BufferUsage::Dynamic:  { return GL_DYNAMIC_DRAW; }
         case BufferUsage::Static:   { return GL_STATIC_DRAW; }
         case BufferUsage::Stream:   { return GL_STREAM_DRAW; }
+        default:                    { return GL_DYNAMIC_DRAW; } // ToDo: Fixes compiler warning, but we don't need a default path.
     }
 }
 

@@ -11,6 +11,7 @@
     scanformoduledependencies "on"
     staticruntime "on"
     toolset "msc"
+    warnings "Extra"
     
     debugdir "%{wks.location}/Build/%{cfg.buildcfg}"
     files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx" }

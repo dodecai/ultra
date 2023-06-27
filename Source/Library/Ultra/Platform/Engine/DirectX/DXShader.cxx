@@ -4,6 +4,9 @@
 
 module Ultra.Platform.Renderer.DXShader;
 
+#pragma warning(push)
+#pragma warning(disable: 4100)
+
 namespace Ultra {
 
 DXShader::DXShader(const string &source, const string &entryPoint, const ShaderType type): Shader(source, entryPoint, type) {}
@@ -72,3 +75,5 @@ void DXShader::UpdateUniform(const string &name, const Matrix3 &data) {}
 void DXShader::UpdateUniform(const string &name, const Matrix4 &data) {}
 
 }
+
+#pragma warning(push)

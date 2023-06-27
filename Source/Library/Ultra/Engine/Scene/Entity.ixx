@@ -82,7 +82,7 @@ public:
 protected:
     virtual void Create() {}
     virtual void Destroy() {}
-    virtual void Update(Timestamp deltaTime) {}
+    virtual void Update([[maybe_unused]] Timestamp deltaTime) {}
 
 private:
     Entity mEntity;

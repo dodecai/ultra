@@ -3,6 +3,7 @@
 
 import Ultra;
 import Ultra.Engine.DesignerCamera;
+import Ultra.Utility.ThreadPool;
 
 namespace Ultra {
 
@@ -112,6 +113,9 @@ public:
 
     // Methods
     void Create() {
+        AppTest();
+        return;
+
         mRenderer = Renderer::Create(RenderAPI::OpenGL);  // Set the desired rendering API (OpenGL, DirectX, Vulkan, etc)
         auto swapchain = Swapchain::Create(nullptr, 1280, 720);
 
@@ -129,11 +133,10 @@ public:
 
         //// Create render states
         //auto renderState = RenderState::Create();
-        //AppTest();
     }
     void Destroy() {}
     void Update(Timestamp deltaTime) {
-        EngineTest(deltaTime);
+        //EngineTest(deltaTime);
         //Test();
     }
 
@@ -157,6 +160,20 @@ public:
         // Logger
         logger << LogLevel::Trace << "Hello World! 🦄" << "\n";
         LogTrace("{}: {} {:.2}", "Hello", "World!", 1.234567f);
+
+        // String
+        String::Test();
+
+        // ThreadPool
+        ThreadPool pool;
+        // Create eight tasks in the queue
+        for (int i = 0; i < 8; ++i) {
+            pool.Enqueue([i] {
+                logger << "TaskStart " << i << std::endl;
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                logger << "TaskEnde " << i << std::endl;
+            });
+        }
 
         // Timer
         //logger << "Timer" << "\n";

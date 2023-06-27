@@ -10,6 +10,7 @@
     scanformoduledependencies "on"
     staticruntime "on"
     toolset "msc"
+    warnings "Extra"
     
     copylocal { "Assets", "Data" }
     debugdir "%{wks.location}/Build/%{cfg.buildcfg}"

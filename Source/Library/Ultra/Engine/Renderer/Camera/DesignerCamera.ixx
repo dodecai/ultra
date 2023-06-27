@@ -26,19 +26,19 @@ public:
     }
     ~DesignerCamera() = default;
 
-    void Update(Timestamp delta) {
+    void Update([[maybe_unused]] Timestamp delta) {
         if (Input::GetMouseButtonState(MouseButton::Wheel)) {
 
         }
         if (Input::GetKeyState(KeyCode::LAlt)) {
             auto [x, y] = Input::GetMousePosition();
             const glm::vec2 &mouse { x, y };
-            glm::vec2 delta = (mouse - mInitialMousePosition) * 0.003f;
+            glm::vec2 mouseDelta = (mouse - mInitialMousePosition) * 0.003f;
             mInitialMousePosition = mouse;
 
-            if (Input::GetMouseButtonState(MouseButton::Middle)) Pan(delta);
-            if (Input::GetMouseButtonState(MouseButton::Left)) Rotate(delta);
-            if (Input::GetMouseButtonState(MouseButton::Right)) Zoom(delta.y);
+            if (Input::GetMouseButtonState(MouseButton::Middle)) Pan(mouseDelta);
+            if (Input::GetMouseButtonState(MouseButton::Left)) Rotate(mouseDelta);
+            if (Input::GetMouseButtonState(MouseButton::Right)) Zoom(mouseDelta.y);
         } else {
             // ToDo: Works everywhere, but eats the performance...
             auto [x, y] = Input::GetMousePosition();

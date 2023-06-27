@@ -357,7 +357,7 @@ void Renderer2D::DrawCircle(const glm::vec3 &position, const glm::vec2 &size, co
     DrawCircle(transform, color, thickness, fade);
 }
 
-void Renderer2D::DrawCircle(const glm::mat4 &transform, const glm::vec4 &color, float thickness, float fade, const string &id) {
+void Renderer2D::DrawCircle(const glm::mat4 &transform, const glm::vec4 &color, float thickness, float fade, [[maybe_unused]] const string &id) {
     constexpr size_t quadVertexCount = 4;
     if (sData.QIndexCount >= RendererData::MaxIndices) FlushAndReset();
 
@@ -416,7 +416,7 @@ void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, cons
     DrawQuad(transform, texture, tilingFactor, color);
 }
 
-void Renderer2D::DrawQuad(const glm::mat4 &transform, const glm::vec4 &color, const string &id) {
+void Renderer2D::DrawQuad(const glm::mat4 &transform, const glm::vec4 &color, [[maybe_unused]] const string &id) {
     constexpr size_t quadVertexCount = 4;
     const float textureIndex = 0.0f; // White Texture
     constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
@@ -438,7 +438,7 @@ void Renderer2D::DrawQuad(const glm::mat4 &transform, const glm::vec4 &color, co
     sData.Stats.QuadCount++;
 }
 
-void Renderer2D::DrawQuad(const glm::mat4 &transform, const Reference<Texture> &texture, const float tilingFactor, const glm::vec4 &color, const string &id) {
+void Renderer2D::DrawQuad(const glm::mat4 &transform, const Reference<Texture> &texture, const float tilingFactor, const glm::vec4 &color, [[maybe_unused]] const string &id) {
     constexpr size_t quadVertexCount = 4;
     constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 
@@ -499,7 +499,9 @@ void Renderer2D::DrawRotatedQuad(const glm::vec3 &position, const glm::vec2 &siz
     DrawRotatedQuad(transform, rotation, texture, tilingFactor, color);
 }
 
-void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotation, const glm::vec4 &color, const string &id) {
+void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotation, const glm::vec4 &color, [[maybe_unused]] const string &id) {
+    // ToDo: rotation missing
+    if (rotation > 0) { LogWarning("Renderer2D: Implement rotation!"); }
     constexpr size_t quadVertexCount = 4;
     const float textureIndex = 0.0f; // White Texture
     constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
@@ -521,7 +523,9 @@ void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotatio
     sData.Stats.QuadCount++;
 }
 
-void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotation, const Reference<Texture> &texture, const float tilingFactor, const glm::vec4 &color, const string &id) {
+void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotation, const Reference<Texture> &texture, const float tilingFactor, const glm::vec4 &color, [[maybe_unused]] const string &id) {
+    // ToDo: rotation missing
+    if (rotation > 0) { LogWarning("Renderer2D: Implement rotation!"); }
     constexpr size_t quadVertexCount = 4;
     constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 

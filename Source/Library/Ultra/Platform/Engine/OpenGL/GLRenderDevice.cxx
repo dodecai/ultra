@@ -6,6 +6,9 @@ module Ultra.Platform.Renderer.GLRenderDevice;
 
 import Ultra.Engine.Renderer;
 
+#pragma warning(push)
+#pragma warning(disable: 4100)
+
 namespace Ultra {
 
 // Helpers
@@ -103,3 +106,5 @@ void GLRenderDevice::SetPolygonMode(PolygonMode mode) {
 }
 
 }
+
+#pragma warning(pop)

@@ -18,8 +18,8 @@ Scope<Buffer> Buffer::Create(BufferType type, const void *data, size_t size, Buf
             throw std::runtime_error("Renderer::Buffer: RenderAPI not supported!");
         #else
             LogFatal("Renderer::Buffer: RenderAPI not supported!");
-        #endif
             return nullptr;
+        #endif
         }
     }
 }

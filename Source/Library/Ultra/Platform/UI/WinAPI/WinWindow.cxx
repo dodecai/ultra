@@ -1,5 +1,8 @@
 ﻿module;
 
+#include <codecvt>
+#include <locale>
+
 // Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
 #undef __nullnullterminated
 #define __SPECSTRINGS_STRICT_LEVEL 0
@@ -84,12 +87,13 @@ ITaskbarList3 *TaskbarList;
 
 namespace Ultra {
 
-// ToDo: Export these to String Utility
 inline wstring ConvertChar2WChar(const string &source) {
-    wchar_t buffer[256] = {};
-    std::mbstowcs(buffer, source.c_str(), source.length());
-    wstring result = buffer;
-    //delete[] buffer;
+    int bufferSize = MultiByteToWideChar(CP_UTF8, 0, source.c_str(), -1, nullptr, 0);
+    if (bufferSize == 0) return L"";
+
+    std::wstring result(bufferSize, L'\0');
+    if (MultiByteToWideChar(CP_UTF8, 0, source.c_str(), -1, &result[0], bufferSize) == 0) return L"";
+
     return result;
 }
 
@@ -128,7 +132,7 @@ WinWindow::WinWindow(const WindowProperties &properties):
 
     // Get Application Information
     ApplicationHandle = GetModuleHandle(NULL);
-    LPWSTR lpCmdLine = GetCommandLine();
+    [[maybe_unused]] LPWSTR lpCmdLine = GetCommandLine();
     STARTUPINFOA StartupInfo;
     GetStartupInfoA(&StartupInfo);
 
@@ -284,7 +288,7 @@ WinWindow::WinWindow(const WindowProperties &properties):
 
     // Taskbar Settings
     RegisterWindowMessage(L"TaskbarButtonCreated");
-    HRESULT hrf = CoCreateInstance(CLSID_TaskbarList, NULL, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, (LPVOID *)&TaskbarList);
+    [[maybe_unused]] HRESULT hrf = CoCreateInstance(CLSID_TaskbarList, NULL, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, (LPVOID *)&TaskbarList);
 
     // Flash on Taskbar
     FlashWindow(WindowHandle, true);
@@ -360,10 +364,10 @@ intptr_t WinWindow::Message(void *event) {
     // Properties
     LRESULT result = 1;
     MSG &msg = *(reinterpret_cast<MSG *>(event));
-    HWND &hWnd = msg.hwnd;
-    UINT &uMsg = msg.message;
-    WPARAM &wParam = msg.wParam;
-    LPARAM &lParam = msg.lParam;
+    [[maybe_unused]] HWND &hWnd = msg.hwnd;
+    [[maybe_unused]] UINT &uMsg = msg.message;
+    [[maybe_unused]] WPARAM &wParam = msg.wParam;
+    [[maybe_unused]] LPARAM &lParam = msg.lParam;
 
     /**
     * @brief	Window Messages
@@ -547,8 +551,8 @@ intptr_t WinWindow::Message(void *event) {
 
     // Publish events to an external event system
     if (mExternalInputEventListener) {
-        auto result = mExternalInputEventListener(event);
-        if (result && result) result = 0;
+        auto resultB = mExternalInputEventListener(event);
+        if (result && resultB) result = 0;
     }
 
     if (!result) return result;

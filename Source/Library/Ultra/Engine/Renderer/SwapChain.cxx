@@ -18,8 +18,8 @@ Scope<Swapchain> Swapchain::Create(void *windowHandle, uint32_t width, uint32_t 
             throw std::runtime_error("Renderer::Swapchain: RenderAPI not supported!");
         #else
             LogFatal("Renderer::Swapchain: RenderAPI not supported!");
-        #endif
             return nullptr;
+        #endif
         }
     }
 }

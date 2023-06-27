@@ -9,6 +9,7 @@ class Input {
     static Scope<Input> Instance;
 
 public:
+    virtual ~Input() {}
     static Scope<Input> Create();
 
     static bool GetKeyState(KeyCode code);

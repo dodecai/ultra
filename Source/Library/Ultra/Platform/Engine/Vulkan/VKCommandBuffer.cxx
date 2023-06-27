@@ -1,5 +1,8 @@
 ﻿module Ultra.Platform.Renderer.VKCommandBuffer;
 
+#pragma warning(push)
+#pragma warning(disable: 4100)
+
 namespace Ultra {
 
 VKCommandBuffer::VKCommandBuffer() {}
@@ -27,3 +30,5 @@ void VKCommandBuffer::DrawIndexed(size_t count, PrimitiveType type, bool depthTe
 void VKCommandBuffer::Execute() {}
 
 }
+
+#pragma warning(pop)

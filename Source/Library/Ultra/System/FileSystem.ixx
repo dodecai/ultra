@@ -148,21 +148,21 @@ void LoadFile(const std::string object) {
 }
 
 bool WriteFile(const std::string &file, const std::string &data) {
-    //auto Directory = std::filesystem::path(file).parent_path();
-    //if (!Directory.empty()) std::filesystem::create_directories(Directory);
+    auto Directory = std::filesystem::path(file).parent_path();
+    if (!Directory.empty()) std::filesystem::create_directories(Directory);
 
-    //std::ofstream fileStream(file, std::ios::binary);
-    //fileStream.write(data.data(), data.size());
-    //fileStream.close();
+    std::ofstream fileStream(file, std::ios::binary);
+    fileStream.write(data.data(), data.size());
+    fileStream.close();
     return true;
 }
 
 
-std::vector<std::string> SearchFiles(const std::string &object, const std::string &token) {
+std::vector<std::string> SearchFiles(const std::string &fsobject, const std::string &token) {
     using namespace std::filesystem;
 
     std::vector<std::string> result;
-    auto directory = path(object).parent_path();
+    auto directory = path(fsobject).parent_path();
 
     if (exists(directory) && is_directory(directory)) {
         for (auto &object : recursive_directory_iterator(directory, directory_options::skip_permission_denied)) {
@@ -173,6 +173,5 @@ std::vector<std::string> SearchFiles(const std::string &object, const std::strin
     }
     return result;
 }
-
 
 }

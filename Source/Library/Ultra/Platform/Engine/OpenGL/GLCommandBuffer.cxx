@@ -4,6 +4,9 @@
 
 module Ultra.Platform.Renderer.GLCommandBuffer;
 
+#pragma warning(push)
+#pragma warning(disable: 4100)
+
 namespace Ultra {
 
 GLCommandBuffer::GLCommandBuffer() {}
@@ -72,7 +75,8 @@ void GLCommandBuffer::DrawIndexed(size_t count, PrimitiveType primitive, bool de
         case PrimitiveType::Triangle: { mode = GL_TRIANGLES; break; }
     }
 
-    glDrawElements(mode, count, type, nullptr);
+    // ToDo: C4267 possible loss of data
+    glDrawElements(mode, static_cast<GLsizei>(count), type, nullptr);
 
     if (!depthTest) glEnable(GL_DEPTH_TEST);
 }
@@ -81,3 +85,5 @@ void GLCommandBuffer::DrawIndexed(size_t count, PrimitiveType primitive, bool de
 void GLCommandBuffer::Execute() {}
 
 }
+
+#pragma warning(pop)

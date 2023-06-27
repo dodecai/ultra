@@ -1,5 +1,8 @@
 ﻿module Ultra.Platform.Renderer.DXSwapchain;
 
+#pragma warning(push)
+#pragma warning(disable: 4100)
+
 namespace Ultra {
 
 DXSwapchain::DXSwapchain(void *windowHandle, uint32_t width, uint32_t height): Swapchain(windowHandle, width, height) {}
@@ -21,3 +24,5 @@ uint32_t DXSwapchain::GetCurrentImageIndex() {
 }
 
 }
+
+#pragma warning(pop)

@@ -18,8 +18,8 @@ Scope<PipelineState> PipelineState::Create(const PipelineProperties &properties)
             throw std::runtime_error("Renderer::PipelineState: RenderAPI not supported!");
         #else
             LogFatal("Renderer::PipelineState: RenderAPI not supported!");
-        #endif
             return nullptr;
+        #endif
         }
     }
 }

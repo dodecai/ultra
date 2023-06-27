@@ -1,5 +1,8 @@
 ﻿module Ultra.Platform.Renderer.DXCommandBuffer;
 
+#pragma warning(push)
+#pragma warning(disable: 4100)
+
 namespace Ultra {
 
 DXCommandBuffer::DXCommandBuffer() {}
@@ -27,3 +30,5 @@ void DXCommandBuffer::DrawIndexed(size_t count, PrimitiveType type, bool depthTe
 void DXCommandBuffer::Execute() {}
 
 }
+
+#pragma warning(pop)

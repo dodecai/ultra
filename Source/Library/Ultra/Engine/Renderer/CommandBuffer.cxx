@@ -18,8 +18,8 @@ Scope<CommandBuffer> CommandBuffer::Create() {
             throw std::runtime_error("Renderer::CommandBuffer: RenderAPI not supported!");
         #else
             LogFatal("Renderer::CommandBuffer: RenderAPI not supported!");
-        #endif
             return nullptr;
+        #endif
         }
     }
 }

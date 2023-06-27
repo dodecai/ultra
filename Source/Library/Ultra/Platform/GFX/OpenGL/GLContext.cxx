@@ -54,21 +54,21 @@ import Ultra.Logger;
 
 namespace Ultra {
 
-static void GLAPIENTRY GLMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
-	switch (type) {
-		case GL_DEBUG_TYPE_ERROR:					{ logger << LogLevel::Error;	break; }
-		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:		{ logger << LogLevel::Warn;	    break; }
-		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:		{ logger << LogLevel::Warn;	    break; }
-		case GL_DEBUG_TYPE_PORTABILITY:				{ logger << LogLevel::Trace;	break; }
-		case GL_DEBUG_TYPE_PERFORMANCE:				{ logger << LogLevel::Trace;	break; }
-		case GL_DEBUG_TYPE_OTHER:					{ logger << LogLevel::Trace;	break; }
-		default:									{ logger << LogLevel::Fatal;	break; }
-	}
-	logger << "[Context::GL]" << message << "{" <<
-		"ID:"		<< id		<< " | " <<
-		"Source:"	<< source	<< " | " <<
-		"Severity:" << severity	<<
-	"}\n";
+static void GLAPIENTRY GLMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, [[maybe_unused]] GLsizei length, const GLchar *message, [[maybe_unused]] const void *userParam) {
+    switch (type) {
+        case GL_DEBUG_TYPE_ERROR: { logger << LogLevel::Error;	break; }
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: { logger << LogLevel::Warn;	    break; }
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: { logger << LogLevel::Warn;	    break; }
+        case GL_DEBUG_TYPE_PORTABILITY: { logger << LogLevel::Trace;	break; }
+        case GL_DEBUG_TYPE_PERFORMANCE: { logger << LogLevel::Trace;	break; }
+        case GL_DEBUG_TYPE_OTHER: { logger << LogLevel::Trace;	break; }
+        default: { logger << LogLevel::Fatal;	break; }
+    }
+    logger << "[Context::GL]" << message << "{" <<
+        "ID:" << id << " | " <<
+        "Source:" << source << " | " <<
+        "Severity:" << severity <<
+        "}\n";
 }
 
 struct ContextData {
@@ -79,7 +79,7 @@ struct ContextData {
 	#endif
 };
 
-bool GLContext::GetExtensions(int a) {
+bool GLContext::GetExtensions([[maybe_unused]] int a) {
 	bool result = true;
 	#if defined(APP_PLATFORM_WINDOWS)
 		// Dummy Class
@@ -251,6 +251,7 @@ void GLContext::Load() {
         LogFatal("[Context: Failed to load OpenGL!");
         return;
     }
+    #define APP_DEBUG_MODE // ToDo: Strange warning from compiler: unreferenced function with internal linkage has been removed, but it worked!? (maybe a bug due to modules...)
     #ifdef APP_DEBUG_MODE
     if (glDebugMessageCallback) {
         glEnable(GL_DEBUG_OUTPUT);
@@ -295,7 +296,6 @@ void GLContext::SwapBuffers() {
 // Accessors & Mutators
 void *GLContext::GetNativeContext() {
 	return reinterpret_cast<void *>(Data->hRenderingContext);
-	return nullptr;
 }
 
 void GLContext::SetViewport(uint32_t width, uint32_t height, int32_t x, int32_t y) {
@@ -310,9 +310,10 @@ void GLContext::SetVSync(bool activate) {
 // Methods
 bool const GLContext::IsCurrentContext() {
     #if defined(APP_PLATFORM_WINDOWS)
-    return (wglGetCurrentContext() == Data->hRenderingContext);
+        return (wglGetCurrentContext() == Data->hRenderingContext);
+    #else
+        return false;
     #endif
-    return false;
 }
 
 }

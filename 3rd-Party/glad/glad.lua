@@ -4,6 +4,7 @@
     cdialect "C17"
     staticruntime "on"
     toolset "msc"
+    warnings "Default"
 
 	files {
         "glad.lua",

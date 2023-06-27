@@ -24,8 +24,8 @@ Scope<Shader> Shader::Create(const string &source, const string &entryPoint, con
             throw std::runtime_error("Renderer::Shader: RenderAPI not supported!");
         #else
             LogFatal("Renderer::Shader: RenderAPI not supported!");
-        #endif
             return nullptr;
+        #endif
         }
     }
 }

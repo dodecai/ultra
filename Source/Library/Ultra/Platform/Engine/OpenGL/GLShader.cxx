@@ -18,6 +18,7 @@ GLenum GetGLShaderType(ShaderType type) {
         case ShaderType::TessControl:       { return GL_TESS_CONTROL_SHADER; }
         case ShaderType::TessEvaluation:    { return GL_TESS_EVALUATION_SHADER; }
         case ShaderType::Vertex:            { return GL_VERTEX_SHADER; }
+        default:                            { return GL_SHADER; } // ToDo: Fixes compiler warning, but we don't need a default path.
     }
 }
 

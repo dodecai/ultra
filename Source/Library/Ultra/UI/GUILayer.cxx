@@ -14,6 +14,9 @@ import Ultra.Utility.Timer;
 
 import Ultra.Platform.GFX.VKSurface;
 
+#pragma warning(push)
+#pragma warning(disable: 4100)
+
 namespace Ultra {
 
 const float FontSize = 16.0f;
@@ -187,7 +190,7 @@ void GuiLayer::Prepare() {
 	ImGui::Begin("DockSpace", &DockSpace, windowFlags);
     ImGuiStyle &style = ImGui::GetStyle();
     // ToDo: Window minimum size while docked
-    //style.WindowMinSize.x = 256.0f;
+    style.WindowMinSize.x = 256.0f;
 	ImGui::PopStyleVar(3);
 
 	if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
@@ -320,5 +323,6 @@ void GuiLayer::OnMouseEvent(MouseEventData &data, const EventListener::EventEmit
 void GuiLayer::OnTouchEvent(TouchEventData &data, const EventListener::EventEmitter &emitter) {}
 void GuiLayer::OnWindowEvent(WindowEventData &data, const EventListener::EventEmitter &emitter) {}
 
-
 }
+
+#pragma warning(pop)

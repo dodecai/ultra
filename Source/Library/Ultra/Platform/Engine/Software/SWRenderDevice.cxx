@@ -2,6 +2,9 @@
 
 import Ultra.Engine.Renderer;
 
+#pragma warning(push)
+#pragma warning(disable: 4100)
+
 namespace Ultra {
 
 SWRenderDevice::SWRenderDevice() {}
@@ -20,6 +23,7 @@ void SWRenderDevice::Dispose() {}
 void SWRenderDevice::SetLineThickness(float value) {}
 
 void SWRenderDevice::SetPolygonMode(PolygonMode mode) {}
-;
 
 }
+
+#pragma warning(pop)

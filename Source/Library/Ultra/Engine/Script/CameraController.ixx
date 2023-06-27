@@ -19,7 +19,7 @@ public:
     }
     void Destroy() override {}
 
-    void Update(Timestamp deltaTime) override {
+    void Update([[maybe_unused]] Timestamp deltaTime) override {
         //auto &transform = GetComponent<Component::Transform>();
         //float speed = 12.0f;
 
