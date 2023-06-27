@@ -43,7 +43,7 @@ jobs:
       with:
         msbuild-architecture: x64
         vs-version: "[17.7,"
-        #vs-prerelease: true
+        vs-prerelease: true
 
 #    - name: Restore NuGet packages
 #      working-directory: ${{env.GITHUB_WORKSPACE}}
