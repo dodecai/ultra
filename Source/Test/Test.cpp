@@ -6,8 +6,8 @@ import Ultra.Engine.DesignerCamera;
 import Ultra.Utility.ThreadPool;
 
 // Switches
-#define ENGINE_TESTS
-//#define LIBRARY_TESTS
+//#define ENGINE_TESTS
+#define LIBRARY_TESTS
 //#define MISCELLANEOUS_TESTS
 
 namespace Ultra {

@@ -301,17 +301,16 @@ template<typename ...Args> void Log(Args &&...args)         { logger << LogLevel
     template<typename ...Args> void LogTrace(Args &&...args)	{ logger << LogLevel::Trace;    (logger(args...)); logger << "\n"; }
     template<typename ...Args> void LogDebug(Args &&...args)	{ logger << LogLevel::Debug;    (logger(args...)); logger << "\n"; }
     template<typename ...Args> void LogInfo(Args &&...args)		{ logger << LogLevel::Info;     (logger(args...)); logger << "\n"; }
-
-#elif APP_MODE_RELEASE
-    template<typename ...Args> void AppAssert(Args &&...args)   {}
-    template<typename ...Args> void LogTrace(Args &&...args)    {}
-    template<typename ...Args> void LogDebug(Args &&...args)    {}
-    template<typename ...Args> void LogInfo(Args &&...args)		{ logger << LogLevel::Info;     (logger(args...)); logger << "\n"; }
 #elif APP_MODE_DISTRIBUTION
-    template<typename ...Args> void AppAssert(Args &&...args)   {}
-    template<typename ...Args> void LogTrace(Args &&...args)    {}
-    template<typename ...Args> void LogDebug(Args &&...args)    {}
-    template<typename ...Args> void LogInfo(Args &&...args)     {}
+    template<typename ...Args> void AppAssert([[maybe_unused]] Args &&...args)   {}
+    template<typename ...Args> void LogTrace([[maybe_unused]] Args &&...args)    {}
+    template<typename ...Args> void LogDebug([[maybe_unused]] Args &&...args)    {}
+    template<typename ...Args> void LogInfo(Args &&...args)		                 { logger << LogLevel::Info;     (logger(args...)); logger << "\n"; }
+#elif APP_MODE_RELEASE
+    template<typename ...Args> void AppAssert([[maybe_unused]] Args &&...args)   {}
+    template<typename ...Args> void LogTrace([[maybe_unused]] Args &&...args)    {}
+    template<typename ...Args> void LogDebug([[maybe_unused]] Args &&...args)    {}
+    template<typename ...Args> void LogInfo([[maybe_unused]] Args &&...args)     {}
 #endif
 template<typename ...Args> void LogWarning(Args &&...args)  { logger << LogLevel::Warn;     (logger(args...)); logger << "\n"; }
 template<typename ...Args> void LogError(Args &&...args)	{ logger << LogLevel::Error;    (logger(args...)); logger << "\n"; }

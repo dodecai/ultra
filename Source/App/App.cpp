@@ -15,7 +15,7 @@ public:
     // Methods
     void Create() {}
     void Destroy() {}
-    void Update(Timestamp deltaTime) {
+    void Update([[maybe_unused]] Timestamp deltaTime) {
         Exit();
     }
 

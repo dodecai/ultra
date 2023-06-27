@@ -16,9 +16,7 @@ public:
     // Methods
     void Create() {}
     void Destroy() {}
-    void Update(Timestamp deltaTime) {
-        logger << "Duration: " << apptime.GetTimeStamp() << "\n";
-    }
+    void Update([[maybe_unused]] Timestamp deltaTime) {}
 
     // Styles
     string AsciiLogo() {
