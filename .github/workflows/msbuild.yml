@@ -39,7 +39,7 @@ jobs:
 #        vulkan-use-cache: true
       
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@latest
       with:
         msbuild-architecture: x64
         vs-version: '[17.7,'
