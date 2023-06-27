@@ -44,10 +44,10 @@
 --        },
 --        "Manual/*",
 --    },
---    "License",
---    "ReadMe.md",
---    "Security.md",
---}
+    "License",
+    "ReadMe.md",
+    "Security.md",
+}
 --solutionitems {
 --	"./README.md",
 --	["GitHub"] = {
@@ -62,7 +62,7 @@
 --			"./deps/premake/**.lua"
 --		}
 --	},
-}
+--}
 filter { "configurations:Debug" }
     defines { "APP_MODE_DEBUG" }
 
