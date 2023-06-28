@@ -29,6 +29,9 @@ public:
     [[maybe_unused]] virtual void OnTouchEvent([[maybe_unused]] TouchEventData &data, [[maybe_unused]] const EventListener::EventEmitter &emitter) {}
     [[maybe_unused]] virtual void OnWindowEvent([[maybe_unused]] WindowEventData &data, [[maybe_unused]] const EventListener::EventEmitter &emitter) {}
 
+    [[maybe_unused]] virtual void OnDeviceEvent([[maybe_unused]] DeviceEventData &data, [[maybe_unused]] const EventListener::EventEmitter &emitter) {}
+    [[maybe_unused]] virtual void OnPowerEvent([[maybe_unused]] PowerEventData &data, [[maybe_unused]] const EventListener::EventEmitter &emitter) {}
+
 protected:
     string mName;
 };

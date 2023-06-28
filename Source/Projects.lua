@@ -48,21 +48,7 @@
     "ReadMe.md",
     "Security.md",
 }
---solutionitems {
---	"./README.md",
---	["GitHub"] = {
---		"./.github/dependabot.yml",
---		["workflows"] = {
---			"./.github/workflows/**.yml",
---		}
---	},
---	["Premake"] = {
---		"./premake5.lua",
---		["Deps"] = {
---			"./deps/premake/**.lua"
---		}
---	},
---}
+
 filter { "configurations:Debug" }
     defines { "APP_MODE_DEBUG" }
 

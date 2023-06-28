@@ -30,13 +30,13 @@ struct RendererCapabilities {
     int MaxTextureUnits = 0;
 
     void Log() {
-        LogInfo("[Renderer] Vendor:  '", Vendor, "'");
-        LogInfo("[Renderer] Model:   '", Model, "'");
-        LogInfo("[Renderer] Version: '", Version, "'");
-        LogDebug("[Renderer] Shader Version: '", SLVersion, "'");
-        LogTrace("[Renderer] Max Anisotropy: '", MaxAnisotropy, "'");
-        LogTrace("[Renderer] Max Samples: '", MaxSamples, "'");
-        LogTrace("[Renderer] Max TextureUnits: '", MaxTextureUnits, "'");
+        LogInfo("[Renderer] Vendor:  '{}'", Vendor);
+        LogInfo("[Renderer] Model:   '{}'", Model);
+        LogInfo("[Renderer] Version: '{}'", Version);
+        LogDebug("[Renderer] Shader Version: '{}'", SLVersion);
+        LogTrace("[Renderer] Max Anisotropy: '{}'", MaxAnisotropy);
+        LogTrace("[Renderer] Max Samples:     '{}'", MaxSamples);
+        LogTrace("[Renderer] Max TextureUnits: '{}'", MaxTextureUnits);
 
     }
     void ShowExtensions() {

@@ -31,11 +31,12 @@ export import <string_view>;
 export import <thread>;
 export import <type_traits>;
 export import <unordered_map>;
+export import <unordered_set>;
 export import <vector>;
 export import <utility>;
 
 // Extensions
-//export import "Private/Types.h";
+export import "Private/Types.h";
 
 ///
 /// @brief The following containers, literals and types are used quite often, therefore they are exposed under the root namespace.

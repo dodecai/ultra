@@ -1,8 +1,8 @@
 ﻿module;
 
 #pragma warning(push, 0)
-#include <imgui/imgui.h>
-#include <imgui/imgui_internal.h>
+    #include <imgui/imgui.h>
+    #include <imgui/imgui_internal.h>
 #pragma warning(pop)
 
 module Ultra.UI.GUILayer;
@@ -12,7 +12,7 @@ import Ultra.Logger;
 import Ultra.UI.GUIBuilder;
 import Ultra.Utility.Timer;
 
-import Ultra.Platform.GFX.VKSurface;
+import Ultra.Platform.GFX.VKContext;
 
 #pragma warning(push)
 #pragma warning(disable: 4100)
@@ -22,11 +22,11 @@ namespace Ultra {
 const float FontSize = 16.0f;
 static bool ShowDemoWindow = false;
 
-//static int ImGui_ImplWin32_CreateVkSurface(ImGuiViewport *viewport, ImU64 instance, const void *allocator, ImU64 *surface) {
-//    auto context = Application::GetContext().As<VKContext>();
-//    auto result = (int)!context->CreateSurface(viewport->PlatformHandleRaw, (vk::SurfaceKHR *)surface);
-//    return result;
-//}
+static int ImGui_ImplWin32_CreateVkSurface(ImGuiViewport *viewport, ImU64 instance, const void *allocator, ImU64 *surface) {
+    auto context = Application::GetContext().As<VKContext>();
+    auto result = (int)!context->CreateSurface(viewport->PlatformHandleRaw, (vk::SurfaceKHR *)surface);
+    return result;
+}
 
 GuiLayer::GuiLayer(): Layer("GuiLayer") {}
 GuiLayer::~GuiLayer() {}
@@ -80,68 +80,69 @@ void GuiLayer::Attach() {
 
     if (Context::API == GraphicsAPI::OpenGL) {
         const char *glsl_version = "#version 450";
-        ImGui_ImplWin32_Init(app.GetWindow().GetNativeWindow(), app.GetContext().GetNativeContext());
+        //ImGui_ImplWin32_Init(app.GetWindow().GetNativeWindow(), app.GetContext().GetNativeContext());
+        ImGui_ImplWin32_InitForOpenGL(app.GetWindow().GetNativeWindow(), app.GetContext().GetNativeContext());
         ImGui_ImplOpenGL3_Init(glsl_version);
     }
-    //if (Context::API == GraphicsAPI::Vulkan) {
-    //    // Extend Dear ImGui WinAPI
-    //    ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
-    //    platform_io.Platform_CreateVkSurface = ImGui_ImplWin32_CreateVkSurface;
+    if (Context::API == GraphicsAPI::Vulkan) {
+        // Extend Dear ImGui WinAPI
+        ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
+        platform_io.Platform_CreateVkSurface = ImGui_ImplWin32_CreateVkSurface;
 
-    //    Application &app = Application::Instance();
-    //    auto context = Application::GetContext().As<VKContext>();
-    //    ImGui_ImplWin32_Init(app.GetWindow().GetNativeWindow(), nullptr);
+        Application &app = Application::Instance();
+        auto context = Application::GetContext().As<VKContext>();
+        ImGui_ImplWin32_Init(app.GetWindow().GetNativeWindow());
 
-    //    // Create Descriptor Pool
-    //    // UI Descriptor Pool
-    //    VkDescriptorPool descriptorPool;
-    //    VkDescriptorPoolSize pool_sizes[] = {
-    //        { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
-    //        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
-    //        { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
-    //        { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
-    //        { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-    //        { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-    //        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
-    //        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
-    //        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-    //        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-    //        { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
-    //    };
-    //    VkDescriptorPoolCreateInfo pool_info = {};
-    //    pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    //    pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-    //    pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
-    //    pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
-    //    pool_info.pPoolSizes = pool_sizes;
-    //    VkResult err = vkCreateDescriptorPool(context->GetDevice()->Call(), &pool_info, nullptr, &descriptorPool);
+        // Create Descriptor Pool
+        // UI Descriptor Pool
+        VkDescriptorPool descriptorPool;
+        VkDescriptorPoolSize pool_sizes[] = {
+            { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+            { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+            { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+            { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+        };
+        VkDescriptorPoolCreateInfo pool_info = {};
+        pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+        pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+        pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
+        pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
+        pool_info.pPoolSizes = pool_sizes;
+        VkResult err = vkCreateDescriptorPool(context->GetDevice()->Call(), &pool_info, nullptr, &descriptorPool);
 
-    //    // UI Command Buffer/Pool, Framebuffers, RenderPass
-    //    ImGui_ImplVulkan_InitInfo vkInfo = {};
-    //    vkInfo.Instance = context->GetInstance()->Call();
-    //    vkInfo.PhysicalDevice = context->GetPhyiscalDevice()->Call();
-    //    vkInfo.Device = context->GetDevice()->Call();
-    //    vkInfo.Queue = context->GetDevice()->GetQueue();
-    //    vkInfo.DescriptorPool = descriptorPool;
-    //    vkInfo.MinImageCount = context->GetSwapChain()->GetImageCount();
-    //    vkInfo.ImageCount = context->GetSwapChain()->GetImageCount();
-    //    ImGui_ImplVulkan_Init(&vkInfo, context->GetSwapChain()->GetRenderPass());
+        // UI Command Buffer/Pool, Framebuffers, RenderPass
+        ImGui_ImplVulkan_InitInfo vkInfo = {};
+        vkInfo.Instance = context->GetInstance()->Call();
+        vkInfo.PhysicalDevice = context->GetPhyiscalDevice()->Call();
+        vkInfo.Device = context->GetDevice()->Call();
+        vkInfo.Queue = context->GetDevice()->GetQueue();
+        vkInfo.DescriptorPool = descriptorPool;
+        vkInfo.MinImageCount = context->GetSwapChain()->GetImageCount();
+        vkInfo.ImageCount = context->GetSwapChain()->GetImageCount();
+        ImGui_ImplVulkan_Init(&vkInfo, context->GetSwapChain()->GetRenderPass());
 
-    //    // Upload Fonts
-    //    {
-    //        vk::CommandBuffer commandBuffer =  context->GetDevice()->GetCommandBuffer(true);
-    //        ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-    //        context->GetDevice()->FlushCommandBuffer(commandBuffer);
+        // Upload Fonts
+        {
+            vk::CommandBuffer commandBuffer =  context->GetDevice()->GetCommandBuffer(true);
+            ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
+            context->GetDevice()->FlushCommandBuffer(commandBuffer);
 
-    //        vkDeviceWaitIdle(context->GetDevice()->Call());
-    //        ImGui_ImplVulkan_DestroyFontUploadObjects();
-    //    }
-    // }
+            vkDeviceWaitIdle(context->GetDevice()->Call());
+            ImGui_ImplVulkan_DestroyFontUploadObjects();
+        }
+     }
 }
 
 void GuiLayer::Detach() {
     if (Context::API == GraphicsAPI::OpenGL) ImGui_ImplOpenGL3_Shutdown();
-    //if (Context::API == GraphicsAPI::Vulkan) ImGui_ImplVulkan_Shutdown();
+    if (Context::API == GraphicsAPI::Vulkan) ImGui_ImplVulkan_Shutdown();
 
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
@@ -161,7 +162,7 @@ void GuiLayer::Update(Timestamp deltaTime) {
 void GuiLayer::Prepare() {
 	// Start new 'Dear ImGui' frame
     if (Context::API == GraphicsAPI::OpenGL) ImGui_ImplOpenGL3_NewFrame();
-    //if (Context::API == GraphicsAPI::Vulkan) ImGui_ImplVulkan_NewFrame();
+    if (Context::API == GraphicsAPI::Vulkan) ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
     //ImGuizmo::BeginFrame();
@@ -215,11 +216,11 @@ void GuiLayer::Finish() {
         Application::GetContext().Clear();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
-    //if (Context::API == GraphicsAPI::Vulkan) {
-    //    auto context = Application::GetContext().As<VKContext>();
-    //    auto buffer = context->GetSwapChain()->GetCurrentDrawCommandBuffer();
-    //    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), (VkCommandBuffer)buffer);
-    //}
+    if (Context::API == GraphicsAPI::Vulkan) {
+        auto context = Application::GetContext().As<VKContext>();
+        auto buffer = context->GetSwapChain()->GetCurrentDrawCommandBuffer();
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), (VkCommandBuffer)buffer);
+    }
 
 	// Update and Render additional Platform Windows
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
@@ -253,10 +254,12 @@ void GuiLayer::OnKeyboardEvent(KeyboardEventData &data, const EventListener::Eve
 				case KeyState::Press: {
                     if (data.Key == KeyCode::F1) ShowDemoWindow = !ShowDemoWindow;
                     //io.AddKeyEvent((ImGuiKey)data.Key, true);
-					break;
+                    //io.KeysDown[(ImGuiKey)data.Key] = true;
+                    break;
 				}
 				case KeyState::Release: {
                     //io.AddKeyEvent((ImGuiKey)data.Key, false);
+                    //io.KeysDown[(ImGuiKey)data.Key] = false;
 					break;
 				}
 
@@ -285,10 +288,13 @@ void GuiLayer::OnMouseEvent(MouseEventData &data, const EventListener::EventEmit
 	switch (data.Action) {
 		case MouseAction::Move:	{
             io.AddMousePosEvent(static_cast<float>(data.X), static_cast<float>(data.Y));
+            //io.MousePos = ImVec2(static_cast<float>(data.X), static_cast<float>(data.Y));
         }
 
         case MouseAction::Wheel: {
             io.AddMouseWheelEvent(data.DeltaWheelX, data.DeltaWheelY);
+            //io.MouseWheel += data.DeltaWheelY;
+            //io.MouseWheelH += data.DeltaWheelX;
             break;
         }
 

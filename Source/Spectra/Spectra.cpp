@@ -9,8 +9,7 @@ namespace Ultra {
 class Spectra: public Application {
 public:
     // Constructors and Destructor
-    Spectra(const ApplicationProperties &properties): Application(properties) {
-    };
+    Spectra(const ApplicationProperties &properties): Application(properties) {}
     ~Spectra() = default;
 
     // Methods

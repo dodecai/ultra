@@ -6,9 +6,9 @@ import Ultra.Engine.DesignerCamera;
 import Ultra.Utility.ThreadPool;
 
 // Switches
-//#define ENGINE_TESTS
-#define LIBRARY_TESTS
-//#define MISCELLANESTS
+#define ENGINE_TESTS
+//#define LIBRARY_TESTS
+//#define MISCELLANEOUS_TESTS
 
 namespace Ultra {
 
@@ -102,7 +102,7 @@ class App: public Application {
 
 public:
     // Constructors and Destructor
-    App() = default;
+    App(const ApplicationProperties &properties): Application(properties) {}
     ~App() = default;
 
     // Methods
@@ -207,7 +207,7 @@ public:
         ///
         /// Utilities
         ///
-        logger << LogLevel::Caption << "Utilities\n";
+        logger << LogLevel::Caption << "Utilities" << "\n";
         // DateTime
         logger << "DateTime" << "\n";
         logger << LogLevel::Delimiter;
@@ -231,7 +231,7 @@ public:
             pool.Enqueue([i] {
                 logger << "TaskStart " << i << std::endl;
                 std::this_thread::sleep_for(std::chrono::seconds(1));
-                logger << "TaskEnde " << i << std::endl;
+                logger << "TaskEnd " << i << std::endl;
             });
         }
 
@@ -381,7 +381,7 @@ private:
 
 // Application Entry-Point
 Application *CreateApplication() {
-    return new App();
+    return new App({ "Spectra", "1280x1024", GraphicsAPI::OpenGL });
 }
 
 }

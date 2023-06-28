@@ -1,11 +1,4 @@
-﻿module;
-
-#if __INTELLISENSE__
-    #include "Ultra/Core/Private/Core.h"
-    #include "Ultra/Core/Private/Types.h"
-#endif
-
-export module Ultra.Logger;
+﻿export module Ultra.Logger;
 
 // Extensions
 export import "Private/Logger.h";
@@ -16,7 +9,7 @@ import Ultra.System.Cli;
 import Ultra.Utility.DateTime;
 import Ultra.Utility.String;
 
-// Usings
+// Namespace
 using std::cout;
 using std::source_location;
 using std::wcout;
@@ -29,7 +22,7 @@ enum class LogLevel {
     // Log Levels
     Trace		= 0x1,	// Message (Level 1): Everything that could be interesting in the future.
     Debug		= 0x2,	// Message (Level 2): Debugging messages, which can help at parts, where we are unsure if the code will ever fail.
-    Info		= 0x3,	// Message (Level 3): Information that is maybe usefull for gattering basic system data.
+    Info		= 0x3,	// Message (Level 3): Information that is maybe useful for gathering basic system data.
     Warn		= 0x4,	// Message (Level 4): Has no impact on the application itself but should get sometime fixed.
     Error		= 0x5,  // Message (Level 5): Error messages that have no impact on runtime execution.
     Fatal   	= 0x6,	// Message (Level 6): Critical messages which will break runtime execution.
@@ -51,9 +44,9 @@ inline ostream &operator<<(ostream &os, T type) {
 }
 
 ///
-/// @brief This logger fullfills all your basic needs, and accepts nearly everything you throw at it.
+/// @brief This logger fulfils all your basic needs, and accepts nearly everything you throw at it.
 /// The motivation behind this was an easy to use, but performant logger, you pay for what you use. It's
-/// basically an extension to cout with some gimmics.
+/// basically an extension to cout with some gimmicks.
 /// @type Singleton
 ///
 class Logger {
@@ -71,7 +64,7 @@ class Logger {
     };
 
 public:
-    // Get the global instance to the logger (... and yeah thread-safe since C++11 accodring to researches!)
+    // Get the global instance to the logger (... and yeah thread-safe since C++11 according to researches!)
     static Logger &Instance() {
         static Logger instance;
         return instance;
@@ -107,40 +100,40 @@ public:
                 switch (data) {
                     case LogLevel::Fatal: {
                         //mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::Red << "[ Fatal ] ";
-                        mStream << std::format("{}{} | {}[{: ^7}]: ", Cli::Color::Gray, timestamp, Cli::Color::Red, "Fatal");
+                        mStream << std::format("{}{} {}[{: ^7}] ", Cli::Color::Gray, timestamp, Cli::Color::Red, "Fatal");
                         break;
                     }
                     case LogLevel::Error: {
                         //mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightRed << "[ Error ] ";
-                        mStream << std::format("{}{} | {}[{: ^7}]: ", Cli::Color::Gray, timestamp, Cli::Color::LightRed, "Error");
+                        mStream << std::format("{}{} {}[{: ^7}] ", Cli::Color::Gray, timestamp, Cli::Color::LightRed, "Error");
                         break;
                     }
                     case LogLevel::Warn: {
                         //mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightYellow << "[ Warn  ] ";
-                        mStream << std::format("{}{} | {}[{: ^7}]: ", Cli::Color::Gray, timestamp, Cli::Color::LightYellow, "Warn");
+                        mStream << std::format("{}{} {}[{: ^7}] ", Cli::Color::Gray, timestamp, Cli::Color::LightYellow, "Warn");
                         break;
                     }
                     case LogLevel::Info: {
                         //mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightGray << "[ Info  ] ";
-                        mStream << std::format("{}{} | {}[{: ^7}]: ", Cli::Color::Gray, timestamp, Cli::Color::LightGray, "Warn");
+                        mStream << std::format("{}{} {}[{: ^7}] ", Cli::Color::Gray, timestamp, Cli::Color::LightGray, "Info");
                         break;
                     }
                     case LogLevel::Debug: {
                         //mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightGreen << "[ Debug ] ";
-                        mStream << std::format("{}{} | {}[{: ^7}]: ", Cli::Color::Gray, timestamp, Cli::Color::LightGreen, "Warn");
+                        mStream << std::format("{}{} {}[{: ^7}] ", Cli::Color::Gray, timestamp, Cli::Color::LightGreen, "Debug");
                         break;
                     }
                     case LogLevel::Trace: {
                         //mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightMagenta << "[ Trace ] " ;
-                        mStream << std::format("{}{} | {}[{: ^7}]: ", Cli::Color::Gray, timestamp, Cli::Color::LightMagenta, "Warn");
+                        mStream << std::format("{}{} {}[{: ^7}] ", Cli::Color::Gray, timestamp, Cli::Color::LightMagenta, "Trace");
                         break;
                     }
 
                     case LogLevel::Caption: {
                         constexpr auto seperator = "\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n";
                         mCaptionActive = true;
-                        //mStream << Cli::Color::LightBlue << seperator;
-                        mStream << std::format("\n{}{}\n\t", Cli::Color::LightBlue, seperator);
+                        //mStream << Cli::Color::LightBlue << separator;
+                        mStream << std::format("{}{}  ", Cli::Color::LightBlue, seperator);
                         break;
                     }
                     case LogLevel::Delimiter: {
@@ -286,7 +279,7 @@ inline Logger &logger = Logger::Instance();
 
 ///
 /// @brief  As good as a logger can be, we need something for applications where performance matters. Therefore these function templates are for convenience,
-/// they will help removing unaccessary code in release and distribution builds, therefore they also override the log levels.
+/// they will help removing unnecessary code in release and distribution builds, therefore they also override the log levels.
 ///
 
 template<typename ...Args> void Log(Args &&...args)         { logger << LogLevel::Default; (logger << ... << args); logger << "\n"; }

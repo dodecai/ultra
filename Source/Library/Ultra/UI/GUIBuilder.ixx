@@ -1,9 +1,6 @@
 ﻿module;
 
 #include "Ultra/Core/Private/Core.h"
-#if __INTELLISENSE__
-    #include "Ultra/Core/Private/Logger.h"
-#endif
 
 ///
 /// @brief This module contains the needed backends from DearImGui
@@ -17,7 +14,7 @@ import Ultra.Core;
 
 // Graphics Backends
 export import <imgui/backends/imgui_impl_opengl3.h>;
-//export import <imgui/backends/imgui_impl_vulkan-patch.h>;
+export import <imgui/backends/imgui_impl_vulkan.h>;
 
 // System Backends
 #ifdef APP_PLATFORM_WINDOWS

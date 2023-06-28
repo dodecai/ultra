@@ -1,11 +1,4 @@
-﻿module;
-
-#if __INTELLISENSE__
-    #include "Ultra/Core/Private/Core.h"
-    #include "Ultra/Core/Private/Logger.h"
-#endif
-
-export module Ultra.Core.Application;
+﻿export module Ultra.Core.Application;
 
 import Ultra.Core;
 import Ultra.Core.Layer;
@@ -38,6 +31,7 @@ struct ApplicationProperties {
     ApplicationProperties(): Title("Ultra"), Resolution("800x600") { CalculateResolution(); }
     ApplicationProperties(string title, string resolution): Title(title), Resolution(resolution) { CalculateResolution(); }
     ApplicationProperties(string title, string resolution, Ultra::LogLevel level): Title(title), Resolution(resolution), LogLevel(level) { CalculateResolution(); }
+    ApplicationProperties(string title, string resolution, Ultra::GraphicsAPI api): Title(title), Resolution(resolution), GfxApi(api) { CalculateResolution(); }
 
     // Properties
     string Title;
@@ -102,16 +96,14 @@ public:
     void Run() {
         // Initialization
         logger << LogLevel::Caption << AsciiLogo() << "\n";
-        auto test = apptime.GetTime();
-        logger << mProperties.Title << " started ...\n" <<
-            "  on : '" << apptime.GetDate() << "'\n" <<
-            "  at : '" << apptime.GetTime() << "'\n";
+        logger("{} started ...\n  on : '{}'\n  at: '{}'\n", mProperties.Title, apptime.GetDate(), apptime.GetTime());
         logger << LogLevel::Caption << "Initialization" << "\n";
 
         // Load Configuration
         //mConfig = CreateReference<Config>();
 
         // Load Window, Context and Events
+        mDialog = Dialog::Create();
         // ToDo: Cannot be called outside this library, which doesn't make sense yet at all...
         mWindow = Window::Create(WindowProperties(mProperties.Title, mProperties.Width, mProperties.Height));
         mListener = EventListener::Create();
@@ -120,7 +112,7 @@ public:
         mListener->Emitter.on<MouseEventData>([&]( auto &data, const auto &emitter) { OnMouseEvent(data, emitter); });
         mListener->Emitter.on<WindowEventData>([&]( auto &data, const auto &emitter) { OnWindowEvent(data, emitter); });
 
-        LogDebug("[Application] ", "Created window '", mProperties.Title, "' with size '", mProperties.Width, "x", mProperties.Height, "'.");
+        LogDebug("{}: Created window '{}' with size '{}x{}'.", "Ultra::Application:", mProperties.Title, mProperties.Width, mProperties.Height);
 
         Context::API = mProperties.GfxApi;
         mContext = Context::Create(mWindow->GetNativeWindow());
@@ -131,8 +123,8 @@ public:
         mContext->Clear();
 
         // Load Core Layer
-        //pCoreLayer = new GuiLayer();
-        //PushOverlay(pCoreLayer);
+        pCoreLayer = new GuiLayer();
+        PushOverlay(pCoreLayer);
 
         // Runtime Properties
         string title(64, ' ');
@@ -188,16 +180,16 @@ public:
         logger << LogLevel::Caption << "Termination" << "\n";
         for (Layer *layer : mLayers) layer->Destroy();
         Destroy();
-        logger << mProperties.Title << " finished ...\n" <<
-            "  on : '" << apptime.GetDate() << "'\n" <<
-            "  at : '" << apptime.GetTime() << "'\n";
+        logger("{} finished ...\n  on : '{}'\n  at: '{}'\n", mProperties.Title, apptime.GetDate(), apptime.GetTime());
     }
 
     // Accessors
-    virtual string AsciiLogo() { return mProperties.Title; };
     static ApplicationProperties &GetProperties() { return Instance().mProperties; }
+    virtual string AsciiLogo() { return mProperties.Title; };
+    //static Config &GetConfig() { return *Instance().mConfig; }
     static Context &GetContext() { return *Instance().mContext; }
     static Dialog &GetDialog() { return *Instance().mDialog; };
+    static Statistics GetStatistics() { return Instance().mStatistics; }
     static Window &GetWindow() { return *Instance().mWindow; };
 
     ///
@@ -229,11 +221,28 @@ public:
 
 protected:
     // Attention: This method is used reload/switch the graphics context.
-    static void Reload() {}
+    static void Reload() {
+        auto &context = Instance().mContext;
+        auto &layers = Instance().mLayers;
+        auto &reloaded = Instance().mReloaded;
+
+        reloaded = true;
+        Instance().mProperties.GfxApi = Context::API;
+
+        context = Context::Create(GetWindow().GetNativeWindow());
+        context->Attach();
+        context->Load();
+
+        auto &[width, height] = GetWindow().GetContexttSize();
+        context->SetViewport(width, height);
+
+        for (auto *layer : layers) layer->Detach();
+        for (auto *layer : layers) layer->Attach();
+    }
 
     // Events
     virtual void OnControllerEvent(ControllerEventData &data, const EventListener::EventEmitter &emitter) {
-        for (Layer *layer : mLayers) {
+        for (auto layer : mLayers) {
             if (data.Handled) break;
             layer->OnControllerEvent(data, emitter);
         }
@@ -247,26 +256,53 @@ protected:
     }
     
     virtual void OnMouseEvent(MouseEventData &data, const EventListener::EventEmitter &emitter) {
-        for (Layer *layer : mLayers) {
+        for (auto layer : mLayers) {
             if (data.Handled) break;
             layer->OnMouseEvent(data, emitter);
         }
     }
     
     virtual void OnTouchEvent(TouchEventData &data, const EventListener::EventEmitter &emitter) {
-        for (Layer *layer : mLayers) {
+        for (auto layer : mLayers) {
             if (data.Handled) break;
             layer->OnTouchEvent(data, emitter);
         }
     }
 
     virtual void OnWindowEvent(WindowEventData &data, const EventListener::EventEmitter &emitter) {
-        if (data.Action == WindowAction::Destroy) { 
-            Exit();
-        }
-        for (Layer *layer : mLayers) {
+        for (auto layer : mLayers) {
             if (data.Handled) break;
             layer->OnWindowEvent(data, emitter);
+        }
+        
+        switch (data.Action) {
+            case WindowAction::Destroy: {
+                Exit();
+                break;
+            }
+
+            case WindowAction::Resize: {
+                mContext->SetViewport(mWindow->GetContexttSize().Width, mWindow->GetContexttSize().Height);
+                break;
+            }
+
+            default: {
+                break;
+            }
+        }
+    }
+
+    virtual void OnDeviceEvent(DeviceEventData &data, const EventListener::EventEmitter &emitter) {
+        for (auto layer : mLayers) {
+            if (data.Handled) break;
+            layer->OnDeviceEvent(data, emitter);
+        }
+    }
+
+    virtual void OnPowerEvent(PowerEventData &data, const EventListener::EventEmitter &emitter) {
+        for (auto layer : mLayers) {
+            if (data.Handled) break;
+            layer->OnPowerEvent(data, emitter);
         }
     }
 

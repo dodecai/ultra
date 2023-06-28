@@ -14,7 +14,7 @@
 
 // Graphics Backends
 #include <imgui/backends/imgui_impl_opengl3.cpp>
-//#include <imgui/backends/imgui_impl_vulkan-patch.cpp>
+#include <imgui/backends/imgui_impl_vulkan.cpp>
 
 // System Backends
 #ifdef APP_PLATFORM_WINDOWS

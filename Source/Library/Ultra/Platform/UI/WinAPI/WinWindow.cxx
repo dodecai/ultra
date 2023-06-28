@@ -636,14 +636,14 @@ void WinWindow::SetProperties(const WindowProperties &properties) {
 
 void WinWindow::SetCursorPosition(const int32_t x, const int32_t y) {
 	if (!SetCursorPos(x, y)) {
-		LogError("[WinAPI::Window]: Error occured while setting cursor position!");
+		LogError("[WinAPI::Window]: Error occurred while setting cursor position!");
 		return;
 	}
 }
 
 void WinWindow::SetDisplayPosition(const int32_t x, const int32_t y) {
 	if (!SetWindowPos(WindowHandle, 0, (int)x, (int)y, 0, 0, SWP_NOSIZE | SWP_NOZORDER)) {
-		LogError("[WinAPI::Window]: Error occured while setting display position!");
+		LogError("[WinAPI::Window]: Error occurred while setting display position!");
 		return;
 	}
 	Properties.Position.X = x;
@@ -662,7 +662,7 @@ void WinWindow::SetDisplaySize(const uint32_t width, const uint32_t height) {
 
 	AdjustWindowRectEx(&dimension, NULL, FALSE, NULL);
 	if (!SetWindowPos(WindowHandle, 0, dimension.left, dimension.top, dimension.right, dimension.bottom, SWP_NOREPOSITION | SWP_NOZORDER)) {
-		LogError("[WinAPI::Window]: Error occured while setting display size!");
+		LogError("[WinAPI::Window]: Error occurred while setting display size!");
 		return;
 	}
 	Properties.Size.Width = width;
@@ -678,7 +678,7 @@ void WinWindow::SetProgress(const float progress) {
 
 void WinWindow::SetTitle(const string_view title) {
 	if (!SetWindowText(WindowHandle, ConvertChar2WChar(title.data()).c_str())) {
-		LogError("[WinAPI::Window]: Error occured while setting title!");
+		LogError("[WinAPI::Window]: Error occurred while setting title!");
 		return;
 	}
 	Properties.Title = title;

@@ -1,9 +1,6 @@
 ﻿module;
 
 #include "Ultra/Core/Private/Core.h"
-#if __INTELLISENSE__
-    #include "Ultra/Core/Private/Logger.h"
-#endif
 
 module Ultra.GFX.Context;
 
@@ -14,7 +11,7 @@ import Ultra.Logger;
     import Ultra.Platform.GFX.DXContext;
     import Ultra.Platform.GFX.GLContext;
     import Ultra.Platform.GFX.SWContext;
-    import Ultra.Platform.GFX.VKSurface;
+    import Ultra.Platform.GFX.VKContext;
 #endif
 
 namespace Ultra {
@@ -23,12 +20,12 @@ Reference<Context> Context::Create(void *window) {
 #ifdef APP_PLATFORM_WINDOWS
     switch (API) {
         case GraphicsAPI::OpenGL: {
-            LogDebug("[Application] ", "Created context for 'OpenGL'");
+            LogDebug("Application: Created context for 'OpenGL'");
             return CreateReference<GLContext>(window);
         }
 
         case GraphicsAPI::Vulkan: {
-            LogDebug("[Application] ", "Created context for 'Vulkan'");
+            LogDebug("Application: Created context for 'Vulkan'");
             return CreateReference<VKContext>(window);
         }
 

@@ -4,7 +4,7 @@ import Ultra.Core;
 import Ultra.Math;
 import Ultra.Engine.Camera;
 
-namespace Ultra {
+export namespace Ultra {
 
 class SceneCamera: public Camera {
 public:

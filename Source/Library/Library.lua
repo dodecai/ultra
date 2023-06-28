@@ -31,7 +31,7 @@
     includedirs {
 	    "%{Headers.Library}",
     }
-    links { 
+    links {
         --"assimp",
         "DearImGui",
         "Glad",

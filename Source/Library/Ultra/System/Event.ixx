@@ -7,20 +7,6 @@ export import Ultra.Core.Event.Data;
 
 export namespace Ultra {
 
-
-//// System Events
-//Utility::Subject<bool, DeviceEventData &> DeviceEvent;
-//Utility::Subject<bool, PowerEventData &> PowerEvent;
-
-//// Applicaiton Events
-//Utility::Subject<bool, WindowEventData &> WindowEvent;
-//Utility::Subject<bool, ContextEventData &> ContextEvent;
-
-//// User Events
-//Utility::Subject<bool, ControllerEventData &> ControllerEvent;
-//Utility::Subject<bool, KeyboardEventData &> KeyboardEvent;
-//Utility::Subject<bool, MouseEventData &> MouseEvent;
-//Utility::Subject<bool, TouchEventData &> TouchEvent;
 class EventListener {
 public:
     // Default

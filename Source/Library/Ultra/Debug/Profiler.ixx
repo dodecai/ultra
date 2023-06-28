@@ -15,10 +15,12 @@ import Ultra.Logger;
 
 ///
 /// @brief: Profile your code and generate tracing data for chrome based browsers (URL: chrome://tracing/)
-/// 
+///
 /// Example:
-/// PROFILE_SCOPE("TestLayer2D::Update");
+/// PROFILE_SCOPE("Engine::Renderer::Prepare");
+/// PROFILE_SCOPE("Engine::Renderer::Draw");
 /// ...
+/// ProfileResults results;
 /// ImGui::Begin("Statistics");
 /// for (auto &result : ProfilerResults) {
 /// 	char label[64];
@@ -27,7 +29,7 @@ import Ultra.Logger;
 /// 	ImGui::Text(label, result.Time);
 /// }
 /// ProfilerResults.clear();
-/// 
+///
 
 export namespace Ultra {
 
@@ -136,14 +138,9 @@ private:
 };
 
 class Timer {
-    const char *m_Name;
-    std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint;
-    bool m_Stopped;
-
 public:
-    Timer(const char *name):
-        m_Name(name), m_Stopped(false) {
-        m_StartTimepoint = std::chrono::steady_clock::now();
+    Timer(const char *name): m_Name(name), m_Stopped(false) {
+        mStartTimestamp = std::chrono::steady_clock::now();
     }
 
     ~Timer() {
@@ -152,13 +149,19 @@ public:
 
     void Stop() {
         auto endTimepoint = std::chrono::steady_clock::now();
-        auto highResStart = TimeStep { m_StartTimepoint.time_since_epoch() };
-        auto elapsedTime = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch() - std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch();
+        auto highResStart = TimeStep { mStartTimestamp.time_since_epoch() };
+        auto elapsedTime = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch() - std::chrono::time_point_cast<std::chrono::microseconds>(mStartTimestamp).time_since_epoch();
 
         Instrumentor::Get().WriteProfile({ m_Name, std::this_thread::get_id(), highResStart, elapsedTime });
 
         m_Stopped = true;
     }
+
+private:
+    const char *m_Name;
+    std::chrono::time_point<std::chrono::steady_clock> mStartTimestamp;
+    bool m_Stopped;
+
 };
 
 namespace Utilities {
@@ -195,6 +198,8 @@ constexpr auto CleanupOutputString(const char(&expr)[N], const char(&remove)[K])
 ///
 /// @brief: Internal scoped timer
 ///
+//#define PROFILE_SCOPE(name) ScopedTimer timer##__LINE__(name, [&](ProfileResult result) { ProfileResults.push_back(result); })
+
 export namespace Ultra {
 
 struct ProfilerResult {
