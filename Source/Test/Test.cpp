@@ -197,18 +197,25 @@ public:
     /// @brief Library Tests
     ///
     void LibraryTest() {
+        ///
+        /// Core
+        ///
+        logger << LogLevel::Caption << "Core Library" << "\n";
+        // Logger
+        logger.Test();
 
+        ///
+        /// Utilities
+        ///
+        logger << LogLevel::Caption << "Utilities\n";
         // DateTime
         logger << "DateTime" << "\n";
-        logger << "CurrentDate: " << apptime.GetDate() << "\n";
-        logger << "CurrentTime: " << apptime.GetTime() << "\n";
-        logger << "CurrentTimestamp: " << apptime.GetTimeStamp() << "\n";
-        logger << "CurrentRuntime: " << apptime.GetRuntime() << "\n";
-        //for (size_t i = 0; i < 10'000'000; i++) {
-        //    auto test = new string("");
-        //    delete test;
-        //}
-        logger << "CurrentRuntime: " << apptime.GetRuntime() << "\n";
+        logger << LogLevel::Delimiter;
+        logger(" - CurrentDate:      {}\n", apptime.GetDate());
+        logger(" - CurrentTime:      {}\n", apptime.GetTime());
+        logger(" - CurrentTimestamp: {}\n", apptime.GetTimeStamp());
+        logger(" - CurrentRuntime:   {}\n", apptime.GetRuntime());
+        logger << LogLevel::Delimiter;
 
         // Logger
         logger << LogLevel::Trace << "Hello World! 🦄" << "\n";

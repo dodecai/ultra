@@ -106,33 +106,41 @@ public:
                 auto timestamp = apptime.GetTimeStamp();
                 switch (data) {
                     case LogLevel::Fatal: {
-                        mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::Red << "[ Fatal ] ";
+                        //mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::Red << "[ Fatal ] ";
+                        mStream << std::format("{}{} | {}[{: ^7}]: ", Cli::Color::Gray, timestamp, Cli::Color::Red, "Fatal");
                         break;
                     }
                     case LogLevel::Error: {
-                        mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightRed << "[ Error ] ";
+                        //mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightRed << "[ Error ] ";
+                        mStream << std::format("{}{} | {}[{: ^7}]: ", Cli::Color::Gray, timestamp, Cli::Color::LightRed, "Error");
                         break;
                     }
                     case LogLevel::Warn: {
-                        mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightYellow << "[ Warn  ] ";
+                        //mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightYellow << "[ Warn  ] ";
+                        mStream << std::format("{}{} | {}[{: ^7}]: ", Cli::Color::Gray, timestamp, Cli::Color::LightYellow, "Warn");
                         break;
                     }
                     case LogLevel::Info: {
-                        mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightGray << "[ Info  ] ";
+                        //mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightGray << "[ Info  ] ";
+                        mStream << std::format("{}{} | {}[{: ^7}]: ", Cli::Color::Gray, timestamp, Cli::Color::LightGray, "Warn");
                         break;
                     }
                     case LogLevel::Debug: {
-                        mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightGreen << "[ Debug ] ";
+                        //mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightGreen << "[ Debug ] ";
+                        mStream << std::format("{}{} | {}[{: ^7}]: ", Cli::Color::Gray, timestamp, Cli::Color::LightGreen, "Warn");
                         break;
                     }
                     case LogLevel::Trace: {
-                        mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightMagenta << "[ Trace ] " ;
+                        //mStream << Cli::Color::Gray << timestamp << " | " << Cli::Color::LightMagenta << "[ Trace ] " ;
+                        mStream << std::format("{}{} | {}[{: ^7}]: ", Cli::Color::Gray, timestamp, Cli::Color::LightMagenta, "Warn");
                         break;
                     }
 
                     case LogLevel::Caption: {
+                        constexpr auto seperator = "\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n";
                         mCaptionActive = true;
-                        mStream << Cli::Color::LightBlue << "\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n";
+                        //mStream << Cli::Color::LightBlue << seperator;
+                        mStream << std::format("\n{}{}\n\t", Cli::Color::LightBlue, seperator);
                         break;
                     }
                     case LogLevel::Delimiter: {
@@ -210,19 +218,19 @@ public:
         }
     }
 
-    // Show whe what you got...
+    // Show me what you got...
     static void Test() {
         // LogLevels
-        Logger::Instance() << LogLevel::Caption << "Caption" << "\n";
-        Logger::Instance() << LogLevel::Default << "Default" << "\n";
-        Logger::Instance() << LogLevel::Delimiter;
+        Logger::Instance() << LogLevel::Caption << "Logger" << "\n";
+        Logger::Instance() << LogLevel::Default << "LogLevels" << "\n";
         Logger::Instance() << LogLevel::Fatal   << "Fatal" << "\n";
         Logger::Instance() << LogLevel::Error   << "Error" << "\n";
         Logger::Instance() << LogLevel::Warn    << "Warn" << "\n";
         Logger::Instance() << LogLevel::Info    << "Info" << "\n";
         Logger::Instance() << LogLevel::Debug   << "Debug" << "\n";
         Logger::Instance() << LogLevel::Trace   << "Trace" << "\n";
-        Logger::Instance() << LogLevel::Delimiter;
+        Logger::Instance() << LogLevel::Default << "Default" << "\n";
+        Logger::Instance() << "\n";
 
         // Multi-Color
         Logger::Instance()  << LogLevel::Default << "This "
@@ -261,6 +269,7 @@ public:
 
 private:
     // Properties
+    string mFormat = "{}{} | [{}] | {}: {}";         // {Color}Timestamp |{Color}[LogLevel]: {Color}Message
     LogLevel mLogLevel = LogLevel::Trace;
     string mLocation;
     ostream &mStream = cout;

@@ -2,6 +2,7 @@
 export module Ultra.System.Cli;
 
 // Default
+import <format>;
 import <fstream>;
 import <iomanip>;
 import <iostream>;
@@ -167,3 +168,14 @@ void Test() {
 }
 
 }}
+
+template <>
+struct std::formatter<Ultra::Cli::Color> {
+    constexpr auto parse(std::format_parse_context &ctx) {
+        return ctx.begin();
+    }
+
+    auto format(const Ultra::Cli::Color &color, std::format_context &ctx) {
+        return std::format_to(ctx.out(), "\x1b[{:d}m", static_cast<int>(color));
+    }
+};
