@@ -1,18 +1,18 @@
 ﻿solutionitems {
-    ["Assets/**"] = {
---        ["Fonts"] = {
---            ["Roboto"] = {
---                "Assets/Fonts/Roboto/*",
---            },
---        },
---        ["Meshes"] = {
---            ["Cube"] = {
---                "Assets/Meshes/Cube/*",
---            },
---        },
---        ["Shaders"] = {
---            "Assets/Shaders/*",
---        },
+    ["Assets"] = {
+        ["Fonts"] = {
+            ["Roboto"] = {
+                "Assets/Fonts/Roboto/*",
+            },
+        },
+        ["Meshes"] = {
+            ["Cube"] = {
+                "Assets/Meshes/Cube/*",
+            },
+        },
+        ["Shaders"] = {
+            "Assets/Shaders/*",
+        },
     },
     ["Build"] = {
         ["Projects"] = {
