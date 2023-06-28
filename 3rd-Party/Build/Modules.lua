@@ -7,74 +7,46 @@ premake.api.register {
 	kind = "table",
 }
 
-function DetectSolutionItems(wks, items)
-	for name, files in pairs(items) do
-		if type(name) ~= "number" then
-			local children = false
-
-			premake.push('Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "'..name..'", "'..name..'", "{' .. os.uuid("Solution Items:"..wks.name..":"..name) .. '}"')
-			premake.push("ProjectSection(SolutionItems) = preProject")
-            
-			for _, file in pairs(files) do
-				if type(_) == "number" and type(file) == "string"  then
-					for _, file in ipairs(os.matchfiles(file)) do
-						file = path.rebase(file, ".", wks.location)
-						premake.w(file.." = "..file)
-					end
-                else
-					children = true
-                    print(string.format("%s: %s", name, files))
-				end
-			end
-
-			premake.pop("EndProjectSection")
-			premake.pop("EndProject")
-
-			if children then
-				DetectSolutionItems(wks, files)
-			end
-        else
-		end
-	end
-end
-
-function DetectNestedSolutionItems(wks, parent, items)
-    local parent_uuid
-    if parent == "Solution Items" then
-        parent_uuid = os.uuid("Solution Items:"..wks.name)
-    else
-        parent_uuid = os.uuid("Solution Items:"..wks.name..":"..parent)
-    end
-    
-	for name, file in pairs(items) do
-		if type(name) ~= "number" then
-			project_uuid = os.uuid("Solution Items:"..wks.name..":"..name)
-			premake.w("{%s} = {%s}", project_uuid, parent_uuid)
-			DetectNestedSolutionItems(wks, name, file)
-		end
-	end
-end
-
 premake.override(premake.vstudio.sln2005, "projects", function(base, wks)
-	if wks.solutionitems and #wks.solutionitems > 0 then
-		premake.push('Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{' .. os.uuid("Solution:"..wks.name) .. '}"')
-		premake.push("ProjectSection(SolutionItems) = preProject")
+    if wks.solutionitems and #wks.solutionitems > 0 then
+        local function GetSolutionItems(wks, items, root)
+			premake.push('Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "'..root..'", "'..root..'", "{' .. os.uuid("Solution:"..wks.name..":"..root) .. '}"')
+	        premake.push("ProjectSection(SolutionItems) = preProject")
 
-		for _, file in pairs(wks.solutionitems) do
-        
-			if type(_) == "number" and type(file) == "string" then
-                -- Root
-				for _, file in ipairs(os.matchfiles(file)) do
-					file = path.rebase(file, ".", wks.location)
-					premake.w(file.." = "..file)
+            local directories = {}
+            for key, value in pairs(items) do
+                if type(value) == "table" then
+                    if string.find(key, "*") then
+                        local root = key:gsub("[%*/]", "")
+                        --table.insert(directories, root)
+                        for _, name in pairs(os.matchdirs(key)) do
+                            print(name)
+                            --table.insert(directories[root], name)
+                        end
+                    else
+                        table.insert(directories, key)
+                    end
+		        elseif type(value) == "string" then
+                    for _, name in ipairs(os.matchfiles(value)) do
+				        name = path.rebase(name, ".", wks.location)
+				        premake.w(name.." = "..name)
+			        end
+		        end
+	        end
+            
+	        premake.pop("EndProjectSection")
+	        premake.pop("EndProject")
+
+            if directories ~= "" then
+				for _, name in ipairs(directories) do
+					GetSolutionItems(wks, items[name], name)
 				end
-			end
-		end
-		premake.pop("EndProjectSection")
-		premake.pop("EndProject")
+            end
+        end
+
+        GetSolutionItems(wks, wks.solutionitems, "Solution")
+    end
 		
-		DetectSolutionItems(wks, wks.solutionitems)
-	end
 	base(wks)
 end)
 
@@ -90,9 +62,22 @@ premake.override(premake.vstudio.sln2005, "nestedProjects", function(base, wks)
 			end
 		})
 	end
-	
-    parent = "Solution Items"
-	DetectNestedSolutionItems(wks, parent, wks.solutionitems)
+
+    local function GetNestaedSolutionItems(wks, items, parent)
+        local parent_uuid = os.uuid("Solution:"..wks.name..":"..parent)
+
+	    for key, value in pairs(items) do
+		    if type(value) == "table" then
+                if parent ~= "Solution" then
+			        project_uuid = os.uuid("Solution:"..wks.name..":"..key)
+			        premake.w("{%s} = {%s}", project_uuid, parent_uuid)
+                end
+			    GetNestaedSolutionItems(wks, value, key)
+	        end
+        end
+    end
+    
+	GetNestaedSolutionItems(wks, wks.solutionitems, "Solution")
 	premake.pop("EndGlobalSection")
 end)
 

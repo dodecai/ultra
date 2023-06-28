@@ -8,7 +8,7 @@ import Ultra.Utility.ThreadPool;
 // Switches
 //#define ENGINE_TESTS
 #define LIBRARY_TESTS
-//#define MISCELLANEOUS_TESTS
+//#define MISCELLANESTS
 
 namespace Ultra {
 
