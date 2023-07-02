@@ -1,10 +1,13 @@
 ﻿module;
 
 #include <glm/glm.hpp>
+#include <vulkan/vulkan.hpp>
 
 module Ultra.Platform.Renderer.VKShader;
 
 import Ultra.Engine.Utility.ShaderCompiler;
+import Ultra.Platform.GFX.VKContext;
+import Ultra.System.FileSystem;
 
 #pragma warning(push)
 #pragma warning(disable: 4100)
@@ -21,8 +24,28 @@ VKShader::~VKShader() {}
 
 
 void VKShader::Compile(ShaderList shaders) {
-    for (auto shader : shaders) {
-        auto result = ShaderCompiler::Compile(mShaderName, (ShaderType)shader.first, shader.second);
+    for (auto &[stage, code] : shaders) {
+        vector<uint32_t> shader {};
+
+        auto cache = "./Data/Cache/Shaders/" + mShaderName + "." + ShaderTypeToString((ShaderType)stage) + ".spirv";
+        if (FileSystemObjectExists(cache)) {
+            shader = ReadFileBinary(cache);
+        } else {
+            shader = ShaderCompiler::Compile(mShaderName, (ShaderType)stage, code);
+
+            // Cache Shader
+            if (!shader.empty()) {
+                WriteFile(cache, shader);
+            }
+        }
+
+        //vk::ShaderModuleCreateInfo createInfo{};
+        //createInfo.flags = vk::ShaderModuleCreateFlags(),
+        //createInfo.codeSize = shader.size();
+        //cretaeInfo.pCode = reinterpret_cast<uint32_t*>(code.data())
+
+        //vk::ShaderModule module;
+        //mDevice.CreateShaderModule(createInfo, module);
     }
 }
 

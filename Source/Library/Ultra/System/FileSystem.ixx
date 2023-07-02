@@ -73,6 +73,28 @@ std::string ReadFile(const std::string &file) {
     return result;
 }
 
+// Read data from file system object.
+vector<uint32_t> ReadFileBinary(const std::string &file) {
+    vector<uint32_t> result;
+    std::ifstream stream(file, std::ios::in | std::ios::binary); // ate?
+    // if is_open file in use
+    if (stream) {
+        stream.seekg(0, std::ios::end);
+        size_t size = stream.tellg();
+        if (size != -1) {
+            result.resize(size / sizeof(uint32_t));
+            stream.seekg(0, std::ios::beg);
+            stream.read((char *)result.data(), size);
+            stream.close();
+        } else {
+            // Error while reading file
+        }
+    } else {
+        // Error while open file
+    }
+    return result;
+}
+
 // Test: Read data from file system object´.
 //std::string ReadFile2(const std::string &object) {
 //    static std::ifstream FileStream;

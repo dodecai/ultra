@@ -71,6 +71,7 @@ public:
 private:
     // Helpers
     void CreateImageViews();
+    void CreateGraphicsPipeline();
     void CreateRenderPass();
     void CreateFrameBuffer();
     void CreateCommandBuffers();

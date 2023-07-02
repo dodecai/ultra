@@ -108,7 +108,7 @@ public:
     // Methods
     void Create() {
         #ifdef ENGINE_TESTS
-            mRenderer = Renderer::Create(RenderAPI::OpenGL);  // Set the desired rendering API (OpenGL, DirectX, Vulkan, etc)
+            mRenderer = Renderer::Create(RenderAPI::Vulkan);  // Set the desired rendering API (OpenGL, DirectX, Vulkan, etc)
             auto swapchain = Swapchain::Create(nullptr, 1280, 720);
 
             auto aspectRatio = 800.0f / 600.0f;
@@ -118,6 +118,7 @@ public:
             mCheckerBoard = Texture::Create(TextureProperties(), "./Assets/Textures/CheckerBoard.png");
 
             // Load shaders, buffers, textures
+            auto linkedShaders = Shader::Create("Assets/Shaders/Test.glsl");
             //auto linkedShaders = Shader::Create("Assets/Shaders/Sample.glsl");
             //auto vertexBuffer = Buffer::Create(BufferType::VertexBuffer, vertices, vertexCount);
             //auto indexBuffer = Buffer::Create(BufferType::IndexBuffer, indices, indexCount);
@@ -381,7 +382,7 @@ private:
 
 // Application Entry-Point
 Application *CreateApplication() {
-    return new App({ "Spectra", "1280x1024", GraphicsAPI::OpenGL });
+    return new App({ "Spectra", "1280x1024", GraphicsAPI::Vulkan });
 }
 
 }

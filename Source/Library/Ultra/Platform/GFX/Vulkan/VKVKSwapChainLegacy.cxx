@@ -107,6 +107,7 @@ void VKSwapChainLegacy::Create(uint32_t width, uint32_t height, bool synchronize
 
     CreateImageViews();
     CreateRenderPass();
+    CreateGraphicsPipeline();
     CreateFrameBuffer();
     CreateCommandBuffers();
 
@@ -319,6 +320,165 @@ void VKSwapChainLegacy::CreateImageViews() {
     viewCreateInfo.subresourceRange.baseArrayLayer = 0;
     viewCreateInfo.subresourceRange.layerCount = 1;
     mDepthStencilBuffer.View = mDevice->Call().createImageView(viewCreateInfo);
+}
+
+void VKSwapChainLegacy::CreateGraphicsPipeline() {
+    // Shader Modules
+    auto vertexShader = ReadFileBinary("./Data/Cache/Shaders/Test.vertex.spirv");
+    vk::ShaderModuleCreateInfo vertexCreateInfo {};
+    vertexCreateInfo.codeSize = vertexShader.size() * sizeof(uint32_t);
+    vertexCreateInfo.pCode = reinterpret_cast<const uint32_t *>(vertexShader.data());
+
+    vk::ShaderModule vertexModule;
+    mDevice->Call().createShaderModule(&vertexCreateInfo, nullptr, &vertexModule);
+
+    auto fragmentShader = ReadFileBinary("./Data/Cache/Shaders/Test.fragment.spirv");
+    vk::ShaderModuleCreateInfo fragmentCreateInfo {};
+    fragmentCreateInfo.codeSize = fragmentShader.size() * sizeof(uint32_t);
+    fragmentCreateInfo.pCode = reinterpret_cast<const uint32_t *>(fragmentShader.data());
+
+    vk::ShaderModule fragmentModule;
+    mDevice->Call().createShaderModule(&fragmentCreateInfo, nullptr, &fragmentModule);
+
+    // Shader Stage
+    vk::PipelineShaderStageCreateInfo vertexShaderStageCreateInfo {};
+    vertexShaderStageCreateInfo.module = vertexModule;
+    vertexShaderStageCreateInfo.pName = "main";
+    vertexShaderStageCreateInfo.stage = vk::ShaderStageFlagBits::eVertex;
+
+    vk::PipelineShaderStageCreateInfo fragmentShaderStageCreateInfo {};
+    fragmentShaderStageCreateInfo.module = fragmentModule;
+    fragmentShaderStageCreateInfo.pName = "main";
+    fragmentShaderStageCreateInfo.stage = vk::ShaderStageFlagBits::eFragment;
+
+    vector<vk::PipelineShaderStageCreateInfo> shaderStages { vertexShaderStageCreateInfo, fragmentShaderStageCreateInfo };
+
+    // Fixed Functions
+    vector<vk::DynamicState> dynamicStates {
+        vk::DynamicState::eScissor,
+        vk::DynamicState::eViewport,
+    };
+
+    vk::PipelineDynamicStateCreateInfo dynamicState {
+        {},
+        static_cast<uint32_t>(dynamicStates.size()),
+        dynamicStates.data()
+    };
+
+    // Vertex Input
+    vk::PipelineVertexInputStateCreateInfo vertexInputInfo {};
+    vertexInputInfo.vertexBindingDescriptionCount = 0;
+    vertexInputInfo.pVertexBindingDescriptions = nullptr;
+    vertexInputInfo.vertexAttributeDescriptionCount = 0;
+    vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+
+    // Input Assembly
+    vk::PipelineInputAssemblyStateCreateInfo inputAssembly {};
+    inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
+    inputAssembly.primitiveRestartEnable = false;
+
+    // Viewports and Scissors
+    mSurfaceProperties.Viewport.maxDepth = 1.0f;
+    mSurfaceProperties.Viewport.minDepth = 0.0f;
+    mSurfaceProperties.Viewport.height = (float)mSurfaceProperties.Size.height;
+    mSurfaceProperties.Viewport.width = (float)mSurfaceProperties.Size.width;
+    mSurfaceProperties.Viewport.x = 0.0f;
+    mSurfaceProperties.Viewport.y = 0.0f;
+
+    mSurfaceProperties.RenderArea.extent = mSurfaceProperties.Size;
+    mSurfaceProperties.RenderArea.offset = vk::Offset2D { 0, 0 };
+
+    vk::PipelineViewportStateCreateInfo viewportState {};
+    viewportState.viewportCount = 1;
+    viewportState.pViewports = &mSurfaceProperties.Viewport;
+    viewportState.scissorCount = 1;
+    viewportState.pScissors = &mSurfaceProperties.RenderArea;
+
+    // Rasterizer
+    vk::PipelineRasterizationStateCreateInfo rasterizer {};
+    rasterizer.depthClampEnable = false;
+    rasterizer.rasterizerDiscardEnable = false;
+    rasterizer.lineWidth = 1.0f; // Requires enabling GPU wideLines GPU feature
+    rasterizer.polygonMode = vk::PolygonMode::eFill;
+    rasterizer.cullMode = vk::CullModeFlagBits::eBack;
+    rasterizer.frontFace = vk::FrontFace::eClockwise;
+    rasterizer.depthBiasEnable = false;
+    rasterizer.depthBiasConstantFactor = 0.0f;
+    rasterizer.depthBiasClamp = 0.0f;
+    rasterizer.depthBiasSlopeFactor = 0.0f;
+
+    // Multisampling
+    vk::PipelineMultisampleStateCreateInfo multisampling {};
+    multisampling.sampleShadingEnable = false;
+    multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
+    multisampling.minSampleShading = 1.0f;
+    multisampling.pSampleMask = nullptr;
+    multisampling.alphaToCoverageEnable = false;
+    multisampling.alphaToOneEnable = false;
+
+    // ToDo: Depth and stencil testing
+    vk::PipelineDepthStencilStateCreateInfo depthStencilStateInfo {};
+
+    // Color Blending
+    vk::PipelineColorBlendAttachmentState colorBlendAttachment {};
+    colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+    colorBlendAttachment.blendEnable = false;
+    colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eOne;
+    colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eZero;
+    colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
+    colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOne;
+    colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+    colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
+
+    // - AlphaBlending 
+    //colorBlendAttachment.blendEnable = true;
+    //colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
+    //colorBlendAttachment.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha;
+    //colorBlendAttachment.colorBlendOp = vk::BlendOp::eAdd;
+    //colorBlendAttachment.srcAlphaBlendFactor = vk::BlendFactor::eOne;
+    //colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
+    //colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
+
+    vk::PipelineColorBlendStateCreateInfo colorBlending {};
+    colorBlending.logicOpEnable = false;
+    colorBlending.logicOp = vk::LogicOp::eCopy;
+    colorBlending.attachmentCount = 1;
+    colorBlending.pAttachments = &colorBlendAttachment;
+    colorBlending.blendConstants[0] = 0.0f;
+    colorBlending.blendConstants[1] = 0.0f;
+    colorBlending.blendConstants[2] = 0.0f;
+    colorBlending.blendConstants[3] = 0.0f;
+
+    // Pipeline Layout
+    vk::PipelineLayoutCreateInfo pipelineLayoutInfo {};
+    pipelineLayoutInfo.setLayoutCount = 0;
+    pipelineLayoutInfo.pSetLayouts = VK_NULL_HANDLE;
+    pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipelineLayoutInfo.pPushConstantRanges = VK_NULL_HANDLE;
+
+    vk::PipelineLayout pipelineLayout;
+    mDevice->Call().createPipelineLayout(&pipelineLayoutInfo, nullptr, &pipelineLayout); // ToDo: Must be manually destroyed
+
+    vk::GraphicsPipelineCreateInfo pipelineInfo {};
+    pipelineInfo.stageCount = 2;
+    pipelineInfo.pStages = shaderStages.data();
+    pipelineInfo.pVertexInputState = &vertexInputInfo;
+    pipelineInfo.pInputAssemblyState = &inputAssembly;
+    pipelineInfo.pViewportState = &viewportState;
+    pipelineInfo.pRasterizationState = &rasterizer;
+    pipelineInfo.pMultisampleState = &multisampling;
+    pipelineInfo.pDepthStencilState = &depthStencilStateInfo;
+    pipelineInfo.pColorBlendState = &colorBlending;
+    pipelineInfo.pDynamicState = &dynamicState;
+    pipelineInfo.layout = pipelineLayout;
+    pipelineInfo.renderPass = mRenderPass; // Attention: Depends on renderpass, needs refactor;
+    pipelineInfo.subpass = 0;
+    pipelineInfo.basePipelineHandle = nullptr;
+    pipelineInfo.basePipelineIndex = -1;
+
+    vk::Pipeline graphicsPipeline;
+    mDevice->Call().createGraphicsPipelines(nullptr, 1, &pipelineInfo, nullptr, &graphicsPipeline);
+    // ToDo: Destroy Pipeline and PipelineLayout
 }
 
 void VKSwapChainLegacy::CreateRenderPass() {

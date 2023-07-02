@@ -11,6 +11,8 @@
 module Ultra.Platform.GFX.VKContext;
 
 import Ultra.Logger;
+import Ultra.Engine.Utility.ShaderCompiler;
+import Ultra.System.FileSystem;
 import Ultra.UI.Window;
 
 // Sources: https://alain.xyz/blog/raw-vulkan | https://gist.github.com/graphitemaster/e162a24e57379af840d4

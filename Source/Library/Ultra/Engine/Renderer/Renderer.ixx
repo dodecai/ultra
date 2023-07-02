@@ -62,6 +62,6 @@ protected:
     static RenderAPI sAPI;
 };
 
-RenderAPI Renderer::sAPI = RenderAPI::OpenGL;
+RenderAPI Renderer::sAPI = RenderAPI::Vulkan;
 
 }

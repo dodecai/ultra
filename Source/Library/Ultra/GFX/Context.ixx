@@ -48,6 +48,6 @@ public:
     static GraphicsAPI API;
 };
 
-GraphicsAPI Context::API = GraphicsAPI::OpenGL;
+GraphicsAPI Context::API = GraphicsAPI::Vulkan;
 
 }
