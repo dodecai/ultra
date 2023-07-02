@@ -39,7 +39,11 @@ void VKSwapChainLegacy::Create(uint32_t width, uint32_t height, bool synchronize
     // Swapchain Properties
     mDevice->Call().waitIdle();
     vk::SwapchainKHR oldSwapchain = mSwapchain;
-    mImageCount = std::clamp(surfaceCapabilities.maxImageCount, surfaceCapabilities.minImageCount, mMaxImageCount);
+    
+    // Check if there is no limit
+    auto maxImageCount = surfaceCapabilities.maxImageCount;
+    if (maxImageCount == 0) maxImageCount = 10;
+    mImageCount = std::clamp(maxImageCount, surfaceCapabilities.minImageCount, mMaxImageCount);
     mSurfaceProperties.ClearValues[0].color = array<float, 4> { 0.0f, 0.0f, 0.0f, 0.72f};
     mSurfaceProperties.ClearValues[1].depthStencil = vk::ClearDepthStencilValue { 1, 0 };
 

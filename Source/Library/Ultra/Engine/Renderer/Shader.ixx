@@ -126,6 +126,17 @@ size_t ShaderTypeFromString(const string &type) {
     return (size_t)ShaderType::Linked;
 }
 
+string ShaderTypeToString(ShaderType type) {
+    switch (type) {
+        case ShaderType::Compute:           { return "compute"; }
+        case ShaderType::Fragment:          { return "fragment"; }
+        case ShaderType::Geometry:          { return "geometry"; }
+        case ShaderType::TessControl:       { return "control"; }
+        case ShaderType::TessEvaluation:    { return "evaluation"; }
+        case ShaderType::Vertex:            { return "vertex"; }
+    }
+}
+
 
 /// 
 /// @brief Agnostic Shader

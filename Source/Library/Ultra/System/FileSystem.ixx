@@ -156,6 +156,16 @@ bool WriteFile(const std::string &file, const std::string &data) {
     return true;
 }
 
+bool WriteFile(const std::string &file, const std::vector<uint32_t> &data) {
+    auto Directory = std::filesystem::path(file).parent_path();
+    if (!Directory.empty()) std::filesystem::create_directories(Directory);
+
+    std::ofstream fileStream(file, std::ios::binary);
+    fileStream.write((char *)data.data(), data.size() * sizeof(uint32_t));
+    fileStream.flush();
+    fileStream.close();
+    return true;
+}
 
 std::vector<std::string> SearchFiles(const std::string &fsobject, const std::string &token) {
     using namespace std::filesystem;

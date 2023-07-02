@@ -6,6 +6,9 @@
 
 module Ultra.Platform.Renderer.GLShader;
 
+import Ultra.Engine.Utility.ShaderCompiler;
+import Ultra.System.FileSystem;
+
 namespace Ultra {
 
 /// Helpers
@@ -46,12 +49,21 @@ void GLShader::Compile(ShaderList shaders) {
         auto type = GetGLShaderType((ShaderType)key);
         auto shader = glCreateShader(type);
 
-        const GLchar *source = code.c_str();
-        glShaderSource(shader, 1, &source, 0);
-        
-        // Compile Shader
+        // Option A: Compiled shader
+        //if (FileSystemObjectExists(cache)) {
+
+        //}
+        auto spirv = ShaderCompiler::Compile(mShaderName, (ShaderType)key, code);
+        glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, spirv.data(), spirv.size() * sizeof(uint32_t));
+        string entrypoint = "main"; // Get VS entry point name
+        glSpecializeShader(shader, entrypoint.c_str(), 0, nullptr, nullptr);
+
+        // Opiton B: Compile Shader
+        //const GLchar *source = code.c_str();
+        //glShaderSource(shader, 1, &source, 0);
+        //glCompileShader(shader);
+
         GLint compiled = 0;
-        glCompileShader(shader);
         glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
         if (compiled == GL_FALSE) {
             GLint length = 0;
@@ -62,13 +74,19 @@ void GLShader::Compile(ShaderList shaders) {
 
             glDeleteShader(shader);
 
-            LogError("Couldn't compile shader:", string(message.begin(), message.end()));
+            LogError("Couldn't compile shader: {}", string(message.begin(), message.end()));
             break;
         }
 
         // Attach Shader
         glAttachShader(program, shader);
         ids.push_back(shader);
+
+        // Cache Shader
+        if (!spirv.empty()) {
+            auto cache = "./Data/Cache/Shaders/" + mShaderName + "." + ShaderTypeToString((ShaderType)key) + ".spirv";
+            WriteFile(cache, spirv);
+        }
     }
 
     // Link them to the Program
@@ -81,7 +99,7 @@ void GLShader::Compile(ShaderList shaders) {
 
         vector<GLchar> message(length);
         glGetProgramInfoLog(program, length, &length, message.data());
-        LogError("Couldn't link shaders:", string(message.begin(), message.end()));
+        LogError("Couldn't link shaders: {}", string(message.begin(), message.end()));
 
         // CleanUp
         glDeleteProgram(program);

@@ -17,6 +17,10 @@
     
     debugdir "%{wks.location}/Build/%{cfg.buildcfg}"
     files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx" }
+    postbuildcommands {
+        "copy /b /y \"%{Package.ShaderC}\" \"%{cfg.targetdir}/\"",
+        "exit /b 0",
+    }
     
     externalincludedirs {
 	    "%{Headers.ThirdParty}",
@@ -35,6 +39,7 @@
         --"assimp",
         "DearImGui",
         "Glad",
+        "%{Library.ShaderC}",
 	    "%{Library.Vulkan}",
 	    --"%{Library.VulkanUtils}",
     }

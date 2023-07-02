@@ -14,6 +14,7 @@ public:
     virtual ~GLBuffer() override;
 
     virtual void Bind() const override;
+    virtual void Bind(uint32_t binding) const override;
     virtual void Unbind() const override;
     virtual void UpdateData(const void *data, size_t size) override;
 

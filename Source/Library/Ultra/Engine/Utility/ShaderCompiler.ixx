@@ -1,13 +1,11 @@
-﻿export module Ultra.Engine.Utilty.ShaderCompiler;
+﻿export module Ultra.Engine.Utility.ShaderCompiler;
 
-import Ultra.Core;
 import <exception>;
 import <iterator>;
 import <stdexcept>;
 
-#include <exception>
-#include <stdexcept>
-#include <iterator>
+import Ultra.Core;
+import Ultra.Engine.Renderer.Shader;
 
 export namespace Ultra {
 
@@ -62,7 +60,11 @@ struct OutputOptions {
     //unsigned metalPlatform;
 };
 
-string Compile(const string &source, const InputOptions &ioptions, const OutputOptions &ooptions);
+vector<uint32_t> Compile(const string &name, ShaderType type, const string &source, bool optimize = false);
+
+string CompileToAssembly(const string &name, ShaderType type, const string &source, bool optimize = false);
+
+string PreprocessShader(const string &name, ShaderType type, const string &source);
 
 string Decompile(const string &source);
 

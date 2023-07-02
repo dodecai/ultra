@@ -54,7 +54,7 @@ VKPhysicalDevice::VKPhysicalDevice(const Reference<VKInstance> &instance): mInst
     // Get available physical devices and choose the "best" one
     mPhysicalDevices = mInstance->Call().enumeratePhysicalDevices();
     mPhysicalDevice = ChoosePhysicalDevice(mPhysicalDevices);
-    AppAssert(mPhysicalDevice, "[GFX:PhysicalDevice] ", "No suiteable vulkan supporting deivce found!");
+    AppAssert(mPhysicalDevice, "GFX::Vulkan::PhysicalDevice: ", "No suiteable vulkan supporting deivce found!");
 
     // Get features and properties
     mFeatures = mPhysicalDevice.getFeatures();
@@ -103,10 +103,8 @@ VKPhysicalDevice::VKPhysicalDevice(const Reference<VKInstance> &instance): mInst
         info.pQueuePriorities = &mDefaultPriority;
         mQueueCreateInformation.push_back(info);
     }
-    LogTrace("[GFX:PhysicalDevice] ", (string)*this);
-    //AppLogTrace(extension.extensionName); // ToDo: Better Output...
+    LogTrace("GFX::Vulkan::PhysicalDevice: {}", (string)*this); // ToDo: Better Output...
 }
-
 // Accessors
 const vk::PhysicalDevice &VKPhysicalDevice::Call() const {
     return mPhysicalDevice;
@@ -181,12 +179,12 @@ const int32_t VKPhysicalDevice::GetQueueFamilyIndex(vk::QueueFlags flag) const {
 
 // Internal
 vk::PhysicalDevice VKPhysicalDevice::ChoosePhysicalDevice(const vector<vk::PhysicalDevice> &devices) {
-    std::multimap<uint32_t, vk::PhysicalDevice> rankingList;
+    std::multimap<uint32_t, vk::PhysicalDevice> candidates;
     for (const auto &device : devices) {
-        rankingList.emplace(RankPhysicalDevice(device), device);
+        candidates.emplace(RankPhysicalDevice(device), device);
     }
 
-    if (rankingList.rbegin()->first > 0) return rankingList.rbegin()->second;
+    if (candidates.rbegin()->first > 0) return candidates.rbegin()->second;
     return nullptr;
 }
 
@@ -195,9 +193,13 @@ size_t VKPhysicalDevice::RankPhysicalDevice(const vk::PhysicalDevice &device) {
     size_t score = 0;
     vector<vk::ExtensionProperties> extensionProperties = device.enumerateDeviceExtensionProperties();
 
+    auto features = device.getFeatures();
     auto properties = device.getProperties();
-    if (mProperties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu) score += 1024;
-    score += extensionProperties.size();
+    if (properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu) score += 1024;
+    score += properties.limits.maxImageDimension2D;
+    
+    if (features.geometryShader) score += 4;
+    //score += extensionProperties.size();
 
     return score;
 }

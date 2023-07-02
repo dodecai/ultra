@@ -28,9 +28,10 @@ VKContext::VKContext(void *window) {
     surfaceCreateinfo.hinstance = GetModuleHandle(NULL);
     surfaceCreateinfo.hwnd = mWindowHandle;
     mSurface = mInstance->Call().createWin32SurfaceKHR(surfaceCreateinfo);
+
     // SwapChain
     mSwapChain = CreateReference<VKSwapChainLegacy>(mDevice, mSurface);
-    mSwapChain->Create(12, 12); // ToDo: Resize triggered after start, so this should not be needed
+    mSwapChain->Create(1, 1); // ToDo: Resize triggered after start, so this should not be needed
 
     // PipelineCache
     mPipelineCache = mDevice->Call().createPipelineCache(vk::PipelineCacheCreateInfo());
@@ -40,8 +41,9 @@ VKContext::~VKContext() {
     mDevice->Call().waitIdle();
     mDevice->Call().destroyPipelineCache(mPipelineCache, nullptr);
 
-    // The SwapChain should be destroyed bevore destroying the surface
+    // The SwapChain should be destroyed before destroying the surface
     mSwapChain.reset();
+    //vkDestroySurfaceKHR(mSurface);
     mInstance->Call().destroySurfaceKHR(mSurface, nullptr);
 }
 

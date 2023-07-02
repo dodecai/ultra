@@ -1,233 +1,70 @@
-﻿module Ultra.Engine.Utilty.ShaderCompiler;
+﻿module;
 
+module Ultra.Engine.Utility.ShaderCompiler;
+
+import <shaderc/shaderc.hpp>;
 import <utility>;
+
 import Ultra.Logger;
 
-//import <glslang/Public/ShaderLang.h>;
-//import <spirv/GlslangToSpv.h>;
-//import <StandAlone/DirStackFileIncluder.h>;
-//import <StandAlone/ResourceLimits.h>;
+namespace Ultra::ShaderCompiler {
 
-//import <spirv/disassemble.h>;
-//import <glslang/Include/ResourceLimits.h>;
-//import <spirv/GlslangToSpv.h>;
-//import <spirv/SPVRemapper.h>;
-//import <spirv/disassemble.h>;
-//import <spirv/doc.h>;
-//import <spirv.hpp>;
-//import <spirv_glsl.hpp>;
-//import <spirv_hlsl.hpp>;
-//import <spirv_msl.hpp>;
+shaderc_shader_kind GetNativeShaderKind(ShaderType type) {
+    switch (type) {
+        case ShaderType::Vertex: { return shaderc_vertex_shader; }
+        case ShaderType::Fragment: { return shaderc_fragment_shader; }
+        case ShaderType::Compute: { return shaderc_compute_shader; }
+        case ShaderType::TessControl: { return shaderc_tess_control_shader; }
+        case ShaderType::TessEvaluation: { return shaderc_tess_evaluation_shader; }
+        //case ShaderType::SpirvAssembly: { return shaderc_spirv_assembly; }
+        default: { return shaderc_glsl_infer_from_source; }
+    }
+}
 
-namespace Ultra {
+vector<uint32_t> Compile(const string &name, ShaderType type, const string &source, bool optimize) {
+    shaderc::CompileOptions options;
+    options.AddMacroDefinition("ENGINE", "Ultra");
+    if (optimize) options.SetOptimizationLevel(shaderc_optimization_level_size);
 
-namespace ShaderCompiler {
+    shaderc::Compiler compiler;
+    auto result = compiler.CompileGlslToSpv(source, GetNativeShaderKind(type), name.c_str(), options);
 
-//static TBuiltInResource GetShaderResources() {
-//    TBuiltInResource resources {
-//        .maxLights                                  = 32,
-//        .maxClipPlanes                              = 6,
-//        .maxTextureUnits                            = 32,
-//        .maxTextureCoords                           = 32,
-//        .maxVertexAttribs                           = 64,
-//        .maxVertexUniformComponents                 = 4096,
-//        .maxVaryingFloats                           = 64,
-//        .maxVertexTextureImageUnits                 = 32,
-//        .maxCombinedTextureImageUnits               = 80,
-//        .maxTextureImageUnits                       = 32,
-//        .maxFragmentUniformComponents               = 4096,
-//        .maxDrawBuffers                             = 32,
-//        .maxVertexUniformVectors                    = 128,
-//        .maxVaryingVectors                          = 8,
-//        .maxFragmentUniformVectors                  = 16,
-//        .maxVertexOutputVectors                     = 16,
-//        .maxFragmentInputVectors                    = 15,
-//        .minProgramTexelOffset                      = -8,
-//        .maxProgramTexelOffset                      = 7,
-//        .maxClipDistances                           = 8,
-//        .maxComputeWorkGroupCountX                  = 65535,
-//        .maxComputeWorkGroupCountY                  = 65535,
-//        .maxComputeWorkGroupCountZ                  = 65535,
-//        .maxComputeWorkGroupSizeX                   = 1024,
-//        .maxComputeWorkGroupSizeY                   = 1024,
-//        .maxComputeWorkGroupSizeZ                   = 64,
-//        .maxComputeUniformComponents                = 1024,
-//        .maxComputeTextureImageUnits                = 16,
-//        .maxComputeImageUniforms                    = 8,
-//        .maxComputeAtomicCounters                   = 8,
-//        .maxComputeAtomicCounterBuffers             = 1,
-//        .maxVaryingComponents                       = 60,
-//        .maxVertexOutputComponents                  = 64,
-//        .maxGeometryInputComponents                 = 64,
-//        .maxGeometryOutputComponents                = 128,
-//        .maxFragmentInputComponents                 = 128,
-//        .maxImageUnits                              = 8,
-//        .maxCombinedImageUnitsAndFragmentOutputs    = 8,
-//        .maxCombinedShaderOutputResources           = 8,
-//        .maxImageSamples                            = 0,
-//        .maxVertexImageUniforms                     = 0,
-//        .maxTessControlImageUniforms                = 0,
-//        .maxTessEvaluationImageUniforms             = 0,
-//        .maxGeometryImageUniforms                   = 0,
-//        .maxFragmentImageUniforms                   = 8,
-//        .maxCombinedImageUniforms                   = 8,
-//        .maxGeometryTextureImageUnits               = 16,
-//        .maxGeometryOutputVertices                  = 256,
-//        .maxGeometryTotalOutputComponents           = 1024,
-//        .maxGeometryUniformComponents               = 1024,
-//        .maxGeometryVaryingComponents               = 64,
-//        .maxTessControlInputComponents              = 128,
-//        .maxTessControlOutputComponents             = 128,
-//        .maxTessControlTextureImageUnits            = 16,
-//        .maxTessControlUniformComponents            = 1024,
-//        .maxTessControlTotalOutputComponents        = 4096,
-//        .maxTessEvaluationInputComponents           = 128,
-//        .maxTessEvaluationOutputComponents          = 128,
-//        .maxTessEvaluationTextureImageUnits         = 16,
-//        .maxTessEvaluationUniformComponents         = 1024,
-//        .maxTessPatchComponents                     = 120,
-//        .maxPatchVertices                           = 32,
-//        .maxTessGenLevel                            = 64,
-//        .maxViewports                               = 16,
-//        .maxVertexAtomicCounters                    = 0,
-//        .maxTessControlAtomicCounters               = 0,
-//        .maxTessEvaluationAtomicCounters            = 0,
-//        .maxGeometryAtomicCounters                  = 0,
-//        .maxFragmentAtomicCounters                  = 8,
-//        .maxCombinedAtomicCounters                  = 8,
-//        .maxAtomicCounterBindings                   = 1,
-//        .maxVertexAtomicCounterBuffers              = 0,
-//        .maxTessControlAtomicCounterBuffers         = 0,
-//        .maxTessEvaluationAtomicCounterBuffers      = 0,
-//        .maxGeometryAtomicCounterBuffers            = 0,
-//        .maxFragmentAtomicCounterBuffers            = 1,
-//        .maxCombinedAtomicCounterBuffers            = 1,
-//        .maxAtomicCounterBufferSize                 = 16384,
-//        .maxTransformFeedbackBuffers                = 4,
-//        .maxTransformFeedbackInterleavedComponents  = 64,
-//        .maxCullDistances                           = 8,
-//        .maxCombinedClipAndCullDistances            = 8,
-//        .maxSamples                                 = 4,
-//        .limits = {
-//            .nonInductiveForLoops                   = true,
-//            .whileLoops                             = true,
-//            .doWhileLoops                           = true,
-//            .generalUniformIndexing                 = true,
-//            .generalAttributeMatrixVectorIndexing   = true,
-//            .generalVaryingIndexing                 = true,
-//            .generalSamplerIndexing                 = true,
-//            .generalVariableIndexing                = true,
-//            .generalConstantMatrixVectorIndexing    = true
-//        }
-//    };
-//    return resources;
-//}
+    if (result.GetCompilationStatus() != shaderc_compilation_status_success) {
+        LogError(result.GetErrorMessage());
+        return {};
+    }
+    return { result.cbegin(), result.cend() };
 
-//static EShLanguage GetShaderLanguage(const ShaderLanguage language) {
-//    switch (language) {
-//        case ShaderLanguage::Compute:          { return EShLanguage::EShLangCompute; }
-//        case ShaderLanguage::Vertex:           { return EShLanguage::EShLangVertex; }
-//        case ShaderLanguage::Fragment:         { return EShLanguage::EShLangFragment; }
-//        case ShaderLanguage::Geometry:         { return EShLanguage::EShLangGeometry; }
-//        case ShaderLanguage::TessControl:      { return EShLanguage::EShLangTessControl; }
-//        case ShaderLanguage::TessEvaluation:   { return EShLanguage::EShLangTessEvaluation; }
-//        default:                               { return EShLanguage::EShLangCount; }
-//    }
-//}
+}
 
+string CompileToAssembly(const string &name, ShaderType type, const string &source, bool optimize) {
+    shaderc::CompileOptions options;
+    options.AddMacroDefinition("ENGINE", "Ultra");
+    if (optimize) options.SetOptimizationLevel(shaderc_optimization_level_size);
 
-string Compile([[maybe_unused]] const string &source, [[maybe_unused]] const InputOptions &input, [[maybe_unused]] const OutputOptions &output) {
-    static bool initialized = false;
-    //if (!initialized) {
-    //    glslang::InitializeProcess();
-    //    initialized = true;
-    //}
+    shaderc::Compiler compiler;
+    auto result = compiler.CompileGlslToSpvAssembly(source, GetNativeShaderKind(type), name.c_str(), options);
 
-    //// Input
-    //EShLanguage language = GetShaderLanguage(input.stage);
-    //EShMessages messages = static_cast<EShMessages>(EShMsgDefault | EShMsgSpvRules | EShMsgVulkanRules);
-    //#ifdef APP_MODE_DEBUG
-    //messages = static_cast<EShMessages>(messages | EShMsgDebugInfo);
-    //#endif
-    //TBuiltInResource resources = GetShaderResources();      // glslang::DefaultTBuiltInResource;
-    //glslang::TProgram program;
-    //glslang::TShader shader(language);
+    if (result.GetCompilationStatus() != shaderc_compilation_status_success) {
+        LogError(result.GetErrorMessage());
+        return {};
+    }
+    return { result.cbegin(), result.cend() };
+}
 
-    //auto shaderSource = source.c_str();
-    ////setStringsWithLengthsAndNames
-    //shader.setStrings(&shaderSource, 1);
-    //shader.setPreamble("");
+string PreprocessShader(const string &name, ShaderType type, const string &source) {
+    shaderc::CompileOptions options;
+    options.AddMacroDefinition("ENGINE", "Ultra");
 
-    ////shader.setAutoMapBindings(true);
-    ////shader.setAutoMapLocations(true);
+    shaderc::Compiler compiler;
+    auto result = compiler.PreprocessGlsl(source, GetNativeShaderKind(type), name.c_str(), options);
 
-    //auto defaultVulkanVersion = glslang::EShTargetVulkan_1_0;
-    //int defaultVulkanVersionN = 100;
+    if (result.GetCompilationStatus() != shaderc_compilation_status_success) {
+        LogError(result.GetErrorMessage());
+        return "";
+    }
 
-    //shader.setEnvInput(glslang::EShSourceGlsl, language, glslang::EShClientVulkan, defaultVulkanVersionN);
-    //shader.setEnvClient(glslang::EShClientVulkan, defaultVulkanVersion);
-    //// ToDo:: Determine correct vulkan version ...
-    //// VK_API_VERSION_1_1 ? glslang::EShTargetSpv_1_3 : glslang::EShTargetSpv_1_0
-    //shader.setEnvTarget(glslang::EShTargetSpv, glslang::EShTargetSpv_1_0);
-
-    //string preResult;
-    //DirStackFileIncluder Includer;
-
-    //if (!shader.preprocess(&resources, defaultVulkanVersion, ENoProfile, false, false, messages, &preResult, Includer)) {
-    //    AppLogWarning("[Ultra::ShaderCompiler]: Preprocess failed!");
-    //    AppLog(shader.getInfoLog());
-    //    AppLog(shader.getInfoDebugLog());
-    //    return string();
-    //}
-
-    //auto shaderSourcePre = preResult.c_str();
-    ////setStringsWithLengthsAndNames
-    //shader.setStrings(&shaderSourcePre, 1);
-    ////shader.setPreamble("");
-
-    //if (!shader.parse(&resources, defaultVulkanVersion, true, messages)) {
-    //    AppLogWarning("[Ultra::ShaderCompiler]: Parsing Failed!");
-    //    AppLog(shader.getInfoLog());
-    //    AppLog(shader.getInfoDebugLog());
-    //    return string();
-    //}
-
-    //program.addShader(&shader);
-    //if (!program.link(messages) || !program.mapIO()) {
-    //    AppLogWarning("[Ultra::ShaderCompiler]: The shader could not be linked!");
-    //    AppLog(shader.getInfoLog());
-    //    AppLog(shader.getInfoDebugLog());
-    //    return string();
-    //}
-    ////program.buildReflection();
-
-    //glslang::SpvOptions spvOptions;
-    //#ifdef APP_MODE_DEBUG
-    //spvOptions.generateDebugInfo = true;
-    //spvOptions.disableOptimizer = true;
-    //spvOptions.optimizeSize = false;
-    //#else
-    //    //spvOptions.generateDebugInfo = false;
-    //    //spvOptions.disableOptimizer = false;
-    //    //spvOptions.optimizeSize = true;
-    //#endif
-
-
-
-    //spv::SpvBuildLogger logger;
-    //std::vector<uint32_t> spirv;
-    //glslang::GlslangToSpv(*program.getIntermediate(language), spirv, &logger, &spvOptions);
-    //if (logger.getAllMessages().length() > 0) {
-    //    AppLog(logger.getAllMessages());
-    //}
-    ////glslang::FinalizeProcess();
-
-    //std::stringstream result;
-    //for (auto &byte : spirv) {
-    //    result.write((const char *)&byte, sizeof(byte));
-    //}
-    //return result.str();
-    return {};
+    return { result.cbegin(), result.cend() };
 }
 
 string Decompile([[maybe_unused]] const string &source) {
@@ -265,8 +102,6 @@ string Decompile([[maybe_unused]] const string &source) {
     //    }
     //}
     return {};
-}
-
 }
 
 }

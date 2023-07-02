@@ -61,6 +61,13 @@ void Renderer::Dispose() {
     mRenderDevice->Dispose();
 }
 
+struct CameraData {
+    glm::mat4 ViewProjection = {};
+    glm::mat4 Projection = {};
+    glm::mat4 View = {};
+    float NearClip = {};
+    float FarClip = {};
+};
 
 void Renderer::DrawGrid(const DesignerCamera &camera) {
     static unsigned int indices[] = { 0, 1, 2, 2, 3, 0 };
@@ -70,6 +77,7 @@ void Renderer::DrawGrid(const DesignerCamera &camera) {
          1.0f,  1.0f,  0.0f,
         -1.0f,  1.0f,  0.0f,
     };
+    static CameraData cameraUniformData;
 
     static Reference<Shader> BasicShader = Shader::Create("Assets/Shaders/Grid.glsl");
     static Reference<PipelineState> BasicPipeline = PipelineState::Create({
@@ -79,14 +87,22 @@ void Renderer::DrawGrid(const DesignerCamera &camera) {
     });
     static Reference<Buffer> BasicVertex = Buffer::Create(BufferType::Vertex, vertices, sizeof(vertices));
     static Reference<Buffer> BasicIndex = Buffer::Create(BufferType::Index, indices, sizeof(indices));
+    static Reference<Buffer> BasicUniform = Buffer::Create(BufferType::Uniform, nullptr, sizeof(CameraData));
+    BasicUniform->Bind(0);
 
     // Renderer
     BasicShader->Bind();
-    BasicShader->UpdateUniform("uViewProjection", camera.GetViewProjection());
-    BasicShader->UpdateUniform("uProjection", camera.GetProjection());
-    BasicShader->UpdateUniform("uView", camera.GetViewMatrix());
-    BasicShader->UpdateUniform("uNearClip", camera.GetNearPoint());
-    BasicShader->UpdateUniform("uFarClip", camera.GetFarPoint());
+    //BasicShader->UpdateUniform("uViewProjection", camera.GetViewProjection());
+    //BasicShader->UpdateUniform("uProjection", camera.GetProjection());
+    //BasicShader->UpdateUniform("uView", camera.GetViewMatrix());
+    //BasicShader->UpdateUniform("uNearClip", camera.GetNearPoint());
+    //BasicShader->UpdateUniform("uFarClip", camera.GetFarPoint());
+    cameraUniformData.Projection = camera.GetProjection();
+    cameraUniformData.View = camera.GetViewMatrix();
+    cameraUniformData.ViewProjection = camera.GetViewProjection();
+    cameraUniformData.NearClip = camera.GetNearPoint();
+    cameraUniformData.FarClip = camera.GetFarPoint();
+    BasicUniform->UpdateData(&cameraUniformData, sizeof(CameraData));
     BasicVertex->Bind();
     BasicPipeline->Bind();
     BasicIndex->Bind();

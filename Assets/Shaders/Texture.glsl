@@ -13,7 +13,13 @@ layout(location = 1) out vec2 vTexCoord;
 layout(location = 2) out float vTexIndex;
 layout(location = 3) out float vTilingFactor;
 
-uniform mat4 uViewProjection;
+layout(std140, binding = 0) uniform Camera {
+    mat4 uViewProjection;
+    mat4 uView;
+    mat4 uProjection;
+    float uNearClip;
+    float uFarClip;
+};
 
 void main() {
 	vColor = aColor;

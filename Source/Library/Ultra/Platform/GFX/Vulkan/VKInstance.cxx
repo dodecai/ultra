@@ -38,13 +38,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugMessagerCallback(VkDebugUtilsMessageSeverity
     using Ultra::LogLevel;
 
     switch ((vk::DebugUtilsMessageSeverityFlagBitsEXT)messageSeverity) {
-        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eError:      { logger << LogLevel::Error;     break; }
-        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo:       { logger << LogLevel::Info;      break; }
-        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose:    { logger << LogLevel::Trace;     break; }
-        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning:    { logger << LogLevel::Warn;   break; }
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eError:      { logger << LogLevel::Error;    break; }
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo:       { logger << LogLevel::Info;     break; }
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose:    { logger << LogLevel::Trace;    break; }
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning:    { logger << LogLevel::Warn;     break; }
     }
 
-    logger << "[GFX::Vulkan] ";
+    logger << "GFX::Vulkan[";
 
     switch ((vk::DebugUtilsMessageTypeFlagBitsEXT)messageType) {
         case vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral:        { logger << "General"; break; }
@@ -52,7 +52,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugMessagerCallback(VkDebugUtilsMessageSeverity
         case vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation:     { logger << "Validation"; break; }
     }
 
-    logger << " : " << LogLevel::Default << callbackData->pMessage << "\n";
+    logger << "]: " << LogLevel::Default << callbackData->pMessage << "\n";
     return false;
 }
 
@@ -74,7 +74,7 @@ VKInstance::VKInstance() {
         #if defined APP_PLATFORM_WINDOWS
             VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
         #endif
-        #ifdef APP_DEBUG_MODE
+        #ifdef APP_MODE_DEBUG
             VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
             VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
         #endif
@@ -84,8 +84,7 @@ VKInstance::VKInstance() {
     // Layers
     vector<vk::LayerProperties> availableLayers = vk::enumerateInstanceLayerProperties();
     vector<const char *> neededLayers = {
-        #ifdef APP_DEBUG_MODE
-            "VK_LAYER_LUNARG_standard_validation",
+        #ifdef APP_MODE_DEBUG
             "VK_LAYER_KHRONOS_validation",
         #endif
     };
@@ -105,13 +104,13 @@ VKInstance::VKInstance() {
     }
 
     // Debug
-    #ifdef APP_DEBUG_MODE
+    #ifdef APP_MODE_DEBUG
     CreateDebugUtilsMessengerEXT = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(mInstance, "vkCreateDebugUtilsMessengerEXT");
     vk::DebugUtilsMessengerCreateInfoEXT messengerCreateInfo = {
         vk::DebugUtilsMessengerCreateFlagsEXT(),
-        ( // Severitiies
-            //vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo     | 
-            //vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose  |
+        ( // Severities
+            vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo     | 
+            vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose  |
             vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning  |
             vk::DebugUtilsMessageSeverityFlagBitsEXT::eError 
         ),
@@ -123,15 +122,15 @@ VKInstance::VKInstance() {
         DebugMessagerCallback,
         nullptr,
     };
-    VkResult result = CreateDebugUtilsMessengerEXT(mInstance, reinterpret_cast<VkDebugUtilsMessengerCreateInfoEXT *>(&messengerCreateInfo), NULL, &mDebugUtilsMessanger);
+    VkResult result = CreateDebugUtilsMessengerEXT(mInstance, reinterpret_cast<VkDebugUtilsMessengerCreateInfoEXT *>(&messengerCreateInfo), nullptr, &mDebugUtilsMessanger);
     #endif
 }
 
 VKInstance::~VKInstance() {
-    #ifdef APP_DEBUG_MODE
+    #ifdef APP_MODE_DEBUG
     if (mDebugUtilsMessanger) {
         DestroyDebugUtilsMessengerEXT = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(mInstance, "vkDestroyDebugUtilsMessengerEXT");
-        DestroyDebugUtilsMessengerEXT(mInstance, mDebugUtilsMessanger, NULL);
+        DestroyDebugUtilsMessengerEXT(mInstance, mDebugUtilsMessanger, nullptr);
     }
     #endif
     if (mInstance) {

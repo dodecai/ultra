@@ -7,9 +7,13 @@ layout(location = 0) in vec3 aPosition;
 layout(location = 0) out vec3 vNearClip;
 layout(location = 1) out vec3 vFarClip;
 
-uniform mat4 uView;
-uniform mat4 uProjection;
-uniform mat4 uViewProjection;
+layout(std140, binding = 0) uniform Camera {
+    mat4 uViewProjection;
+    mat4 uProjection;
+    mat4 uView;
+    float uNearClip;
+    float uFarClip;
+};
 
 vec3 UnprojectPoint(float x, float y, float z, mat4 view, mat4 projection) {
     mat4 invertedView = inverse(view);
@@ -37,8 +41,13 @@ layout(location = 2) in mat4 vFragmentView;
 layout(location = 6) in mat4 vFramgentProjection;
 layout(location = 0) out vec4 oColor;
 
-uniform float uNearClip;
-uniform float uFarClip;
+layout(std140, binding = 0) uniform Camera {
+    mat4 uViewProjection;
+    mat4 uView;
+    mat4 uProjection;
+    float uNearClip;
+    float uFarClip;
+};
 
 vec4 CalculateGridColors(vec3 fragPos3D, float scale, bool drawAxis) {
     vec2 coord = fragPos3D.xz * scale;

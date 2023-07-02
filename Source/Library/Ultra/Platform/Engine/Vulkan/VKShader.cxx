@@ -4,17 +4,27 @@
 
 module Ultra.Platform.Renderer.VKShader;
 
+import Ultra.Engine.Utility.ShaderCompiler;
+
 #pragma warning(push)
 #pragma warning(disable: 4100)
 
 namespace Ultra {
 
-VKShader::VKShader(const string &source, const string &entryPoint, const ShaderType type): Shader(source, entryPoint, type) {}
+VKShader::VKShader(const string &source, const string &entryPoint, const ShaderType type): Shader(source, entryPoint, type) {
+    auto shaderCode = source;
+    auto shaders = Convert(shaderCode);
+    Compile(shaders);
+}
 
 VKShader::~VKShader() {}
 
 
-void VKShader::Compile(ShaderList shaders) {}
+void VKShader::Compile(ShaderList shaders) {
+    for (auto shader : shaders) {
+        auto result = ShaderCompiler::Compile(mShaderName, (ShaderType)shader.first, shader.second);
+    }
+}
 
 void VKShader::Bind() const {}
 

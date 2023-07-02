@@ -118,8 +118,9 @@ private:
 /// 
 /// @brief Agnostic Buffer
 ///
-/// @example  auto vertexBuffer = Buffer::Create({ BufferType::Vertex, sizeof(vertices), vertices });
-/// @example  auto indexBuffer = Buffer::Create({ BufferType::Index, sizeof(indices), indices });
+/// @example  auto vertexBuffer = Buffer::Create(BufferType::Vertex, vertices), sizeof(vertices);
+/// @example  auto indexBuffer = Buffer::Create(BufferType::Index, indices, sizeof(indices));
+/// @example  auto uniformBuffer = Buffer::Create(BufferType::Uniform, data, sizeof(data));
 ///
 class Buffer {
 protected:
@@ -132,6 +133,7 @@ public:
     static Scope<Buffer> Create(BufferType type, const void *data, size_t size, BufferUsage usage = BufferUsage::Static);
 
     virtual void Bind() const = 0;
+    virtual void Bind([[maybe_unused]] uint32_t binding) const {};
     virtual void Unbind() const = 0;
     virtual void UpdateData(const void *data, size_t size) = 0;
 

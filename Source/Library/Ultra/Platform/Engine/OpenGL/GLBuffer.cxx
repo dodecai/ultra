@@ -40,10 +40,17 @@ GLBuffer::~GLBuffer() {
 
 
 void GLBuffer::Bind() const {
+    if (mNativeType == GL_UNIFORM_BUFFER) return;
     glBindBuffer(mNativeType, mBufferID);
 }
 
+void GLBuffer::Bind(uint32_t binding) const {
+    if (mNativeType != GL_UNIFORM_BUFFER) return;
+    glBindBufferBase(GL_UNIFORM_BUFFER, binding, mBufferID);
+}
+
 void GLBuffer::Unbind() const {
+    if (mNativeType == GL_UNIFORM_BUFFER) return;
     glBindBuffer(mNativeType, 0);
 }
 

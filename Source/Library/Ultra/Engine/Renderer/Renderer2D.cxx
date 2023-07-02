@@ -37,7 +37,7 @@ struct QuadVertex {
 
 struct RendererData {
     // General
-    glm::mat4 ViewProjectionMatrix;
+    //glm::mat4 ViewProjectionMatrix;
     bool DepthTest = true;
     Renderer2D::Statistics Stats;
 
@@ -86,6 +86,17 @@ struct RendererData {
     uint32_t TextureSlotIndex = 1; // 0 = White
 
     glm::vec4 QVertexPositions[4];
+
+    // Uniforms
+    struct CameraData {
+        glm::mat4 ViewProjectionMatrix = {};
+        glm::mat4 Projection = {};
+        glm::mat4 View = {};
+        float NearClip = {};
+        float FarClip = {};
+    };
+    CameraData CameraBuffer;
+    Reference<Buffer> CameraUniformBuffer;
 };
 
 static RendererData sData;
@@ -187,6 +198,8 @@ void Renderer2D::Load() {
     sData.QVertexPositions[2] = { 0.5f,  0.5f, 0.0f, 1.0f };
     sData.QVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 
+    sData.CameraUniformBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(RendererData::CameraData));
+    sData.CameraUniformBuffer->Bind(0);
 }
 
 void Renderer2D::Dispose() {
@@ -216,35 +229,50 @@ void Renderer2D::Dispose() {
 
 void Renderer2D::StartScene(const Camera &camera) {
     sData.DepthTest = true;
-    sData.ViewProjectionMatrix = camera.GetProjection();
+
+    //sData.ViewProjectionMatrix = camera.GetProjection();
+    sData.CameraBuffer.ViewProjectionMatrix = camera.GetProjection();
+    sData.CameraUniformBuffer->UpdateData(&sData.CameraBuffer, sizeof(RendererData::CameraData));
 
     NextBatch();
 }
 
 void Renderer2D::StartScene(const Camera &camera, const glm::mat4 &transform) {
     sData.DepthTest = true;
-    sData.ViewProjectionMatrix = camera.GetProjection() * glm::inverse(transform);
+
+    //sData.ViewProjectionMatrix = camera.GetProjection();
+    sData.CameraBuffer.ViewProjectionMatrix = camera.GetProjection();
+    sData.CameraUniformBuffer->UpdateData(&sData.CameraBuffer, sizeof(RendererData::CameraData));
 
     NextBatch();
 }
 
 void Renderer2D::StartScene(const DesignerCamera &camera) {
     sData.DepthTest = true;
-    sData.ViewProjectionMatrix = camera.GetViewProjection();
+
+    //sData.ViewProjectionMatrix = camera.GetViewProjection();
+    sData.CameraBuffer.ViewProjectionMatrix = camera.GetViewProjection();
+    sData.CameraUniformBuffer->UpdateData(&sData.CameraBuffer, sizeof(RendererData::CameraData));
 
     NextBatch();
 }
 
 void Renderer2D::StartScene(const PerspectiveCamera &camera) {
     sData.DepthTest = true;
-    sData.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+
+    //sData.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+    sData.CameraBuffer.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+    sData.CameraUniformBuffer->UpdateData(&sData.CameraBuffer, sizeof(RendererData::CameraData));
 
     NextBatch();
 }
 
 void Renderer2D::StartScene(const OrthographicCamera &camera) {
     sData.DepthTest = true;
-    sData.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+
+    //sData.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+    sData.CameraBuffer.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+    sData.CameraUniformBuffer->UpdateData(&sData.CameraBuffer, sizeof(RendererData::CameraData));
 
     NextBatch();
 }
@@ -261,7 +289,7 @@ void Renderer2D::Flush() {
         sData.CircleVertexBuffer->UpdateData(sData.CircleVertexBufferBase, dataSize);
 
         sData.CircleShader->Bind();
-        sData.CircleShader->UpdateUniform("uViewProjection", sData.ViewProjectionMatrix);
+        //sData.CircleShader->UpdateUniform("uViewProjection", sData.ViewProjectionMatrix);
 
         sData.CircleVertexBuffer->Bind();
         sData.CirclePipeline->Bind();
@@ -275,7 +303,7 @@ void Renderer2D::Flush() {
         sData.LineVertexBuffer->UpdateData(sData.LineVertexBufferBase, dataSize);
 
         sData.LineShader->Bind();
-        sData.LineShader->UpdateUniform("uViewProjection", sData.ViewProjectionMatrix);
+        //sData.LineShader->UpdateUniform("uViewProjection", sData.ViewProjectionMatrix);
 
         sData.LineVertexBuffer->Bind();
         sData.LinePipeline->Bind();
@@ -289,7 +317,7 @@ void Renderer2D::Flush() {
         sData.QVertexBuffer->UpdateData(sData.QVertexBufferBase, dataSize);
 
         sData.TextureShader->Bind();
-        sData.TextureShader->UpdateUniform("uViewProjection", sData.ViewProjectionMatrix);
+        //sData.TextureShader->UpdateUniform("uViewProjection", sData.ViewProjectionMatrix);
 
         for (uint32_t i = 0; i < sData.TextureSlotIndex; i++) {
             sData.TextureSlots[i]->Bind(i);

@@ -57,7 +57,7 @@ private:
 
 private:
     Reference<VKInstance> mInstance = nullptr;
-    static inline const float mDefaultPriority = 0.0f;
+    static inline const float mDefaultPriority = 1.0f;
 
     vector<vk::PhysicalDevice> mPhysicalDevices = {};
     std::unordered_set<string> mSupportedExtensions = {};
