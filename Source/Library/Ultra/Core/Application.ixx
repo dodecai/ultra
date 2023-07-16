@@ -96,7 +96,7 @@ public:
     void Run() {
         // Initialization
         logger << LogLevel::Caption << AsciiLogo() << "\n";
-        logger("{} started ...\n  on : '{}'\n  at: '{}'\n", mProperties.Title, apptime.GetDate(), apptime.GetTime());
+        logger("{} started ...\n  on: '{}'\n  at: '{}'\n", mProperties.Title, apptime.GetDate(), apptime.GetTime());
         logger << LogLevel::Caption << "Initialization" << "\n";
 
         // Load Configuration
@@ -180,7 +180,7 @@ public:
         logger << LogLevel::Caption << "Termination" << "\n";
         for (Layer *layer : mLayers) layer->Destroy();
         Destroy();
-        logger("{} finished ...\n  on : '{}'\n  at: '{}'\n", mProperties.Title, apptime.GetDate(), apptime.GetTime());
+        logger("{} finished ...\n  on: '{}'\n  at: '{}'\n", mProperties.Title, apptime.GetDate(), apptime.GetTime());
     }
 
     // Accessors
@@ -229,6 +229,7 @@ protected:
         reloaded = true;
         Instance().mProperties.GfxApi = Context::API;
 
+        context->Detach();
         context = Context::Create(GetWindow().GetNativeWindow());
         context->Attach();
         context->Load();

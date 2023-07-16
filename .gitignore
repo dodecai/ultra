@@ -6,6 +6,7 @@
 # Directories
 .vs/
 .vscode/
+/Assets/Phoenix/
 
 # Files
 *.log

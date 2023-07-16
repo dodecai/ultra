@@ -48,7 +48,7 @@ void GuiLayer::Attach() {
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
     //io.ConfigViewportsNoAutoMerge = true;
     //io.ConfigViewportsNoTaskBarIcon = true;
-    io.ConfigDockingWithShift = false;
+    io.ConfigDockingWithShift = true;
 
 	// ToDo: Works only as an memory leak, the question is why (otherwise ImGui uses old pointer where the data is gone) ...
 	string *dataTarget = new string("./Data/" + Application::GetProperties().Title + ".ini");

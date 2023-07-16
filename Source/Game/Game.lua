@@ -1,8 +1,7 @@
-﻿project "Ultra"
-    defines { "PROJECT_NAME=Ultra" }
-    kind "StaticLib"
+﻿project "Game"
+    defines { "PROJECT_NAME=Game" }
     language "C++"
-    characterset "Unicode"
+    characterset "MBCS"
     conformancemode "true"
     cdialect "C17"
     cppdialect "C++20"
@@ -14,46 +13,38 @@
     staticruntime "on"
     toolset "msc"
     warnings "Extra"
-    
+	
     debugdir "%{wks.location}/Build/%{cfg.buildcfg}"
+    dependson { "Ultra" }
+    entrypoint "mainCRTStartup"
     files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx" }
     postbuildcommands {
-        "copy /b /y \"%{Package.ShaderC}\" \"%{cfg.targetdir}/\"",
+        "robocopy /mir /nfl /ndl /njh /njs /np /r:2 /w:1 \"%{wks.location}Assets\" \"%{cfg.targetdir}/Assets\"",
+        "robocopy /mir /nfl /ndl /njh /njs /np /r:2 /w:1 \"%{wks.location}Data\" \"%{cfg.targetdir}/Data\"",
         "exit /b 0",
     }
     
     externalincludedirs {
-	    "%{Headers.ThirdParty}",
-	    "%{Headers.assimp}",
-	    "%{Headers.DearImGui}",
-	    "%{Headers.EnTT}",
-	    "%{Headers.glm}",
-        "%{Headers.stb}",
-	    "%{Headers.Vulkan}",
-	    "%{Headers.VulkanVideo}",
-        "%{Headers.LibPHX}",
+	    "%{Headers.ThirdParty}/**",
         "%{Headers.LibPHXExt}",
     }
     includedirs {
-	    "%{Headers.Library}",
+        "%{Headers.Library}",
+        "%{Headers.LibPHX}",
     }
     links {
-        --"assimp",
-        "DearImGui",
-        "Glad",
-        "LibPHX",
-        "%{Library.ShaderC}",
-	    "%{Library.Vulkan}",
-	    --"%{Library.VulkanUtils}",
+        "Ultra",
     }
 
     filter { "configurations:Debug" }
+        kind "ConsoleApp"
         defines { "_DEBUG" }
         runtime "Debug"
         --sanitize { "Address", "Fuzzer" }
         symbols "on"
     
     filter { "configurations:Distribution" }
+        kind "WindowedApp"
         defines { "NDEBUG" }
         optimize "on"
         runtime "Release"
@@ -61,6 +52,7 @@
         symbols "on"
 
     filter { "configurations:Release" }
+        kind "WindowedApp"
         defines { "NDEBUG" }
         optimize "on"
         runtime "Release"

@@ -1,5 +1,6 @@
 ﻿module Ultra.Engine.Renderer;
 
+import Ultra.GFX.Context;
 import Ultra.Platform.DXRenderer;
 import Ultra.Platform.GLRenderer;
 import Ultra.Platform.VKRenderer;
@@ -9,22 +10,23 @@ import Ultra.Platform.Renderer.VKRenderDevice;
 
 namespace Ultra {
 
-Scope<Renderer> Renderer::Create(RenderAPI api) {
+Scope<Renderer> Renderer::Create() {
     Scope<Renderer> renderer;
     Scope<RenderDevice> device;
 
+    auto api = Context::GetAPI();
     switch (api) {
-        case RenderAPI::DirectX: {
+        case GraphicsAPI::DirectX: {
             renderer = CreateScope<DXRenderer>();
             device = CreateScope<DXRenderDevice>();
             break;
         }
-        case RenderAPI::OpenGL: {
+        case GraphicsAPI::OpenGL: {
             renderer = CreateScope<GLRenderer>();
             device = CreateScope<GLRenderDevice>();
             break;
         }
-        case RenderAPI::Vulkan: {
+        case GraphicsAPI::Vulkan: {
             renderer = CreateScope<VKRenderer>();
             device = CreateScope<VKRenderDevice>();
             break;
@@ -38,7 +40,6 @@ Scope<Renderer> Renderer::Create(RenderAPI api) {
         }
     }
     renderer->mRenderDevice = std::move(device);
-    SetAPI(api);
     renderer->Load();
     return renderer;
 }
@@ -47,7 +48,7 @@ void Renderer::Load() {
     mRenderDevice->Load();
     mRenderDevice->SetLineThickness(3.0f);
     mCommandBuffer = CommandBuffer::Create();
-    mCommandBuffer->SetViewport(0, 0, 800, 600);
+    mCommandBuffer->SetViewport(0, 0, 1280, 1024);
     Renderer2D::Load();
 }
 
@@ -92,11 +93,6 @@ void Renderer::DrawGrid(const DesignerCamera &camera) {
 
     // Renderer
     BasicShader->Bind();
-    //BasicShader->UpdateUniform("uViewProjection", camera.GetViewProjection());
-    //BasicShader->UpdateUniform("uProjection", camera.GetProjection());
-    //BasicShader->UpdateUniform("uView", camera.GetViewMatrix());
-    //BasicShader->UpdateUniform("uNearClip", camera.GetNearPoint());
-    //BasicShader->UpdateUniform("uFarClip", camera.GetFarPoint());
     cameraUniformData.Projection = camera.GetProjection();
     cameraUniformData.View = camera.GetViewMatrix();
     cameraUniformData.ViewProjection = camera.GetViewProjection();

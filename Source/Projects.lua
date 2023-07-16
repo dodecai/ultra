@@ -13,6 +13,9 @@
         ["Shaders"] = {
             "Assets/Shaders/*",
         },
+        ["Phoenix"] = {
+            "Assets/Phoenix/script/*.lua",
+        },
     },
     ["Build"] = {
         ["Projects"] = {
@@ -61,6 +64,7 @@ filter { "configurations:Distribution" }
 filter {}
 
 include "App/App.lua"
+include "Game/Game.lua"
 include "Library/Library.lua"
 include "Spectra/Spectra.lua"
 include "Test/Test.lua"

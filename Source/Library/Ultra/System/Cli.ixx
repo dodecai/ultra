@@ -3,17 +3,15 @@ export module Ultra.System.Cli;
 
 // Default
 import <format>;
-import <fstream>;
 import <iomanip>;
 import <iostream>;
-import <ostream>;
 
 ///
 /// @brief Cli Modifiers: These extend the output stream with backgrounds, colors and styles.
 /// @note Tested with Windows Terminal
 /// @source https://en.wikipedia.org/wiki/ANSI_escape_code
 /// 
-export namespace Ultra { export namespace Cli {
+export namespace Ultra::Cli {
 
 // Background Colors
 enum class Background {
@@ -101,22 +99,22 @@ concept typename_climodifier =
 
 // Overrides
 template <typename_climodifier T>
-std::ostream &operator<<(std::ostream &stream, T type) {
+constexpr inline std::ostream &operator<<(std::ostream &stream, T type) noexcept {
     return stream << "\x1b[" << static_cast<int>(type) << "m";
 }
 
 template <typename_climodifier T>
-std::wostream &operator<<(std::wostream &stream, T type) {
+constexpr inline std::wostream &operator<<(std::wostream &stream, T type) noexcept {
     return stream << "\x1b[" << static_cast<int>(type) << "m";
 }
 
 template <typename_climodifier T>
-std::ofstream &operator<<(std::ofstream &stream, T type) {
+constexpr inline std::ofstream &operator<<(std::ofstream &stream, T type) noexcept {
     return stream;
 }
 
 template <typename_climodifier T>
-std::wofstream &operator<<(std::wofstream &stream, T type) {
+constexpr inline std::wofstream &operator<<(std::wofstream &stream, T type) noexcept {
     return stream;
 }
 
@@ -167,15 +165,21 @@ void Test() {
     cout << Style::Reset << endl;
 }
 
-}}
+}
 
-template <>
-struct std::formatter<Ultra::Cli::Color> {
-    constexpr auto parse(std::format_parse_context &ctx) {
+// Global Overrides
+export namespace std {
+
+template <Ultra::Cli::typename_climodifier T>
+struct formatter<T, char> {
+    constexpr auto parse(format_parse_context &ctx) {
         return ctx.begin();
     }
 
-    auto format(const Ultra::Cli::Color &color, std::format_context &ctx) {
-        return std::format_to(ctx.out(), "\x1b[{:d}m", static_cast<int>(color));
+    template <typename FormatContext>
+    auto format(const T &modifier, FormatContext &ctx) {
+        return format_to(ctx.out(), "\x1b[{:d}m", static_cast<int>(modifier));
     }
 };
+
+}

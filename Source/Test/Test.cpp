@@ -6,8 +6,8 @@ import Ultra.Engine.DesignerCamera;
 import Ultra.Utility.ThreadPool;
 
 // Switches
-#define ENGINE_TESTS
-//#define LIBRARY_TESTS
+//#define ENGINE_TESTS
+#define LIBRARY_TESTS
 //#define MISCELLANEOUS_TESTS
 
 namespace Ultra {
@@ -108,7 +108,7 @@ public:
     // Methods
     void Create() {
         #ifdef ENGINE_TESTS
-            mRenderer = Renderer::Create(RenderAPI::Vulkan);  // Set the desired rendering API (OpenGL, DirectX, Vulkan, etc)
+            mRenderer = Renderer::Create();
             auto swapchain = Swapchain::Create(nullptr, 1280, 720);
 
             auto aspectRatio = 800.0f / 600.0f;
@@ -146,10 +146,10 @@ public:
     ///
     void EngineTest(Timestamp deltaTime) {
         //// Begin
-        //    // Begin recording commands
-        //    commandBuffer->Begin();
-        //    commandBuffer->Clear(0.2f, 0.3f, 0.3f, 1.0f);     // Clear the framebuffer
-        //    commandBuffer->BindRenderState(renderState);      // Set up the render state
+        //// Begin recording commands
+        //commandBuffer->Begin();
+        //commandBuffer->Clear(0.2f, 0.3f, 0.3f, 1.0f);     // Clear the framebuffer
+        //commandBuffer->BindRenderState(renderState);      // Set up the render state
 
         mRenderer->RenderFrame();
         mDesignerCamera.Update(deltaTime);
@@ -175,7 +175,7 @@ public:
         Renderer2D::DrawQuad({ -0.6f, -0.6f }, {  0.5f,   0.5f }, mCheckerBoard, 1.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
         Renderer2D::DrawQuad({  0.2f,  0.2f }, {  0.7f,   0.7f }, mCheckerBoard, 1.0f, { 0.0f, 0.0f, 1.0f, 1.0f });
         Renderer2D::DrawRect({ -0.9f,  0.9f }, {  0.5f,   0.5f }, { 0.2f, 0.2f, 0.2f, 1.0f });
-        Renderer2D::DrawCircle({ 1.0f, 1.0f }, { 0.5f,   0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f }, 0.1f, 0.1f);
+        Renderer2D::DrawCircle({ 1.0f, 1.0f }, {  0.5f,   0.5f }, { 1.0f, 0.0f, 1.0f, 1.0f }, 0.1f, 0.1f);
 
         static float rotation = 0.0f;
         const float speed = 180.0f;
@@ -184,9 +184,9 @@ public:
         Renderer2D::DrawRotatedQuad({  0.7f,   0.7f }, { 0.2f,  0.2f }, rotation * (3.14f / 180.0f), mCheckerBoard, 1.0f, { 0.0f, 1.0f, 0.0f, 1.0f });
         Renderer2D::DrawRotatedQuad({  0.7f,  -0.6f }, { 0.4f,  0.4f }, rotation * (3.14f / 180.0f) * -1.0f, mCheckerBoard, 1.0f, { 0.7f, 0.7f, 0.7f, 1.0f });
 
-        //// Finish
+        // Finish
         Renderer2D::FinishScene();
-        //mRenderer->DrawGrid(mDesignerCamera);
+        mRenderer->DrawGrid(mDesignerCamera);
         //Renderer::EndScene();
      
         //    commandBuffer->End();                             // End recording commands
@@ -203,7 +203,11 @@ public:
         ///
         logger << LogLevel::Caption << "Core Library" << "\n";
         // Logger
-        logger.Test();
+        ilogger.Attach(CreateReference<ConsoleLogger>());
+        ilogger.Attach(CreateReference<FileLogger>("Test.log"));
+        ilogger.Test();
+        ilogger(LogLevel::Warn, "Test {}, if you can{}!\n", "me", 2);
+        ilogger(LogLevel::Error, "Test me, if you can{}!\n", 3);
 
         ///
         /// Utilities
@@ -374,6 +378,19 @@ public:
     void Test() {
     }
 
+    //virtual void OnKeyboardEvent(KeyboardEventData &data, const EventListener::EventEmitter &emitter) override {
+    //    return;
+    //    if (data.State == KeyState::Release) {
+    //        if (data.Key == KeyCode::F9) {
+    //            mRenderer->Dispose();
+    //            auto api = Context::GetAPI() == GraphicsAPI::OpenGL ? GraphicsAPI::Vulkan : GraphicsAPI::OpenGL;
+    //            Context::SetAPI(api);
+    //            Reload();
+    //            mRenderer = Renderer::Create();
+    //        }
+    //    }
+    //}
+
 private:
     DesignerCamera mDesignerCamera;
     Reference<Texture> mCheckerBoard;
@@ -382,7 +399,7 @@ private:
 
 // Application Entry-Point
 Application *CreateApplication() {
-    return new App({ "Spectra", "1280x1024", GraphicsAPI::Vulkan });
+    return new App({ "Spectra", "1280x1024", GraphicsAPI::OpenGL });
 }
 
 }

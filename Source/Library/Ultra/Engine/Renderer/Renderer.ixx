@@ -17,13 +17,6 @@ export import Ultra.Engine.Renderer2D;
 
 export namespace Ultra {
 
-enum class RenderAPI {
-    DirectX,
-    OpenGL,
-    Software,
-    Vulkan,
-};
-
 /// 
 /// @brief Agnostic Renderer
 /// 
@@ -41,7 +34,7 @@ protected:
 public:
     virtual ~Renderer() = default;
 
-    static Scope<Renderer> Create(RenderAPI api);
+    static Scope<Renderer> Create();
 
     void Load();
     void RenderFrame();
@@ -50,18 +43,9 @@ public:
 
     void DrawGrid(const DesignerCamera &camera);
 
-    // Accessors
-    static const RenderAPI GetAPI() { return sAPI; }
-
-    // Mutators
-    static void SetAPI(const RenderAPI &api) { sAPI = api; }
-
 protected:
     Scope<CommandBuffer> mCommandBuffer;
     Scope<RenderDevice> mRenderDevice;
-    static RenderAPI sAPI;
 };
-
-RenderAPI Renderer::sAPI = RenderAPI::Vulkan;
 
 }
