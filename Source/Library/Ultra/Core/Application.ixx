@@ -29,6 +29,7 @@ private:
 // The title, resolution and graphics API can be passed as structure.
 struct ApplicationProperties {
     ApplicationProperties(): Title("Ultra"), Resolution("800x600") { CalculateResolution(); }
+    ApplicationProperties(bool external): External(external) {}
     ApplicationProperties(string title, string resolution): Title(title), Resolution(resolution) { CalculateResolution(); }
     ApplicationProperties(string title, string resolution, Ultra::LogLevel level): Title(title), Resolution(resolution), LogLevel(level) { CalculateResolution(); }
     ApplicationProperties(string title, string resolution, Ultra::GraphicsAPI api): Title(title), Resolution(resolution), GfxApi(api) { CalculateResolution(); }
@@ -40,6 +41,7 @@ struct ApplicationProperties {
     GraphicsAPI GfxApi = GraphicsAPI::OpenGL;
     uint32_t Width;
     uint32_t Height;
+    bool External;
 
 private:
     void CalculateResolution() {
@@ -94,6 +96,11 @@ public:
 
     // With this method, everything begins.
     void Run() {
+        if (mProperties.External) {
+            RunExternal();
+            return;
+        }
+
         // Initialization
         logger << LogLevel::Caption << AsciiLogo() << "\n";
         logger("{} started ...\n  on: '{}'\n  at: '{}'\n", mProperties.Title, apptime.GetDate(), apptime.GetTime());
@@ -181,6 +188,43 @@ public:
         for (Layer *layer : mLayers) layer->Destroy();
         Destroy();
         logger("{} finished ...\n  on: '{}'\n  at: '{}'\n", mProperties.Title, apptime.GetDate(), apptime.GetTime());
+    }
+    void RunExternal() {
+        // Runtime Properties
+        Timer timer = {};
+        double delay = {};
+        double frames = {};
+
+        // Creation
+        Create();
+
+        while (mRunning) {
+            // Update events and check if application is paused
+            if (mPaused) continue;
+            if (mReloaded) {
+                mReloaded = false;
+                continue;
+            }
+
+            // Calculate 
+            Timestamp deltaTime = timer.GetDeltaTime();
+            frames++;
+            delay += deltaTime;
+            mStatistics.msPF = deltaTime.GetMilliseconds();
+            if (delay >= 1.0f) {
+                mStatistics.fps = frames;
+                mStatistics.msPF = 1000.0f / frames;
+
+                frames = 0;
+                delay = 0.0f;
+            }
+
+            // Update
+            Update(deltaTime);
+        }
+
+        // Termination
+        Destroy();
     }
 
     // Accessors

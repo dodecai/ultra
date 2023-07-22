@@ -1,4 +1,4 @@
-static void HmGui_InitWidget (HmGuiWidget* e, uint32 type) {
+﻿static void HmGui_InitWidget (HmGuiWidget* e, uint32 type) {
   e->parent = self.group;
   e->next = 0;
   e->prev = self.group ? self.group->tail : 0;

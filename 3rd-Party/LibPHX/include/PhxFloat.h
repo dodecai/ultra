@@ -1,4 +1,4 @@
-#ifndef PHX_Float
+﻿#ifndef PHX_Float
 #define PHX_Float
 
 #include "Common.h"
@@ -14,6 +14,18 @@ inline bool   Float_ApproximatelyEqual  (float x, float y);
 inline bool   Float_ApproximatelyEqual  (double x, double y);
 
 /* -------------------------------------------------------------------------- */
+
+
+#define _DENORM    (-2)
+#define _FINITE    (-1)
+#define _INFCODE   1
+#define _NANCODE   2
+
+#define FP_INFINITE  _INFCODE
+#define FP_NAN       _NANCODE
+#define FP_NORMAL    _FINITE
+#define FP_SUBNORMAL _DENORM
+#define FP_ZERO      0
 
 inline Error Float_Validate (float x) {
   int classification = fpclassify(x);

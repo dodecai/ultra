@@ -1,4 +1,4 @@
-#include "Draw.h"
+﻿#include "Draw.h"
 #include "Metric.h"
 #include "OpenGL.h"
 #include "Vec4.h"
@@ -31,13 +31,7 @@ void Draw_PopAlpha () {
   GLCALL(glColor4f(color.x, color.y, color.z, color.w * alpha));
 }
 
-void Draw_Axes (
-  Vec3f const* pos,
-  Vec3f const* x,
-  Vec3f const* y,
-  Vec3f const* z,
-  float scale,
-  float _alpha)
+void Draw_Axes (Vec3f const* pos, Vec3f const* x, Vec3f const* y, Vec3f const* z, float scale, float _alpha)
 {
   Vec3f left    = Vec3f_Add(*pos, Vec3f_Muls(*x, scale));
   Vec3f up      = Vec3f_Add(*pos, Vec3f_Muls(*y, scale));

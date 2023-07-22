@@ -16,6 +16,12 @@ import Ultra.Core;
 
 export namespace Ultra {
 
+
+
+///
+/// @brief Migration Section, until everything is implemented, we use the glm Mappings
+///
+
 // Scalar Types
 using Bool = bool;
 using Double = double;

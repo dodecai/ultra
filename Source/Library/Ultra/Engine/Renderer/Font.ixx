@@ -1,8 +1,13 @@
-﻿#ifndef PHX_Font
-#define PHX_Font
+﻿module;
 
-#include "Common.h"
+#include "Vec2.h"
 #include "Vec4.h"
+
+export module Ultra.Engine.Font;
+
+import Ultra.Core;
+
+export namespace Ultra {
 
 /* --- Font --------------------------------------------------------------------
  *
@@ -17,17 +22,22 @@
  *
  * -------------------------------------------------------------------------- */
 
-PHX_API Font*  Font_Load          (cstr name, int size);
-PHX_API void   Font_Acquire       (Font*);
-PHX_API void   Font_Free          (Font*);
+struct FontData;
 
-PHX_API void   Font_Draw          (Font*, cstr text, float x, float y,
-                                   float r, float g, float b, float a);
-PHX_API void   Font_DrawShaded    (Font*, cstr text, float x, float y);
+class Font {
+public:
+    static FontData *Load(const char *name, int size);
+    static void Acquire(FontData *);
+    static void Free(FontData *);
 
-PHX_API int    Font_GetLineHeight (Font*);
+    static void Draw(FontData *, const char *text, float x, float y, float r, float g, float b, float a);
+    static void DrawShaded(FontData *, const char *text, float x, float y);
 
-PHX_API void   Font_GetSize       (Font*, Vec4i* out, cstr text);
-PHX_API void   Font_GetSize2      (Font*, Vec2i* out, cstr text);
+    static int GetLineHeight(FontData *);
 
-#endif
+    static void GetSize(FontData *, Vec4i *out, const char *text);
+    static void GetSize2(FontData *, Vec2i *out, const char *text);
+};
+
+
+}

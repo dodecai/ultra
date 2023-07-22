@@ -117,4 +117,21 @@ void Resource_Init () {
   Resource_AddPath(ResourceType_Tex2D,   "%s.png");
   Resource_AddPath(ResourceType_Tex3D,   "%s.bin");
   Resource_AddPath(ResourceType_TexCube, "%s");
+
+  Resource_AddPath(ResourceType_Font, "./Assets/Phoenix/res/font/%s.ttf");
+  Resource_AddPath(ResourceType_Font, "./Assets/Phoenix/res/font/%s.otf");
+  Resource_AddPath(ResourceType_Mesh, "./Assets/Phoenix/res/mesh/%s.bin");
+  Resource_AddPath(ResourceType_Mesh, "./Assets/Phoenix/res/mesh/%s.obj");
+  Resource_AddPath(ResourceType_Other, "./Assets/Phoenix/res/%s");
+  Resource_AddPath(ResourceType_Script, "./Assets/Phoenix/res/script/%s.lua");
+  Resource_AddPath(ResourceType_Shader, "./Assets/Phoenix/res/shader/%s.glsl");
+  Resource_AddPath(ResourceType_Sound, "./Assets/Phoenix/res/sound/%s.mp3");
+  Resource_AddPath(ResourceType_Sound, "./Assets/Phoenix/res/sound/%s.ogg");
+  Resource_AddPath(ResourceType_Sound, "./Assets/Phoenix/res/sound/%s.ogx");
+  Resource_AddPath(ResourceType_Sound, "./Assets/Phoenix/res/sound/%s.wav");
+  Resource_AddPath(ResourceType_Tex1D, "./Assets/Phoenix/res/tex1d/%s.bin");
+  Resource_AddPath(ResourceType_Tex2D, "./Assets/Phoenix/res/tex2d/%s.jpg");
+  Resource_AddPath(ResourceType_Tex2D, "./Assets/Phoenix/res/tex2d/%s.png");
+  Resource_AddPath(ResourceType_Tex3D, "./Assets/Phoenix/res/tex3d/%s.bin");
+  Resource_AddPath(ResourceType_TexCube, "./Assets/Phoenix/res/texcube/%s");
 }

@@ -1,4 +1,4 @@
-#include "DataFormat.h"
+﻿#include "DataFormat.h"
 #include "OpenGL.h"
 
 DataFormat const DataFormat_U8    = GL_UNSIGNED_BYTE;

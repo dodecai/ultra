@@ -1,4 +1,4 @@
-#include "Common.h"
+﻿#include "Common.h"
 #include "Tex2D.h"
 
 #pragma warning(push)
@@ -7,6 +7,7 @@
 //https://github.com/nothings/stb/issues/334
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
+#include "stb/stb_image_write.h"
 #pragma warning(pop)
 
 uchar* Tex2D_LoadRaw (cstr path, int* sx, int* sy, int* components) {

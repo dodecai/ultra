@@ -17,7 +17,7 @@
     debugdir "%{wks.location}/Build/%{cfg.buildcfg}"
     dependson { "Ultra" }
     entrypoint "mainCRTStartup"
-    files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx" }
+    files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx", "*.lua" }
     postbuildcommands {
         "robocopy /mir /nfl /ndl /njh /njs /np /r:2 /w:1 \"%{wks.location}Assets\" \"%{cfg.targetdir}/Assets\"",
         "robocopy /mir /nfl /ndl /njh /njs /np /r:2 /w:1 \"%{wks.location}Data\" \"%{cfg.targetdir}/Data\"",
@@ -32,8 +32,17 @@
         "%{Headers.Library}",
         "%{Headers.LibPHX}",
     }
+    libdirs { "%{wks.location}/3rd-Party/LibPHX/ext/lib/win64" }
     links {
+        "opengl32",
+        "glew32",
+        "freetype",
         "Ultra",
+        "lua51",
+        "SDL2",
+        "user32",
+        "winmm",
+        "Ws2_32",
     }
 
     filter { "configurations:Debug" }
