@@ -11,6 +11,7 @@
     defines { "_CRT_SECURE_NO_DEPRECATE", "WIN32_LEAN_AND_MEAN", "WINDOWS=1" }
     
     externalincludedirs {
+        "../",
         "ext/include",
     }
     includedirs {

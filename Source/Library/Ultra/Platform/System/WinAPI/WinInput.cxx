@@ -10,6 +10,9 @@ module Ultra.Platform.System.WinAPI.Input;
 
 namespace Ultra {
 
+static POINT sLastCursorPos {};
+static float sWheelState {};
+
 bool WinInput::GetKeyStatePlatform(KeyCode code) const {
     return (bool)::GetAsyncKeyState((int)code);
 }
@@ -26,10 +29,28 @@ bool WinInput::GetMouseButtonStatePlatform(MouseButton button) const {
 }
 
 std::pair<float, float> WinInput::GetMousePositionPlatform() const {
-    POINT point;
-    GetCursorPos(&point);
-    ScreenToClient(GetActiveWindow(), &point);
-    return { static_cast<float>(point.x), static_cast<float>(point.y) };
+    POINT current {};
+    GetCursorPos(&current);
+    ScreenToClient(GetActiveWindow(), &current);
+
+    sLastCursorPos = current;
+    return { static_cast<float>(current.x), static_cast<float>(current.y) };
+}
+
+std::pair<float, float> WinInput::GetMousePositionDeltaPlatform() const {
+    POINT current {};
+    GetCursorPos(&current);
+    ScreenToClient(GetActiveWindow(), &current);
+
+    current.x -= sLastCursorPos.x;
+    current.y -= sLastCursorPos.y;
+
+    sLastCursorPos = current;
+    return { static_cast<float>(current.x), static_cast<float>(current.y) };
+}
+
+float WinInput::GetMouseWheelDeltaPlatform() const {
+    return {};
 }
 
 }

@@ -6,6 +6,7 @@
 export module Ultra.Engine.Phoenix;
 
 import Ultra.Core;
+import Ultra.Logger;
 
 ///
 /// @brief Data
@@ -213,20 +214,98 @@ enum class ResourceType {
     Tex2D   = 7,
     Tex3D   = 8,
     TexCube = 9,
-
-    Count   = 0xA,
 };
 
 class Resource {
-public:
-    static void    AddPath(ResourceType, cstr format);
-    static bool    Exists(ResourceType, cstr name);
-    static cstr    GetPath(ResourceType, cstr name);
-    static Bytes  *LoadBytes(ResourceType, cstr name);
-    static cstr    LoadCstr(ResourceType, cstr name);
 
-    static cstr    ToString(ResourceType);
-    static void    Init();
+public:
+    Resource();
+    ~Resource();
+
+    static const Resource &Instance() {
+        static Resource instance {};
+        return instance;
+    }
+
+    static bool Exists(ResourceType, const string &name);
+    static string GetPath(ResourceType, const string &name);
+    static vector<uint32_t> LoadBytes(ResourceType, const string &name);
+    static string LoadCstr(ResourceType, const string &name);
+
+private:
+    static void AddPath(ResourceType, const string &format);
+    static string Resolve(ResourceType type, const string &name);
+    static string ToString(ResourceType);
+};
+
+}
+
+///
+/// @brief Metrics
+///
+export namespace Ultra {
+
+/* --- API NOTES ---------------------------------------------------------------
+ *
+ *   The Metric API is a simple set of accumulators that engine functions may
+ *   call to provide information relevent to performance profiling and
+ *   debugging. Metrics are reset each frame in Engine_Update, hence provide
+ *   only instantaneous information.
+ *
+ *   Metrics are quantities that only code internal to the engine can change
+ *   (e.g., a Lua script cannot draw a polygon without passing through
+ *   Draw_*, Mesh_Draw*, etc). Hence, all functions that modify metrics are
+ *   private.
+ *
+ *   Metric_Reset is called automatically in Engine_Update, so that metrics
+ *   are per-frame.
+ *
+ *     DrawCalls  : # gl_Draw* calls. glBegin/glEnd does not count.
+ *     Immediate  : # glBegin/glEnd pairs.
+ *     PolysDrawn : # polys drawn. gl_Begin(GL_QUADS) et al. should report the
+ *                  number of *polygons*, not triangles!
+ *
+ *     TrisDrawn  : # tris drawn. Non-tri draw calls should report
+ *                  #verts - 2, e.g. number of tris required for convex
+ *                  decomposition.
+ *
+ *     VertsDrawn : # verts *referenced* in draw calls. Buffered draws could
+ *                  report only the size of the vertex buffer! Immediate
+ *                  mode should report # calls to glVertex*.
+ *
+ *     Flush      : An *upper bound* on pipeline flushes. Each call that can
+ *                  cause a flush should increment this metric.
+ *
+ *     FBOSwap    : # glBindFramebuffer calls. Each call should be reported.
+ *                  In the future, we will introduce a new metric to report #
+ *                  of validation-inducing bind calls, but this will only be
+ *                  relevant once fbo caching is implemented.
+ *
+ * -------------------------------------------------------------------------- */
+
+enum class Metrics {
+    None = 0x0,
+    DrawCalls = 0x1,
+    Immediate = 0x2,
+    PolysDrawn = 0x3,
+    TrisDrawn = 0x4,
+    VertsDrawn = 0x5,
+    Flush = 0x6,
+    FBOSwap = 0x7,
+    SIZE = 0x7,
+};
+
+class Metric {
+public:
+    static int32  Get(Metrics);
+    static cstr   GetName(Metrics);
+
+    static void   Inc(Metrics);
+    static void   Mod(Metrics, int32);
+    static void   Reset();
+    
+    static void   AddDraw(int32 polys, int32 tris, int32 verts);
+    static void   AddDrawImm(int32 polys, int32 tris, int32 verts);
 };
 
 }
@@ -352,14 +431,14 @@ public:
     static void       DrawEx(Tex2DData *, float x0, float y0, float x1, float y1, float u0, float v0, float u1, float v1);
     static void       GenMipmap(Tex2DData *);
     static void       GetData(Tex2DData *, void *, PhxPixelFormat, PhxDataFormat);
-    static Bytes      *GetDataBytes(Tex2DData *, PhxPixelFormat, PhxDataFormat);
+    static vector<uint32_t>      GetDataBytes(Tex2DData *, PhxPixelFormat, PhxDataFormat);
     static PhxTextureFormat  GetFormat(Tex2DData *);
     static uint       GetHandle(Tex2DData *);
     static void       GetSize(Tex2DData *, Vec2i *out);
     static void       GetSizeLevel(Tex2DData *, Vec2i *out, int level);
     static void       SetAnisotropy(Tex2DData *, float);
     static void       SetData(Tex2DData *, void const *, PhxPixelFormat, PhxDataFormat);
-    static void       SetDataBytes(Tex2DData *, Bytes *, PhxPixelFormat, PhxDataFormat);
+    static void       SetDataBytes(Tex2DData *, vector<uint32_t>, PhxPixelFormat, PhxDataFormat);
     static void       SetMagFilter(Tex2DData *, TexFilter);
     static void       SetMinFilter(Tex2DData *, TexFilter);
     static void       SetMipRange(Tex2DData *, int minLevel, int maxLevel);
@@ -491,55 +570,6 @@ public:
     static void   Push(int x, int y, int sx, int sy, bool isWindow);
     static float  GetAspect();
     static void   GetSize(Vec2i *out);
-};
-
-}
-
-///
-/// @brief Window
-///
-export namespace Ultra {
-
-struct WindowData;
-
-enum class WindowMode {
-    AlwaysOnTop = 32768,
-    Borderless  = 16,
-    Fullscreen  = 4097,
-    Hidden      = 8,
-    Maximized   = 128,
-    Minimized   = 64,
-    Resizable   = 32,
-    Shown       = 4,
-};
-
-enum class PhxWindowPosition {
-    Centered    = 0x2FFF0000u,
-    Default     = 0x1FFF0000u,
-};
-
-class PhxWindow {
-public:
-    static WindowData *Create(cstr title, PhxWindowPosition x, PhxWindowPosition y, int sx, int sy, WindowMode mode);
-    static void     Free(WindowData *);
-    
-    static void     BeginDraw(WindowData *);
-    static void     EndDraw(WindowData *);
-    
-    static void     GetPosition(WindowData *, Vec2i *out);
-    static void     GetSize(WindowData *, Vec2i *out);
-    static cstr     GetTitle(WindowData *);
-    
-    static void     SetFullscreen(WindowData *, bool);
-    static void     SetPosition(WindowData *, PhxWindowPosition, PhxWindowPosition);
-    static void     SetSize(WindowData *, int, int);
-    static void     SetTitle(WindowData *, cstr);
-    static void     SetVsync(WindowData *, bool);
-    
-    static void     ToggleFullscreen(WindowData *);
-    
-    static void     Hide(WindowData *);
-    static void     Show(WindowData *);
 };
 
 }

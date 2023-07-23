@@ -122,6 +122,8 @@ GLContext::GLContext(void *window) {
 	// Prepare
 	Data = new ContextData();
 	ContextProperties properties;
+    properties.VersionMajor = 3;
+    properties.VersionMinor = 1;
 
 	Data->hWindow = reinterpret_cast<HWND>(window);
 

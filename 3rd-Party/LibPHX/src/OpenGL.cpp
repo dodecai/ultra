@@ -1,4 +1,4 @@
-#include "BlendMode.h"
+﻿#include "BlendMode.h"
 #include "CullFace.h"
 #include "OpenGL.h"
 #include "RenderState.h"
@@ -7,7 +7,8 @@ void OpenGL_Init () {
   static bool init = false;
   if (!init) {
     init = true;
-    glewInit();
+    gladLoaderLoadGL();
+    //glewInit();
   }
 
   GLCALL(glDisable(GL_MULTISAMPLE))

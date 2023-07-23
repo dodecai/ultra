@@ -1,26 +1,21 @@
 ﻿#include <Settings.h>
 #include <Ultra/EntryPoint.h>
 
-#define ENABLE_GLCHECK
-
-#include <Draw.h>
-#include <Font.h>
-#include <Viewport.h>
-#include <Window.h>
-#include <WindowMode.h>
-//#include <HmGui.h>
-
 import Ultra;
-import Ultra.Module.Phoenix;
-import Ultra.Utility.String;
 
-import Ultra.Engine.Phoenix;
-import Ultra.UI.HmGui;
+#define NATIVE_RENDERER1
+
+#ifdef NATIVE_RENDERER
+    import Ultra.Module.Phoenix;
+#else
+    import Ultra.Engine.Phoenix;
+    import Ultra.UI.HmGui;
+#endif
+import Ultra.Utility.String;
 
 namespace Ultra {
 
 using namespace Ultra::UI;
-
 
 using CheckListEntry = std::map<std::string, bool>;
 using CheckList = std::map<std::string, CheckListEntry>;
@@ -68,6 +63,19 @@ CheckList gCheckList = {
 constexpr const char * gCodeExample = R"(
 #include <print>
 
+class Foo {
+public:
+    Foo() = default;
+    virtual ~Foo() = default;
+};
+
+class Bar: Foo {
+public:
+    Bar() = default;
+    virtual ~Bar() = default;
+};
+
+
 int main() {
     print("{}", "Hello World!");
 }
@@ -78,22 +86,17 @@ int main() {
 class App: public Application {
 public:
     // Constructors and Destructor
-    App(): Application(ApplicationProperties(true)) {}
+#ifdef NATIVE_RENDERER
+    App(const ApplicationProperties &properties): Application(ApplicationProperties(true)) {}
+#else
+    App(const ApplicationProperties &properties): Application(properties) {}
+#endif
     ~App() = default;
 
     // Methods
     void Create() {
+    #ifdef NATIVE_RENDERER
         Engine_Init(2, 1);
-        Resource::Init();
-
-        mFontExo2Bold = Font::Load("Exo2Bold", 30);
-        mFontFiraMono = Font::Load("FiraMono", 10);
-        mFontRajdhani = Font::Load("Rajdhani", 18);
-
-        mWindow = PhxWindow::Create("Ultra", (PhxWindowPosition)64, (PhxWindowPosition)64, 1280, 1024, WindowMode::Shown);
-        PhxWindow::SetVsync(mWindow, true);
-
-        return;
         mLua = Lua_Create();
 
         char const *entryPoint = "./Script/Main.lua";
@@ -107,36 +110,54 @@ public:
         Lua_SetBool(mLua, "__debug__", false); //DEBUG > 0
         Lua_SetBool(mLua, "__embedded__", true);
         Lua_SetNumber(mLua, "__checklevel__", 0); // CHECK_LEVEL [=0]
-        Lua_SetStr(mLua, "__app__", "PhysicsTest");
+        Lua_SetStr(mLua, "__app__", "TestHmGui");
         Lua_DoFile(mLua, "./Script/Main.lua");
+    #else
+        mRenderer = Renderer::Create();
+        RenderState::PushAllDefaults();
+
+        Resource::Instance();
+
+        mFontExo2Bold = Font::Load("Exo2Bold", 30);
+        mFontFiraMono = Font::Load("FiraMono", 10);
+        mFontRajdhani = Font::Load("Rajdhani", 18);
+    #endif
     }
 
     void Destroy() {
+    #ifdef NATIVE_RENDERER
+        Lua_Free(mLua);
+        Engine_Free();
+    #else
         Font::Free(mFontExo2Bold);
         Font::Free(mFontFiraMono);
         Font::Free(mFontRajdhani);
-
-        PhxWindow::Free(mWindow);
-
-        Lua_Free(mLua);
-        Engine_Free();
+    #endif
     }
 
     void Update([[maybe_unused]] Timestamp deltaTime) {
-        Engine_Update();
+        #ifdef NATIVE_RENDERER
+            Engine_Update();
+        #else
 
-        HmGui::Begin(1280, 1024);
-        ShowSimple();
-        ShowMetrics(deltaTime);
-        ShowToDoWindow();
-        HmGui::End();
+            HmGui::Begin(1280, 1024);
+            ShowSimple();
+            ShowMetrics(deltaTime);
+            ShowToDoWindow();
+            HmGui::End();
 
-        PhxWindow::BeginDraw(mWindow);
-        Draw::Clear(0, 0, 0, 0);
-        HmGui::Draw();
-        PhxWindow::EndDraw(mWindow);
+            Viewport::Push(0, 0, 1280, 1024, true);
+            Draw::Clear(0, 0, 0, 0);
+            HmGui::Draw();
+            Viewport::Pop();
+
+            Metric::Reset();
+        #endif
     }
 
+
+#ifdef NATIVE_RENDERER
+#else
     void ShowMetrics(float deltaTime) {
         HmGui::BeginWindow("Metrics");
             HmGui::Text(std::format("fps: {:.2}", 1.0 / deltaTime).c_str());
@@ -262,18 +283,22 @@ public:
         ShowToDo();
         HmGui::EndWindow();
     }
+#endif
 
 private:
+#ifdef NATIVE_RENDERER
     Lua *mLua = nullptr;
+#else
+    Scope<Renderer> mRenderer;
     FontData *mFontExo2Bold = nullptr;
     FontData *mFontFiraMono = nullptr;
     FontData *mFontRajdhani = nullptr;
-    WindowData *mWindow = nullptr;
+#endif
 };
 
 // Application Entry-Point
 Application *CreateApplication() {
-    return new App();
+    return new App({ "Game", "1280x1024", GraphicsAPI::OpenGL });
 }
 
 }

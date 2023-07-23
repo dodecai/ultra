@@ -41,7 +41,7 @@ struct ApplicationProperties {
     GraphicsAPI GfxApi = GraphicsAPI::OpenGL;
     uint32_t Width;
     uint32_t Height;
-    bool External;
+    bool External = false;
 
 private:
     void CalculateResolution() {

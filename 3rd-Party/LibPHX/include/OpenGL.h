@@ -1,8 +1,9 @@
-#ifndef PHX_OpenGL
+﻿#ifndef PHX_OpenGL
 #define PHX_OpenGL
 
 #include "Common.h"
-#include "GL/glew.h"
+//#include "GL/glew.h"
+#include <glad/gl.h>
 
 void  OpenGL_Init       ();
 void  OpenGL_CheckError (cstr file, int line);

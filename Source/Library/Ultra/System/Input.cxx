@@ -32,4 +32,13 @@ std::pair<float, float> Input::GetMousePosition() {
     return Instance->GetMousePositionPlatform();
 }
 
+
+std::pair<float, float> Input::GetMousePositionDelta() {
+    return Instance->GetMousePositionDeltaPlatform();
+}
+
+float Input::GetMouseWheelDelta() {
+    return Instance->GetMouseWheelDeltaPlatform();
+}
+
 }

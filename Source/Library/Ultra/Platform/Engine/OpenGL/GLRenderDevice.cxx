@@ -15,16 +15,16 @@ namespace Ultra {
 static void GLMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
     switch (severity) {
         case GL_DEBUG_SEVERITY_HIGH:
-            LogError("Platform::OpenGL: ", message);
+            LogError("Platform::OpenGL: {}", message);
             break;
         case GL_DEBUG_SEVERITY_MEDIUM:
-            LogWarning("Platform::OpenGL: ", message);
+            LogWarning("Platform::OpenGL: {}", message);
             break;
         case GL_DEBUG_SEVERITY_LOW:
-            LogInfo("Platform::OpenGL: ", message);
+            LogInfo("Platform::OpenGL: {}", message);
             break;
         case GL_DEBUG_SEVERITY_NOTIFICATION:
-            LogTrace("Platform::OpenGL: ", message);
+            LogTrace("Platform::OpenGL: {}", message);
             break;
     }
 }
@@ -35,6 +35,7 @@ GLRenderDevice::GLRenderDevice() {}
 GLRenderDevice::~GLRenderDevice() {}
 
 void GLRenderDevice::Load() {
+
     uint32_t vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -55,6 +56,31 @@ void GLRenderDevice::Load() {
 
     //glEnable(GL_MULTISAMPLE);	// Information
     //glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
+
+    // ToDo: From Phoenix
+    glDisable(GL_MULTISAMPLE);
+    glDisable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glDepthFunc(GL_LEQUAL);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ZERO);
+
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+    glDisable(GL_POINT_SMOOTH);
+    glDisable(GL_LINE_SMOOTH);
+    glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
+    glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);
+    glLineWidth(2);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    // ~ToDo
 
     // Information
     auto &capabilities = RenderDevice::GetCapabilities();

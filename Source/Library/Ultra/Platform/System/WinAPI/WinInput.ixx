@@ -6,9 +6,11 @@ export namespace Ultra {
 
 class WinInput: public Input {
 protected:
-    virtual bool GetKeyStatePlatform(KeyCode code) const override;
-    virtual bool GetMouseButtonStatePlatform(MouseButton button) const override;
-    virtual std::pair<float, float> GetMousePositionPlatform() const override;
+    bool GetKeyStatePlatform(KeyCode code) const override;
+    bool GetMouseButtonStatePlatform(MouseButton button) const override;
+    std::pair<float, float> GetMousePositionPlatform() const override;
+    std::pair<float, float> GetMousePositionDeltaPlatform() const override;
+    float GetMouseWheelDeltaPlatform() const override;
 };
 
 }

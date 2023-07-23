@@ -1,10 +1,11 @@
 ﻿module;
 
-#include "Button.h"
+// ToDo: Check Profiler
+#define FRAME_BEGIN
+#define FRAME_END
+
 #include "Hash.h"
-#include "HashMap.h"
-#include "Input.h"
-#include "Profiler.h"
+//#include "HashMap.h"
 #include "Vec2.h"
 #include "Vec4.h"
 
@@ -13,6 +14,7 @@ export module Ultra.UI.HmGui;
 import Ultra.Core;
 import Ultra.Engine.Phoenix;
 import Ultra.Engine.UIRenderer;
+import Ultra.System.Input;
 export import Ultra.Engine.Font;
 
 export namespace Ultra::UI {
@@ -129,7 +131,8 @@ struct HmGuiDataStructure {
     HmGuiWidget *last;
     HmGuiStyle *style;
     HmGuiClipRect *clipRect;
-    HashMap *data;
+    //HashMap *data;
+    unordered_map<uint64_t, HmGuiData *> data;
 
     uint64 focus[(int)FocusMouse::Size];
     Vec2f focusPos;
@@ -158,7 +161,7 @@ public:
             self.style->colorText = Vec4f_Create(1, 1, 1, 1);
 
             self.clipRect = 0;
-            self.data = HashMap_Create(0, 128);
+            //self.data = HashMap_Create(0, 128);
 
             for (int i = 0; i < (int)FocusMouse::Size; ++i) self.focus[i] = 0;
             self.activate = false;
@@ -169,7 +172,8 @@ public:
             self.root = 0;
         }
         self.last = 0;
-        self.activate = Input_GetPressed(Button_Mouse_Left);
+        //self.activate = Input_GetPressed(Button_Mouse_Left);
+        self.activate = Input::GetMouseButtonState(MouseButton::Left);
 
         BeginGroup(Layout::None);
         self.group->clip = true;
@@ -184,7 +188,10 @@ public:
         LayoutGroup(self.root);
 
         for (int i = 0; i < (int)FocusMouse::Size; ++i) self.focus[i] = 0;
-        Vec2i mouse; Input_GetMousePosition(&mouse);
+        Vec2i mouse; //Input_GetMousePosition(&mouse);
+        auto [x, y] = Input::GetMousePosition();
+        mouse.x = x;
+        mouse.y = y;
         self.focusPos = Vec2f_Create(mouse.x, mouse.y);
         CheckFocus(self.root);
         FRAME_END;
@@ -231,7 +238,9 @@ public:
     static void EndScroll() {
         HmGuiData *data = GetData(self.group);
         if (GroupHasFocus(FocusMouse::Scroll)) {
-            Vec2i scroll; Input_GetMouseScroll(&scroll);
+            Vec2i scroll; //Input_GetMouseScroll(&scroll);
+            auto delta = Input::GetMouseWheelDelta();
+            scroll.y = delta;
             data->offset.y -= 10.0f * scroll.y;
         }
 
@@ -262,8 +271,12 @@ public:
         #if HMGUI_ENABLE_DRAGGING
         HmGuiData *data = GetData(self.group);
         if (GroupHasFocus(FocusMouse::Mouse)) {
-            if (Input_GetDown(Button_Mouse_Left)) {
-                Vec2i md; Input_GetMouseDelta(&md);
+            //if (Input_GetDown(Button_Mouse_Left)) {
+            if (Input::GetMouseButtonState(MouseButton::Left)) {
+                Vec2i md; //Input_GetMouseDelta(&md);
+                auto [x, y] = Input::GetMousePositionDelta();
+                md.x = x;
+                md.y = y;
                 data->offset.x += md.x;
                 data->offset.y += md.y;
             }
@@ -491,13 +504,15 @@ private:
     }
 
     static HmGuiData *GetData(HmGuiGroup *g) {
-        HmGuiData *data = (HmGuiData *)HashMap_GetRaw(self.data, g->hash);
+        //HmGuiData *data = (HmGuiData *)HashMap_GetRaw(self.data, g->hash);
+        auto data = self.data[g->hash];
         if (!data) {
             data = new HmGuiData();
             data->offset = Vec2f_Create(0, 0);
             data->minSize = Vec2f_Create(0, 0);
             data->size = Vec2f_Create(0, 0);
-            HashMap_SetRaw(self.data, g->hash, data);
+            //HashMap_SetRaw(self.data, g->hash, data);
+            self.data[g->hash] = data;
         }
         return data;
     }
@@ -654,8 +669,8 @@ private:
 
     static void DrawText(HmGuiText *e) {
         #if HMGUI_DRAW_GROUP_FRAMES
-        Draw_Color(0.5f, 0.2f, 0.2f, 0.5f);
-        Draw_Border(1.0f, e->pos.x, e->pos.y, e->size.x, e->size.y);
+        Draw::Color(0.5f, 0.2f, 0.2f, 0.5f);
+        Draw::Border(1.0f, e->pos.x, e->pos.y, e->size.x, e->size.y);
         #endif
 
         UIRenderer::Text(e->font, e->text.c_str(), e->pos.x, e->pos.y + e->minSize.y, UNPACK4(e->color));
@@ -668,8 +683,8 @@ private:
     }
     static void DrawGroup(HmGuiGroup *g) {
         #if HMGUI_DRAW_GROUP_FRAMES
-        Draw_Color(0.2f, 0.2f, 0.2f, 0.5f);
-        Draw_Border(2.0f, g->pos.x, g->pos.y, g->size.x, g->size.y);
+        Draw::Color(0.2f, 0.2f, 0.2f, 0.5f);
+        Draw::Border(2.0f, g->pos.x, g->pos.y, g->size.x, g->size.y);
         #endif
 
         UIRenderer::BeginLayer(g->pos.x, g->pos.y, g->size.x, g->size.y, g->clip);

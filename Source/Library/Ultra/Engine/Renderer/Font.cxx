@@ -1,10 +1,10 @@
 ﻿module;
 
-#include "OpenGL.h"
-#include "HashMap.h"
-#include "Profiler.h"
-#include "RefCounted.h"
-#include "Resource.h"
+// ToDo: Check Profiler
+#define FRAME_BEGIN
+#define FRAME_END
+
+//#include "HashMap.h"
 #include "Vec2.h"
 #include "Vec4.h"
 
@@ -35,9 +35,9 @@ struct Glyph {
 };
 
 struct FontData {
-    RefCounted;
     FT_Face handle;
-    HashMap *glyphs;
+    //HashMap *glyphs;
+    unordered_map<uint32_t, Glyph *> glyphs;
     Glyph *glyphsAscii[256];
 };
 
@@ -47,9 +47,9 @@ static Glyph *Font_GetGlyph(FontData *self, uint32 codepoint) {
     if (codepoint < 256 && self->glyphsAscii[codepoint])
         return self->glyphsAscii[codepoint];
 
-    Glyph *g = (Glyph *)HashMap_Get(self->glyphs, &codepoint);
-    if (g)
-        return g;
+    //Glyph *g = (Glyph *)HashMap_Get(self->glyphs, &codepoint);
+    Glyph *g = self->glyphs[codepoint];
+    if (g) return g;
 
     FT_Face face = self->handle;
     int glyph = FT_Get_Char_Index(face, codepoint);
@@ -93,10 +93,12 @@ static Glyph *Font_GetGlyph(FontData *self, uint32 codepoint) {
 
 
     /* Add to glyph cache. */
-    if (codepoint < 256)
+    if (codepoint < 256) {
         self->glyphsAscii[codepoint] = g;
-    else
-        HashMap_Set(self->glyphs, &codepoint, g);
+    } else {
+        //HashMap_Set(self->glyphs, &codepoint, g);
+        self->glyphs[codepoint] = g;
+    }
     return g;
 }
 
@@ -109,24 +111,23 @@ inline static int Font_GetKerning(FontData *self, int a, int b) {
 FontData *Font::Load(cstr name, int size) {
     if (!ft) FT_Init_FreeType(&ft);
 
-    cstr path = Resource_GetPath(ResourceType_Font, name);
+    string path = Resource::GetPath(ResourceType::Font, name);
     FontData *self = new FontData();
-    RefCounted_Init(self);
 
-    if (FT_New_Face(ft, path, 0, &self->handle)) Fatal("Font_Load: Failed to load font <%s> at <%s>", name, path);
+    if (FT_New_Face(ft, path.c_str(), 0, &self->handle)) Fatal("Font_Load: Failed to load font <%s> at <%s>", name, path);
     FT_Set_Pixel_Sizes(self->handle, 0, size);
 
     memset(self->glyphsAscii, 0, sizeof(self->glyphsAscii));
-    self->glyphs = HashMap_Create(sizeof(uint32), 16);
+    //self->glyphs = HashMap_Create(sizeof(uint32), 16);
     return self;
 }
 
 void Font::Acquire(FontData *self) {
-    RefCounted_Acquire(self);
+    //RefCounted_Acquire(self);
 }
 
 void Font::Free(FontData *self) {
-    RefCounted_Free(self) {
+    {
       /* TODO : Free glyphs! */
         FT_Done_Face(self->handle);
         delete self;

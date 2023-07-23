@@ -83,13 +83,11 @@ static void Init() {
 }
 
 static void DrawLayer(UIRendererLayer const *self) {
-    if (self->clip)
-        ClipRect::PushCombined(self->pos.x, self->pos.y, self->size.x, self->size.y);
+    if (self->clip) ClipRect::PushCombined(self->pos.x, self->pos.y, self->size.x, self->size.y);
 
     if (self->panelList) {
         static ShaderData *shader = 0;
-        if (!shader)
-            shader = PhxShader::Load("vertex/ui", "fragment/ui/panel");
+        if (!shader) shader = PhxShader::Load("vertex/ui", "fragment/ui/panel");
 
         const float pad = 64.0f;
         PhxShader::Start(shader);
@@ -117,20 +115,19 @@ static void DrawLayer(UIRendererLayer const *self) {
 
     for (UIRendererRect const *e = self->rectList; e; e = e->next) {
         Draw::Color(UNPACK4(e->color));
-        if (e->outline)
-            Draw::Border(1.0f, UNPACK2(e->pos), UNPACK2(e->size));
-        else
-            Draw::Rect(UNPACK2(e->pos), UNPACK2(e->size));
+        if (e->outline) Draw::Border(1.0f, UNPACK2(e->pos), UNPACK2(e->size));
+        else Draw::Rect(UNPACK2(e->pos), UNPACK2(e->size));
     }
 
-    for (UIRendererText const *e = self->textList; e; e = e->next)
+    for (UIRendererText const *e = self->textList; e; e = e->next) {
         Font::Draw(e->font, e->text, UNPACK2(e->pos), UNPACK4(e->color));
+    }
 
-    for (UIRendererLayer const *e = self->children; e; e = e->next)
+    for (UIRendererLayer const *e = self->children; e; e = e->next) {
         DrawLayer(e);
+    }
 
-    if (self->clip)
-        ClipRect::Pop();
+    if (self->clip) ClipRect::Pop();
 }
 
 
