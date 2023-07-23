@@ -11,6 +11,7 @@ import Ultra;
     import Ultra.Engine.Phoenix;
     import Ultra.UI.HmGui;
 #endif
+import Ultra.Math;
 import Ultra.Utility.String;
 
 namespace Ultra {
@@ -151,7 +152,7 @@ public:
             HmGui::Draw();
             Viewport::Pop();
 
-            Metric::Reset();
+            PhxMetric::Reset();
         #endif
     }
 

@@ -1,11 +1,7 @@
-﻿module;
-
-#include "Vec2.h"
-#include "Vec4.h"
-
-export module Ultra.Engine.Font;
+﻿export module Ultra.Engine.Font;
 
 import Ultra.Core;
+import Ultra.Math;
 
 export namespace Ultra {
 
@@ -35,8 +31,8 @@ public:
 
     static int GetLineHeight(FontData *);
 
-    static void GetSize(FontData *, Vec4i *out, const char *text);
-    static void GetSize2(FontData *, Vec2i *out, const char *text);
+    static void GetSize(FontData *, Vector4Di *out, const char *text);
+    static void GetSize2(FontData *, Vector2Di *out, const char *text);
 };
 
 

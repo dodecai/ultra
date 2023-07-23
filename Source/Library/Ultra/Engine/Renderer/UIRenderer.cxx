@@ -1,34 +1,34 @@
 ﻿module;
 
 #include "MemPool.h"
-#include "Vec2.h"
-#include "Vec4.h"
 
 module Ultra.Engine.UIRenderer;
+
+import Ultra.Math;
 
 namespace Ultra {
 
 struct UIRendererImage {
     UIRendererImage *next;
     Tex2DData *image;
-    Vec2f pos;
-    Vec2f size;
+    Vector2Df pos;
+    Vector2Df size;
 };
 
 struct UIRendererPanel {
     UIRendererPanel *next;
-    Vec2f pos;
-    Vec2f size;
-    Vec4f color;
+    Vector2Df pos;
+    Vector2Df size;
+    Vector4Df color;
     float bevel;
     float innerAlpha;
 };
 
 struct UIRendererRect {
     UIRendererRect *next;
-    Vec2f pos;
-    Vec2f size;
-    Vec4f color;
+    Vector2Df pos;
+    Vector2Df size;
+    Vector4Df color;
     bool outline;
 };
 
@@ -36,8 +36,8 @@ struct UIRendererText {
     UIRendererText *next;
     FontData *font;
     cstr text;
-    Vec2f pos;
-    Vec4f color;
+    Vector2Df pos;
+    Vector4Df color;
 };
 
 struct UIRendererLayer {
@@ -50,8 +50,8 @@ struct UIRendererLayer {
     UIRendererRect *rectList;
     UIRendererText *textList;
 
-    Vec2f pos;
-    Vec2f size;
+    Vector2Df pos;
+    Vector2Df size;
     bool clip;
 };
 
@@ -102,7 +102,7 @@ static void DrawLayer(UIRendererLayer const *self) {
             PhxShader::SetFloat("innerAlpha", e->innerAlpha);
             PhxShader::SetFloat("bevel", e->bevel);
             PhxShader::SetFloat2("size", sx, sy);
-            PhxShader::SetFloat4("color", UNPACK4(e->color));
+            PhxShader::SetFloat4("color", e->color.x, e->color.y, e->color.z, e->color.w);
             Draw::Rect(x, y, sx, sy);
         }
 
@@ -110,17 +110,17 @@ static void DrawLayer(UIRendererLayer const *self) {
     }
 
     for (UIRendererImage const *e = self->imageList; e; e = e->next) {
-        Tex2D::Draw(e->image, UNPACK2(e->pos), UNPACK2(e->size));
+        Tex2D::Draw(e->image, e->pos.x, e->pos.y, e->size.x, e->size.y);
     }
 
     for (UIRendererRect const *e = self->rectList; e; e = e->next) {
-        Draw::Color(UNPACK4(e->color));
-        if (e->outline) Draw::Border(1.0f, UNPACK2(e->pos), UNPACK2(e->size));
-        else Draw::Rect(UNPACK2(e->pos), UNPACK2(e->size));
+        Draw::Color(e->color.x, e->color.y, e->color.z, e->color.w);
+        if (e->outline) Draw::Border(1.0f, e->pos.x, e->pos.y, e->size.x, e->size.y);
+        else Draw::Rect(e->pos.x, e->pos.y, e->size.x, e->size.y);
     }
 
     for (UIRendererText const *e = self->textList; e; e = e->next) {
-        Font::Draw(e->font, e->text, UNPACK2(e->pos), UNPACK4(e->color));
+        Font::Draw(e->font, e->text, e->pos.x, e->pos.y, e->color.x, e->color.y, e->color.z, e->color.w);
     }
 
     for (UIRendererLayer const *e = self->children; e; e = e->next) {
@@ -143,7 +143,7 @@ void UIRenderer::Begin() {
     MemPool_Clear(self.rectPool);
     MemPool_Clear(self.textPool);
 
-    Vec2i vp; Viewport::GetSize(&vp);
+    Vector2Di vp; Viewport::GetSize(&vp);
     BeginLayer(0, 0, vp.x, vp.y, true);
     self.root = self.layer;
 }
@@ -164,8 +164,8 @@ void UIRenderer::BeginLayer(float x, float y, float sx, float sy, bool clip) {
     layer->next = 0;
     layer->children = 0;
 
-    layer->pos = Vec2f_Create(x, y);
-    layer->size = Vec2f_Create(sx, sy);
+    layer->pos = { x, y };
+    layer->size = { sx, sy };
     layer->clip = clip;
 
     layer->imageList = 0;
@@ -187,17 +187,17 @@ void UIRenderer::Image(Tex2DData *image, float x, float y, float sx, float sy) {
     UIRendererImage *e = (UIRendererImage *)MemPool_Alloc(self.imagePool);
     e->next = self.layer->imageList;
     e->image = image;
-    e->pos = Vec2f_Create(x, y);
-    e->size = Vec2f_Create(sx, sy);
+    e->pos = { x, y };
+    e->size = { sx, sy };
     self.layer->imageList = e;
 }
 
 void UIRenderer::Panel(float x, float y, float sx, float sy, float r, float g, float b, float a, float bevel, float innerAlpha) {
     UIRendererPanel *e = (UIRendererPanel *)MemPool_Alloc(self.panelPool);
     e->next = self.layer->panelList;
-    e->pos = Vec2f_Create(x, y);
-    e->size = Vec2f_Create(sx, sy);
-    e->color = Vec4f_Create(r, g, b, a);
+    e->pos = { x, y };
+    e->size = { sx, sy };
+    e->color = { r, g, b, a };
     e->bevel = bevel;
     e->innerAlpha = innerAlpha;
     self.layer->panelList = e;
@@ -206,9 +206,9 @@ void UIRenderer::Panel(float x, float y, float sx, float sy, float r, float g, f
 void UIRenderer::Rect(float x, float y, float sx, float sy, float r, float g, float b, float a, bool outline) {
     UIRendererRect *e = (UIRendererRect *)MemPool_Alloc(self.rectPool);
     e->next = self.layer->rectList;
-    e->pos = Vec2f_Create(x, y);
-    e->size = Vec2f_Create(sx, sy);
-    e->color = Vec4f_Create(r, g, b, a);
+    e->pos = { x, y };
+    e->size = { sx, sy };
+    e->color = { r, g, b, a };
     e->outline = outline;
     self.layer->rectList = e;
 }
@@ -218,8 +218,8 @@ void UIRenderer::Text(FontData *font, cstr text, float x, float y, float r, floa
     e->next = self.layer->textList;
     e->font = font;
     e->text = text;
-    e->pos = Vec2f_Create(x, y);
-    e->color = Vec4f_Create(r, g, b, a);
+    e->pos = { x, y };
+    e->color = { r, g, b, a };
     self.layer->textList = e;
 }
 

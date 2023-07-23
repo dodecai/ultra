@@ -111,7 +111,7 @@ inline static int Font_GetKerning(FontData *self, int a, int b) {
 FontData *Font::Load(cstr name, int size) {
     if (!ft) FT_Init_FreeType(&ft);
 
-    string path = Resource::GetPath(ResourceType::Font, name);
+    string path = Resource::GetPath(PhyResourceType::Font, name);
     FontData *self = new FontData();
 
     if (FT_New_Face(ft, path.c_str(), 0, &self->handle)) Fatal("Font_Load: Failed to load font <%s> at <%s>", name, path);
@@ -199,7 +199,7 @@ int Font::GetLineHeight(FontData *self) {
     return self->handle->size->metrics.height >> 6;
 }
 
-void Font::GetSize(FontData *self, Vec4i *out, cstr text) {
+void Font::GetSize(FontData *self, Vector4Di *out, cstr text) {
     FRAME_BEGIN;
     int x = 0, y = 0;
     Vec2i lower = { INT_MAX, INT_MAX };
@@ -208,7 +208,7 @@ void Font::GetSize(FontData *self, Vec4i *out, cstr text) {
     int glyphLast = 0;
     uint32 codepoint = *text++;
     if (!codepoint) {
-        *out = Vec4i_Create(0, 0, 0, 0);
+        *out = { 0, 0, 0, 0 };
         return;
     }
 
@@ -229,7 +229,7 @@ void Font::GetSize(FontData *self, Vec4i *out, cstr text) {
         codepoint = *text++;
     }
 
-    *out = Vec4i_Create(lower.x, lower.y, upper.x - lower.x, upper.y - lower.y);
+    *out = { lower.x, lower.y, upper.x - lower.x, upper.y - lower.y };
     FRAME_END;
 }
 
@@ -243,7 +243,7 @@ void Font::GetSize(FontData *self, Vec4i *out, cstr text) {
  *           pos.y - (size.y + bound.y) / 2
  */
 
-void Font::GetSize2(FontData *self, Vec2i *out, cstr text) {
+void Font::GetSize2(FontData *self, Vector2Di *out, cstr text) {
     FRAME_BEGIN;
     out->x = 0;
     out->y = 0;

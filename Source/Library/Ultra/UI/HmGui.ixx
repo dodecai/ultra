@@ -5,15 +5,13 @@
 #define FRAME_END
 
 #include "Hash.h"
-//#include "HashMap.h"
-#include "Vec2.h"
-#include "Vec4.h"
 
 export module Ultra.UI.HmGui;
 
 import Ultra.Core;
 import Ultra.Engine.Phoenix;
 import Ultra.Engine.UIRenderer;
+import Ultra.Math;
 import Ultra.System.Input;
 export import Ultra.Engine.Font;
 
@@ -61,11 +59,11 @@ struct HmGuiWidget {
     HmGuiWidget *prev;
     uint64 hash;
     WidgetType type;
-    Vec2f pos;
-    Vec2f size;
-    Vec2f minSize;
-    Vec2f align;
-    Vec2f stretch;
+    Vector2Df pos;
+    Vector2Df size;
+    Vector2Df minSize;
+    Vector2Df align;
+    Vector2Df stretch;
 };
 
 struct HmGuiGroup: public HmGuiWidget {
@@ -74,11 +72,11 @@ struct HmGuiGroup: public HmGuiWidget {
     Layout layout;
     uint32 children;
     FocusStyle focusStyle;
-    Vec2f paddingLower;
-    Vec2f paddingUpper;
-    Vec2f offset;
-    Vec2f maxSize;
-    Vec2f totalStretch;
+    Vector2Df paddingLower;
+    Vector2Df paddingUpper;
+    Vector2Df offset;
+    Vector2Df maxSize;
+    Vector2Df totalStretch;
     float spacing;
     float frameOpacity;
     bool clip;
@@ -90,11 +88,11 @@ struct HmGuiGroup: public HmGuiWidget {
 struct HmGuiText: public HmGuiWidget {
     FontData *font;
     string text;
-    Vec4f color;
+    Vector4Df color;
 };
 
 struct HmGuiRect: public HmGuiWidget {
-    Vec4f color;
+    Vector4Df color;
 };
 
 struct HmGuiImage: public HmGuiWidget {
@@ -103,23 +101,23 @@ struct HmGuiImage: public HmGuiWidget {
 
 struct HmGuiClipRect {
     HmGuiClipRect *prev;
-    Vec2f lower;
-    Vec2f upper;
+    Vector2Df lower;
+    Vector2Df upper;
 };
 
 struct HmGuiData {
-    Vec2f offset;
-    Vec2f minSize;
-    Vec2f size;
+    Vector2Df offset;
+    Vector2Df minSize;
+    Vector2Df size;
 };
 
 struct HmGuiStyle {
     HmGuiStyle *prev;
     FontData *font;
     float spacing;
-    Vec4f colorPrimary;
-    Vec4f colorFrame;
-    Vec4f colorText;
+    Vector4Df colorPrimary;
+    Vector4Df colorFrame;
+    Vector4Df colorText;
 };
 
 ///
@@ -135,7 +133,7 @@ struct HmGuiDataStructure {
     unordered_map<uint64_t, HmGuiData *> data;
 
     uint64 focus[(int)FocusMouse::Size];
-    Vec2f focusPos;
+    Vector2Df focusPos;
     bool activate;
 };
 
@@ -156,9 +154,9 @@ public:
             self.style->font = Font::Load("Rajdhani", 14);
             self.style->spacing = 6;
 
-            self.style->colorPrimary = Vec4f_Create(0.1f, 0.5f, 1.0f, 1.0f);
-            self.style->colorFrame = Vec4f_Create(0.1f, 0.1f, 0.1f, 0.5f);
-            self.style->colorText = Vec4f_Create(1, 1, 1, 1);
+            self.style->colorPrimary = { 0.1f, 0.5f, 1.0f, 1.0f };
+            self.style->colorFrame = { 0.1f, 0.1f, 0.1f, 0.5f };
+            self.style->colorText = { 1.0f, 1.0f, 1.0f, 1.0f };
 
             self.clipRect = 0;
             //self.data = HashMap_Create(0, 128);
@@ -177,8 +175,8 @@ public:
 
         BeginGroup(Layout::None);
         self.group->clip = true;
-        self.group->pos = Vec2f_Create(0, 0);
-        self.group->size = Vec2f_Create(sx, sy);
+        self.group->pos = { 0, 0 };
+        self.group->size = { sx, sy };
         self.root = self.group;
     }
     static void End() {
@@ -188,11 +186,11 @@ public:
         LayoutGroup(self.root);
 
         for (int i = 0; i < (int)FocusMouse::Size; ++i) self.focus[i] = 0;
-        Vec2i mouse; //Input_GetMousePosition(&mouse);
+        Vector2Di mouse; //Input_GetMousePosition(&mouse);
         auto [x, y] = Input::GetMousePosition();
         mouse.x = x;
         mouse.y = y;
-        self.focusPos = Vec2f_Create(mouse.x, mouse.y);
+        self.focusPos = { (float)mouse.x, (float)mouse.y };
         CheckFocus(self.root);
         FRAME_END;
     }
@@ -238,14 +236,14 @@ public:
     static void EndScroll() {
         HmGuiData *data = GetData(self.group);
         if (GroupHasFocus(FocusMouse::Scroll)) {
-            Vec2i scroll; //Input_GetMouseScroll(&scroll);
+            Vector2Di scroll; //Input_GetMouseScroll(&scroll);
             auto delta = Input::GetMouseWheelDelta();
             scroll.y = delta;
             data->offset.y -= 10.0f * scroll.y;
         }
 
-        float maxScroll = Max(0.0f, data->minSize.y - data->size.y);
-        data->offset.y = Clamp(data->offset.y, 0.0f, maxScroll);
+        float maxScroll = std::max(0.0f, data->minSize.y - data->size.y);
+        data->offset.y = std::clamp(data->offset.y, 0.0f, maxScroll);
 
         EndGroup();
 
@@ -254,9 +252,9 @@ public:
         SetSpacing(0);
         if (maxScroll > 0) {
             float handleSize = data->size.y * (data->size.y / data->minSize.y);
-            float handlePos = Lerp(0.0f, data->size.y - handleSize, data->offset.y / maxScroll);
+            float handlePos = std::lerp(0.0f, data->size.y - handleSize, data->offset.y / maxScroll);
             Rect(4.0f, handlePos, 0.0f, 0.0f, 0.0f, 0.0f);
-            Rect(4.0f, handleSize, UNPACK4(self.style->colorFrame));
+            Rect(4.0f, handleSize, self.style->colorFrame.x, self.style->colorFrame.y, self.style->colorFrame.z, self.style->colorFrame.w);
         } else {
             Rect(4.0f, 16.0f, 0.0f, 0.0f, 0.0f, 0.0f);
         }
@@ -273,7 +271,7 @@ public:
         if (GroupHasFocus(FocusMouse::Mouse)) {
             //if (Input_GetDown(Button_Mouse_Left)) {
             if (Input::GetMouseButtonState(MouseButton::Left)) {
-                Vec2i md; //Input_GetMouseDelta(&md);
+                Vector2Di md; //Input_GetMouseDelta(&md);
                 auto [x, y] = Input::GetMousePositionDelta();
                 md.x = x;
                 md.y = y;
@@ -323,9 +321,9 @@ public:
         SetStretch(1, 0);
 
         BeginGroupStack();
-        Rect(16, 16, UNPACK4(self.style->colorFrame));
+        Rect(16, 16, self.style->colorFrame.x, self.style->colorFrame.y, self.style->colorFrame.z, self.style->colorFrame.w);
         if (value) {
-            Rect(10, 10, UNPACK4(self.style->colorPrimary));
+            Rect(10, 10, self.style->colorPrimary.x, self.style->colorPrimary.y, self.style->colorPrimary.z, self.style->colorPrimary.w);
             SetAlign(0.5f, 0.5f);
         }
         EndGroup();
@@ -346,16 +344,16 @@ public:
         HmGuiImage *e = new HmGuiImage();
         InitWidget(e, WidgetType::Image);
         e->image = image;
-        e->stretch = Vec2f_Create(1, 1);
+        e->stretch = { 1, 1 };
     }
     static void Rect(float sx, float sy, float r, float g, float b, float a) {
         HmGuiRect *e = new HmGuiRect();
         InitWidget(e, WidgetType::Rect);
-        e->color = Vec4f_Create(r, g, b, a);
-        e->minSize = Vec2f_Create(sx, sy);
+        e->color = { r, g, b, a };
+        e->minSize = { sx, sy };
     }
     static void Text(cstr text) {
-        TextEx(self.style->font, text, UNPACK4(self.style->colorText));
+        TextEx(self.style->font, text, self.style->colorText.x, self.style->colorText.y, self.style->colorText.z, self.style->colorText.w);
     }
     static void TextColored(cstr text, float r, float g, float b, float a) {
         TextEx(self.style->font, text, r, g, b, a);
@@ -365,22 +363,22 @@ public:
         InitWidget(e, WidgetType::Text);
         e->font = font;
         e->text = string(text);
-        e->color = Vec4f_Create(r, g, b, a);
-        Vec2i size; Font::GetSize2(e->font, &size, e->text.c_str());
-        e->minSize = Vec2f_Create(size.x, size.y);
+        e->color = { r, g, b, a };
+        Vector2Di size; Font::GetSize2(e->font, &size, e->text.c_str());
+        e->minSize = { (float)size.x, (float)size.y };
         SetAlign(0.0f, 1.0f);
     }
 
     static void SetAlign(float ax, float ay) {
-        self.last->align = Vec2f_Create(ax, ay);
+        self.last->align = { ax, ay };
     }
     static void SetPadding(float px, float py) {
-        self.group->paddingLower = Vec2f_Create(px, py);
-        self.group->paddingUpper = Vec2f_Create(px, py);
+        self.group->paddingLower = { px, py };
+        self.group->paddingUpper = { px, py };
     }
     static void SetPaddingEx(float left, float top, float right, float bottom) {
-        self.group->paddingLower = Vec2f_Create(left, top);
-        self.group->paddingUpper = Vec2f_Create(right, bottom);
+        self.group->paddingLower = { left, top };
+        self.group->paddingUpper = { right, bottom };
     }
     static void SetPaddingLeft(float padding) {
         self.group->paddingLower.x = padding;
@@ -398,7 +396,7 @@ public:
         self.group->spacing = spacing;
     }
     static void SetStretch(float x, float y) {
-        self.last->stretch = Vec2f_Create(x, y);
+        self.last->stretch = { x, y };
     }
     static bool GroupHasFocus(FocusMouse type) {
         self.group->focusable[(int)type] = true;
@@ -417,7 +415,7 @@ public:
     }
     static void PushTextColor(float r, float g, float b, float a) {
         PushStyle();
-        self.style->colorText = Vec4f_Create(r, g, b, a);
+        self.style->colorText = { r, g, b, a };
     }
     static void PopStyle(int depth) {
         for (int i = 0; i < depth; ++i) {
@@ -446,11 +444,11 @@ private:
         }
 
         e->type = type;
-        e->pos = Vec2f_Create(0, 0);
-        e->size = Vec2f_Create(0, 0);
-        e->minSize = Vec2f_Create(0, 0);
-        e->align = Vec2f_Create(0, 0);
-        e->stretch = Vec2f_Create(0, 0);
+        e->pos = { 0, 0 };
+        e->size = { 0, 0 };
+        e->minSize = { 0, 0 };
+        e->align = { 0, 0 };
+        e->stretch = { 0, 0 };
 
         self.last = e;
     }
@@ -462,10 +460,10 @@ private:
         e->layout = layout;
         e->children = 0;
         e->focusStyle = FocusStyle::None;
-        e->paddingLower = Vec2f_Create(0, 0);
-        e->paddingUpper = Vec2f_Create(0, 0);
-        e->offset = Vec2f_Create(0, 0);
-        e->maxSize = Vec2f_Create(1e30f, 1e30f);
+        e->paddingLower = { 0.0f, 0.0f };
+        e->paddingUpper = { 0.0f, 0.0f };
+        e->offset = { 0.0f, 0.0f };
+        e->maxSize = { 1e30f, 1e30f };
         e->spacing = self.style->spacing;
         e->frameOpacity = 0.0f;
         e->clip = false;
@@ -476,13 +474,13 @@ private:
 
         switch (layout) {
             case Layout::Stack:
-                e->stretch = Vec2f_Create(1, 1);
+                e->stretch = { 1, 1 };
                 break;
             case Layout::Vertical:
-                e->stretch = Vec2f_Create(1, 0);
+                e->stretch = { 1, 0 };
                 break;
             case Layout::Horizontal:
-                e->stretch = Vec2f_Create(0, 1);
+                e->stretch = { 0, 1 };
                 break;
         }
     }
@@ -508,9 +506,9 @@ private:
         auto data = self.data[g->hash];
         if (!data) {
             data = new HmGuiData();
-            data->offset = Vec2f_Create(0, 0);
-            data->minSize = Vec2f_Create(0, 0);
-            data->size = Vec2f_Create(0, 0);
+            data->offset = { 0, 0 };
+            data->minSize = { 0, 0 };
+            data->size = { 0, 0 };
             //HashMap_SetRaw(self.data, g->hash, data);
             self.data[g->hash] = data;
         }
@@ -521,12 +519,13 @@ private:
         HmGuiClipRect *rect = new HmGuiClipRect();
         rect->prev = self.clipRect;
         rect->lower = g->pos;
-        rect->upper = Vec2f_Add(g->pos, g->size);
+        // ToDo: :(
+        //rect->upper = { g->pos, g->size };
         if (rect->prev) {
-            rect->lower.x = Max(rect->lower.x, rect->prev->lower.x);
-            rect->lower.y = Max(rect->lower.y, rect->prev->lower.y);
-            rect->upper.x = Min(rect->upper.x, rect->prev->upper.x);
-            rect->upper.y = Min(rect->upper.y, rect->prev->upper.y);
+            rect->lower.x = std::max(rect->lower.x, rect->prev->lower.x);
+            rect->lower.y = std::max(rect->lower.y, rect->prev->lower.y);
+            rect->upper.x = std::min(rect->upper.x, rect->prev->upper.x);
+            rect->upper.y = std::min(rect->upper.y, rect->prev->upper.y);
         }
         self.clipRect = rect;
     }
@@ -541,22 +540,22 @@ private:
             if (e->type == WidgetType::Group)
                 ComputeSize((HmGuiGroup *)e);
 
-        g->minSize = Vec2f_Create(0, 0);
+        g->minSize = { 0, 0 };
 
         for (HmGuiWidget *e = g->head; e; e = e->next) {
             switch (g->layout) {
                 case Layout::Stack:
-                    g->minSize.x = Max(g->minSize.x, e->minSize.x);
-                    g->minSize.y = Max(g->minSize.y, e->minSize.y);
+                    g->minSize.x = std::max(g->minSize.x, e->minSize.x);
+                    g->minSize.y = std::max(g->minSize.y, e->minSize.y);
                     break;
                 case Layout::Vertical:
-                    g->minSize.x = Max(g->minSize.x, e->minSize.x);
+                    g->minSize.x = std::max(g->minSize.x, e->minSize.x);
                     g->minSize.y += e->minSize.y;
                     if (e != g->head) g->minSize.y += g->spacing;
                     break;
                 case Layout::Horizontal:
                     g->minSize.x += e->minSize.x;
-                    g->minSize.y = Max(g->minSize.y, e->minSize.y);
+                    g->minSize.y = std::max(g->minSize.y, e->minSize.y);
                     if (e != g->head) g->minSize.x += g->spacing;
                     break;
             }
@@ -570,10 +569,10 @@ private:
             data->minSize = g->minSize;
         }
 
-        g->minSize.x = Min(g->minSize.x, g->maxSize.x);
-        g->minSize.y = Min(g->minSize.y, g->maxSize.y);
+        g->minSize.x = std::min(g->minSize.x, g->maxSize.x);
+        g->minSize.y = std::min(g->minSize.y, g->maxSize.y);
     }
-    static void LayoutWidget(HmGuiWidget *e, Vec2f pos, float sx, float sy) {
+    static void LayoutWidget(HmGuiWidget *e, Vector2Df pos, float sx, float sy) {
         e->pos = pos;
         e->size = e->minSize;
         e->size.x += e->stretch.x * (sx - e->minSize.x);
@@ -582,8 +581,8 @@ private:
         e->pos.y += e->align.y * (sy - e->size.y);
     }
     static void LayoutGroup(HmGuiGroup *g) {
-        Vec2f pos = g->pos;
-        Vec2f size = g->size;
+        Vector2Df pos = g->pos;
+        Vector2Df size = g->size;
         float extra = 0;
         float totalStretch = 0;
 
@@ -640,7 +639,7 @@ private:
             data->size = g->size;
         }
     }
-    inline static bool IsClipped(HmGuiGroup *g, Vec2f p) {
+    inline static bool IsClipped(HmGuiGroup *g, Vector2Df p) {
         return
             p.x < g->pos.x ||
             p.y < g->pos.y ||
@@ -673,10 +672,10 @@ private:
         Draw::Border(1.0f, e->pos.x, e->pos.y, e->size.x, e->size.y);
         #endif
 
-        UIRenderer::Text(e->font, e->text.c_str(), e->pos.x, e->pos.y + e->minSize.y, UNPACK4(e->color));
+        UIRenderer::Text(e->font, e->text.c_str(), e->pos.x, e->pos.y + e->minSize.y, e->color.x, e->color.y, e->color.z, e->color.w);
     }
     static void DrawRect(HmGuiRect *e) {
-        UIRenderer::Rect(e->pos.x, e->pos.y, e->size.x, e->size.y, UNPACK4(e->color), false);
+        UIRenderer::Rect(e->pos.x, e->pos.y, e->size.x, e->size.y, e->color.x, e->color.y, e->color.z, e->color.w, false);
     }
     static void DrawImage(HmGuiImage *e) {
         UIRenderer::Image(e->image, e->pos.x, e->pos.y, e->size.x, e->size.y);

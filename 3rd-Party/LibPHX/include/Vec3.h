@@ -1,4 +1,4 @@
-#ifndef PHX_Vec3
+﻿#ifndef PHX_Vec3
 #define PHX_Vec3
 
 #include "Common.h"

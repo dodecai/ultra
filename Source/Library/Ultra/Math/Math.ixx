@@ -14,9 +14,11 @@ export import <glm/gtx/string_cast.hpp>;
 
 import Ultra.Core;
 
+export import Ultra.Math.Matrix;
+export import Ultra.Math.Quaternion;
+export import Ultra.Math.Vector;
+
 export namespace Ultra {
-
-
 
 ///
 /// @brief Migration Section, until everything is implemented, we use the glm Mappings

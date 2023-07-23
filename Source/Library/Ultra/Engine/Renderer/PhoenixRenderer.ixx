@@ -1,12 +1,17 @@
 ﻿module;
 
-#include "Box3.h"
-#include "Vec2.h"
+#include <Matrix.h>
 
 export module Ultra.Engine.Phoenix;
 
 import Ultra.Core;
 import Ultra.Logger;
+import Ultra.Math;
+
+
+using uchar = unsigned char;
+using cstr = const char *;
+using int32 = int32_t;
 
 ///
 /// @brief Data
@@ -203,7 +208,7 @@ bool IsPhxTextureFormatValid(PhxTextureFormat self) {
 ///
 export namespace Ultra {
 
-enum class ResourceType {
+enum class PhyResourceType {
     Font    = 0,
     Mesh    = 1,
     Other   = 2,
@@ -227,15 +232,16 @@ public:
         return instance;
     }
 
-    static bool Exists(ResourceType, const string &name);
-    static string GetPath(ResourceType, const string &name);
-    static vector<uint32_t> LoadBytes(ResourceType, const string &name);
-    static string LoadCstr(ResourceType, const string &name);
+    static bool Exists(PhyResourceType, const string &name);
+    static string GetPath(PhyResourceType, const string &name);
+    static vector<uint32_t> LoadBytes(PhyResourceType, const string &name);
+    static string LoadCstr(PhyResourceType, const string &name);
+    static void Reset();
 
 private:
-    static void AddPath(ResourceType, const string &format);
-    static string Resolve(ResourceType type, const string &name);
-    static string ToString(ResourceType);
+    static void AddPath(PhyResourceType, const string &format);
+    static string Resolve(PhyResourceType type, const string &name);
+    static string ToString(PhyResourceType);
 };
 
 }
@@ -295,7 +301,7 @@ enum class Metrics {
     SIZE = 0x7,
 };
 
-class Metric {
+class PhxMetric {
 public:
     static int32  Get(Metrics);
     static cstr   GetName(Metrics);
@@ -315,7 +321,7 @@ public:
 ///
 export namespace Ultra {
 
-enum class  ShaderVarType {
+enum class  PhxShaderVarType {
     None = 0x0,
     BEGIN = 0x1,
     Float = 0x1,
@@ -365,8 +371,8 @@ public:
     static void          SetFloat3(cstr, float, float, float);
     static void          SetFloat4(cstr, float, float, float, float);
     static void          SetInt(cstr, int);
-    static void          SetMatrix(cstr, Matrix *);
-    static void          SetMatrixT(cstr, Matrix *);
+    static void          SetMatrix(cstr, ::Matrix *);
+    static void          SetMatrixT(cstr, ::Matrix *);
     //static void          SetTex1D(cstr, Tex1D *);
     static void          SetTex2D(cstr, Tex2DData *);
     //static void          SetTex3D(cstr, Tex3D *);
@@ -377,8 +383,8 @@ public:
     static void          ISetFloat3(int, float, float, float);
     static void          ISetFloat4(int, float, float, float, float);
     static void          ISetInt(int, int);
-    static void          ISetMatrix(int, Matrix *);
-    static void          ISetMatrixT(int, Matrix *);
+    static void          ISetMatrix(int, ::Matrix *);
+    static void          ISetMatrixT(int, ::Matrix *);
     //static void          ISetTex1D(int, Tex1D *);
     static void          ISetTex2D(int, Tex2DData *);
     //static void          ISetTex3D(int, Tex3D *);
@@ -387,13 +393,13 @@ public:
 
 class PhxShaderVar {
     public:
-    static void *Get(cstr, ShaderVarType);
+    static void *Get(cstr, PhxShaderVarType);
     static void  PushFloat(cstr, float);
     static void  PushFloat2(cstr, float, float);
     static void  PushFloat3(cstr, float, float, float);
     static void  PushFloat4(cstr, float, float, float, float);
     static void  PushInt(cstr, int);
-    static void  PushMatrix(cstr, Matrix *);
+    static void  PushMatrix(cstr, ::Matrix *);
     static void  PushTex1D(cstr, Tex1D *);
     static void  PushTex2D(cstr, Tex2DData *);
     static void  PushTex3D(cstr, Tex3D *);
@@ -434,8 +440,8 @@ public:
     static vector<uint32_t>      GetDataBytes(Tex2DData *, PhxPixelFormat, PhxDataFormat);
     static PhxTextureFormat  GetFormat(Tex2DData *);
     static uint       GetHandle(Tex2DData *);
-    static void       GetSize(Tex2DData *, Vec2i *out);
-    static void       GetSizeLevel(Tex2DData *, Vec2i *out, int level);
+    static void       GetSize(Tex2DData *, Vector2Di *out);
+    static void       GetSizeLevel(Tex2DData *, Vector2Di *out, int level);
     static void       SetAnisotropy(Tex2DData *, float);
     static void       SetData(Tex2DData *, void const *, PhxPixelFormat, PhxDataFormat);
     static void       SetDataBytes(Tex2DData *, vector<uint32_t>, PhxPixelFormat, PhxDataFormat);
@@ -539,22 +545,22 @@ public:
     static void Border(float s, float x, float y, float w, float h);
     static void Line(float x1, float y1, float x2, float y2);
     static void Point(float x, float y);
-    static void Poly(Vec2f const *points, int count);
-    static void Quad(Vec2f const *p1, Vec2f const *p2, Vec2f const *p3, Vec2f const *p4);
+    static void Poly(Vector2Df const *points, int count);
+    static void Quad(Vector2Df const *p1, Vector2Df const *p2, Vector2Df const *p3, Vector2Df const *p4);
     static void Rect(float x, float y, float sx, float sy);
-    static void Tri(Vec2f const *p1, Vec2f const *p2, Vec2f const *p3);
+    static void Tri(Vector2Df const *p1, Vector2Df const *p2, Vector2Df const *p3);
 
     /* --- 3D API --------------------------------------------------------------- */
 
-    static void Axes(Vec3f const *pos, Vec3f const *x, Vec3f const *y, Vec3f const *z, float scale, float alpha);
-    static void Box3(Box3f const *box);
-    static void Line3(Vec3f const *p1, Vec3f const *p2);
-    static void Plane(Vec3f const *p, Vec3f const *n, float scale);
+    static void Axes(Vector3Df const *pos, Vector3Df const *x, Vector3Df const *y, Vector3Df const *z, float scale, float alpha);
+    /*static void Box3(Box3f const *box);*/
+    static void Line3(Vector3Df const *p1, Vector3Df const *p2);
+    static void Plane(Vector3Df const *p, Vector3Df const *n, float scale);
     static void Point3(float x, float y, float z);
-    static void Poly3(Vec3f const *points, int count);
-    static void Quad3(Vec3f const *p1, Vec3f const *p2, Vec3f const *p3, Vec3f const *p4);
-    static void Sphere(Vec3f const *p, float r);
-    static void Tri3(Vec3f const *p1, Vec3f const *p2, Vec3f const *p3);
+    static void Poly3(Vector3Df const *points, int count);
+    static void Quad3(Vector3Df const *p1, Vector3Df const *p2, Vector3Df const *p3, Vector3Df const *p4);
+    static void Sphere(Vector3Df const *p, float r);
+    static void Tri3(Vector3Df const *p1, Vector3Df const *p2, Vector3Df const *p3);
 };
 
 }
@@ -569,7 +575,7 @@ public:
     static void   Pop();
     static void   Push(int x, int y, int sx, int sy, bool isWindow);
     static float  GetAspect();
-    static void   GetSize(Vec2i *out);
+    static void   GetSize(Vector2Di *out);
 };
 
 }

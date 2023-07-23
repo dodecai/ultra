@@ -2,12 +2,12 @@
 
 #include <glad/gl.h>
 
+#define LogWarning(...)
+#define LogFatal(...)
+
 // ToDo: Check Profiler
 #define FRAME_BEGIN
 #define FRAME_END
-
-#include "Vec2.h"
-#include "Vec4.h"
 
 #pragma warning(push)
 #pragma warning(disable:4242)
@@ -32,57 +32,57 @@ import Ultra.Utility.String;
 namespace Ultra {
 
 using PathList = std::list<string>;
-static unordered_map<ResourceType, PathList> sPaths;
+static unordered_map<PhyResourceType, PathList> sPaths;
 
 Resource::Resource() {
-    Resource::AddPath(ResourceType::Font, "./Assets/Phoenix/res/font/{}.ttf");
-    Resource::AddPath(ResourceType::Font, "./Assets/Phoenix/res/font/{}.otf");
-    Resource::AddPath(ResourceType::Mesh, "./Assets/Phoenix/res/mesh/{}.bin");
-    Resource::AddPath(ResourceType::Mesh, "./Assets/Phoenix/res/mesh/{}.obj");
-    Resource::AddPath(ResourceType::Script, "./Assets/Phoenix/res/script/{}.lua");
-    Resource::AddPath(ResourceType::Shader, "./Assets/Phoenix/res/shader/{}.glsl");
-    Resource::AddPath(ResourceType::Sound, "./Assets/Phoenix/res/sound/{}.mp3");
-    Resource::AddPath(ResourceType::Sound, "./Assets/Phoenix/res/sound/{}.ogg");
-    Resource::AddPath(ResourceType::Sound, "./Assets/Phoenix/res/sound/{}.ogx");
-    Resource::AddPath(ResourceType::Sound, "./Assets/Phoenix/res/sound/{}.wav");
-    Resource::AddPath(ResourceType::Tex1D, "./Assets/Phoenix/res/tex1d/{}.bin");
-    Resource::AddPath(ResourceType::Tex2D, "./Assets/Phoenix/res/tex2d/{}.jpg");
-    Resource::AddPath(ResourceType::Tex2D, "./Assets/Phoenix/res/tex2d/{}.png");
-    Resource::AddPath(ResourceType::Tex3D, "./Assets/Phoenix/res/tex3d/{}.bin");
-    Resource::AddPath(ResourceType::TexCube, "./Assets/Phoenix/res/texcube/{}");
-    Resource::AddPath(ResourceType::Other, "./Assets/Phoenix/res/{}");
+    Resource::AddPath(PhyResourceType::Font, "./Assets/Phoenix/res/font/{}.ttf");
+    Resource::AddPath(PhyResourceType::Font, "./Assets/Phoenix/res/font/{}.otf");
+    Resource::AddPath(PhyResourceType::Mesh, "./Assets/Phoenix/res/mesh/{}.bin");
+    Resource::AddPath(PhyResourceType::Mesh, "./Assets/Phoenix/res/mesh/{}.obj");
+    Resource::AddPath(PhyResourceType::Script, "./Assets/Phoenix/res/script/{}.lua");
+    Resource::AddPath(PhyResourceType::Shader, "./Assets/Phoenix/res/shader/{}.glsl");
+    Resource::AddPath(PhyResourceType::Sound, "./Assets/Phoenix/res/sound/{}.mp3");
+    Resource::AddPath(PhyResourceType::Sound, "./Assets/Phoenix/res/sound/{}.ogg");
+    Resource::AddPath(PhyResourceType::Sound, "./Assets/Phoenix/res/sound/{}.ogx");
+    Resource::AddPath(PhyResourceType::Sound, "./Assets/Phoenix/res/sound/{}.wav");
+    Resource::AddPath(PhyResourceType::Tex1D, "./Assets/Phoenix/res/tex1d/{}.bin");
+    Resource::AddPath(PhyResourceType::Tex2D, "./Assets/Phoenix/res/tex2d/{}.jpg");
+    Resource::AddPath(PhyResourceType::Tex2D, "./Assets/Phoenix/res/tex2d/{}.png");
+    Resource::AddPath(PhyResourceType::Tex3D, "./Assets/Phoenix/res/tex3d/{}.bin");
+    Resource::AddPath(PhyResourceType::TexCube, "./Assets/Phoenix/res/texcube/{}");
+    Resource::AddPath(PhyResourceType::Other, "./Assets/Phoenix/res/{}");
 }
 
 Resource::~Resource() {
 }
 
-bool Resource::Exists(ResourceType type, const string &name) {
+bool Resource::Exists(PhyResourceType type, const string &name) {
     return Resolve(type, name).empty() ? false : true;
 }
 
-string Resource::GetPath(ResourceType type, const string &name) {
+string Resource::GetPath(PhyResourceType type, const string &name) {
     return Resolve(type, name);
 }
 
-vector<uint32_t> Resource::LoadBytes(ResourceType type, const string &name) {
+vector<uint32_t> Resource::LoadBytes(PhyResourceType type, const string &name) {
     string path = Resolve(type, name);
     auto data = ReadFileBinary(path.c_str());
-    if (data.empty()) Fatal("Resource_LoadBytes: Failed to load %s <%s> at <%s>", Resource::ToString(type), name, path);
+    if (data.empty()) LogFatal("Resource_LoadBytes: Failed to load %s <%s> at <%s>", Resource::ToString(type), name, path);
     return data;
 }
 
-string Resource::LoadCstr(ResourceType type, const string &name) {
+string Resource::LoadCstr(PhyResourceType type, const string &name) {
     string path = Resolve(type, name);
     string data = ReadFile(path);
-    if (data.empty()) Fatal("Resource_LoadCstr: Failed to load %s <%s> at <%s>", Resource::ToString(type), name, path);
+    if (data.empty()) LogFatal("Resource_LoadCstr: Failed to load %s <%s> at <%s>", Resource::ToString(type), name, path);
     return data;
 }
 
-void Resource::AddPath(ResourceType type, const string &format) {
+void Resource::AddPath(PhyResourceType type, const string &format) {
     sPaths[type].push_back({ format });
 }
 
-string Resource::Resolve(ResourceType type, const string &name) {
+string Resource::Resolve(PhyResourceType type, const string &name) {
     auto entries = sPaths[type];
     if (!entries.empty()) {
         for (auto &entry : entries) {
@@ -104,18 +104,18 @@ string Resource::Resolve(ResourceType type, const string &name) {
     return {};
 }
 
-string Resource::ToString(ResourceType type) {
+string Resource::ToString(PhyResourceType type) {
     switch (type) {
-        case ResourceType::Font:    return "Font";
-        case ResourceType::Mesh:    return "Mesh";
-        case ResourceType::Other:   return "Other";
-        case ResourceType::Script:  return "Script";
-        case ResourceType::Shader:  return "Shader";
-        case ResourceType::Sound:   return "Sound";
-        case ResourceType::Tex1D:   return "Tex1D";
-        case ResourceType::Tex2D:   return "Tex2D";
-        case ResourceType::Tex3D:   return "Tex3D";
-        case ResourceType::TexCube: return "TexCube";
+        case PhyResourceType::Font:    return "Font";
+        case PhyResourceType::Mesh:    return "Mesh";
+        case PhyResourceType::Other:   return "Other";
+        case PhyResourceType::Script:  return "Script";
+        case PhyResourceType::Shader:  return "Shader";
+        case PhyResourceType::Sound:   return "Sound";
+        case PhyResourceType::Tex1D:   return "Tex1D";
+        case PhyResourceType::Tex2D:   return "Tex2D";
+        case PhyResourceType::Tex3D:   return "Tex3D";
+        case PhyResourceType::TexCube: return "TexCube";
     }
     return 0;
 }
@@ -129,11 +129,11 @@ namespace Ultra {
 
 static int32 valueCurr[(int)Metrics::SIZE + 1] = { 0 };
 
-int32 Metric::Get(Metrics self) {
+int32 PhxMetric::Get(Metrics self) {
     return valueCurr[(int)self];
 }
 
-cstr Metric::GetName(Metrics self) {
+cstr PhxMetric::GetName(Metrics self) {
     switch (self) {
         case Metrics::DrawCalls:  return "Draw Calls";
         case Metrics::Immediate:  return "Draw Calls (Immediate)";
@@ -146,29 +146,29 @@ cstr Metric::GetName(Metrics self) {
     return 0;
 }
 
-void Metric::AddDraw(int32 polys, int32 tris, int32 verts) {
+void PhxMetric::AddDraw(int32 polys, int32 tris, int32 verts) {
     valueCurr[(int)Metrics::DrawCalls] += 1;
     valueCurr[(int)Metrics::PolysDrawn] += polys;
     valueCurr[(int)Metrics::TrisDrawn] += tris;
     valueCurr[(int)Metrics::VertsDrawn] += verts;
 }
 
-void Metric::AddDrawImm(int32 polys, int32 tris, int32 verts) {
+void PhxMetric::AddDrawImm(int32 polys, int32 tris, int32 verts) {
     valueCurr[(int)Metrics::Immediate] += 1;
     valueCurr[(int)Metrics::PolysDrawn] += polys;
     valueCurr[(int)Metrics::TrisDrawn] += tris;
     valueCurr[(int)Metrics::VertsDrawn] += verts;
 }
 
-void Metric::Inc(Metrics self) {
+void PhxMetric::Inc(Metrics self) {
     valueCurr[(int)self] += 1;
 }
 
-void Metric::Mod(Metrics self, int32 delta) {
+void PhxMetric::Mod(Metrics self, int32 delta) {
     valueCurr[(int)self] += delta;
 }
 
-void Metric::Reset() {
+void PhxMetric::Reset() {
     memset(valueCurr, 0, sizeof(valueCurr));
 }
 
@@ -179,65 +179,65 @@ void Metric::Reset() {
 ///
 namespace Ultra {
 
-cstr ShaderVarTypeGetGLSLName(ShaderVarType self) {
+cstr PhxShaderVarTypeGetGLSLName(PhxShaderVarType self) {
     switch (self) {
-        case ShaderVarType::Float:   return "float";
-        case ShaderVarType::Float2:  return "vec2";
-        case ShaderVarType::Float3:  return "vec3";
-        case ShaderVarType::Float4:  return "vec4";
-        case ShaderVarType::Int:     return "int";
-        case ShaderVarType::Int2:    return "ivec2";
-        case ShaderVarType::Int3:    return "ivec3";
-        case ShaderVarType::Int4:    return "ivec4";
-        case ShaderVarType::Matrix:  return "mat4";
-        case ShaderVarType::Tex1D:   return "sampler1D";
-        case ShaderVarType::Tex2D:   return "sampler2D";
-        case ShaderVarType::Tex3D:   return "sampler3D";
-        case ShaderVarType::TexCube: return "samplerCube";
+        case PhxShaderVarType::Float:   return "float";
+        case PhxShaderVarType::Float2:  return "vec2";
+        case PhxShaderVarType::Float3:  return "vec3";
+        case PhxShaderVarType::Float4:  return "vec4";
+        case PhxShaderVarType::Int:     return "int";
+        case PhxShaderVarType::Int2:    return "ivec2";
+        case PhxShaderVarType::Int3:    return "ivec3";
+        case PhxShaderVarType::Int4:    return "ivec4";
+        case PhxShaderVarType::Matrix:  return "mat4";
+        case PhxShaderVarType::Tex1D:   return "sampler1D";
+        case PhxShaderVarType::Tex2D:   return "sampler2D";
+        case PhxShaderVarType::Tex3D:   return "sampler3D";
+        case PhxShaderVarType::TexCube: return "samplerCube";
     }
     return 0;
 }
 
-ShaderVarType ShaderVarTypeFromStr(cstr s) {
-    for (int i = (int)ShaderVarType::BEGIN; i <= (int)ShaderVarType::END; ++i)
-        if (string(s) == string(ShaderVarTypeGetGLSLName((ShaderVarType)i))) return (ShaderVarType)i;
-    return ShaderVarType::None;
+PhxShaderVarType PhxShaderVarTypeFromStr(cstr s) {
+    for (int i = (int)PhxShaderVarType::BEGIN; i <= (int)PhxShaderVarType::END; ++i)
+        if (string(s) == string(PhxShaderVarTypeGetGLSLName((PhxShaderVarType)i))) return (PhxShaderVarType)i;
+    return PhxShaderVarType::None;
 }
 
-cstr ShaderVarTypeGetName(ShaderVarType self) {
+cstr PhxShaderVarTypeGetName(PhxShaderVarType self) {
     switch (self) {
-        case ShaderVarType::Float:   return "float";
-        case ShaderVarType::Float2:  return "float2";
-        case ShaderVarType::Float3:  return "float3";
-        case ShaderVarType::Float4:  return "float4";
-        case ShaderVarType::Int:     return "int";
-        case ShaderVarType::Int2:    return "int2";
-        case ShaderVarType::Int3:    return "int3";
-        case ShaderVarType::Int4:    return "int4";
-        case ShaderVarType::Matrix:  return "Matrix";
-        case ShaderVarType::Tex1D:   return "Tex1D";
-        case ShaderVarType::Tex2D:   return "Tex2D";
-        case ShaderVarType::Tex3D:   return "Tex3D";
-        case ShaderVarType::TexCube: return "TexCube";
+        case PhxShaderVarType::Float:   return "float";
+        case PhxShaderVarType::Float2:  return "float2";
+        case PhxShaderVarType::Float3:  return "float3";
+        case PhxShaderVarType::Float4:  return "float4";
+        case PhxShaderVarType::Int:     return "int";
+        case PhxShaderVarType::Int2:    return "int2";
+        case PhxShaderVarType::Int3:    return "int3";
+        case PhxShaderVarType::Int4:    return "int4";
+        case PhxShaderVarType::Matrix:  return "Matrix";
+        case PhxShaderVarType::Tex1D:   return "Tex1D";
+        case PhxShaderVarType::Tex2D:   return "Tex2D";
+        case PhxShaderVarType::Tex3D:   return "Tex3D";
+        case PhxShaderVarType::TexCube: return "TexCube";
     }
     return 0;
 }
 
-int ShaderVarTypeGetSize(ShaderVarType self) {
+int PhxShaderVarTypeGetSize(PhxShaderVarType self) {
     switch (self) {
-        case ShaderVarType::Float:   return sizeof(float);
-        case ShaderVarType::Float2:  return sizeof(Vec2f);
-        case ShaderVarType::Float3:  return sizeof(Vec3f);
-        case ShaderVarType::Float4:  return sizeof(Vec4f);
-        case ShaderVarType::Int:     return sizeof(int);
-        case ShaderVarType::Int2:    return sizeof(Vec2i);
-        case ShaderVarType::Int3:    return sizeof(Vec3i);
-        case ShaderVarType::Int4:    return sizeof(Vec4i);
-        case ShaderVarType::Matrix:  return sizeof(Matrix *);
-        case ShaderVarType::Tex1D:   return sizeof(Tex1D *);
-        case ShaderVarType::Tex2D:   return sizeof(Tex2D *);
-        case ShaderVarType::Tex3D:   return sizeof(Tex3D *);
-        case ShaderVarType::TexCube: return sizeof(TexCube *);
+        case PhxShaderVarType::Float:   return sizeof(float);
+        case PhxShaderVarType::Float2:  return sizeof(Vector2Df);
+        case PhxShaderVarType::Float3:  return sizeof(Vector3Df);
+        case PhxShaderVarType::Float4:  return sizeof(Vector4Df);
+        case PhxShaderVarType::Int:     return sizeof(int);
+        case PhxShaderVarType::Int2:    return sizeof(Vector2Di);
+        case PhxShaderVarType::Int3:    return sizeof(Vector3Di);
+        case PhxShaderVarType::Int4:    return sizeof(Vector4Di);
+        case PhxShaderVarType::Matrix:  return sizeof(::Matrix *);
+        case PhxShaderVarType::Tex1D:   return sizeof(Tex1D *);
+        case PhxShaderVarType::Tex2D:   return sizeof(Tex2D *);
+        case PhxShaderVarType::Tex3D:   return sizeof(Tex3D *);
+        case PhxShaderVarType::TexCube: return sizeof(TexCube *);
     }
     return 0;
 }
@@ -251,7 +251,7 @@ static cstr includePath = "include/";
 static cstr versionString = "#version 130\n";
 
 struct ShaderVar {
-    ShaderVarType type;
+    PhxShaderVarType type;
     cstr name;
     int index;
 };
@@ -273,10 +273,10 @@ static cstr GLSL_Preprocess(cstr code, ShaderData *);
 
 static int GetUniformIndex(ShaderData *self, cstr name, bool mustSucceed = false) {
     if (!self)
-        Fatal("GetUniformIndex: No shader is bound");
+        LogFatal("GetUniformIndex: No shader is bound");
     int index = glGetUniformLocation(self->program, name);
-    if (index == -1 && mustSucceed)
-        Fatal("GetUniformIndex: Shader <%s> has no variable <%s>", self->name, name);
+    if (index == -1 && mustSucceed);
+        LogFatal("GetUniformIndex: Shader <%s> has no variable <%s>", self->name, name);
     return index;
 }
 
@@ -299,7 +299,7 @@ static uint CreateGLShader(cstr src, GLenum type) {
             glGetShaderiv(self, GL_INFO_LOG_LENGTH, &length);
             char *infoLog = (char *)calloc(1, length + 1);
             glGetShaderInfoLog(self, length, 0, infoLog);
-            Fatal("CreateGLShader: Failed to compile shader:\n%s", infoLog);
+            LogFatal("CreateGLShader: Failed to compile shader:\n%s", infoLog);
         }
     }
     return self;
@@ -326,7 +326,7 @@ static uint CreateGLProgram(uint vs, uint fs) {
                 glGetProgramiv(self, GL_INFO_LOG_LENGTH, &length);
                 char *infoLog = (char *)calloc(1, length + 1);
                 glGetProgramInfoLog(self, length, 0, infoLog);
-                Fatal("CreateGLProgram: Failed to link program:\n%s", infoLog);
+                LogFatal("CreateGLProgram: Failed to link program:\n%s", infoLog);
             }
     }
     return self;
@@ -338,7 +338,7 @@ static cstr GLSL_Load(cstr name, ShaderData *self) {
     if (cache.empty()) cache.reserve(16);
     auto cached = cache[name];
     if (!cached.empty()) return cached.c_str();
-    string rawCode = Resource::LoadCstr(ResourceType::Shader, name);
+    string rawCode = Resource::LoadCstr(PhyResourceType::Shader, name);
     cstr code = strdup(String::Replace(rawCode, "\r\n", "\n").c_str());
     code = GLSL_Preprocess(code, self);
     /* BUG : Disable GLSL caching until preprocessor cache works. */
@@ -374,15 +374,14 @@ static cstr GLSL_Preprocess(cstr code, ShaderData *self) {
 
         if (sscanf(line.c_str(), "#autovar %31s %31s", varType, varName) == 2) {
             ShaderVar var = {};
-            var.type = ShaderVarTypeFromStr(varType);
-            if (var.type == ShaderVarType::None)
-                Fatal("GLSL_Preprocess: Unknown shader variable type <%s> "
-                      "in directive:\n  %s", varType, line);
+            var.type = PhxShaderVarTypeFromStr(varType);
+            if (var.type == PhxShaderVarType::None)
+                LogFatal("GLSL_Preprocess: Unknown shader variable type <%s> in directive:\n  %s", varType, line);
             var.name = strdup(varName);
             var.index = -1;
             self->vars.push_back(var);
         } else {
-            Fatal("GLSL_Preprocess: Failed to parse directive:\n  %s", line.c_str());
+            LogFatal("GLSL_Preprocess: Failed to parse directive:\n  %s", line.c_str());
         }
 
         string codeStr = code;
@@ -397,7 +396,7 @@ static void Shader_BindVariables(ShaderData *self) {
         ShaderVar *var = &self->vars[i];
         var->index = glGetUniformLocation(self->program, var->name);
         if (var->index < 0)
-            Warn("Shader_BindVariables: Automatic shader variable <%s> does not exist"
+            LogWarning("Shader_BindVariables: Automatic shader variable <%s> does not exist"
                  " in shader <%s>", var->name, self->name);
     }
 }
@@ -464,54 +463,54 @@ void PhxShader::Start(ShaderData *self) {
         if (var->index < 0) continue;
         void *pValue = PhxShaderVar::Get(var->name, var->type);
         if (!pValue)
-            Fatal("Shader_Start: Shader variable stack does not contain variable <%s>", var->name);
+            LogFatal("Shader_Start: Shader variable stack does not contain variable <%s>", var->name);
 
         switch (var->type) {
-            case ShaderVarType::Float: {
+            case PhxShaderVarType::Float: {
                 float value = *(float *)pValue;
                 glUniform1f(var->index, value);
                 break; }
-            case ShaderVarType::Float2: {
-                Vec2f value = *(Vec2f *)pValue;
+            case PhxShaderVarType::Float2: {
+                Vector2Df value = *(Vector2Df *)pValue;
                 glUniform2f(var->index, value.x, value.y);
                 break; }
-            case ShaderVarType::Float3: {
-                Vec3f value = *(Vec3f *)pValue;
+            case PhxShaderVarType::Float3: {
+                Vector3Df value = *(Vector3Df *)pValue;
                 glUniform3f(var->index, value.x, value.y, value.z);
                 break; }
-            case ShaderVarType::Float4: {
-                Vec4f value = *(Vec4f *)pValue;
+            case PhxShaderVarType::Float4: {
+                Vector4Df value = *(Vector4Df *)pValue;
                 glUniform4f(var->index, value.x, value.y, value.z, value.w);
                 break; }
-            case ShaderVarType::Int: {
+            case PhxShaderVarType::Int: {
                 int value = *(int *)pValue;
                 glUniform1i(var->index, value);
                 break; }
-            case ShaderVarType::Int2: {
-                Vec2i value = *(Vec2i *)pValue;
+            case PhxShaderVarType::Int2: {
+                Vector2Di value = *(Vector2Di *)pValue;
                 glUniform2i(var->index, value.x, value.y);
                 break; }
-            case ShaderVarType::Int3: {
-                Vec3i value = *(Vec3i *)pValue;
+            case PhxShaderVarType::Int3: {
+                Vector3Di value = *(Vector3Di *)pValue;
                 glUniform3i(var->index, value.x, value.y, value.z);
                 break; }
-            case ShaderVarType::Int4: {
-                Vec4i value = *(Vec4i *)pValue;
+            case PhxShaderVarType::Int4: {
+                Vector4Di value = *(Vector4Di *)pValue;
                 glUniform4i(var->index, value.x, value.y, value.z, value.w);
                 break; }
-            case ShaderVarType::Matrix: {
-                ISetMatrix(var->index, *(Matrix **)pValue);
+            case PhxShaderVarType::Matrix: {
+                ISetMatrix(var->index, *(::Matrix **)pValue);
                 break; }
-            case ShaderVarType::Tex1D: {
+            case PhxShaderVarType::Tex1D: {
                 //ISetTex1D(var->index, *(Tex1D **)pValue);
                 break; }
-            case ShaderVarType::Tex2D: {
+            case PhxShaderVarType::Tex2D: {
                 ISetTex2D(var->index, *(Tex2DData **)pValue);
                 break; }
-            case ShaderVarType::Tex3D: {
+            case PhxShaderVarType::Tex3D: {
                 //ISetTex3D(var->index, *(Tex3D **)pValue);
                 break; }
-            case ShaderVarType::TexCube: {
+            case PhxShaderVarType::TexCube: {
                 //ISetTexCube(var->index, *(TexCube **)pValue);
                 break; }
         }
@@ -541,7 +540,7 @@ uint PhxShader::GetHandle(ShaderData *self) {
 int PhxShader::GetVariable(ShaderData *self, cstr name) {
     int index = glGetUniformLocation(self->program, name);
     if (index == -1)
-        Fatal("Shader_GetVariable: Shader <%s> has no variable <%s>", self->name, name);
+        LogFatal("Shader_GetVariable: Shader <%s> has no variable <%s>", self->name, name);
     return index;
 }
 
@@ -591,19 +590,19 @@ void PhxShader::ISetInt(int index, int value) {
     glUniform1i(index, value);
 }
 
-void PhxShader::SetMatrix(cstr name, Matrix *value) {
+void PhxShader::SetMatrix(cstr name, ::Matrix *value) {
     glUniformMatrix4fv(GetUniformIndex(current, name), 1, true, (float *)value);
 }
 
-void PhxShader::SetMatrixT(cstr name, Matrix *value) {
+void PhxShader::SetMatrixT(cstr name, ::Matrix *value) {
     glUniformMatrix4fv(GetUniformIndex(current, name), 1, false, (float *)value);
 }
 
-void PhxShader::ISetMatrix(int index, Matrix *value) {
+void PhxShader::ISetMatrix(int index, ::Matrix *value) {
     glUniformMatrix4fv(index, 1, true, (float *)value);
 }
 
-void PhxShader::ISetMatrixT(int index, Matrix *value) {
+void PhxShader::ISetMatrixT(int index, ::Matrix *value) {
     glUniformMatrix4fv(index, 1, false, (float *)value);
 }
 
@@ -668,7 +667,7 @@ void PhxShader::ISetTex2D(int index, Tex2DData *value) {
 #define DEFAULT_CAPACITY 4
 
 struct VarStack {
-    ShaderVarType type;
+    PhxShaderVarType type;
     int32 size;
     int32 capacity;
     int32 elemSize;
@@ -677,7 +676,7 @@ struct VarStack {
 
 static unordered_map<string, VarStack *> varMap {};
 
-inline static VarStack *ShaderVar_GetStack(cstr var, ShaderVarType type) {
+inline static VarStack *ShaderVar_GetStack(cstr var, PhxShaderVarType type) {
     VarStack *self = (VarStack *)varMap[var];
     if (!self) {
         //if (type) return 0;
@@ -685,20 +684,20 @@ inline static VarStack *ShaderVar_GetStack(cstr var, ShaderVarType type) {
         self->type = type;
         self->size = 0;
         self->capacity = DEFAULT_CAPACITY;
-        self->elemSize = ShaderVarTypeGetSize(type);
+        self->elemSize = PhxShaderVarTypeGetSize(type);
         self->data = malloc(self->capacity * self->elemSize);
         varMap[var] = self;
     }
 
     if ((int)type && (int)self->type != (int)type)
-        Fatal("ShaderVar_GetStack: Attempting to get stack of type <%s>"
+        LogFatal("ShaderVar_GetStack: Attempting to get stack of type <%s>"
               " for shader variable <%s> when existing stack has type <%s>",
-              ShaderVarTypeGetName(type), var, ShaderVarTypeGetName(self->type));
+              PhxShaderVarTypeGetName(type), var, PhxShaderVarTypeGetName(self->type));
 
     return self;
 }
 
-inline static void ShaderVar_Push(cstr var, ShaderVarType type, void const *value) {
+inline static void ShaderVar_Push(cstr var, PhxShaderVarType type, void const *value) {
     VarStack *self = ShaderVar_GetStack(var, type);
     if (self->size == self->capacity) {
         self->capacity *= 2;
@@ -714,67 +713,67 @@ void PhxShaderVar::Init() {
 void PhxShaderVar::Free() {
 }
 
-void *PhxShaderVar::Get(cstr name, ShaderVarType type) {
-    VarStack *self = ShaderVar_GetStack(name, ShaderVarType::None);
+void *PhxShaderVar::Get(cstr name, PhxShaderVarType type) {
+    VarStack *self = ShaderVar_GetStack(name, PhxShaderVarType::None);
     if (!self || self->size == 0)
         return 0;
     if ((int)type && (int)self->type != (int)type)
-        Fatal("ShaderVar_Get: Attempting to get variable <%s> with type <%s> when"
+        LogFatal("ShaderVar_Get: Attempting to get variable <%s> with type <%s> when"
               " existing stack has type <%s>",
-              name, ShaderVarTypeGetName(type), ShaderVarTypeGetName(self->type));
+              name, PhxShaderVarTypeGetName(type), PhxShaderVarTypeGetName(self->type));
     return (char *)self->data + self->elemSize * (self->size - 1);
 }
 
 void PhxShaderVar::PushFloat(cstr name, float x) {
-    ShaderVar_Push(name, ShaderVarType::Float, &x);
+    ShaderVar_Push(name, PhxShaderVarType::Float, &x);
 }
 
 void PhxShaderVar::PushFloat2(cstr name, float x, float y) {
-    Vec2f value = { x, y };
-    ShaderVar_Push(name, ShaderVarType::Float2, &value);
+    Vector2Df value = { x, y };
+    ShaderVar_Push(name, PhxShaderVarType::Float2, &value);
 }
 
 void PhxShaderVar::PushFloat3(cstr name, float x, float y, float z) {
-    Vec3f value = { x, y, z };
-    ShaderVar_Push(name, ShaderVarType::Float3, &value);
+    Vector3Df value = { x, y, z };
+    ShaderVar_Push(name, PhxShaderVarType::Float3, &value);
 }
 
 void PhxShaderVar::PushFloat4(cstr name, float x, float y, float z, float w) {
-    Vec4f value = { x, y, z, w };
-    ShaderVar_Push(name, ShaderVarType::Float4, &value);
+    Vector4Df value = { x, y, z, w };
+    ShaderVar_Push(name, PhxShaderVarType::Float4, &value);
 }
 
 void PhxShaderVar::PushInt(cstr name, int x) {
     int32 value = (int32)x;
-    ShaderVar_Push(name, ShaderVarType::Int, &value);
+    ShaderVar_Push(name, PhxShaderVarType::Int, &value);
 }
 
-void PhxShaderVar::PushMatrix(cstr name, Matrix *x) {
-    ShaderVar_Push(name, ShaderVarType::Matrix, &x);
+void PhxShaderVar::PushMatrix(cstr name, ::Matrix *x) {
+    ShaderVar_Push(name, PhxShaderVarType::Matrix, &x);
 }
 
 void PhxShaderVar::PushTex1D(cstr name, Tex1D *x) {
-    ShaderVar_Push(name, ShaderVarType::Tex1D, &x);
+    ShaderVar_Push(name, PhxShaderVarType::Tex1D, &x);
 }
 
 void PhxShaderVar::PushTex2D(cstr name, Tex2DData *x) {
-    ShaderVar_Push(name, ShaderVarType::Tex2D, &x);
+    ShaderVar_Push(name, PhxShaderVarType::Tex2D, &x);
 }
 
 void PhxShaderVar::PushTex3D(cstr name, Tex3D *x) {
-    ShaderVar_Push(name, ShaderVarType::Tex3D, &x);
+    ShaderVar_Push(name, PhxShaderVarType::Tex3D, &x);
 }
 
 void PhxShaderVar::PushTexCube(cstr name, TexCube *x) {
-    ShaderVar_Push(name, ShaderVarType::TexCube, &x);
+    ShaderVar_Push(name, PhxShaderVarType::TexCube, &x);
 }
 
 void PhxShaderVar::Pop(cstr name) {
-    VarStack *self = ShaderVar_GetStack(name, ShaderVarType::None);
+    VarStack *self = ShaderVar_GetStack(name, PhxShaderVarType::None);
     if (!self)
-        Fatal("ShaderVar_Pop: Attempting to pop nonexistent stack <%s>", name);
+        LogFatal("ShaderVar_Pop: Attempting to pop nonexistent stack <%s>", name);
     if (self->size == 0)
-        Fatal("ShaderVar_Pop: Attempting to pop empty stack <%s>", name);
+        LogFatal("ShaderVar_Pop: Attempting to pop empty stack <%s>", name);
     self->size--;
 }
 
@@ -834,7 +833,7 @@ GLint GetGLTextureFormat(PhxTextureFormat format) {
 
 struct Tex2DData {
     uint handle;
-    Vec2i size;
+    Vector2Di size;
     PhxTextureFormat format;
 };
 
@@ -848,7 +847,7 @@ inline static void Tex2D_Init() {
 static uchar *Tex2D_LoadRaw(cstr path, int *sx, int *sy, int *components) {
     uchar *data = stbi_load(path, sx, sy, components, 0);
     if (!data)
-        Fatal("Failed to load image from '%s'", path);
+        LogFatal("Failed to load image from '%s'", path);
     return data;
 }
 
@@ -863,11 +862,11 @@ static bool Tex2D_Save_Png(cstr path, int sx, int sy, int components, uchar *dat
 
 Tex2DData *Tex2D::Create(int sx, int sy, PhxTextureFormat format) {
     if (!IsPhxTextureFormatValid(format))
-        Fatal("Tex2D_Create: Invalid texture format requested");
+        LogFatal("Tex2D_Create: Invalid texture format requested");
 
     Tex2DData *self = new Tex2DData();
 
-    self->size = Vec2i_Create(sx, sy);
+    self->size = { sx, sy };
     self->format = format;
 
     glGenTextures(1, &self->handle);
@@ -884,14 +883,15 @@ Tex2DData *Tex2D::Create(int sx, int sy, PhxTextureFormat format) {
 }
 
 Tex2DData *Tex2D::ScreenCapture() {
-    Vec2i size; Viewport::GetSize(&size);
+    Vector2Di size; Viewport::GetSize(&size);
     Tex2DData *self = Create(size.x, size.y, PhxTextureFormat::RGBA8);
     vector<uint32_t> buffer(size.x * size.y);
-    Metric::Inc(Metrics::Flush);
+    PhxMetric::Inc(Metrics::Flush);
     glReadPixels(0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer.data());
         for (int y = 0; y < size.y / 2; ++y)
             for (int x = 0; x < size.x; ++x)
-                Swap(buffer[size.x * y + x], buffer[size.x * (size.y - y - 1) + x]);
+                // ToDo: Something Phoenix specific
+                //Swap(buffer[size.x * y + x], buffer[size.x * (size.y - y - 1) + x]);
 
     glBindTexture(GL_TEXTURE_2D, self->handle);
         glTexImage2D(GL_TEXTURE_2D, 0, GetGLTextureFormat(PhxTextureFormat::RGBA8), size.x, size.y,
@@ -940,7 +940,7 @@ Tex2DData *Tex2D::Clone(Tex2DData *self) {
 }
 
 void Tex2D::Draw(Tex2DData *self, float x, float y, float sx, float sy) {
-    Metric::AddDrawImm(1, 2, 4);
+    PhxMetric::AddDrawImm(1, 2, 4);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, self->handle);
     glBegin(GL_QUADS);
@@ -953,7 +953,7 @@ void Tex2D::Draw(Tex2DData *self, float x, float y, float sx, float sy) {
 }
 
 void Tex2D::DrawEx(Tex2DData *self, float x0, float y0, float x1, float y1, float u0, float v0, float u1, float v1) {
-    Metric::AddDrawImm(1, 2, 4);
+    PhxMetric::AddDrawImm(1, 2, 4);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, self->handle);
     glBegin(GL_QUADS);
@@ -972,7 +972,7 @@ void Tex2D::GenMipmap(Tex2DData *self) {
 }
 
 void Tex2D::GetData(Tex2DData *self, void *data, PhxPixelFormat pf, PhxDataFormat df) {
-    Metric::Inc(Metrics::Flush);
+    PhxMetric::Inc(Metrics::Flush);
     glBindTexture(GL_TEXTURE_2D, self->handle);
     glGetTexImage(GL_TEXTURE_2D, 0, GetGLPixelFormat(pf), GetGLDataFormat(df), data);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -995,11 +995,11 @@ uint Tex2D::GetHandle(Tex2DData *self) {
     return self->handle;
 }
 
-void Tex2D::GetSize(Tex2DData *self, Vec2i *out) {
+void Tex2D::GetSize(Tex2DData *self, Vector2Di *out) {
     *out = self->size;
 }
 
-void Tex2D::GetSizeLevel(Tex2DData *self, Vec2i *out, int level) {
+void Tex2D::GetSizeLevel(Tex2DData *self, Vector2Di *out, int level) {
     *out = self->size;
     for (int i = 0; i < level; ++i) {
         out->x /= 2;
@@ -1008,7 +1008,7 @@ void Tex2D::GetSizeLevel(Tex2DData *self, Vec2i *out, int level) {
 }
 
 Tex2DData *Tex2D::Load(cstr name) {
-    string path = Resource::GetPath(ResourceType::Tex2D, name);
+    string path = Resource::GetPath(PhyResourceType::Tex2D, name);
     int sx, sy, components = 4;
     uchar *data = Tex2D_LoadRaw(path.c_str(), &sx, &sy, &components);
     Tex2DData *self = Create(sx, sy, PhxTextureFormat::RGBA8);
@@ -1072,7 +1072,7 @@ void Tex2D::SetMinFilter(Tex2DData *self, TexFilter filter) {
  *        a single mip level. */
 void Tex2D::SetMipRange(Tex2DData *self, int minLevel, int maxLevel) {
     if (minLevel != maxLevel)
-        Warn("Tex2D_SetMipRange: Setting mip range with min != max; this may fail"
+        LogWarning("Tex2D_SetMipRange: Setting mip range with min != max; this may fail"
              " on old drivers with mip-handling bugs.");
     glBindTexture(GL_TEXTURE_2D, self->handle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, minLevel);
@@ -1094,7 +1094,7 @@ void Tex2D::SetWrapMode(Tex2DData *self, TexWrapMode mode) {
 }
 
 void Tex2D::Save(Tex2DData *self, cstr path) {
-    Metric::Inc(Metrics::Flush);
+    PhxMetric::Inc(Metrics::Flush);
     glBindTexture(GL_TEXTURE_2D, self->handle);
     vector<unsigned char> buffer(4 * self->size.x * self->size.y);
 
@@ -1141,7 +1141,7 @@ inline static void TransformRect(float *x, float *y, float *sx, float *sy) {
 
 void ClipRect_Activate(ClipRectData *self) {
     if (self && self->enabled) {
-        Vec2i vpSize;
+        Vector2Di vpSize;
         Viewport::GetSize(&vpSize);
         glEnable(GL_SCISSOR_TEST);
             float x = self->x;
@@ -1161,7 +1161,7 @@ void ClipRect_Activate(ClipRectData *self) {
 
 void ClipRect::Push(float x, float y, float sx, float sy) {
     if (rectIndex + 1 >= MAX_STACK_DEPTH)
-        Fatal("ClipRect_Push: Maximum stack depth exceeded");
+        LogFatal("ClipRect_Push: Maximum stack depth exceeded");
     rectIndex++;
     ClipRectData *curr = rect + rectIndex;
     curr->x = x;
@@ -1177,12 +1177,12 @@ void ClipRect::PushCombined(float x, float y, float sx, float sy) {
     if (rectIndex >= 0 && curr->enabled) {
         float maxX = x + sx;
         float maxY = y + sy;
-        x = Max(x, curr->x);
-        y = Max(y, curr->y);
+        x = std::max(x, curr->x);
+        y = std::max(y, curr->y);
 
         Push(x, y,
-          Min(maxX, curr->x + curr->sx) - x,
-          Min(maxY, curr->y + curr->sy) - y
+          std::min(maxX, curr->x + curr->sx) - x,
+          std::min(maxY, curr->y + curr->sy) - y
         );
     } else {
         Push(x, y, sx, sy);
@@ -1191,7 +1191,7 @@ void ClipRect::PushCombined(float x, float y, float sx, float sy) {
 
 void ClipRect::PushDisabled() {
     if (rectIndex + 1 >= MAX_STACK_DEPTH)
-        Fatal("ClipRect_Push: Maximum stack depth exceeded");
+        LogFatal("ClipRect_Push: Maximum stack depth exceeded");
     rectIndex++;
     ClipRectData *curr = rect + rectIndex;
     curr->enabled = false;
@@ -1200,7 +1200,7 @@ void ClipRect::PushDisabled() {
 
 void ClipRect::PushTransform(float tx, float ty, float sx, float sy) {
     if (transformIndex + 1 >= MAX_STACK_DEPTH)
-        Fatal("ClipRect_PushTransform: Maximum stack depth exceeded");
+        LogFatal("ClipRect_PushTransform: Maximum stack depth exceeded");
     transformIndex++;
     ClipRectTransform *curr = transform + transformIndex;
     curr->tx = tx;
@@ -1213,14 +1213,14 @@ void ClipRect::PushTransform(float tx, float ty, float sx, float sy) {
 
 void ClipRect::Pop() {
     if (rectIndex < 0)
-        Fatal("ClipRect_Pop: Attempting to pop an empty stack");
+        LogFatal("ClipRect_Pop: Attempting to pop an empty stack");
     rectIndex--;
     ClipRect_Activate(rectIndex >= 0 ? rect + rectIndex : 0);
 }
 
 void ClipRect::PopTransform() {
     if (transformIndex < 0)
-        Fatal("ClipRect_PopTransform: Attempting to pop an empty stack");
+        LogFatal("ClipRect_PopTransform: Attempting to pop an empty stack");
     transformIndex--;
     if (rectIndex >= 0)
         ClipRect_Activate(rect + rectIndex);
@@ -1389,7 +1389,7 @@ void RenderTarget::Push(int sx, int sy) {
     self->sx = sx;
     self->sy = sy;
     self->depth = false;
-    Metric::Inc(Metrics::FBOSwap);
+    PhxMetric::Inc(Metrics::FBOSwap);
     glGenFramebuffers(1, &self->handle);
     glBindFramebuffer(GL_FRAMEBUFFER, self->handle);
     Viewport::Push(0, 0, sx, sy, false);
@@ -1417,7 +1417,7 @@ void RenderTarget::Pop() {
         fboIndex--;
 
         /* Activate previous FBO. */
-    Metric::Inc(Metrics::FBOSwap);
+    PhxMetric::Inc(Metrics::FBOSwap);
     if (fboIndex >= 0)
         glBindFramebuffer(GL_FRAMEBUFFER, GetActive()->handle);
     else
@@ -1499,7 +1499,7 @@ void RenderTarget::PushTex2D(Tex2DData *self) {
 }
 
 void RenderTarget::PushTex2DLevel(Tex2DData *self, int level) {
-    Vec2i size; Tex2D::GetSizeLevel(self, &size, level);
+    Vector2Di size; Tex2D::GetSizeLevel(self, &size, level);
     Push(size.x, size.y);
     BindTex2DLevel(self, level);
 }
@@ -1524,7 +1524,7 @@ namespace Ultra {
 
 static float alphaStack[MAX_STACK_DEPTH];
 static int alphaIndex = -1;
-static Vec4f color = { 1, 1, 1, 1 };
+static Vector4Df color = { 1, 1, 1, 1 };
 
 
 void Draw::PushAlpha(float a) {
@@ -1546,25 +1546,25 @@ void Draw::PopAlpha() {
     glColor4f(color.x, color.y, color.z, color.w * alpha);
 }
 
-void Draw::Axes(Vec3f const *pos, Vec3f const *x, Vec3f const *y, Vec3f const *z, float scale, float _alpha) {
-    Vec3f left = Vec3f_Add(*pos, Vec3f_Muls(*x, scale));
-    Vec3f up = Vec3f_Add(*pos, Vec3f_Muls(*y, scale));
-    Vec3f forward = Vec3f_Add(*pos, Vec3f_Muls(*z, scale));
+void Draw::Axes(Vector3Df const *pos, Vector3Df const *x, Vector3Df const *y, Vector3Df const *z, float scale, float _alpha) {
+    Vector3Df left = *pos + (*x * scale);
+    Vector3Df up = *pos + (*y * scale);
+    Vector3Df forward = *pos + (*z * scale);
     glBegin(GL_LINES);
     glColor4f(1, 0.25f, 0.25f, _alpha);
-    glVertex3f(UNPACK3(*pos));
-    glVertex3f(UNPACK3(left));
+    glVertex3f(pos->x, pos->y, pos->z);
+    glVertex3f(left.x, left.y, left.z);
     glColor4f(0.25f, 1, 0.25f, _alpha);
-    glVertex3f(UNPACK3(*pos));
-    glVertex3f(UNPACK3(up));
+    glVertex3f(pos->x, pos->y, pos->z);
+    glVertex3f(up.x, up.y, up.z);
     glColor4f(0.25f, 0.25f, 1, _alpha);
-    glVertex3f(UNPACK3(*pos));
-    glVertex3f(UNPACK3(forward));
+    glVertex3f(pos->x, pos->y, pos->z);
+    glVertex3f(forward.x, forward.y, forward.z);
     glEnd();
 
     glBegin(GL_POINTS);
     glColor4f(1, 1, 1, _alpha);
-    glVertex3f(UNPACK3(*pos));
+    glVertex3f(pos->x, pos->y, pos->z);
     glEnd();
 }
 
@@ -1575,46 +1575,46 @@ void Draw::Border(float s, float x, float y, float w, float h) {
     Draw::Rect(x + w - s, y + s, s, h - 2 * s);
 }
 
-void Draw::Box3(Box3f const *self) {
-    Metric::AddDrawImm(6, 12, 24);
-    glBegin(GL_QUADS);
-    /* Left. */
-    glVertex3f(self->lower.x, self->lower.y, self->lower.z);
-    glVertex3f(self->lower.x, self->lower.y, self->upper.z);
-    glVertex3f(self->lower.x, self->upper.y, self->upper.z);
-    glVertex3f(self->lower.x, self->upper.y, self->lower.z);
-
-    /* Right. */
-    glVertex3f(self->upper.x, self->lower.y, self->lower.z);
-    glVertex3f(self->upper.x, self->upper.y, self->lower.z);
-    glVertex3f(self->upper.x, self->upper.y, self->upper.z);
-    glVertex3f(self->upper.x, self->lower.y, self->upper.z);
-
-    /* Front. */
-    glVertex3f(self->lower.x, self->lower.y, self->upper.z);
-    glVertex3f(self->upper.x, self->lower.y, self->upper.z);
-    glVertex3f(self->upper.x, self->upper.y, self->upper.z);
-    glVertex3f(self->lower.x, self->upper.y, self->upper.z);
-
-    /* Back. */
-    glVertex3f(self->lower.x, self->lower.y, self->lower.z);
-    glVertex3f(self->lower.x, self->upper.y, self->lower.z);
-    glVertex3f(self->upper.x, self->upper.y, self->lower.z);
-    glVertex3f(self->upper.x, self->lower.y, self->lower.z);
-
-    /* Top. */
-    glVertex3f(self->lower.x, self->upper.y, self->lower.z);
-    glVertex3f(self->lower.x, self->upper.y, self->upper.z);
-    glVertex3f(self->upper.x, self->upper.y, self->upper.z);
-    glVertex3f(self->upper.x, self->upper.y, self->lower.z);
-
-    /* Bottom. */
-    glVertex3f(self->lower.x, self->lower.y, self->lower.z);
-    glVertex3f(self->upper.x, self->lower.y, self->lower.z);
-    glVertex3f(self->upper.x, self->lower.y, self->upper.z);
-    glVertex3f(self->lower.x, self->lower.y, self->upper.z);
-    glEnd();
-}
+//void Draw::Box3(Box3f const *self) {
+//    Metric::AddDrawImm(6, 12, 24);
+//    glBegin(GL_QUADS);
+//    /* Left. */
+//    glVertex3f(self->lower.x, self->lower.y, self->lower.z);
+//    glVertex3f(self->lower.x, self->lower.y, self->upper.z);
+//    glVertex3f(self->lower.x, self->upper.y, self->upper.z);
+//    glVertex3f(self->lower.x, self->upper.y, self->lower.z);
+//
+//    /* Right. */
+//    glVertex3f(self->upper.x, self->lower.y, self->lower.z);
+//    glVertex3f(self->upper.x, self->upper.y, self->lower.z);
+//    glVertex3f(self->upper.x, self->upper.y, self->upper.z);
+//    glVertex3f(self->upper.x, self->lower.y, self->upper.z);
+//
+//    /* Front. */
+//    glVertex3f(self->lower.x, self->lower.y, self->upper.z);
+//    glVertex3f(self->upper.x, self->lower.y, self->upper.z);
+//    glVertex3f(self->upper.x, self->upper.y, self->upper.z);
+//    glVertex3f(self->lower.x, self->upper.y, self->upper.z);
+//
+//    /* Back. */
+//    glVertex3f(self->lower.x, self->lower.y, self->lower.z);
+//    glVertex3f(self->lower.x, self->upper.y, self->lower.z);
+//    glVertex3f(self->upper.x, self->upper.y, self->lower.z);
+//    glVertex3f(self->upper.x, self->lower.y, self->lower.z);
+//
+//    /* Top. */
+//    glVertex3f(self->lower.x, self->upper.y, self->lower.z);
+//    glVertex3f(self->lower.x, self->upper.y, self->upper.z);
+//    glVertex3f(self->upper.x, self->upper.y, self->upper.z);
+//    glVertex3f(self->upper.x, self->upper.y, self->lower.z);
+//
+//    /* Bottom. */
+//    glVertex3f(self->lower.x, self->lower.y, self->lower.z);
+//    glVertex3f(self->upper.x, self->lower.y, self->lower.z);
+//    glVertex3f(self->upper.x, self->lower.y, self->upper.z);
+//    glVertex3f(self->lower.x, self->lower.y, self->upper.z);
+//    glEnd();
+//}
 
 void Draw::Clear(float r, float g, float b, float a) {
     glClearColor(r, g, b, a);
@@ -1628,12 +1628,12 @@ void Draw::ClearDepth(float d) {
 
 void Draw::Color(float r, float g, float b, float a) {
     float alpha = alphaIndex >= 0 ? alphaStack[alphaIndex] : 1;
-    color = Vec4f_Create(r, g, b, a);
+    color = { r, g, b, a };
     glColor4f(r, g, b, a * alpha);
 }
 
 void Draw::Flush() {
-    Metric::Inc(Metrics::Flush);
+    PhxMetric::Inc(Metrics::Flush);
     glFinish();
 }
 
@@ -1644,10 +1644,10 @@ void Draw::Line(float x1, float y1, float x2, float y2) {
     glEnd();
 }
 
-void Draw::Line3(Vec3f const *p1, Vec3f const *p2) {
+void Draw::Line3(Vector3Df const *p1, Vector3Df const *p2) {
     glBegin(GL_LINES);
-    glVertex3f(UNPACK3(*p1));
-    glVertex3f(UNPACK3(*p2));
+    glVertex3f(p1->x, p1->y, p1->z);
+    glVertex3f(p2->x, p2->y, p2->z);
     glEnd();
 }
 
@@ -1655,22 +1655,22 @@ void Draw::LineWidth(float width) {
     glLineWidth(width);
 }
 
-void Draw::Plane(Vec3f const *p, Vec3f const *n, float scale) {
-    Vec3f e1 = Abs(n->x) < 0.7f ? Vec3f_Create(1, 0, 0) : Vec3f_Create(0, 1, 0);
-    e1 = Vec3f_Normalize(Vec3f_Reject(e1, *n));
-    Vec3f e2 = Vec3f_Cross(*n, e1);
+void Draw::Plane(Vector3Df const *p, Vector3Df const *n, float scale) {
+    Vector3Df e1 = std::abs(n->x) < 0.7f ? Vector3Df(1, 0, 0) : Vector3Df(0, 1, 0);
+    e1.Reject(*n) = e1.Reject(*n);
+    Vector3Df e2 = n->Cross(e1);
 
-    Vec3f p0 = Vec3f_Add(*p, Vec3f_Add(Vec3f_Muls(e1, -scale), Vec3f_Muls(e2, -scale)));
-    Vec3f p1 = Vec3f_Add(*p, Vec3f_Add(Vec3f_Muls(e1, scale), Vec3f_Muls(e2, -scale)));
-    Vec3f p2 = Vec3f_Add(*p, Vec3f_Add(Vec3f_Muls(e1, scale), Vec3f_Muls(e2, scale)));
-    Vec3f p3 = Vec3f_Add(*p, Vec3f_Add(Vec3f_Muls(e1, -scale), Vec3f_Muls(e2, scale)));
-
-    Metric::AddDrawImm(1, 2, 4);
+    Vector3Df p0 = *p + ((e1 * -scale) + (e2 * -scale));
+    Vector3Df p1 = *p + ((e1 *  scale) + (e2 * -scale));
+    Vector3Df p2 = *p + ((e1 *  scale) + (e2 *  scale));
+    Vector3Df p3 = *p + ((e1 * -scale) + (e2 *  scale));
+    
+    PhxMetric::AddDrawImm(1, 2, 4);
     glBegin(GL_QUADS);
-    glVertex3f(UNPACK3(p0));
-    glVertex3f(UNPACK3(p1));
-    glVertex3f(UNPACK3(p2));
-    glVertex3f(UNPACK3(p3));
+    glVertex3f(p0.x, p0.y, p0.z);
+    glVertex3f(p1.x, p1.y, p1.z);
+    glVertex3f(p2.x, p2.y, p2.z);
+    glVertex3f(p3.x, p3.y, p3.z);
     glEnd();
 }
 
@@ -1690,46 +1690,46 @@ void Draw::PointSize(float size) {
     glPointSize(size);
 }
 
-void Draw::Poly(Vec2f const *points, int count) {
-    Metric::AddDrawImm(1, count - 2, count);
+void Draw::Poly(Vector2Df const *points, int count) {
+    PhxMetric::AddDrawImm(1, count - 2, count);
     glBegin(GL_POLYGON);
     for (int i = 0; i < count; ++i)
-        glVertex2f(UNPACK2(points[i]));
+        glVertex2f(points[i].x, points[i].y);
     glEnd();
 }
 
-void Draw::Poly3(Vec3f const *points, int count) {
-    Metric::AddDrawImm(1, count - 2, count);
+void Draw::Poly3(Vector3Df const *points, int count) {
+    PhxMetric::AddDrawImm(1, count - 2, count);
     glBegin(GL_POLYGON);
     for (int i = 0; i < count; ++i)
-        glVertex3f(UNPACK3(points[i]));
+        glVertex3f(points[i].x, points[i].y, points[i].z);
     glEnd();
 }
 
-void Draw::Quad(Vec2f const *p1, Vec2f const *p2, Vec2f const *p3, Vec2f const *p4) {
-    Metric::AddDrawImm(1, 2, 4);
+void Draw::Quad(Vector2Df const *p1, Vector2Df const *p2, Vector2Df const *p3, Vector2Df const *p4) {
+    PhxMetric::AddDrawImm(1, 2, 4);
     glBegin(GL_QUADS);
-    glTexCoord2f(0, 0); glVertex2f(UNPACK2(*p1));
-    glTexCoord2f(0, 1); glVertex2f(UNPACK2(*p2));
-    glTexCoord2f(1, 1); glVertex2f(UNPACK2(*p3));
-    glTexCoord2f(1, 0); glVertex2f(UNPACK2(*p4));
+    glTexCoord2f(0, 0); glVertex2f(p1->x, p1->y);
+    glTexCoord2f(0, 1); glVertex2f(p2->x, p2->y);
+    glTexCoord2f(1, 1); glVertex2f(p3->x, p3->y);
+    glTexCoord2f(1, 0); glVertex2f(p4->x, p4->y);
     glEnd();
 }
 
-void Draw::Quad3(Vec3f const *p1, Vec3f const *p2, Vec3f const *p3, Vec3f const *p4) {
-    Metric::AddDrawImm(1, 2, 4);
+void Draw::Quad3(Vector3Df const *p1, Vector3Df const *p2, Vector3Df const *p3, Vector3Df const *p4) {
+    PhxMetric::AddDrawImm(1, 2, 4);
     glBegin(GL_QUADS);
-    glTexCoord2f(0, 0); glVertex3f(UNPACK3(*p1));
-    glTexCoord2f(0, 1); glVertex3f(UNPACK3(*p2));
-    glTexCoord2f(1, 1); glVertex3f(UNPACK3(*p3));
-    glTexCoord2f(1, 0); glVertex3f(UNPACK3(*p4));
+    glTexCoord2f(0, 0); glVertex3f(p1->x, p1->y, p1->z);
+    glTexCoord2f(0, 1); glVertex3f(p2->x, p2->y, p2->z);
+    glTexCoord2f(1, 1); glVertex3f(p3->x, p3->y, p3->z);
+    glTexCoord2f(1, 0); glVertex3f(p4->x, p4->y, p4->z);
     glEnd();
 }
 
 void Draw::Rect(float x1, float y1, float xs, float ys) {
     float x2 = x1 + xs;
     float y2 = y1 + ys;
-    Metric::AddDrawImm(1, 2, 4);
+    PhxMetric::AddDrawImm(1, 2, 4);
     glBegin(GL_QUADS);
     glTexCoord2f(0, 0); glVertex2f(x1, y1);
     glTexCoord2f(0, 1); glVertex2f(x1, y2);
@@ -1758,54 +1758,55 @@ void Draw::SmoothPoints(bool enabled) {
     }
 }
 
-inline static Vec3f Spherical(float r, float yaw, float pitch) {
-    return Vec3f_Create(
-      r * Sin(pitch) * Cos(yaw),
-      r * Cos(pitch),
-      r * Sin(pitch) * Sin(yaw));
+inline static Vector3Df Spherical(float r, float yaw, float pitch) {
+    return {
+      r * std::sin(pitch) * std::cos(yaw),
+      r * std::cos(pitch),
+      r * std::sin(pitch) * std::sin(yaw)
+    };
 }
 
 /* TODO JP : Lazy creation of VBO / IBO & glDraw instead of immediate. */
-void Draw::Sphere(Vec3f const *p, float r) {
+void Draw::Sphere(Vector3Df const *p, float r) {
     const size_t res = 7;
     const float fRes = float(res);
 
     /* First Row */ {
-        Metric::AddDrawImm(res, res, res * 3);
+        PhxMetric::AddDrawImm(res, res, res * 3);
         glBegin(GL_TRIANGLES);
-        float lastTheta = float(res - 1) / fRes * Tau;
-        float phi = 1.0f / fRes * Pi;
-        Vec3f tc = Vec3f_Add(*p, Spherical(r, 0, 0));
+        float lastTheta = float(res - 1) / fRes * (std::numbers::pi * 2);
+        float phi = 1.0f / fRes * std::numbers::pi;
+        Vector3Df tc = *p + Spherical(r, 0, 0);
         for (size_t iTheta = 0; iTheta < res; iTheta++) {
-            float theta = float(iTheta) / fRes * Tau;
-            Vec3f br = Vec3f_Add(*p, Spherical(r, lastTheta, phi));
-            Vec3f bl = Vec3f_Add(*p, Spherical(r, theta, phi));
-            glVertex3f(UNPACK3(br));
-            glVertex3f(UNPACK3(tc));
-            glVertex3f(UNPACK3(bl));
+            float theta = float(iTheta) / fRes * (std::numbers::pi * 2);
+            Vector3Df br = *p + Spherical(r, lastTheta, phi);
+            Vector3Df bl = *p + Spherical(r, theta, phi);
+            glVertex3f(br.x, br.y, br.z);
+            glVertex3f(tc.x, tc.y, tc.z);
+            glVertex3f(bl.x, bl.y, bl.z);
             lastTheta = theta;
         }
         glEnd();
     }
 
     /* Middle Rows */ {
-        Metric::AddDrawImm(res - 2, 2 * (res - 2), 4 * (res - 2));
+        PhxMetric::AddDrawImm(res - 2, 2 * (res - 2), 4 * (res - 2));
         glBegin(GL_QUADS);
-        float lastPhi = 1.0f / fRes * Pi;
-        float lastTheta = float(res - 1) / fRes * Tau;
+        float lastPhi = 1.0f / fRes * std::numbers::pi;
+        float lastTheta = float(res - 1) / fRes * (std::numbers::pi * 2);
 
         for (size_t iPhi = 2; iPhi < res; iPhi++) {
-            float phi = float(iPhi) / fRes * Pi;
+            float phi = float(iPhi) / fRes * std::numbers::pi;
             for (size_t iTheta = 0; iTheta < res; iTheta++) {
-                float theta = float(iTheta) / fRes * Tau;
-                Vec3f br = Vec3f_Add(*p, Spherical(r, lastTheta, phi));
-                Vec3f tr = Vec3f_Add(*p, Spherical(r, lastTheta, lastPhi));
-                Vec3f tl = Vec3f_Add(*p, Spherical(r, theta, lastPhi));
-                Vec3f bl = Vec3f_Add(*p, Spherical(r, theta, phi));
-                glVertex3f(UNPACK3(br));
-                glVertex3f(UNPACK3(tr));
-                glVertex3f(UNPACK3(tl));
-                glVertex3f(UNPACK3(bl));
+                float theta = float(iTheta) / fRes * (std::numbers::pi * 2);
+                Vector3Df br = *p + Spherical(r, lastTheta, phi);
+                Vector3Df tr = *p + Spherical(r, lastTheta, lastPhi);
+                Vector3Df tl = *p + Spherical(r, theta, lastPhi);
+                Vector3Df bl = *p + Spherical(r, theta, phi);
+                glVertex3f(br.x, br.y, br.z);
+                glVertex3f(tr.x, tr.y, tr.z);
+                glVertex3f(tl.x, tl.y, tl.z);
+                glVertex3f(bl.x, bl.y, bl.z);
                 lastTheta = theta;
             }
             lastPhi = phi;
@@ -1814,40 +1815,40 @@ void Draw::Sphere(Vec3f const *p, float r) {
     }
 
     /* Bottom Row */ {
-        Metric::AddDrawImm(res, res, res * 3);
+        PhxMetric::AddDrawImm(res, res, res * 3);
         glBegin(GL_TRIANGLES);
-        float lastTheta = float(res - 1) / fRes * Tau;
-        float phi = float(res - 1) / fRes * Pi;
-        Vec3f bc = Vec3f_Add(*p, Spherical(r, 0, Pi));
+        float lastTheta = float(res - 1) / fRes * (std::numbers::pi * 2);
+        float phi = float(res - 1) / fRes * std::numbers::pi;
+        Vector3Df bc = *p + Spherical(r, 0, std::numbers::pi);
 
         for (size_t iTheta = 0; iTheta < res; iTheta++) {
-            float theta = float(iTheta) / fRes * Tau;
-            Vec3f tr = Vec3f_Add(*p, Spherical(r, lastTheta, phi));
-            Vec3f tl = Vec3f_Add(*p, Spherical(r, theta, phi));
-            glVertex3f(UNPACK3(tr));
-            glVertex3f(UNPACK3(tl));
-            glVertex3f(UNPACK3(bc));
+            float theta = float(iTheta) / fRes * (std::numbers::pi * 2);
+            Vector3Df tr = *p + Spherical(r, lastTheta, phi);
+            Vector3Df tl = *p + Spherical(r, theta, phi);
+            glVertex3f(tr.x, tr.y, tr.z);
+            glVertex3f(tl.x, tl.y, tl.z);
+            glVertex3f(bc.x, bc.y, bc.z);
             lastTheta = theta;
         }
         glEnd();
     }
 }
 
-void Draw::Tri(Vec2f const *v1, Vec2f const *v2, Vec2f const *v3) {
-    Metric::AddDrawImm(1, 1, 3);
+void Draw::Tri(Vector2Df const *v1, Vector2Df const *v2, Vector2Df const *v3) {
+    PhxMetric::AddDrawImm(1, 1, 3);
     glBegin(GL_TRIANGLES);
-    glTexCoord2f(0, 0); glVertex2f(UNPACK2(*v1));
-    glTexCoord2f(0, 1); glVertex2f(UNPACK2(*v2));
-    glTexCoord2f(1, 1); glVertex2f(UNPACK2(*v3));
+    glTexCoord2f(0, 0); glVertex2f(v1->x, v1->y);
+    glTexCoord2f(0, 1); glVertex2f(v2->x, v2->y);
+    glTexCoord2f(1, 1); glVertex2f(v3->x, v3->y);
     glEnd();
 }
 
-void Draw::Tri3(Vec3f const *v1, Vec3f const *v2, Vec3f const *v3) {
-    Metric::AddDrawImm(1, 1, 3);
+void Draw::Tri3(Vector3Df const *v1, Vector3Df const *v2, Vector3Df const *v3) {
+    PhxMetric::AddDrawImm(1, 1, 3);
     glBegin(GL_TRIANGLES);
-    glTexCoord2f(0, 0); glVertex3f(UNPACK3(*v1));
-    glTexCoord2f(0, 1); glVertex3f(UNPACK3(*v2));
-    glTexCoord2f(1, 1); glVertex3f(UNPACK3(*v3));
+    glTexCoord2f(0, 0); glVertex3f(v1->x, v1->y, v1->z);
+    glTexCoord2f(0, 1); glVertex3f(v2->x, v2->y, v2->z);
+    glTexCoord2f(1, 1); glVertex3f(v3->x, v3->y, v3->z);
     glEnd();
 }
 
@@ -1893,7 +1894,7 @@ float Viewport::GetAspect() {
     return (float)vp[vpIndex].sx / (float)vp[vpIndex].sy;
 }
 
-void Viewport::GetSize(Vec2i *out) {
+void Viewport::GetSize(Vector2Di *out) {
     if (vpIndex < 0) Fatal("Viewport_GetSize: Viewport stack is empty");
     out->x = vp[vpIndex].sx;
     out->y = vp[vpIndex].sy;
