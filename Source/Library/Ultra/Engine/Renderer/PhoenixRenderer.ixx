@@ -1,17 +1,8 @@
-﻿module;
-
-#include <Matrix.h>
-
-export module Ultra.Engine.Phoenix;
+﻿export module Ultra.Engine.Phoenix;
 
 import Ultra.Core;
 import Ultra.Logger;
 import Ultra.Math;
-
-
-using uchar = unsigned char;
-using cstr = const char *;
-using int32 = int32_t;
 
 ///
 /// @brief Data
@@ -303,15 +294,15 @@ enum class Metrics {
 
 class PhxMetric {
 public:
-    static int32  Get(Metrics);
-    static cstr   GetName(Metrics);
+    static int32_t  Get(Metrics);
+    static const char *   GetName(Metrics);
 
     static void   Inc(Metrics);
-    static void   Mod(Metrics, int32);
+    static void   Mod(Metrics, int32_t);
     static void   Reset();
     
-    static void   AddDraw(int32 polys, int32 tris, int32 verts);
-    static void   AddDrawImm(int32 polys, int32 tris, int32 verts);
+    static void   AddDraw(int32_t polys, int32_t tris, int32_t verts);
+    static void   AddDrawImm(int32_t polys, int32_t tris, int32_t verts);
 };
 
 }
@@ -347,13 +338,14 @@ enum class  PhxShaderVarType {
  *
  * -------------------------------------------------------------------------- */
 
+struct ShaderState;
 struct ShaderData;
 struct Tex2DData;
 
 class PhxShader {
 public:
-    static ShaderData *Create(cstr vertCode, cstr fragCode);
-    static ShaderData *Load(cstr vertName, cstr fragName);
+    static ShaderData *Create(const char * vertCode, const char * fragCode);
+    static ShaderData *Load(const char * vertName, const char * fragName);
     static void          Acquire(ShaderData *);
     static void          Free(ShaderData *);
     static ShaderState   *ToShaderState(ShaderData *);
@@ -361,30 +353,30 @@ public:
     static void          Start(ShaderData *);
     static void          Stop(ShaderData *);
     
-    static uint          GetHandle(ShaderData *);
-    static int           GetVariable(ShaderData *, cstr);
-    static bool          HasVariable(ShaderData *, cstr);
+    static uint32_t          GetHandle(ShaderData *);
+    static int           GetVariable(ShaderData *, const char *);
+    static bool          HasVariable(ShaderData *, const char *);
     
     static void          ClearCache();
-    static void          SetFloat(cstr, float);
-    static void          SetFloat2(cstr, float, float);
-    static void          SetFloat3(cstr, float, float, float);
-    static void          SetFloat4(cstr, float, float, float, float);
-    static void          SetInt(cstr, int);
-    static void          SetMatrix(cstr, ::Matrix *);
-    static void          SetMatrixT(cstr, ::Matrix *);
-    //static void          SetTex1D(cstr, Tex1D *);
-    static void          SetTex2D(cstr, Tex2DData *);
-    //static void          SetTex3D(cstr, Tex3D *);
-    static void          SetTexCube(cstr, TexCube *);
+    static void          SetFloat(const char *, float);
+    static void          SetFloat2(const char *, float, float);
+    static void          SetFloat3(const char *, float, float, float);
+    static void          SetFloat4(const char *, float, float, float, float);
+    static void          SetInt(const char *, int);
+    static void          SetMatrix(const char *, NMatrix4f *);
+    static void          SetMatrixT(const char *, NMatrix4f *);
+    //static void          SetTex1D(const char *, Tex1D *);
+    static void          SetTex2D(const char *, Tex2DData *);
+    //static void          SetTex3D(const char *, Tex3D *);
+    //static void          SetTexCube(const char *, TexCube *);
     
     static void          ISetFloat(int, float);
     static void          ISetFloat2(int, float, float);
     static void          ISetFloat3(int, float, float, float);
     static void          ISetFloat4(int, float, float, float, float);
     static void          ISetInt(int, int);
-    static void          ISetMatrix(int, ::Matrix *);
-    static void          ISetMatrixT(int, ::Matrix *);
+    static void          ISetMatrix(int, NMatrix4f *);
+    static void          ISetMatrixT(int, NMatrix4f *);
     //static void          ISetTex1D(int, Tex1D *);
     static void          ISetTex2D(int, Tex2DData *);
     //static void          ISetTex3D(int, Tex3D *);
@@ -393,18 +385,18 @@ public:
 
 class PhxShaderVar {
     public:
-    static void *Get(cstr, PhxShaderVarType);
-    static void  PushFloat(cstr, float);
-    static void  PushFloat2(cstr, float, float);
-    static void  PushFloat3(cstr, float, float, float);
-    static void  PushFloat4(cstr, float, float, float, float);
-    static void  PushInt(cstr, int);
-    static void  PushMatrix(cstr, ::Matrix *);
-    static void  PushTex1D(cstr, Tex1D *);
-    static void  PushTex2D(cstr, Tex2DData *);
-    static void  PushTex3D(cstr, Tex3D *);
-    static void  PushTexCube(cstr, TexCube *);
-    static void  Pop(cstr);
+    static void *Get(const char *, PhxShaderVarType);
+    static void  PushFloat(const char *, float);
+    static void  PushFloat2(const char *, float, float);
+    static void  PushFloat3(const char *, float, float, float);
+    static void  PushFloat4(const char *, float, float, float, float);
+    static void  PushInt(const char *, int);
+    static void  PushMatrix(const char *, NMatrix4f *);
+    //static void  PushTex1D(const char *, Tex1D *);
+    static void  PushTex2D(const char *, Tex2DData *);
+    //static void  PushTex3D(const char *, Tex3D *);
+    //static void  PushTexCube(const char *, TexCube *);
+    static void  Pop(const char *);
 
     static void Init();
     static void Free();
@@ -419,10 +411,27 @@ export namespace Ultra {
 
 struct Tex2DData;
 
+enum class PhxTexFilter {
+    Point,
+    PointMipPoint,
+    PointMipLinear,
+    Linear,
+    LinearMipPoint,
+    LinearMipLinear,
+};
+
+enum class PhxTexWrapMode {
+    Clamp,
+    MirrorClamp,
+    MirrorRepeat,
+    Repeat,
+};
+
+
 class Tex2D {
 public:
     static Tex2DData *Create(int sx, int sy, PhxTextureFormat);
-    static Tex2DData *Load(cstr name);
+    static Tex2DData *Load(const char * name);
     static Tex2DData *ScreenCapture();
     static void       Acquire(Tex2DData *);
     static void       Free(Tex2DData *);
@@ -439,19 +448,19 @@ public:
     static void       GetData(Tex2DData *, void *, PhxPixelFormat, PhxDataFormat);
     static vector<uint32_t>      GetDataBytes(Tex2DData *, PhxPixelFormat, PhxDataFormat);
     static PhxTextureFormat  GetFormat(Tex2DData *);
-    static uint       GetHandle(Tex2DData *);
+    static uint32_t       GetHandle(Tex2DData *);
     static void       GetSize(Tex2DData *, Vector2Di *out);
     static void       GetSizeLevel(Tex2DData *, Vector2Di *out, int level);
     static void       SetAnisotropy(Tex2DData *, float);
     static void       SetData(Tex2DData *, void const *, PhxPixelFormat, PhxDataFormat);
     static void       SetDataBytes(Tex2DData *, vector<uint32_t>, PhxPixelFormat, PhxDataFormat);
-    static void       SetMagFilter(Tex2DData *, TexFilter);
-    static void       SetMinFilter(Tex2DData *, TexFilter);
+    static void       SetMagFilter(Tex2DData *, PhxTexFilter);
+    static void       SetMinFilter(Tex2DData *, PhxTexFilter);
     static void       SetMipRange(Tex2DData *, int minLevel, int maxLevel);
     static void       SetTexel(Tex2DData *, int x, int y, float r, float g, float b, float a);
-    static void       SetWrapMode(Tex2DData *, TexWrapMode);
+    static void       SetWrapMode(Tex2DData *, PhxTexWrapMode);
 
-    static void       Save(Tex2DData *, cstr path);
+    static void       Save(Tex2DData *, const char * path);
 };
 
 }

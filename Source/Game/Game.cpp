@@ -12,6 +12,7 @@ import Ultra;
     import Ultra.UI.HmGui;
 #endif
 import Ultra.Math;
+import Ultra.Engine.UIRenderer;
 import Ultra.Utility.String;
 
 namespace Ultra {
@@ -291,6 +292,7 @@ private:
     Lua *mLua = nullptr;
 #else
     Scope<Renderer> mRenderer;
+
     FontData *mFontExo2Bold = nullptr;
     FontData *mFontFiraMono = nullptr;
     FontData *mFontRajdhani = nullptr;

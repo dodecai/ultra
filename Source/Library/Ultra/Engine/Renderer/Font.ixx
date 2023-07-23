@@ -1,22 +1,19 @@
 ﻿export module Ultra.Engine.Font;
 
 import Ultra.Core;
+import Ultra.Logger;
 import Ultra.Math;
 
+///
+/// @brief Font
+///  Font_DrawShaded : In addition to drawing glyphs as textured quads,
+///                    DrawShaded binds the texture for the current glyph to
+///                    the uniform sampler2D "glyph" of the currently-active
+///                    shader. This allows for text to be rendered through
+///                    the shader pipeline and, for example, output HDR values
+///                    for glyph colors.
+///
 export namespace Ultra {
-
-/* --- Font --------------------------------------------------------------------
- *
- *   This type is REFERENCE-COUNTED. See ../doc/RefCounted.txt for details.
- *
- *   Font_DrawShaded : In addition to drawing glyphs as textured quads,
- *                     DrawShaded binds the texture for the current glyph to
- *                     the uniform sampler2D "glyph" of the currently-active
- *                     shader. This allows for text to be rendered through
- *                     the shader pipeline and, for example, output HDR values
- *                     for glyph colors.
- *
- * -------------------------------------------------------------------------- */
 
 struct FontData;
 

@@ -1,12 +1,4 @@
-﻿module;
-
-// ToDo: Check Profiler
-#define FRAME_BEGIN
-#define FRAME_END
-
-#include "Hash.h"
-
-export module Ultra.UI.HmGui;
+﻿export module Ultra.UI.HmGui;
 
 import Ultra.Core;
 import Ultra.Engine.Phoenix;
@@ -19,6 +11,9 @@ export namespace Ultra::UI {
 
 #define HMGUI_DRAW_GROUP_FRAMES 0
 #define HMGUI_ENABLE_DRAGGING 1
+// ToDo: Check Profiler
+#define FRAME_BEGIN
+#define FRAME_END
 
 ///
 /// @brief 
@@ -57,7 +52,7 @@ struct HmGuiWidget {
     struct HmGuiGroup *parent;
     HmGuiWidget *next;
     HmGuiWidget *prev;
-    uint64 hash;
+    uint64_t hash;
     WidgetType type;
     Vector2Df pos;
     Vector2Df size;
@@ -70,7 +65,7 @@ struct HmGuiGroup: public HmGuiWidget {
     HmGuiWidget *head;
     HmGuiWidget *tail;
     Layout layout;
-    uint32 children;
+    uint32_t children;
     FocusStyle focusStyle;
     Vector2Df paddingLower;
     Vector2Df paddingUpper;
@@ -132,7 +127,7 @@ struct HmGuiDataStructure {
     //HashMap *data;
     unordered_map<uint64_t, HmGuiData *> data;
 
-    uint64 focus[(int)FocusMouse::Size];
+    uint64_t focus[(int)FocusMouse::Size];
     Vector2Df focusPos;
     bool activate;
 };
@@ -261,7 +256,7 @@ public:
         EndGroup();
         EndGroup();
     }
-    static void BeginWindow(cstr title) {
+    static void BeginWindow(const char * title) {
         BeginGroupStack();
         SetStretch(0, 0);
         self.group->focusStyle = FocusStyle::None;
@@ -296,7 +291,7 @@ public:
         EndGroup();
     }
 
-    static bool Button(cstr label) {
+    static bool Button(const char * label) {
         BeginGroupStack();
         self.group->focusStyle = FocusStyle::Fill;
         self.group->frameOpacity = 0.5f;
@@ -307,7 +302,7 @@ public:
         EndGroup();
         return focus && self.activate;
     }
-    static bool Checkbox(cstr label, bool value) {
+    static bool Checkbox(const char * label, bool value) {
         BeginGroupX();
         self.group->focusStyle = FocusStyle::Underline;
         if (GroupHasFocus(FocusMouse::Mouse) && self.activate)
@@ -352,13 +347,13 @@ public:
         e->color = { r, g, b, a };
         e->minSize = { sx, sy };
     }
-    static void Text(cstr text) {
+    static void Text(const char * text) {
         TextEx(self.style->font, text, self.style->colorText.x, self.style->colorText.y, self.style->colorText.z, self.style->colorText.w);
     }
-    static void TextColored(cstr text, float r, float g, float b, float a) {
+    static void TextColored(const char * text, float r, float g, float b, float a) {
         TextEx(self.style->font, text, r, g, b, a);
     }
-    static void TextEx(FontData *font, cstr text, float r, float g, float b, float a) {
+    static void TextEx(FontData *font, const char * text, float r, float g, float b, float a) {
         HmGuiText *e = new HmGuiText();
         InitWidget(e, WidgetType::Text);
         e->font = font;
@@ -431,16 +426,14 @@ private:
         e->next = 0;
         e->prev = self.group ? self.group->tail : 0;
 
+        std::hash<uint64_t> hasher;
         if (e->parent) {
             e->parent->children++;
-            e->hash = Hash_FNV64_Incremental(
-              e->parent->hash,
-              &e->parent->children,
-              sizeof(e->parent->children));
+            e->hash = hasher(e->parent->hash ^ e->parent->children);
             (e->next ? e->next->prev : e->parent->tail) = e;
             (e->prev ? e->prev->next : e->parent->head) = e;
         } else {
-            e->hash = Hash_FNV64_Init();
+            e->hash = hasher(0);
         }
 
         e->type = type;

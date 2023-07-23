@@ -17,8 +17,8 @@
     #define STB_IMAGE_IMPLEMENTATION
 #endif
 #define STB_IMAGE_STATIC
-//#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image.h"
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
 #pragma warning(pop)
 
 module Ultra.Engine.Phoenix;
@@ -127,13 +127,13 @@ string Resource::ToString(PhyResourceType type) {
 ///
 namespace Ultra {
 
-static int32 valueCurr[(int)Metrics::SIZE + 1] = { 0 };
+static int32_t valueCurr[(int)Metrics::SIZE + 1] = { 0 };
 
-int32 PhxMetric::Get(Metrics self) {
+int32_t PhxMetric::Get(Metrics self) {
     return valueCurr[(int)self];
 }
 
-cstr PhxMetric::GetName(Metrics self) {
+const char * PhxMetric::GetName(Metrics self) {
     switch (self) {
         case Metrics::DrawCalls:  return "Draw Calls";
         case Metrics::Immediate:  return "Draw Calls (Immediate)";
@@ -146,14 +146,14 @@ cstr PhxMetric::GetName(Metrics self) {
     return 0;
 }
 
-void PhxMetric::AddDraw(int32 polys, int32 tris, int32 verts) {
+void PhxMetric::AddDraw(int32_t polys, int32_t tris, int32_t verts) {
     valueCurr[(int)Metrics::DrawCalls] += 1;
     valueCurr[(int)Metrics::PolysDrawn] += polys;
     valueCurr[(int)Metrics::TrisDrawn] += tris;
     valueCurr[(int)Metrics::VertsDrawn] += verts;
 }
 
-void PhxMetric::AddDrawImm(int32 polys, int32 tris, int32 verts) {
+void PhxMetric::AddDrawImm(int32_t polys, int32_t tris, int32_t verts) {
     valueCurr[(int)Metrics::Immediate] += 1;
     valueCurr[(int)Metrics::PolysDrawn] += polys;
     valueCurr[(int)Metrics::TrisDrawn] += tris;
@@ -164,7 +164,7 @@ void PhxMetric::Inc(Metrics self) {
     valueCurr[(int)self] += 1;
 }
 
-void PhxMetric::Mod(Metrics self, int32 delta) {
+void PhxMetric::Mod(Metrics self, int32_t delta) {
     valueCurr[(int)self] += delta;
 }
 
@@ -179,7 +179,7 @@ void PhxMetric::Reset() {
 ///
 namespace Ultra {
 
-cstr PhxShaderVarTypeGetGLSLName(PhxShaderVarType self) {
+const char * PhxShaderVarTypeGetGLSLName(PhxShaderVarType self) {
     switch (self) {
         case PhxShaderVarType::Float:   return "float";
         case PhxShaderVarType::Float2:  return "vec2";
@@ -198,13 +198,13 @@ cstr PhxShaderVarTypeGetGLSLName(PhxShaderVarType self) {
     return 0;
 }
 
-PhxShaderVarType PhxShaderVarTypeFromStr(cstr s) {
+PhxShaderVarType PhxShaderVarTypeFromStr(const char * s) {
     for (int i = (int)PhxShaderVarType::BEGIN; i <= (int)PhxShaderVarType::END; ++i)
         if (string(s) == string(PhxShaderVarTypeGetGLSLName((PhxShaderVarType)i))) return (PhxShaderVarType)i;
     return PhxShaderVarType::None;
 }
 
-cstr PhxShaderVarTypeGetName(PhxShaderVarType self) {
+const char * PhxShaderVarTypeGetName(PhxShaderVarType self) {
     switch (self) {
         case PhxShaderVarType::Float:   return "float";
         case PhxShaderVarType::Float2:  return "float2";
@@ -233,11 +233,11 @@ int PhxShaderVarTypeGetSize(PhxShaderVarType self) {
         case PhxShaderVarType::Int2:    return sizeof(Vector2Di);
         case PhxShaderVarType::Int3:    return sizeof(Vector3Di);
         case PhxShaderVarType::Int4:    return sizeof(Vector4Di);
-        case PhxShaderVarType::Matrix:  return sizeof(::Matrix *);
-        case PhxShaderVarType::Tex1D:   return sizeof(Tex1D *);
+        case PhxShaderVarType::Matrix:  return sizeof(NMatrix4f *);
+        //case PhxShaderVarType::Tex1D:   return sizeof(Tex1D *);
         case PhxShaderVarType::Tex2D:   return sizeof(Tex2D *);
-        case PhxShaderVarType::Tex3D:   return sizeof(Tex3D *);
-        case PhxShaderVarType::TexCube: return sizeof(TexCube *);
+        //case PhxShaderVarType::Tex3D:   return sizeof(Tex3D *);
+        //case PhxShaderVarType::TexCube: return sizeof(TexCube *);
     }
     return 0;
 }
@@ -247,31 +247,31 @@ int PhxShaderVarTypeGetSize(PhxShaderVarType self) {
 /* TODO : Use glShaderSource's array functionality to implement include files
  *        elegantly. */
 
-static cstr includePath = "include/";
-static cstr versionString = "#version 130\n";
+static const char * includePath = "include/";
+static const char * versionString = "#version 130\n";
 
 struct ShaderVar {
     PhxShaderVarType type;
-    cstr name;
+    const char * name;
     int index;
 };
 
 struct ShaderData {
     string *name {};
-    uint vs;
-    uint fs;
-    uint program;
-    uint texIndex;
+    uint32_t vs;
+    uint32_t fs;
+    uint32_t program;
+    uint32_t texIndex;
     vector<ShaderVar> vars;
 };
 
 static ShaderData *current = 0;
 static unordered_map<string, string> cache;
 
-static cstr GLSL_Load(cstr path, ShaderData *);
-static cstr GLSL_Preprocess(cstr code, ShaderData *);
+static const char * GLSL_Load(const char * path, ShaderData *);
+static const char * GLSL_Preprocess(const char * code, ShaderData *);
 
-static int GetUniformIndex(ShaderData *self, cstr name, bool mustSucceed = false) {
+static int GetUniformIndex(ShaderData *self, const char * name, bool mustSucceed = false) {
     if (!self)
         LogFatal("GetUniformIndex: No shader is bound");
     int index = glGetUniformLocation(self->program, name);
@@ -280,10 +280,10 @@ static int GetUniformIndex(ShaderData *self, cstr name, bool mustSucceed = false
     return index;
 }
 
-static uint CreateGLShader(cstr src, GLenum type) {
-    uint self = glCreateShader(type);
+static uint32_t CreateGLShader(const char * src, GLenum type) {
+    uint32_t self = glCreateShader(type);
 
-    cstr srcs[] = {
+    const char * srcs[] = {
       versionString,
       src,
     };
@@ -305,8 +305,8 @@ static uint CreateGLShader(cstr src, GLenum type) {
     return self;
 }
 
-static uint CreateGLProgram(uint vs, uint fs) {
-    uint self = glCreateProgram();
+static uint32_t CreateGLProgram(uint32_t vs, uint32_t fs) {
+    uint32_t self = glCreateProgram();
     glAttachShader(self, vs);
     glAttachShader(self, fs);
 
@@ -334,27 +334,27 @@ static uint CreateGLProgram(uint vs, uint fs) {
 
 /* BUG : Cache does not contain information about custom preprocessor
  *       directives, hence cached shaders with custom directives do not work */
-static cstr GLSL_Load(cstr name, ShaderData *self) {
+static const char * GLSL_Load(const char * name, ShaderData *self) {
     if (cache.empty()) cache.reserve(16);
     auto cached = cache[name];
     if (!cached.empty()) return cached.c_str();
     string rawCode = Resource::LoadCstr(PhyResourceType::Shader, name);
-    cstr code = strdup(String::Replace(rawCode, "\r\n", "\n").c_str());
+    const char * code = strdup(String::Replace(rawCode, "\r\n", "\n").c_str());
     code = GLSL_Preprocess(code, self);
     /* BUG : Disable GLSL caching until preprocessor cache works. */
     // StrMap_Set(cache, name, (void*)code);
     return code;
 }
 
-static cstr GLSL_Preprocess(cstr code, ShaderData *self) {
+static const char * GLSL_Preprocess(const char * code, ShaderData *self) {
     const string includeString = "#include";
     const size_t lenInclude = includeString.length();
 
-    cstr begin;
+    const char * begin;
 
     /* Parse Includes. */
     while ((begin = strstr(code, "#include")) != 0) {
-        cstr end = strstr(begin, "\n");
+        const char * end = strstr(begin, "\n");
         string name(begin + lenInclude + 1, end);
         string path = includePath + name;
         //code = StrSub(code, begin, end, GLSL_Load(path.c_str(), self));
@@ -367,7 +367,7 @@ static cstr GLSL_Preprocess(cstr code, ShaderData *self) {
 
     /* Parse automatic ShaderVar stack bindings. */
     while ((begin = strstr(code, "#autovar")) != 0) {
-        cstr end = strstr(begin, "\n");
+        const char * end = strstr(begin, "\n");
         string line(begin, end);
         char varType[32] = { 0 };
         char varName[32] = { 0 };
@@ -403,7 +403,7 @@ static void Shader_BindVariables(ShaderData *self) {
 
 /* --- Creation ------------------------------------------------------------- */
 
-ShaderData *PhxShader::Create(cstr vs, cstr fs) {
+ShaderData *PhxShader::Create(const char * vs, const char * fs) {
     ShaderData *self = new ShaderData();
     vs = GLSL_Preprocess(strdup(vs), self);
     fs = GLSL_Preprocess(strdup(fs), self);
@@ -416,10 +416,10 @@ ShaderData *PhxShader::Create(cstr vs, cstr fs) {
     return self;
 }
 
-ShaderData *PhxShader::Load(cstr vName, cstr fName) {
+ShaderData *PhxShader::Load(const char * vName, const char * fName) {
     ShaderData *self = new ShaderData();
-    cstr vs = GLSL_Load(vName, self);
-    cstr fs = GLSL_Load(fName, self);
+    const char * vs = GLSL_Load(vName, self);
+    const char * fs = GLSL_Load(fName, self);
     self->vs = CreateGLShader(vs, GL_VERTEX_SHADER);
     self->fs = CreateGLShader(fs, GL_FRAGMENT_SHADER);
     self->program = CreateGLProgram(self->vs, self->fs);
@@ -499,7 +499,7 @@ void PhxShader::Start(ShaderData *self) {
                 glUniform4i(var->index, value.x, value.y, value.z, value.w);
                 break; }
             case PhxShaderVarType::Matrix: {
-                ISetMatrix(var->index, *(::Matrix **)pValue);
+                ISetMatrix(var->index, *(NMatrix4f **)pValue);
                 break; }
             case PhxShaderVarType::Tex1D: {
                 //ISetTex1D(var->index, *(Tex1D **)pValue);
@@ -523,7 +523,7 @@ void PhxShader::Stop(ShaderData *) {
     current = 0;
 }
 
-static void ShaderCache_FreeElem(cstr, void *data) {
+static void ShaderCache_FreeElem(const char *, void *data) {
     free(data);
 }
 
@@ -533,24 +533,24 @@ void PhxShader::ClearCache() {
     }
 }
 
-uint PhxShader::GetHandle(ShaderData *self) {
+uint32_t PhxShader::GetHandle(ShaderData *self) {
     return self->program;
 }
 
-int PhxShader::GetVariable(ShaderData *self, cstr name) {
+int PhxShader::GetVariable(ShaderData *self, const char * name) {
     int index = glGetUniformLocation(self->program, name);
     if (index == -1)
         LogFatal("Shader_GetVariable: Shader <%s> has no variable <%s>", self->name, name);
     return index;
 }
 
-bool PhxShader::HasVariable(ShaderData *self, cstr name) {
+bool PhxShader::HasVariable(ShaderData *self, const char * name) {
     return glGetUniformLocation(self->program, name) > -1;
 }
 
 /* --- Variable Binding ----------------------------------------------------- */
 
-void PhxShader::SetFloat(cstr name, float value) {
+void PhxShader::SetFloat(const char * name, float value) {
     glUniform1f(GetUniformIndex(current, name), value);
 }
 
@@ -558,7 +558,7 @@ void PhxShader::ISetFloat(int index, float value) {
     glUniform1f(index, value);
 }
 
-void PhxShader::SetFloat2(cstr name, float x, float y) {
+void PhxShader::SetFloat2(const char * name, float x, float y) {
     glUniform2f(GetUniformIndex(current, name), x, y);
 }
 
@@ -566,7 +566,7 @@ void PhxShader::ISetFloat2(int index, float x, float y) {
     glUniform2f(index, x, y);
 }
 
-void PhxShader::SetFloat3(cstr name, float x, float y, float z) {
+void PhxShader::SetFloat3(const char * name, float x, float y, float z) {
     glUniform3f(GetUniformIndex(current, name), x, y, z);
 }
 
@@ -574,7 +574,7 @@ void PhxShader::ISetFloat3(int index, float x, float y, float z) {
     glUniform3f(index, x, y, z);
 }
 
-void PhxShader::SetFloat4(cstr name, float x, float y, float z, float w) {
+void PhxShader::SetFloat4(const char * name, float x, float y, float z, float w) {
     glUniform4f(GetUniformIndex(current, name), x, y, z, w);
 }
 
@@ -582,7 +582,7 @@ void PhxShader::ISetFloat4(int index, float x, float y, float z, float w) {
     glUniform4f(index, x, y, z, w);
 }
 
-void PhxShader::SetInt(cstr name, int value) {
+void PhxShader::SetInt(const char * name, int value) {
     glUniform1i(GetUniformIndex(current, name), value);
 }
 
@@ -590,23 +590,23 @@ void PhxShader::ISetInt(int index, int value) {
     glUniform1i(index, value);
 }
 
-void PhxShader::SetMatrix(cstr name, ::Matrix *value) {
+void PhxShader::SetMatrix(const char * name, NMatrix4f *value) {
     glUniformMatrix4fv(GetUniformIndex(current, name), 1, true, (float *)value);
 }
 
-void PhxShader::SetMatrixT(cstr name, ::Matrix *value) {
+void PhxShader::SetMatrixT(const char * name, NMatrix4f *value) {
     glUniformMatrix4fv(GetUniformIndex(current, name), 1, false, (float *)value);
 }
 
-void PhxShader::ISetMatrix(int index, ::Matrix *value) {
+void PhxShader::ISetMatrix(int index, NMatrix4f *value) {
     glUniformMatrix4fv(index, 1, true, (float *)value);
 }
 
-void PhxShader::ISetMatrixT(int index, ::Matrix *value) {
+void PhxShader::ISetMatrixT(int index, NMatrix4f *value) {
     glUniformMatrix4fv(index, 1, false, (float *)value);
 }
 
-//void PhxShader::SetTex1D(cstr name, Tex1D *value) {
+//void PhxShader::SetTex1D(const char * name, Tex1D *value) {
 //    glUniform1i(GetUniformIndex(current, name), current->texIndex);
 //    glActiveTexture(GL_TEXTURE0 + current->texIndex++);
 //    glBindTexture(GL_TEXTURE_1D, Tex1D_GetHandle(value));
@@ -620,7 +620,7 @@ void PhxShader::ISetMatrixT(int index, ::Matrix *value) {
 //    glActiveTexture(GL_TEXTURE0);
 //}
 
-void PhxShader::SetTex2D(cstr name, Tex2DData *value) {
+void PhxShader::SetTex2D(const char * name, Tex2DData *value) {
     glUniform1i(GetUniformIndex(current, name), current->texIndex);
     glActiveTexture(GL_TEXTURE0 + current->texIndex++);
     glBindTexture(GL_TEXTURE_2D, Tex2D::GetHandle(value));
@@ -634,7 +634,7 @@ void PhxShader::ISetTex2D(int index, Tex2DData *value) {
     glActiveTexture(GL_TEXTURE0);
 }
 
-//void PhxShader::SetTex3D(cstr name, Tex3D *value) {
+//void PhxShader::SetTex3D(const char * name, Tex3D *value) {
 //    glUniform1i(GetUniformIndex(current, name), current->texIndex);
 //    glActiveTexture(GL_TEXTURE0 + current->texIndex++);
 //    glBindTexture(GL_TEXTURE_3D, Tex3D_GetHandle(value));
@@ -648,7 +648,7 @@ void PhxShader::ISetTex2D(int index, Tex2DData *value) {
 //    glActiveTexture(GL_TEXTURE0);
 //}
 //
-//void PhxShader::SetTexCube(cstr name, TexCube *value) {
+//void PhxShader::SetTexCube(const char * name, TexCube *value) {
 //    glUniform1i(GetUniformIndex(current, name), current->texIndex);
 //    glActiveTexture(GL_TEXTURE0 + current->texIndex++);
 //    glBindTexture(GL_TEXTURE_CUBE_MAP, TexCube_GetHandle(value));
@@ -668,15 +668,15 @@ void PhxShader::ISetTex2D(int index, Tex2DData *value) {
 
 struct VarStack {
     PhxShaderVarType type;
-    int32 size;
-    int32 capacity;
-    int32 elemSize;
+    int32_t size;
+    int32_t capacity;
+    int32_t elemSize;
     void *data;
 };
 
 static unordered_map<string, VarStack *> varMap {};
 
-inline static VarStack *ShaderVar_GetStack(cstr var, PhxShaderVarType type) {
+inline static VarStack *ShaderVar_GetStack(const char * var, PhxShaderVarType type) {
     VarStack *self = (VarStack *)varMap[var];
     if (!self) {
         //if (type) return 0;
@@ -697,7 +697,7 @@ inline static VarStack *ShaderVar_GetStack(cstr var, PhxShaderVarType type) {
     return self;
 }
 
-inline static void ShaderVar_Push(cstr var, PhxShaderVarType type, void const *value) {
+inline static void ShaderVar_Push(const char * var, PhxShaderVarType type, void const *value) {
     VarStack *self = ShaderVar_GetStack(var, type);
     if (self->size == self->capacity) {
         self->capacity *= 2;
@@ -713,7 +713,7 @@ void PhxShaderVar::Init() {
 void PhxShaderVar::Free() {
 }
 
-void *PhxShaderVar::Get(cstr name, PhxShaderVarType type) {
+void *PhxShaderVar::Get(const char * name, PhxShaderVarType type) {
     VarStack *self = ShaderVar_GetStack(name, PhxShaderVarType::None);
     if (!self || self->size == 0)
         return 0;
@@ -724,51 +724,51 @@ void *PhxShaderVar::Get(cstr name, PhxShaderVarType type) {
     return (char *)self->data + self->elemSize * (self->size - 1);
 }
 
-void PhxShaderVar::PushFloat(cstr name, float x) {
+void PhxShaderVar::PushFloat(const char * name, float x) {
     ShaderVar_Push(name, PhxShaderVarType::Float, &x);
 }
 
-void PhxShaderVar::PushFloat2(cstr name, float x, float y) {
+void PhxShaderVar::PushFloat2(const char * name, float x, float y) {
     Vector2Df value = { x, y };
     ShaderVar_Push(name, PhxShaderVarType::Float2, &value);
 }
 
-void PhxShaderVar::PushFloat3(cstr name, float x, float y, float z) {
+void PhxShaderVar::PushFloat3(const char * name, float x, float y, float z) {
     Vector3Df value = { x, y, z };
     ShaderVar_Push(name, PhxShaderVarType::Float3, &value);
 }
 
-void PhxShaderVar::PushFloat4(cstr name, float x, float y, float z, float w) {
+void PhxShaderVar::PushFloat4(const char * name, float x, float y, float z, float w) {
     Vector4Df value = { x, y, z, w };
     ShaderVar_Push(name, PhxShaderVarType::Float4, &value);
 }
 
-void PhxShaderVar::PushInt(cstr name, int x) {
-    int32 value = (int32)x;
+void PhxShaderVar::PushInt(const char * name, int x) {
+    int32_t value = (int32_t)x;
     ShaderVar_Push(name, PhxShaderVarType::Int, &value);
 }
 
-void PhxShaderVar::PushMatrix(cstr name, ::Matrix *x) {
+void PhxShaderVar::PushMatrix(const char * name, NMatrix4f *x) {
     ShaderVar_Push(name, PhxShaderVarType::Matrix, &x);
 }
 
-void PhxShaderVar::PushTex1D(cstr name, Tex1D *x) {
-    ShaderVar_Push(name, PhxShaderVarType::Tex1D, &x);
-}
+//void PhxShaderVar::PushTex1D(const char * name, Tex1D *x) {
+//    ShaderVar_Push(name, PhxShaderVarType::Tex1D, &x);
+//}
 
-void PhxShaderVar::PushTex2D(cstr name, Tex2DData *x) {
+void PhxShaderVar::PushTex2D(const char * name, Tex2DData *x) {
     ShaderVar_Push(name, PhxShaderVarType::Tex2D, &x);
 }
 
-void PhxShaderVar::PushTex3D(cstr name, Tex3D *x) {
-    ShaderVar_Push(name, PhxShaderVarType::Tex3D, &x);
-}
+//void PhxShaderVar::PushTex3D(const char * name, Tex3D *x) {
+//    ShaderVar_Push(name, PhxShaderVarType::Tex3D, &x);
+//}
+//
+//void PhxShaderVar::PushTexCube(const char * name, TexCube *x) {
+//    ShaderVar_Push(name, PhxShaderVarType::TexCube, &x);
+//}
 
-void PhxShaderVar::PushTexCube(cstr name, TexCube *x) {
-    ShaderVar_Push(name, PhxShaderVarType::TexCube, &x);
-}
-
-void PhxShaderVar::Pop(cstr name) {
+void PhxShaderVar::Pop(const char * name) {
     VarStack *self = ShaderVar_GetStack(name, PhxShaderVarType::None);
     if (!self)
         LogFatal("ShaderVar_Pop: Attempting to pop nonexistent stack <%s>", name);
@@ -829,10 +829,29 @@ GLint GetGLTextureFormat(PhxTextureFormat format) {
     }
 }
 
+GLint GetGLTextureFilter(PhxTexFilter filter) {
+    switch (filter) {
+        case PhxTexFilter::Point: return GL_NEAREST;
+        case PhxTexFilter::PointMipPoint: return GL_NEAREST_MIPMAP_NEAREST;
+        case PhxTexFilter::PointMipLinear: return GL_NEAREST_MIPMAP_LINEAR;
+        case PhxTexFilter::Linear: return GL_LINEAR;
+        case PhxTexFilter::LinearMipPoint: return GL_LINEAR_MIPMAP_NEAREST;
+        case PhxTexFilter::LinearMipLinear: return GL_LINEAR_MIPMAP_LINEAR;
+    }
+}
+
+GLuint GetGLTextureWrapMode(PhxTexWrapMode mode) {
+    switch (mode) {
+        case PhxTexWrapMode::Clamp: return GL_CLAMP_TO_EDGE;
+        case PhxTexWrapMode::MirrorClamp: return GL_MIRROR_CLAMP_TO_EDGE;
+        case PhxTexWrapMode::MirrorRepeat: return GL_MIRRORED_REPEAT;
+        case PhxTexWrapMode::Repeat: return GL_REPEAT;
+    }
+}
 
 
 struct Tex2DData {
-    uint handle;
+    uint32_t handle;
     Vector2Di size;
     PhxTextureFormat format;
 };
@@ -844,14 +863,14 @@ inline static void Tex2D_Init() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-static uchar *Tex2D_LoadRaw(cstr path, int *sx, int *sy, int *components) {
-    uchar *data = stbi_load(path, sx, sy, components, 0);
+static unsigned char *Tex2D_LoadRaw(const char * path, int *sx, int *sy, int *components) {
+    unsigned char *data = stbi_load(path, sx, sy, components, 0);
     if (!data)
         LogFatal("Failed to load image from '%s'", path);
     return data;
 }
 
-static bool Tex2D_Save_Png(cstr path, int sx, int sy, int components, uchar *data) {
+static bool Tex2D_Save_Png(const char * path, int sx, int sy, int components, unsigned char *data) {
     int stride = components * sx;
     /*int result = stbi_write_png(path, sx, sy, components, data, stride);*/
     int result = 0;
@@ -991,7 +1010,7 @@ PhxTextureFormat Tex2D::GetFormat(Tex2DData *self) {
     return self->format;
 }
 
-uint Tex2D::GetHandle(Tex2DData *self) {
+uint32_t Tex2D::GetHandle(Tex2DData *self) {
     return self->handle;
 }
 
@@ -1007,10 +1026,10 @@ void Tex2D::GetSizeLevel(Tex2DData *self, Vector2Di *out, int level) {
     }
 }
 
-Tex2DData *Tex2D::Load(cstr name) {
+Tex2DData *Tex2D::Load(const char * name) {
     string path = Resource::GetPath(PhyResourceType::Tex2D, name);
     int sx, sy, components = 4;
-    uchar *data = Tex2D_LoadRaw(path.c_str(), &sx, &sy, &components);
+    unsigned char *data = Tex2D_LoadRaw(path.c_str(), &sx, &sy, &components);
     Tex2DData *self = Create(sx, sy, PhxTextureFormat::RGBA8);
 
     GLenum format =
@@ -1049,15 +1068,15 @@ void Tex2D::SetDataBytes(Tex2DData *self, vector<uint32_t> data, PhxPixelFormat 
     SetData(self, data.data(), pf, df);
 }
 
-void Tex2D::SetMagFilter(Tex2DData *self, TexFilter filter) {
+void Tex2D::SetMagFilter(Tex2DData *self, PhxTexFilter filter) {
     glBindTexture(GL_TEXTURE_2D, self->handle);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetGLTextureFilter(filter));
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Tex2D::SetMinFilter(Tex2DData *self, TexFilter filter) {
+void Tex2D::SetMinFilter(Tex2DData *self, PhxTexFilter filter) {
     glBindTexture(GL_TEXTURE_2D, self->handle);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetGLTextureFilter(filter));
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -1086,14 +1105,14 @@ void Tex2D::SetTexel(Tex2DData *self, int x, int y, float r, float g, float b, f
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Tex2D::SetWrapMode(Tex2DData *self, TexWrapMode mode) {
+void Tex2D::SetWrapMode(Tex2DData *self, PhxTexWrapMode mode) {
     glBindTexture(GL_TEXTURE_2D, self->handle);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetGLTextureWrapMode(mode));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetGLTextureWrapMode(mode));
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Tex2D::Save(Tex2DData *self, cstr path) {
+void Tex2D::Save(Tex2DData *self, const char * path) {
     PhxMetric::Inc(Metrics::Flush);
     glBindTexture(GL_TEXTURE_2D, self->handle);
     vector<unsigned char> buffer(4 * self->size.x * self->size.y);
@@ -1353,7 +1372,7 @@ namespace Ultra {
 #define MAX_STACK_DEPTH 16
 
 struct FBO {
-    uint handle;
+    uint32_t handle;
     int colorIndex;
     int sx, sy;
     bool depth;
@@ -1435,7 +1454,7 @@ void RenderTarget::BindTex2D(Tex2DData *self) {
  *        (Do depth formats even have levels??) */
 void RenderTarget::BindTex2DLevel(Tex2DData *tex, int level) {
     FBO *self = GetActive();
-    uint handle = Tex2D::GetHandle(tex);
+    uint32_t handle = Tex2D::GetHandle(tex);
 
     /* Color attachment. */
     if (IsPhxTextureFormatColor(Tex2D::GetFormat(tex))) {
@@ -1469,7 +1488,7 @@ void RenderTarget::BindTex2DLevel(Tex2DData *tex, int level) {
 //    if (self->colorIndex >= MAX_COLOR_ATTACHMENTS)
 //        Fatal("RenderTarget_BindTex3D: Max color attachments exceeded");
 //
-//    uint handle = Tex3D_GetHandle(tex);
+//    uint32_t handle = Tex3D_GetHandle(tex);
 //    glFramebufferTexture3D(
 //        GL_FRAMEBUFFER,
 //        GL_COLOR_ATTACHMENT0 + self->colorIndex++,
@@ -1486,7 +1505,7 @@ void RenderTarget::BindTex2DLevel(Tex2DData *tex, int level) {
 //    if (self->colorIndex >= MAX_COLOR_ATTACHMENTS)
 //        Fatal("RenderTarget_BindTexCubeLevel: Max color attachments exceeded");
 //
-//    uint handle = TexCube_GetHandle(tex);
+//    uint32_t handle = TexCube_GetHandle(tex);
 //    glFramebufferTexture2D(
 //        GL_FRAMEBUFFER,
 //        GL_COLOR_ATTACHMENT0 + self->colorIndex++,

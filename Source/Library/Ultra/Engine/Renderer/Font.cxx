@@ -1,17 +1,15 @@
 ﻿module;
 
-// ToDo: Check Profiler
-#define FRAME_BEGIN
-#define FRAME_END
-
-//#include "HashMap.h"
-#include "Vec2.h"
 #include "Vec4.h"
 
 #include "ft2build.h"
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 #include FT_BITMAP_H
+
+// ToDo: Check Profiler
+#define FRAME_BEGIN
+#define FRAME_END
 
 module Ultra.Engine.Font;
 
@@ -43,7 +41,7 @@ struct FontData {
 
 static FT_Library ft = 0;
 
-static Glyph *Font_GetGlyph(FontData *self, uint32 codepoint) {
+static Glyph *Font_GetGlyph(FontData *self, uint32_t codepoint) {
     if (codepoint < 256 && self->glyphsAscii[codepoint])
         return self->glyphsAscii[codepoint];
 
@@ -59,7 +57,7 @@ static Glyph *Font_GetGlyph(FontData *self, uint32 codepoint) {
         return 0;
 
     FT_Bitmap const *bitmap = &face->glyph->bitmap;
-    uchar const *pBitmap = bitmap->buffer;
+    unsigned char const *pBitmap = bitmap->buffer;
 
     /* Create a new glyph and fill out metrics. */ {
         g = new Glyph();
@@ -74,13 +72,16 @@ static Glyph *Font_GetGlyph(FontData *self, uint32 codepoint) {
     }
 
     vector<Vec4f> buffer (g->sx * g->sy);
+    vector<Vector4Df> buffer2(g->sx * g->sy);
 
     /* Copy rendered bitmap into buffer. */ {
         Vec4f *pBuffer = buffer.data();
-        for (uint dy = 0; dy < bitmap->rows; ++dy) {
-            for (uint dx = 0; dx < bitmap->width; ++dx) {
-                float a = Pow((float)(pBitmap[dx]) / 255.0f, kRcpGamma);
+        Vector4Df *pBuffer2 = buffer2.data();
+        for (uint32_t dy = 0; dy < bitmap->rows; ++dy) {
+            for (uint32_t dx = 0; dx < bitmap->width; ++dx) {
+                float a = std::pow((float)(pBitmap[dx]) / 255.0f, kRcpGamma);
                 *pBuffer++ = Vec4f_Create(1.0f, 1.0f, 1.0f, a);
+                *pBuffer2++ = { 1.0f, 1.0f, 1.0f, a };
             }
             pBitmap += bitmap->pitch;
         }
@@ -88,6 +89,7 @@ static Glyph *Font_GetGlyph(FontData *self, uint32 codepoint) {
 
     /* Upload to texture. */ {
         g->tex = Tex2D::Create(g->sx, g->sy, PhxTextureFormat::RGBA8);
+        //Tex2D::SetData(g->tex, buffer2.data(), PhxPixelFormat::RGBA, PhxDataFormat::Float);
         Tex2D::SetData(g->tex, buffer.data(), PhxPixelFormat::RGBA, PhxDataFormat::Float);
     }
 
@@ -108,17 +110,17 @@ inline static int Font_GetKerning(FontData *self, int a, int b) {
     return kern.x >> 6;
 }
 
-FontData *Font::Load(cstr name, int size) {
+FontData *Font::Load(const char * name, int size) {
     if (!ft) FT_Init_FreeType(&ft);
 
     string path = Resource::GetPath(PhyResourceType::Font, name);
     FontData *self = new FontData();
 
-    if (FT_New_Face(ft, path.c_str(), 0, &self->handle)) Fatal("Font_Load: Failed to load font <%s> at <%s>", name, path);
+    if (FT_New_Face(ft, path.c_str(), 0, &self->handle)) LogFatal("Font_Load: Failed to load font <%s> at <%s>", name, path);
     FT_Set_Pixel_Sizes(self->handle, 0, size);
 
     memset(self->glyphsAscii, 0, sizeof(self->glyphsAscii));
-    //self->glyphs = HashMap_Create(sizeof(uint32), 16);
+    //self->glyphs = HashMap_Create(sizeof(uint32_t), 16);
     return self;
 }
 
@@ -134,12 +136,12 @@ void Font::Free(FontData *self) {
     }
 }
 
-void Font::Draw(FontData *self, cstr text, float x, float y, float r, float g, float b, float a) {
+void Font::Draw(FontData *self, const char * text, float x, float y, float r, float g, float b, float a) {
     FRAME_BEGIN;
     int glyphLast = 0;
-    uint32 codepoint = *text++;
-    x = Floor(x);
-    y = Floor(y);
+    uint32_t codepoint = *text++;
+    x = std::floor(x);
+    y = std::floor(y);
     RenderState::PushBlendMode(PhxBlendMode::Alpha);
     Draw::Color(r, g, b, a);
 
@@ -166,12 +168,12 @@ void Font::Draw(FontData *self, cstr text, float x, float y, float r, float g, f
     FRAME_END;
 }
 
-void Font::DrawShaded(FontData *self, cstr text, float x, float y) {
+void Font::DrawShaded(FontData *self, const char * text, float x, float y) {
     FRAME_BEGIN;
     int glyphLast = 0;
-    uint32 codepoint = *text++;
-    x = Floor(x);
-    y = Floor(y);
+    uint32_t codepoint = *text++;
+    x = std::floor(x);
+    y = std::floor(y);
 
     while (codepoint) {
         Glyph *glyph = Font_GetGlyph(self, codepoint);
@@ -199,14 +201,14 @@ int Font::GetLineHeight(FontData *self) {
     return self->handle->size->metrics.height >> 6;
 }
 
-void Font::GetSize(FontData *self, Vector4Di *out, cstr text) {
+void Font::GetSize(FontData *self, Vector4Di *out, const char * text) {
     FRAME_BEGIN;
     int x = 0, y = 0;
-    Vec2i lower = { INT_MAX, INT_MAX };
-    Vec2i upper = { INT_MIN, INT_MIN };
+    Vector2Di lower = { INT_MAX, INT_MAX };
+    Vector2Di upper = { INT_MIN, INT_MIN };
 
     int glyphLast = 0;
-    uint32 codepoint = *text++;
+    uint32_t codepoint = *text++;
     if (!codepoint) {
         *out = { 0, 0, 0, 0 };
         return;
@@ -217,10 +219,10 @@ void Font::GetSize(FontData *self, Vector4Di *out, cstr text) {
         if (glyph) {
             if (glyphLast)
                 x += Font_GetKerning(self, glyphLast, glyph->index);
-            lower.x = Min(lower.x, x + glyph->x0);
-            lower.y = Min(lower.y, y + glyph->y0);
-            upper.x = Max(upper.x, x + glyph->x1);
-            upper.y = Max(upper.y, y + glyph->y1);
+            lower.x = std::min(lower.x, x + glyph->x0);
+            lower.y = std::min(lower.y, y + glyph->y0);
+            upper.x = std::max(upper.x, x + glyph->x1);
+            upper.y = std::max(upper.y, y + glyph->y1);
             x += glyph->advance;
             glyphLast = glyph->index;
         } else {
@@ -243,20 +245,20 @@ void Font::GetSize(FontData *self, Vector4Di *out, cstr text) {
  *           pos.y - (size.y + bound.y) / 2
  */
 
-void Font::GetSize2(FontData *self, Vector2Di *out, cstr text) {
+void Font::GetSize2(FontData *self, Vector2Di *out, const char * text) {
     FRAME_BEGIN;
     out->x = 0;
     out->y = 0;
 
     int glyphLast = 0;
-    uint32 codepoint = *text++;
+    uint32_t codepoint = *text++;
     while (codepoint) {
         Glyph *glyph = Font_GetGlyph(self, codepoint);
         if (glyph) {
             if (glyphLast)
                 out->x += Font_GetKerning(self, glyphLast, glyph->index);
             out->x += glyph->advance;
-            out->y = Max(out->y, -glyph->y0 + 1);
+            out->y = std::max(out->y, -glyph->y0 + 1);
             glyphLast = glyph->index;
         } else {
             glyphLast = 0;
