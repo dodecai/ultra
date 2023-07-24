@@ -466,23 +466,6 @@ public:
 }
 
 ///
-/// @brief ClipRect
-///
-export namespace Ultra {
-
-class ClipRect {
-    public:
-    static void Push(float x, float y, float sx, float sy);
-    static void PushCombined(float x, float y, float sx, float sy);
-    static void PushDisabled();
-    static void PushTransform(float tx, float ty, float sx, float sy);
-    static void Pop();
-    static void PopTransform();
-};
-
-}
-
-///
 /// @brief RenderState
 ///
 export namespace Ultra {

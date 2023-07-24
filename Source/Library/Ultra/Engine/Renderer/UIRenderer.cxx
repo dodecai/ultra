@@ -1,136 +1,114 @@
 ﻿module;
 
-#include "MemPool.h"
+#include <glad/gl.h>
 
 module Ultra.Engine.UIRenderer;
 
-
 namespace Ultra {
 
-ShaderData *UILayer::mShader = nullptr;
+void ClipRect::Activate() {
+    if (mCurrentIndex < 0) return;
+    auto &current = mRectangle[mCurrentIndex];
 
-struct UIRendererLayer {
-    UIRendererLayer *parent;
-    UIRendererLayer *next;
-    UIRendererLayer *children;
+    if (current.Enabled) {
+        Vector2Di vpSize;
+        Viewport::GetSize(&vpSize);
 
-    Vector2Df pos;
-    Vector2Df size;
-    bool clip;
-};
+        auto x = current.Position.X;
+        auto y = current.Position.Y;
+        auto width = current.Size.Width;
+        auto height = current.Size.Height;
+        TransformRectangle(x, y, width, height);
 
-struct UIRendererData {
-    UIRendererLayer *root;
-    UIRendererLayer *layer;
-
-    MemPool *layerPool;
-} static self = { 0 };
-
-
-static void Init() {
-    static bool init = false;
-    if (init) return;
-    init = true;
-
-    auto initialize = UIRenderer::Instance();
-
-    self.root = 0;
-    self.layer = 0;
-
-    self.layerPool = MemPool_CreateAuto(sizeof(UIRendererLayer));
+        glEnable(GL_SCISSOR_TEST);
+        glScissor(x, vpSize.y - (y + height), width, height);
+    } else {
+        glDisable(GL_SCISSOR_TEST);
+    }
 }
 
-static void DrawLayer(UIRendererLayer const *self) {
-    if (self->clip) ClipRect::PushCombined(self->pos.x, self->pos.y, self->size.x, self->size.y);
+void ClipRect::Push(const Position &position, const Size &size) {
+    if (mCurrentIndex + 1 >= mStackDepth) return;
 
-    auto layer = UIRenderer::Instance().GetLastLayer();
-    if (layer->mClip) {
-        ClipRect::PushCombined(layer->mPosition.X, layer->mPosition.Y, layer->mSize.Width, layer->mSize.Height);
-    }
-
-    layer->Draw();
-
-    if (self->clip != layer->mClip) {
-        LogInfo("Clip: {}={}", self->clip, layer->mClip);
-
-    }
-
-    for (UIRendererLayer const *e = self->children; e; e = e->next) {
-        DrawLayer(e);
-    }
-
-    if (layer->mClip) ClipRect::Pop();
-    if (self->clip) ClipRect::Pop();
-
-    UIRenderer::Instance().mLayers.pop_back();
-}
-
-void UIRenderer::Begin() {
-    Init();
-
-    self.root = 0;
-    self.layer = 0;
-
-    Instance().mLayers.clear();
-
-    MemPool_Clear(self.layerPool);
-
-    Vector2Di vp; Viewport::GetSize(&vp);
+    mCurrentIndex++;
+    auto &current = mRectangle[mCurrentIndex];
+    current = { true, position, size };
     
-    BeginLayer(0, 0, vp.x, vp.y, true);
-    self.root = self.layer;
-
+    Activate();
 }
 
-void UIRenderer::BeginLayer(float x, float y, float sx, float sy, bool clip) {
-    UIRendererLayer *layer = (UIRendererLayer *)MemPool_Alloc(self.layerPool);
-    layer->parent = self.layer;
-    layer->next = 0;
-    layer->children = 0;
-
-    layer->pos = { x, y };
-    layer->size = { sx, sy };
-    layer->clip = clip;
-
-    self.layer = layer;
-
-    Instance().AddLayer(CreateReference<UILayer>(Position{x, y}, Size{sx, sy}, clip));
-}
-
-void UIRenderer::EndLayer() {
-    if (self.layer->parent) {
-        self.layer->next = self.layer->parent->children;
-        self.layer->parent->children = self.layer;
+void ClipRect::PushCombined(const Position &position, const Size &size) {
+    if (mCurrentIndex < 0) {
+        Push(position, size);
+        return;
     }
-    self.layer = self.layer->parent;
+
+    auto &current = mRectangle[mCurrentIndex];
+    if (!current.Enabled) return;
+
+    float maxX = position.X + size.Width;
+    float maxY = position.Y + size.Height;
+    auto x = std::max(position.X, current.Position.X);
+    auto y = std::max(position.Y, current.Position.Y);
+
+    Push(position, { std::min(maxX, current.Position.X + current.Size.Width) - x, std::min(maxY, current.Position.Y + current.Size.Height) - y });
 }
 
-void UIRenderer::End() {
-    EndLayer();
+void ClipRect::PushDisabled() {
+    if (!Validate()) return;
+
+    mCurrentIndex++;
+    auto &current = mRectangle[mCurrentIndex];
+    current.Enabled = false;
+
+    Activate();
 }
 
-void UIRenderer::Draw() {
-    RenderState::PushBlendMode(PhxBlendMode::Alpha);
-    DrawLayer(self.root);
-    //UIRenderer::Instance().Render();
-    RenderState::PopBlendMode();
+void ClipRect::PushTransform(const Position &position, const Size &size) {
+    if (!Validate()) return;
+    mCurrentTransformIndex++;
+
+    auto &transform = mTransform[mCurrentTransformIndex];
+    transform.tx = position.X;
+    transform.ty = position.Y;
+    transform.sx = size.Width;
+    transform.sy = size.Height;
+    if (mCurrentIndex >= 0) Activate();
 }
 
+void ClipRect::Pop() {
+    if (!Validate()) return;
+    mCurrentIndex--;
 
-void UIRenderer::Image(Tex2DData *image, float x, float y, float sx, float sy) {
-    Instance().mLayers.back()->AddElement(CreateScope<Ultra::Image>(Position{x, y}, Size{sx, sy}, image));
+    Activate();
 }
 
-void UIRenderer::Panel(float x, float y, float sx, float sy, float r, float g, float b, float a, float bevel, float innerAlpha) {
-    Instance().mLayers.back()->AddPanel(CreateScope<Ultra::Panel>(Position{ x, y }, Size{ sx, sy }, Color{ r, g, b, a }, bevel, innerAlpha));
+void ClipRect::PopTransform() {
+    if (!Validate()) return;
+    mCurrentTransformIndex--;
+
+    if (mCurrentIndex >= 0) Activate();
 }
 
-void UIRenderer::Rect(float x, float y, float sx, float sy, float r, float g, float b, float a, bool outline) {
-    Instance().mLayers.back()->AddElement(CreateScope<Rectangle>(Position{ x, y }, Size{ sx, sy }, Color{ r, g, b, a }, outline));
+void ClipRect::TransformRectangle(float &x, float &y, float &sx, float &sy) {
+    if (mCurrentTransformIndex >= 0) {
+        auto &transform = mTransform[mCurrentTransformIndex];
+        x = transform.sx * x + transform.tx;
+        y = transform.sy * y + transform.ty;
+        sx = transform.sx * sx;
+        sy = transform.sy * sy;
+    }
 }
 
-void UIRenderer::Text(FontData *font, const char * text, float x, float y, float r, float g, float b, float a) {
-    Instance().mLayers.back()->AddElement(CreateScope<Ultra::Text>(Position{ x, y }, Size{ 0.0f, 0.0f }, text, Color{ r, g, b, a }, font));
+bool ClipRect::Validate() {
+    if (mCurrentIndex < 0) {
+        LogFatal("Attempting to pop an empty stack");
+        return false;
+    } else if (mCurrentIndex + 1 >= mStackDepth) {
+        LogFatal("Maximum stack depth exceeded");
+        return false;
+    }
+    return true;
 }
 
 }

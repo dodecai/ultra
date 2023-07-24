@@ -138,23 +138,23 @@ public:
     }
 
     void Update([[maybe_unused]] Timestamp deltaTime) {
-        #ifdef NATIVE_RENDERER
-            Engine_Update();
-        #else
+    #ifdef NATIVE_RENDERER
+        Engine_Update();
+    #else
 
-            HmGui::Begin(1280, 1024);
-            ShowSimple();
-            ShowMetrics(deltaTime);
-            ShowToDoWindow();
-            HmGui::End();
+        HmGui::Begin({ 1280, 1024 });
+        ShowSimple();
+        ShowMetrics(deltaTime);
+        ShowToDoWindow();
+        HmGui::End();
 
-            Viewport::Push(0, 0, 1280, 1024, true);
-            Draw::Clear(0, 0, 0, 0);
-            HmGui::Draw();
-            Viewport::Pop();
+        Viewport::Push(0, 0, 1280, 1024, true);
+        Draw::Clear(0, 0, 0, 0);
+        HmGui::Draw();
+        Viewport::Pop();
 
-            PhxMetric::Reset();
-        #endif
+        PhxMetric::Reset();
+    #endif
     }
 
 
