@@ -33,17 +33,6 @@ struct Size {
     float Height;
 };
 
-struct ClipRectTransform {
-    float tx, ty;
-    float sx, sy;
-};
-
-struct ClipRectData {
-    bool Enabled;
-    Ultra::Position Position;
-    Ultra::Size Size;
-};
-
 ///
 /// @brief Elements
 ///
@@ -65,6 +54,17 @@ public:
 };
 
 class ClipRect {
+    struct ClipRectData {
+        bool Enabled;
+        Ultra::Position Position;
+        Ultra::Size Size;
+    };
+
+    struct ClipRectTransform {
+        float tx, ty;
+        float sx, sy;
+    };
+
 public:
     static void Push(const Position &position, const Size &size);
     static void PushCombined(const Position &position, const Size &size);
