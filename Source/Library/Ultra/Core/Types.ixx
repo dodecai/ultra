@@ -102,6 +102,15 @@ constexpr Reference<T> CreateReference(Args && ... args) {
     return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
+// Reference View Pointer
+template<typename T>
+using ReferenceView = std::weak_ptr<T>;
+
+template<typename T, typename ... Args>
+constexpr ReferenceView<T> CreateReferenceView(const Reference<T> &reference) {
+    return ReferenceView<T>(reference);
+}
+
 // Scope Pointer
 template<typename T>
 using Scope = std::unique_ptr<T>;

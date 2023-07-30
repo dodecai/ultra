@@ -6,6 +6,8 @@ module Ultra.Platform.Renderer.GLFramebuffer;
 
 namespace Ultra {
 
+// Note: glDrawBuffers(count, buffers) -> Draw multiple attachments at once
+
 GLFramebuffer::GLFramebuffer(uint32_t width, uint32_t height, TextureFormat format): Framebuffer(width, height, format) {
     glCreateFramebuffers(1, &mFramebufferID);
     glBindFramebuffer(GL_FRAMEBUFFER, mFramebufferID);

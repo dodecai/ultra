@@ -8,12 +8,13 @@ import Ultra;
 #ifdef NATIVE_RENDERER
     import Ultra.Module.Phoenix;
 #else
-    import Ultra.Engine.Phoenix;
+    import Ultra.Math;
+    import Ultra.Engine.Resource;
+    import Ultra.Engine.Renderer.Viewport;
+    import Ultra.Engine.UIRenderer;
+    import Ultra.Utility.String;
     import Ultra.UI.HmGui;
 #endif
-import Ultra.Math;
-import Ultra.Engine.UIRenderer;
-import Ultra.Utility.String;
 
 namespace Ultra {
 
@@ -65,12 +66,14 @@ CheckList gCheckList = {
 constexpr const char * gCodeExample = R"(
 #include <print>
 
+// The amazing and well known foo class, which doesn't need to be explained.
 class Foo {
 public:
     Foo() = default;
     virtual ~Foo() = default;
 };
 
+// As amazing as foo can be, it is nothing without Bar.
 class Bar: Foo {
 public:
     Bar() = default;
@@ -116,7 +119,7 @@ public:
         Lua_DoFile(mLua, "./Script/Main.lua");
     #else
         mRenderer = Renderer::Create();
-        RenderState::PushAllDefaults();
+        mViewport = Viewport::Create({ 0, 0, 1280, 1024, true });
 
         Resource::Instance();
 
@@ -141,19 +144,14 @@ public:
     #ifdef NATIVE_RENDERER
         Engine_Update();
     #else
-
         HmGui::Begin({ 1280, 1024 });
         ShowSimple();
         ShowMetrics(deltaTime);
         ShowToDoWindow();
         HmGui::End();
 
-        Viewport::Push(0, 0, 1280, 1024, true);
-        Draw::Clear(0, 0, 0, 0);
-        HmGui::Draw();
-        Viewport::Pop();
-
-        PhxMetric::Reset();
+        mRenderer->RenderFrame();
+        HmGui::Draw(mViewport);
     #endif
     }
 
@@ -162,7 +160,7 @@ public:
 #else
     void ShowMetrics(float deltaTime) {
         HmGui::BeginWindow("Metrics");
-            HmGui::Text(std::format("fps: {:.2}", 1.0 / deltaTime).c_str());
+            HmGui::Text(std::format("fps: {:.2}", 1.0 / deltaTime));
         HmGui::EndWindow();
     }
 
@@ -184,7 +182,7 @@ public:
                 HmGui::Text("Welcome to...");
                 HmGui::SetAlign(0.5, 0.5);
 
-                HmGui::PushTextColor(1.0, 0.0, 0.3, 1.0);
+                HmGui::PushTextColor({ 1.0f, 0.0f, 0.3f, 1.0f });
                 HmGui::PushFont(mFontExo2Bold);
                 HmGui::Text("~ Hybrid Mode ~");
                 HmGui::PopStyle(2);
@@ -233,7 +231,7 @@ public:
                     HmGui::BeginGroupX();
                     for (auto j = 1; j < i; j++) {
                         auto result = std::format("{}.{}", i, j);
-                        HmGui::Button(result.c_str());
+                        HmGui::Button(result);
                     }
                     HmGui::EndGroup();
                     HmGui::SetAlign(0.5, 0.5);
@@ -248,11 +246,11 @@ public:
         HmGui::BeginGroupX();
         for (auto i = 0; i < 2; i++) {
             HmGui::BeginScroll(200);
-                HmGui::PushTextColor(0.1, 0.5, 1.0, 1.0);
+                HmGui::PushTextColor({0.1f, 0.5f, 1.0f, 1.0f});
                 HmGui::PushFont(mFontFiraMono);
                 auto lines = String::Split(gCodeExample, '\n');
                 for (auto &line : lines) {
-                    HmGui::Text(line.c_str());
+                    HmGui::Text(line);
                 }
                 HmGui::PopStyle(2);
             HmGui::EndScroll();
@@ -268,12 +266,12 @@ public:
         HmGui::BeginScroll(256);
         HmGui::SetSpacing(8);
         for (auto &[entry, list] : gCheckList) {
-            HmGui::TextEx(mFontRajdhani, entry.c_str(), 1, 1, 1, 1);
+            HmGui::TextExtended(entry, { 1.0f, 1.0f, 1.0f, 1.0f }, mFontRajdhani);
             HmGui::BeginGroupY();
             HmGui::SetSpacing(2);
             HmGui::SetPaddingLeft(12);
             for (auto &[key, value] : list) {
-                value = HmGui::Checkbox(key.c_str(), value);
+                value = HmGui::Checkbox(key, value);
             }
             HmGui::EndGroup();
         }
@@ -292,6 +290,7 @@ private:
     Lua *mLua = nullptr;
 #else
     Scope<Renderer> mRenderer;
+    Scope<Viewport> mViewport;
 
     FontData *mFontExo2Bold = nullptr;
     FontData *mFontFiraMono = nullptr;

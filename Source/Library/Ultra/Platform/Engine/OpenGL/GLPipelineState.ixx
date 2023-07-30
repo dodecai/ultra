@@ -9,9 +9,13 @@ public:
     GLPipelineState(const PipelineProperties &properties);
     virtual ~GLPipelineState();
 
-    virtual void Apply() override;
-    virtual void Bind() override;
-    virtual void Unbind() override;
+    void Apply() override;
+    void Bind() override;
+    void Unbind() override;
+
+private:
+    void ResetProperties();
+    void UpdateProperties();
 };
 
 }

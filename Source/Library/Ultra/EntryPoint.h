@@ -22,6 +22,7 @@ int main(int argc, char **argv) {
         system("chcp 65001 >nul");
     #endif
 
+
     // Initialization
     auto app = Ultra::CreateApplication();
     app->SetArguments(Ultra::Arguments({ argv + 1, argv + argc }));

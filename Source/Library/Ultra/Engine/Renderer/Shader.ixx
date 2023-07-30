@@ -3,9 +3,14 @@
 export import Ultra.Core;
 export import Ultra.Logger;
 export import Ultra.Math;
+
+import Ultra.Engine.Renderer.Texture;
 import Ultra.Engine.Renderer.Data;
 
 export namespace Ultra {
+
+constexpr auto ShaderIncludePrefix = "#include ";
+constexpr auto ShaderTypePrefix = "#type ";
 
 ///
 /// @brief Shader Data and Uniform Types
@@ -31,6 +36,11 @@ enum class ShaderDataType: uint32_t {
     Mat2    = 0x42u,
 	Mat3    = 0x43u,
 	Mat4    = 0x44u,
+
+    Texture1D   = 0x51u,
+    Texture2D   = 0x52u,
+    Texture3D   = 0x53u,
+    TextureCube = 0x54u,
 };
 
 uint32_t ShaderDataTypeSize(ShaderDataType type) {
@@ -52,6 +62,30 @@ uint32_t ShaderDataTypeSize(ShaderDataType type) {
 		case ShaderDataType::Mat4:	    return 4u * 4u * 4u;
 		default:						return 0u;
 	}
+}
+
+string GetShaderDataTypeAsString(ShaderDataType type) {
+    switch (type) {
+        case ShaderDataType::Bool:          {return "Bool"; break; }
+        case ShaderDataType::Bool2:         {return "Bool2"; break; }
+        case ShaderDataType::Bool3:         {return "Bool3"; break; }
+        case ShaderDataType::Bool4:         {return "Bool4"; break; }
+        case ShaderDataType::Float:         {return "Float"; break; }
+        case ShaderDataType::Float2:        {return "Float2"; break; }
+        case ShaderDataType::Float3:        {return "Float3"; break; }
+        case ShaderDataType::Float4:        {return "Float4"; break; }
+        case ShaderDataType::Int:           {return "Int"; break; }
+        case ShaderDataType::Int2:          {return "Int2"; break; }
+        case ShaderDataType::Int3:          {return "Int3"; break; }
+        case ShaderDataType::Int4:          {return "Int4"; break; }
+        case ShaderDataType::Mat2:          {return "Matrix2"; break; }
+        case ShaderDataType::Mat3:          {return "Matrix3"; break; }
+        case ShaderDataType::Mat4:          {return "Matrix4"; break; }
+        case ShaderDataType::Texture1D:     {return "Texture1D"; break; }
+        case ShaderDataType::Texture2D:     {return "Texture2D"; break; }
+        case ShaderDataType::Texture3D:     {return "Texture3D"; break; }
+        case ShaderDataType::TextureCube:   {return "TextureCube"; break; }
+    }
 }
 
 // Shader Uniform Types (specific)
@@ -169,6 +203,8 @@ public:
     virtual int32_t FindUniformLocation(const string &name) const = 0;
 
     // Mutators
+    virtual void UpdateTexture(const string &name, uint32_t index, const Texture &texture) {};
+
     virtual void UpdateUniformBuffer(const string &name, const void *data, size_t size) = 0;
     virtual void UpdateUniform(const string &name, const Bool &data) = 0;
     virtual void UpdateUniform(const string &name, const Bool2 &data) = 0;

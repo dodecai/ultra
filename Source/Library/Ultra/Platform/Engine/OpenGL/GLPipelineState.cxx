@@ -30,13 +30,8 @@ static GLenum ShaderDataTypeToGLBaseType(ShaderDataType type) {
 	return 0;
 }
 
-
-
 GLPipelineState::GLPipelineState(const PipelineProperties &properties): PipelineState(properties) {
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
+    ResetProperties();
     Apply();
 }
 
@@ -50,6 +45,8 @@ void GLPipelineState::Apply() {
 }
 
 void GLPipelineState::Bind() {
+    UpdateProperties();
+
     glBindVertexArray(mPipelineID);
 
     auto attributeIndex = 0;
@@ -80,7 +77,50 @@ void GLPipelineState::Bind() {
 }
 
 void GLPipelineState::Unbind() {
+    ResetProperties();
     glBindVertexArray(0);
+}
+
+void GLPipelineState::ResetProperties() {
+    glBlendFunc(GL_ONE, GL_ZERO);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(true);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void GLPipelineState::UpdateProperties() {
+    switch (mProperties.BlendMode) {
+        case BlendMode::Additive: { glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ONE); break; }
+        case BlendMode::Alpha:    { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); break; /* glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA); break;*/ }
+        case BlendMode::Disabled: { glBlendFunc(GL_ONE, GL_ZERO); break; }
+        case BlendMode::Multiply: { glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); break; }
+    }
+
+    switch (mProperties.CullMode) {
+        case CullMode::Back:    { glEnable(GL_CULL_FACE); glCullFace(GL_BACK); break; }
+        case CullMode::Front:   { glEnable(GL_CULL_FACE); glCullFace(GL_FRONT); break; }
+        case CullMode::None:    { glDisable(GL_CULL_FACE);  break; }
+    }
+    //glFrontFace(GL_CCW);
+
+    if (mProperties.DepthTest) {
+        glEnable(GL_DEPTH_TEST);
+    } else {
+        glDisable(GL_DEPTH_TEST);
+    }
+
+    if (mProperties.DepthWritable) {
+        glDepthMask(mProperties.DepthWritable);
+    } else {
+        glDepthMask(mProperties.DepthWritable);
+    }
+
+    if (mProperties.Wireframe) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    } else {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 }
 
 }

@@ -1,9 +1,15 @@
-﻿export module Ultra.Engine.UIRenderer;
+﻿
+export module Ultra.Engine.UIRenderer;
 
 import Ultra.Core;
-import Ultra.Engine.Phoenix;
+import Ultra.Engine.Renderer.PipelineState;
+import Ultra.Engine.Renderer.Shader;
+import Ultra.Engine.Renderer.Texture;
+import Ultra.Engine.Renderer.Viewport;
 import Ultra.Logger;
 import Ultra.Math;
+
+#define TEST_NEW_RENDERER1
 
 export import Ultra.Engine.Font;
 
@@ -16,11 +22,28 @@ export namespace Ultra {
 /// @brief Types
 ///
 
+struct Alignment {
+    float X {};
+    float Y {};
+};
+
 struct Color {
-    float Red;
-    float Green;
-    float Blue;
-    float Alpha;
+    float Red {};
+    float Green {};
+    float Blue {};
+    float Alpha {};
+};
+
+struct Padding {
+    float Left {};
+    float Top {};
+    float Bottom {};
+    float Right {};
+
+    explicit Padding(float x, float y):
+        Left(x), Right(x),
+        Top(y), Bottom(y) {
+    }
 };
 
 struct Position {
@@ -33,9 +56,37 @@ struct Size {
     float Height;
 };
 
+struct Stretch {
+    float X {};
+    float Y {};
+};
+
+
 ///
 /// @brief Elements
 ///
+
+class UIDraw {
+public:
+    static void Load();
+    static void StartFrame();
+    static void FinishFrame();
+
+    static void Flush();
+    static void FlushAndReset();
+    static void DrawPanel(glm::vec2 position, glm::vec2 size, glm::vec4 color, float innerAlpha, float bevel);
+    static void DrawRectangle(glm::vec2 position, glm::vec2 size, glm::vec4 color = glm::vec4(1.0f));
+    static void DrawText(glm::vec2 position, glm::vec2 size, glm::vec4 color, glm::vec2 uv1, glm::vec2 uv2);
+
+    // Legacy
+    static void DrawBorder(float s, float x, float y, float w, float h);
+    static void DrawColor(float r, float g, float b, float a);
+    static void DrawRect(float x1, float y1, float xs, float ys);
+
+private:
+    inline static glm::mat4 ProjectionMatrix {};
+    inline static glm::mat4 ModelViewMatrix = glm::mat4(1.0f);
+};
 
 class UIElement {
 public:
@@ -67,7 +118,7 @@ class ClipRect {
 
 public:
     static void Push(const Position &position, const Size &size);
-    static void PushCombined(const Position &position, const Size &size);
+    static void PushCombined(const Position &position, const Size &size, Viewport *viewport);
     static void PushDisabled();
     static void PushTransform(const Position &position, const Size &size);
     static void Pop();
@@ -79,6 +130,8 @@ private:
     static bool Validate();
 
 private:
+    inline static Viewport *mViewport = nullptr;
+
     inline static constexpr int mStackDepth = 128;
     inline static int mCurrentIndex = -1;
     inline static int mCurrentTransformIndex = -1;
@@ -89,17 +142,17 @@ private:
 
 class Image: public UIElement {
 public:
-    Image(Position position, Size size, Tex2DData *image):
+    Image(Position position, Size size, Texture *image):
         UIElement(position, size), mImage(image) {
     }
     ~Image() = default;
 
     void Draw() const override {
-        Tex2D::Draw(mImage, mPosition.X, mPosition.Y, mSize.Width, mSize.Height);
+        mImage->Draw(0, mPosition.X, mPosition.Y, mSize.Width, mSize.Height);
     }
 
 private:
-    Tex2DData *mImage;
+   Texture *mImage = nullptr;
 };
 
 class Panel: public UIElement {
@@ -110,6 +163,13 @@ public:
     ~Panel() = default;
 
     void Draw() const override {
+        const float pad = 64.0f;
+        float x = mPosition.X - pad;
+        float y = mPosition.Y - pad;
+        float width = mSize.Width + 2.0f * pad;
+        float height = mSize.Height + 2.0f * pad;
+
+        UIDraw::DrawPanel({ x, y }, { width, height }, { mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha }, mInnerAlpha, mBevel);
     }
 
 public:
@@ -126,11 +186,12 @@ public:
     ~Rectangle() = default;
 
     void Draw() const override {
-        Draw::Color(mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha);
+        UIDraw::DrawColor(mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha);
         if (mOutline) {
-            Draw::Border(1.0f, mPosition.X, mPosition.Y, mSize.Width, mSize.Height);
+            //UIDraw::DrawBorder2(1.0f, { mPosition.X, mPosition.Y }, { mSize.Width, mSize.Height }, { mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha });
         } else {
-            Draw::Rect(mPosition.X, mPosition.Y, mSize.Width, mSize.Height);
+            //UIDraw::DrawRectangle({ mPosition.X, mPosition.Y }, { mSize.Width, mSize.Height }, { mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha });
+            UIDraw::DrawRect(mPosition.X, mPosition.Y, mSize.Width, mSize.Height);
         }
     }
 
@@ -160,20 +221,21 @@ private:
 /// @brief Layer
 ///
 
-class UILayer: public std::enable_shared_from_this<UILayer> {
+class UILayer {
 public:
     // Default
     UILayer(Position position, Size size, bool clip):
         mPosition(position), mSize(size), mClip(clip) {
-        if (!mShader) mShader = PhxShader::Load("vertex/ui", "fragment/ui/panel");
+        // vertex/ui & fragment/ui/panel
+        if (!mUIShader) mUIShader = Shader::Create("Assets/Shaders/UI.glsl");
     }
     ~UILayer() {
-        PhxShader::Free(mShader);
+        //PhxShader::Free(mShader);
     };
 
     // Methods
     void AddChild(Reference<UILayer> element) {
-        element->mParent = shared_from_this();
+        element->mParent = this;
         mChildren.push_back(std::move(element));
     }
     void AddElement(Scope<UIElement> element) {
@@ -182,12 +244,18 @@ public:
     void AddPanel(Scope<Panel> element) {
         mPanels.push_back(std::move(element));
     }
-    void Draw() const {
+    void Draw() {
         if (!mPanels.empty()) {
+        #ifdef TEST_NEW_RENDERER
+            for (const auto &panel : mPanels) {
+                panel->Draw();
+            }
+        #else
+
             const float pad = 64.0f;
 
-            PhxShader::Start(mShader);
-            PhxShader::SetFloat("padding", pad);
+            mUIShader->Bind();
+            mUIShader->UpdateUniform("uPadding", pad);
 
             for (auto &panel : mPanels) {
                 float x = panel->mPosition.X - pad;
@@ -195,14 +263,17 @@ public:
                 float sx = panel->mSize.Width + 2.0f * pad;
                 float sy = panel->mSize.Height + 2.0f * pad;
 
-                PhxShader::SetFloat("innerAlpha", panel->mInnerAlpha);
-                PhxShader::SetFloat("bevel", panel->mBevel);
-                PhxShader::SetFloat2("size", sx, sy);
-                PhxShader::SetFloat4("color", panel->mColor.Red, panel->mColor.Green, panel->mColor.Blue, panel->mColor.Alpha);
-                Draw::Rect(x, y, sx, sy);
+                mUIShader->UpdateUniform("uColor", Float4 { panel->mColor.Red, panel->mColor.Green, panel->mColor.Blue, panel->mColor.Alpha });
+                mUIShader->UpdateUniform("uSize", Float2 { sx, sy });
+                mUIShader->UpdateUniform("uInnerAlpha", panel->mInnerAlpha);
+                mUIShader->UpdateUniform("uBevel", panel->mBevel);
+
+                UIDraw::DrawRect(x, y, sx, sy);
             }
 
-            PhxShader::Stop(mShader);
+            mUIShader->Unbind();
+
+        #endif
         }
 
         if (mElements.empty()) return;
@@ -215,7 +286,7 @@ public:
     const vector<Reference<UILayer>> &GetChildren() {
         return mChildren;
     }
-    const Reference<UILayer> &GetParent() const {
+    UILayer *GetParent() const {
         return mParent;
     }
     const Position &GetPosition() const {
@@ -237,7 +308,7 @@ private:
     Size mSize {};
 
     // UI Tree
-    Reference<UILayer> mParent {};
+    UILayer *mParent {};
     vector<Reference<UILayer>> mChildren {};
 
     // Panels and Elements to be drawn
@@ -245,7 +316,7 @@ private:
     vector<Scope<UIElement>> mElements {};
 
     // Shaders
-    inline static ShaderData *mShader = nullptr;
+    inline static Reference<Shader> mUIShader;
 };
 
 ///
@@ -255,7 +326,14 @@ private:
 class UIRenderer {
 public:
     // Default
-    UIRenderer() = default;
+    UIRenderer() {
+        PipelineProperties properties {};
+        properties.BlendMode = BlendMode::Alpha;
+        properties.DepthTest = true;
+        mPipelineState = PipelineState::Create(properties);
+
+        UIDraw::Load();
+    }
     ~UIRenderer() = default;
     static UIRenderer &Instance() {
         static UIRenderer instance;
@@ -263,27 +341,26 @@ public:
     }
 
     // Functions
-    static void Begin() {
+    static void Begin(const Scope<Viewport> &viewport) {
         static auto &initialize = UIRenderer::Instance();
 
-        Instance().mLayers.clear();
+        mViewport = viewport.get();
+        auto properties = viewport->GetProperties();
+        auto size = Size { properties.Width, properties.Height };
 
-        Vector2Di nativeSize {};
-        Viewport::GetSize(&nativeSize);
-        auto size = Size { (float)nativeSize.x, (float)nativeSize.y };
         BeginLayer({}, size, true);
     }
     static void BeginLayer(Position position, Size size, bool clip) {
-        auto layer = CreateReference<UILayer>(position, size, clip);
+        auto &&layer = CreateReference<UILayer>(position, size, clip);
 
         if (mCurrentLayer) {
             mCurrentLayer->AddChild(layer);
         }
-        mCurrentLayer = layer;
+        mCurrentLayer = layer.get();
 
         if (!mCurrentLayer->GetParent()) {
             Instance().mLayers.push_back(layer);
-        }
+    }
     }
     static void EndLayer() {
         mCurrentLayer = mCurrentLayer->GetParent();
@@ -292,9 +369,11 @@ public:
         EndLayer();
     }
     static void Draw() {
-        RenderState::PushBlendMode(PhxBlendMode::Alpha);
+        UIRenderer::Instance().mPipelineState->Bind();
+        UIDraw::StartFrame();
         UIRenderer::Instance().Render();
-        RenderState::PopBlendMode();
+        UIDraw::FinishFrame();
+        UIRenderer::Instance().mPipelineState->Unbind();
     }
 
     static void Panel(const Position &position, const Size &size, const Color &color, float bevel, float innerAlpha) {
@@ -303,7 +382,7 @@ public:
     static void Rect(const Position &position, const Size &size, const Color &color, bool outline) {
         mCurrentLayer->AddElement(CreateScope<Rectangle>(position, size, color, outline));
     }
-    static void Image(const Position &position, const Size &size, Tex2DData *image) {
+    static void Image(const Position &position, const Size &size, Texture *image) {
         mCurrentLayer->AddElement(CreateScope<Ultra::Image>(position, size, image));
     }
     static void Text(const Position &position, const string &text, const Color &color, FontData *font) {
@@ -318,12 +397,12 @@ private:
     void Render() {
         function<void(const Reference<UILayer> &)> RenderLayer = [&](const Reference<UILayer> &layer) {
             if (layer->Clipped()) {
-                ClipRect::PushCombined(layer->GetPosition(), layer->GetSize());
+                ClipRect::PushCombined(layer->GetPosition(), layer->GetSize(), mViewport);
             }
 
             layer->Draw();
 
-            auto children = layer->GetChildren();
+            const auto &children = layer->GetChildren();
             for (auto it = children.rbegin(); it != children.rend(); it++) {
                 RenderLayer(*it);
             }
@@ -333,15 +412,19 @@ private:
             }
         };
 
-        for (const auto &layer : mLayers) {
-            RenderLayer(layer);
+        for (auto &layer : mLayers) {
+             RenderLayer(layer);
         }
+
+        mLayers.clear();
     }
 
 private:
     // Properties
-    inline static Reference<UILayer> mCurrentLayer = nullptr;
+    inline static Scope<PipelineState> mPipelineState {};
+    inline static UILayer *mCurrentLayer {};
     vector<Reference<UILayer>> mLayers;
+    inline static Viewport *mViewport = nullptr;
 };
 
 }

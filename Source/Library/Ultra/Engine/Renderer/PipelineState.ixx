@@ -10,22 +10,26 @@ export namespace Ultra {
 
 enum class CullMode {
     None,
+    Back,
     Front,
-    Back
 };
 
 enum class BlendMode {
-    None,
-    Alpha,
     Additive,
-    Multiply
+    Alpha,
+    Disabled,
+    Multiply,   // PreMultiplyAlpha
 };
 
 struct PipelineProperties {
+    BlendMode BlendMode = BlendMode::Disabled;
+    CullMode CullMode = CullMode::None;
+    bool DepthTest = false;
+    bool DepthWritable = true;
+    bool Wireframe = false;
+
     VertexBufferLayout Layout;
     Reference<Shader> Shader;
-    CullMode CullMode;
-    BlendMode BlendMode;
 };
 
 /// 
@@ -47,7 +51,6 @@ public:
     virtual void Apply() = 0;
     virtual void Bind() = 0;
     virtual void Unbind() = 0;
-
 
 protected:
     PipelineProperties mProperties;

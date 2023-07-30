@@ -14,37 +14,43 @@ export namespace Ultra {
 /// @brief Texture Data
 ///
 enum class TextureDimension {
+    Texture1D,
     Texture2D,
     Texture3D,
-    TextureCube = Texture3D,
+    TextureCube,
 };
  
 enum class TextureFilter {
     Linear,
+    LinearMipPoint,
+    LinearMipLinear,
     Nearest,
     Cubic,
+    Point,
+    PointMipPoint,
+    PointMipLinear,
 };
 
 enum class TextureFormat {
-    Blue,
-    Green,
-    Red,
-    Alpha,
+    R8,
+    R16,
+    R16F,
+    R32F,
+    RG8,
+    RG16,
+    RG16F,
+    RG32F,
 
-    BGR,
-    BGRA,
-
-    RGB,
-    RGBA,
-
+    RGB8,
+    RGBA8,
+    RGBA16,
     RGBA16F,
     RGBA32F,
 
-    DEPTH32F,
-    DEPTH24STENCIL8,
-
-    Depth = DEPTH24STENCIL8,
-    Stencil,
+    Depth16,
+    Depth24,
+    Depth32F,
+    Dept24Stencil8,
 };
 
 enum class TextureType {
@@ -60,16 +66,19 @@ enum class TextureUsage {
 
 enum class TextureWrap {
     Clamp,
+    MirrorClamp,
+    MirrorRepeat,
     Repeat,
 };
 
 struct TextureProperties {
+    uint32_t Width = 1;
+    uint32_t Height = 1;
+    TextureFormat Format = TextureFormat::RGBA8;
+
     string Name;
 
     TextureDimension Dimension = TextureDimension::Texture2D;
-    TextureFormat Format = TextureFormat::RGBA;
-    uint32_t Width = 1;
-    uint32_t Height = 1;
 
     TextureFilter SamplerFilter = TextureFilter::Linear;
     TextureWrap SamplerWrap = TextureWrap::Repeat;
@@ -77,7 +86,7 @@ struct TextureProperties {
     uint32_t Mips = 1;
     uint32_t Layers = 1;
 
-    bool GenerateMips = true;
+    bool GenerateMips = false;
 };
 
 
@@ -85,7 +94,8 @@ struct TextureProperties {
 /// @brief Agnostic Texture
 ///
 /// @example: How-To
-/// auto texture = Texture::Create({ data, 512, 512, TextureFormat::RGBA });
+/// auto texture = Texture::Create({512, 512, TextureFormat::RGBA }, file);
+/// auto texture = Texture::Create({512, 512, TextureFormat::RGBA }, data, size);
 /// 
 class Texture {
 protected:
@@ -99,9 +109,11 @@ public:
     static Scope<Texture> Create(const TextureProperties &properties, const string &path);
 
     virtual void Bind(uint32_t slot = 0) const = 0;
+    virtual void Draw(int index, float x0, float y0, float x1, float y1, float u0 = 0, float v0 = 0, float u1 = 1, float v1 = 1) {}
     virtual void Unbind(uint32_t slot = 0) const = 0;
 
     // Accessors
+    RendererID GetRendererID() const { return mTextureID; }
     const TextureProperties &GetProperties() const { return mProperties; }
 
     // Operators
@@ -116,16 +128,61 @@ protected:
 
 using Texture2D = Texture;
 using Texture3D = Texture;
+using TextureCube = Texture;
 
 
 namespace Helpers {
 
+inline uint32_t GetTextureFormatComponents(TextureFormat self) {
+    switch (self) {
+        case TextureFormat::R8:
+        case TextureFormat::R16:
+        case TextureFormat::R16F:
+        case TextureFormat::R32F:
+        case TextureFormat::Depth16:
+        case TextureFormat::Depth24:
+        case TextureFormat::Depth32F:
+            return 1;
+        case TextureFormat::RG8:
+        case TextureFormat::RG16:
+        case TextureFormat::RG16F:
+        case TextureFormat::RG32F:
+            return 2;
+        case TextureFormat::RGB8:
+            return 3;
+        case TextureFormat::RGBA8:
+        case TextureFormat::RGBA16:
+        case TextureFormat::RGBA16F:
+        case TextureFormat::RGBA32F:
+            return 4;
+    }
+    return 0;
+}
+
 inline uint32_t GetTextureFormatBPP(TextureFormat format) {
     switch (format) {
-        case TextureFormat::RGB:     return 3;
-        case TextureFormat::RGBA:    return 4;
-        case TextureFormat::RGBA16F: return 2 * 4;
-        case TextureFormat::RGBA32F: return 4 * 4;
+        case TextureFormat::R8:
+            return 1;
+        case TextureFormat::R16:
+        case TextureFormat::R16F:
+        case TextureFormat::RG8:
+        case TextureFormat::Depth16:
+            return 2;
+        case TextureFormat::RGB8:
+        case TextureFormat::Depth24:
+            return 3;
+        case TextureFormat::R32F:
+        case TextureFormat::RG16:
+        case TextureFormat::RG16F:
+        case TextureFormat::RGBA8:
+        case TextureFormat::Depth32F:
+            return 4;
+        case TextureFormat::RG32F:
+        case TextureFormat::RGBA16:
+        case TextureFormat::RGBA16F:
+            return 8;
+        case TextureFormat::RGBA32F:
+            return 16;
     }
     return 0;
 }
@@ -139,9 +196,13 @@ inline uint32_t GetImageMemorySize(TextureFormat format, uint32_t width, uint32_
 }
 
 inline bool IsDepthFormat(TextureFormat format) {
-    if (format == TextureFormat::DEPTH24STENCIL8 || format == TextureFormat::DEPTH32F)
-        return true;
-
+    switch (format) {
+        case TextureFormat::Depth16:
+        case TextureFormat::Depth24:
+        case TextureFormat::Depth32F:
+        case TextureFormat::Dept24Stencil8:
+            return true;
+    }
     return false;
 }
 

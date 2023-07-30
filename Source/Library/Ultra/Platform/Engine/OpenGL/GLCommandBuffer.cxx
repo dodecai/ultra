@@ -59,7 +59,7 @@ void GLCommandBuffer::DrawIndexed(uint32_t indexCount, uint32_t instanceCount, u
 }
 
 void GLCommandBuffer::DrawIndexed(size_t count, PrimitiveType primitive, bool depthTest) {
-    if (!depthTest) glDisable(GL_DEPTH_TEST);
+    if (!depthTest) { glDisable(GL_DEPTH_TEST); } else { glEnable(GL_DEPTH_TEST); };
 
     GLenum mode = GL_TRIANGLES;
     GLenum type = GL_UNSIGNED_INT;
@@ -78,7 +78,7 @@ void GLCommandBuffer::DrawIndexed(size_t count, PrimitiveType primitive, bool de
     // ToDo: C4267 possible loss of data
     glDrawElements(mode, static_cast<GLsizei>(count), type, nullptr);
 
-    if (!depthTest) glEnable(GL_DEPTH_TEST);
+    if (!depthTest) { glEnable(GL_DEPTH_TEST); } else { glDisable(GL_DEPTH_TEST); };
 }
 
 

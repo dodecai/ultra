@@ -1,11 +1,13 @@
 ﻿export module Ultra.UI.HmGui;
 
+export import Ultra.Engine.Font;
+
 import Ultra.Core;
-import Ultra.Engine.Phoenix;
+import Ultra.Engine.Renderer.Texture;
+import Ultra.Engine.Renderer.Viewport;
 import Ultra.Engine.UIRenderer;
 import Ultra.Math;
 import Ultra.System.Input;
-export import Ultra.Engine.Font;
 
 export namespace Ultra::UI {
 
@@ -54,27 +56,30 @@ struct HmGuiWidget {
     HmGuiWidget *prev;
 
     uint64_t hash;
-    WidgetType type;
+    WidgetType Type;
 
     Ultra::Position Position;
     Ultra::Size Size;
     Ultra::Size MinSize;
-    Vector2Df align;
-    Vector2Df stretch;
+    Ultra::Alignment Align;
+    Ultra::Stretch Stretch;
 };
-
 
 struct HmGuiGroup: public HmGuiWidget {
     HmGuiWidget *head;
     HmGuiWidget *tail;
+
     Layout layout;
+    
     uint32_t children;
     FocusStyle focusStyle;
+    
     Vector2Df paddingLower;
     Vector2Df paddingUpper;
     Vector2Df offset;
     Vector2Df maxSize;
     Vector2Df totalStretch;
+
     float spacing;
     float frameOpacity;
     bool clip;
@@ -83,24 +88,24 @@ struct HmGuiGroup: public HmGuiWidget {
     bool storeSize;
 };
 
-struct HmGuiRect: public HmGuiWidget {
-    Vector4Df color;
-};
-
-struct HmGuiText: public HmGuiWidget {
-    FontData *font;
-    string text;
-    Vector4Df color;
-};
-
-struct HmGuiImage: public HmGuiWidget {
-    Tex2DData *image;
-};
-
 struct HmGuiClipRect {
     HmGuiClipRect *prev;
     Position lower;
     Position upper;
+};
+
+struct HmGuiImage: public HmGuiWidget {
+    Texture *image;
+};
+
+struct HmGuiRect: public HmGuiWidget {
+    Color Color;
+};
+
+struct HmGuiText: public HmGuiWidget {
+    string Text;
+    Color Color;
+    FontData *Font;
 };
 
 
@@ -112,11 +117,14 @@ struct HmGuiData {
 
 struct HmGuiStyle {
     HmGuiStyle *prev;
+
     FontData *font;
+    
     float spacing;
-    Vector4Df colorPrimary;
-    Vector4Df colorFrame;
-    Vector4Df colorText;
+    
+    Color ColorPrimary;
+    Color ColorFrame;
+    Color ColorText;
 };
 
 ///
@@ -145,16 +153,6 @@ public:
     }
 
     // Functions
-    static void BeginGroupX() {
-        BeginGroup(Layout::Horizontal);
-    }
-    static void BeginGroupY() {
-        BeginGroup(Layout::Vertical);
-    }
-    static void BeginGroupStack() {
-        BeginGroup(Layout::Stack);
-    }
-
     ///
     /// @brief ToDo
     ///
@@ -172,9 +170,9 @@ public:
             self.style->font = Font::Load("Rajdhani", 14);
             self.style->spacing = 6;
 
-            self.style->colorPrimary = { 0.1f, 0.5f, 1.0f, 1.0f };
-            self.style->colorFrame = { 0.1f, 0.1f, 0.1f, 0.5f };
-            self.style->colorText = { 1.0f, 1.0f, 1.0f, 1.0f };
+            self.style->ColorPrimary = { 0.1f, 0.5f, 1.0f, 1.0f };
+            self.style->ColorFrame = { 0.1f, 0.1f, 0.1f, 0.5f };
+            self.style->ColorText = { 1.0f, 1.0f, 1.0f, 1.0f };
 
             self.clipRect = 0;
             //self.data = HashMap_Create(0, 128);
@@ -213,18 +211,31 @@ public:
         CheckFocus(self.root);
         FRAME_END;
     }
-    static void Draw() {
+    static void Draw(const Scope<Viewport> &viewport) {
         FRAME_BEGIN;
-        RenderState::PushBlendMode(PhxBlendMode::Alpha);
-        UIRenderer::Begin();
+        UIRenderer::Begin(viewport);
         DrawGroup(self.root);
         UIRenderer::End();
-        RenderState::PopBlendMode();
         UIRenderer::Draw();
         FRAME_END;
     }
 
-    static void BeginWindow(const char *title) {
+    // Container
+    static void BeginGroupStack() {
+        BeginGroup(Layout::Stack);
+    }
+    static void BeginGroupX() {
+        BeginGroup(Layout::Horizontal);
+    }
+    static void BeginGroupY() {
+        BeginGroup(Layout::Vertical);
+    }
+    static void EndGroup() {
+        self.last = self.group;
+        self.group = self.group->parent;
+    }
+
+    static void BeginWindow(const string &title) {
         BeginGroupStack();
         SetStretch(0, 0);
         self.group->focusStyle = FocusStyle::None;
@@ -251,18 +262,14 @@ public:
         self.group->clip = true;
         SetPadding(8, 8);
         SetStretch(1, 1);
-        // TextColored(title, 1.0f, 1.0f, 1.0f, 0.3f);
-        // SetAlign(0.5f, 0.0f);
+        TextColored(title, { 1.0f, 1.0f, 1.0f, 0.3f });
+        SetAlign(0.5f, 0.0f);
     }
     static void EndWindow() {
         EndGroup();
         EndGroup();
     }
 
-    static void EndGroup() {
-        self.last = self.group;
-        self.group = self.group->parent;
-    }
     static void BeginScroll(float maxSize) {
         BeginGroupX();
         SetStretch(1, 1);
@@ -298,14 +305,16 @@ public:
         if (maxScroll > 0) {
             float handleSize = data->Size.Height * (data->Size.Height / data->MinSize.Height);
             float handlePos = std::lerp(0.0f, data->Size.Height - handleSize, data->Offset.Y / maxScroll);
-            Rectangle(4.0f, handlePos, 0.0f, 0.0f, 0.0f, 0.0f);
-            Rectangle(4.0f, handleSize, self.style->colorFrame.x, self.style->colorFrame.y, self.style->colorFrame.z, self.style->colorFrame.w);
+            Rectangle({ 4.0f, handlePos }, { 0.0f, 0.0f, 0.0f, 0.0f });
+            Rectangle({ 4.0f, handleSize }, self.style->ColorFrame);
         } else {
-            Rectangle(4.0f, 16.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+            Rectangle({ 4.0f, 16.0f }, { 0.0f, 0.0f, 0.0f, 0.0f });
         }
         EndGroup();
         EndGroup();
     }
+
+    // Elements
     static bool Button(const string &label) {
         BeginGroupStack();
         self.group->focusStyle = FocusStyle::Fill;
@@ -331,9 +340,9 @@ public:
         SetStretch(1, 0);
 
         BeginGroupStack();
-        Rectangle(16, 16, self.style->colorFrame.x, self.style->colorFrame.y, self.style->colorFrame.z, self.style->colorFrame.w);
+        Rectangle({ 16, 16 }, self.style->ColorFrame);
         if (value) {
-            Rectangle(10, 10, self.style->colorPrimary.x, self.style->colorPrimary.y, self.style->colorPrimary.z, self.style->colorPrimary.w);
+            Rectangle({ 10, 10 }, self.style->ColorPrimary);
             SetAlign(0.5f, 0.5f);
         }
         EndGroup();
@@ -341,53 +350,55 @@ public:
         EndGroup();
         return value;
     }
+    static void Image(Scope<Texture> image) {
+        HmGuiImage *e = new HmGuiImage();
+        InitWidget(e, WidgetType::Image);
+        e->image = image.get();
+        e->Stretch = { 1, 1 };
+    }
     static float Slider(float lower, float upper, float value) {
         BeginGroupStack();
-        Rectangle(0, 2, 0.5f, 0.5f, 0.5f, 1.0f);
+        Rectangle({ 0, 2 }, { 0.5f, 0.5f, 0.5f, 1.0f });
         SetAlign(0.5f, 0.5f);
         SetStretch(1, 0);
         EndGroup();
         return 0.0f;
     }
-
-    static void Rectangle(float sx, float sy, float r, float g, float b, float a) {
-        HmGuiRect *e = new HmGuiRect();
-        InitWidget(e, WidgetType::Rect);
-        e->color = { r, g, b, a };
-        e->MinSize = { sx, sy };
-    }
-    static void Image(Tex2DData *image) {
-        HmGuiImage *e = new HmGuiImage();
-        InitWidget(e, WidgetType::Image);
-        e->image = image;
-        e->stretch = { 1, 1 };
-    }
     static void Text(const string &text) {
-        TextEx(self.style->font, text, self.style->colorText.x, self.style->colorText.y, self.style->colorText.z, self.style->colorText.w);
+        TextExtended(text, self.style->ColorText, self.style->font);
     }
-    static void TextColored(const string &text, float r, float g, float b, float a) {
-        TextEx(self.style->font, text, r, g, b, a);
+    static void TextColored(const string &text, const Color &color) {
+        TextExtended(text, color, self.style->font);
     }
-    static void TextEx(FontData *font, const string &text, float r, float g, float b, float a) {
+    static void TextExtended(const string &text, const Color &color, FontData *font) {
         HmGuiText *e = new HmGuiText();
         InitWidget(e, WidgetType::Text);
-        e->font = font;
-        e->text = text;
-        e->color = { r, g, b, a };
-        Vector2Di size; Font::GetSize2(e->font, &size, e->text.c_str());
+        e->Text = text;
+        e->Color = color;
+        e->Font = font;
+        Vector2Di size;
+        Font::GetSize2(e->Font, &size, e->Text.c_str());
         e->MinSize = { (float)size.x, (float)size.y };
         SetAlign(0.0f, 1.0f);
     }
 
-    // Accessors
+    // Simple Elements
+    static void Rectangle(const Size &size, const Color &color) {
+        HmGuiRect *e = new HmGuiRect();
+        InitWidget(e, WidgetType::Rect);
+        e->Color = color;
+        e->MinSize = size;
+    }
+
+    // States
     static bool GroupHasFocus(FocusMouse type) {
         self.group->focusable[(int)type] = true;
         return self.focus[(int)type] == self.group->hash;
     }
 
-    // Modifiers
+    // State Modifiers
     static void SetAlign(float x, float y) {
-        self.last->align = { x, y };
+        self.last->Align = { x, y };
     }
     static void SetPadding(float x, float y) {
         self.group->paddingLower = { x, y };
@@ -413,10 +424,9 @@ public:
         self.group->spacing = spacing;
     }
     static void SetStretch(float x, float y) {
-        self.last->stretch = { x, y };
+        self.last->Stretch = { x, y };
     }
 
-    // State Modifiers
     static void PushFont(FontData *font) {
         PushStyle();
         self.style->font = font;
@@ -427,9 +437,9 @@ public:
         style->prev = self.style;
         self.style = style;
     }
-    static void PushTextColor(float r, float g, float b, float a) {
+    static void PushTextColor(const Color &color) {
         PushStyle();
-        self.style->colorText = { r, g, b, a };
+        self.style->ColorText = color;
     }
     static void PopStyle(int depth) {
         for (int i = 0; i < depth; ++i) {
@@ -440,6 +450,41 @@ public:
     }
 
 private:
+    static void FreeGroup(HmGuiGroup *g) {
+        HmGuiWidget *e = g->head;
+        while (e) {
+            HmGuiWidget *next = e->next;
+            switch (e->Type) {
+                case WidgetType::Group: FreeGroup((HmGuiGroup *)e); break;
+                case WidgetType::Text: FreeText((HmGuiText *)e); break;
+                default: delete e; break;
+            }
+            e = next;
+        }
+        delete g;
+    }
+    static void FreeText(HmGuiText *e) {
+        delete e;
+    }
+
+    static void CheckFocus(HmGuiGroup *g) {
+        if (g->clip && IsClipped(g, self.FocusPos)) return;
+
+        for (HmGuiWidget *e = g->tail; e; e = e->prev) {
+            if (e->Type == WidgetType::Group) CheckFocus((HmGuiGroup *)e);
+        }
+
+        for (int i = 0; i < (int)FocusMouse::Size; ++i) {
+            if (self.focus[i] == 0 && g->focusable[i]) {
+                if (g->Position.X <= self.FocusPos.X &&
+                    g->Position.Y <= self.FocusPos.Y &&
+                    self.FocusPos.X <= g->Position.X + g->Size.Width &&
+                    self.FocusPos.Y <= g->Position.Y + g->Size.Height) {
+                    self.focus[i] = g->hash;
+                }
+            }
+        }
+    }
     static HmGuiData *GetData(HmGuiGroup *g) {
         //HmGuiData *data = (HmGuiData *)HashMap_GetRaw(self.data, g->hash);
         auto data = self.data[g->hash];
@@ -453,103 +498,16 @@ private:
         }
         return data;
     }
-
-    static void InitWidget(HmGuiWidget *e, WidgetType type) {
-        e->parent = self.group;
-        e->next = 0;
-        e->prev = self.group ? self.group->tail : 0;
-
-        std::hash<uint64_t> hasher;
-        if (e->parent) {
-            e->parent->children++;
-            e->hash = hasher(e->parent->hash ^ e->parent->children);
-            (e->next ? e->next->prev : e->parent->tail) = e;
-            (e->prev ? e->prev->next : e->parent->head) = e;
-        } else {
-            e->hash = hasher(0);
-        }
-
-        e->type = type;
-        e->Position = { 0, 0 };
-        e->Size = { 0, 0 };
-        e->MinSize = { 0, 0 };
-        e->align = { 0, 0 };
-        e->stretch = { 0, 0 };
-
-        self.last = e;
-    }
-    static void BeginGroup(Layout layout) {
-        HmGuiGroup *e = new HmGuiGroup();
-        InitWidget(e, WidgetType::Group);
-        e->head = 0;
-        e->tail = 0;
-        e->layout = layout;
-        e->children = 0;
-        e->focusStyle = FocusStyle::None;
-        e->paddingLower = { 0.0f, 0.0f };
-        e->paddingUpper = { 0.0f, 0.0f };
-        e->offset = { 0.0f, 0.0f };
-        e->maxSize = { 1e30f, 1e30f };
-        e->spacing = self.style->spacing;
-        e->frameOpacity = 0.0f;
-        e->clip = false;
-        e->expand = true;
-        for (int i = 0; i < (int)FocusMouse::Size; ++i) e->focusable[i] = false;
-        e->storeSize = false;
-        self.group = e;
-
-        switch (layout) {
-            case Layout::Stack:
-                e->stretch = { 1, 1 };
-                break;
-            case Layout::Vertical:
-                e->stretch = { 1, 0 };
-                break;
-            case Layout::Horizontal:
-                e->stretch = { 0, 1 };
-                break;
-        }
-    }
-    static void FreeText(HmGuiText *e) {
-        delete e;
-    }
-    static void FreeGroup(HmGuiGroup *g) {
-        HmGuiWidget *e = g->head;
-        while (e) {
-            HmGuiWidget *next = e->next;
-            switch (e->type) {
-                case WidgetType::Group: FreeGroup((HmGuiGroup *)e); break;
-                case WidgetType::Text: FreeText((HmGuiText *)e); break;
-                default: delete e; break;
-            }
-            e = next;
-        }
-        delete g;
-    }
-
-    static void PushClipRect(HmGuiGroup *g) {
-        HmGuiClipRect *rect = new HmGuiClipRect();
-        rect->prev = self.clipRect;
-        rect->lower = g->Position;
-        // ToDo: :(
-        //rect->upper = { g->Position, g->Size };
-        if (rect->prev) {
-            rect->lower.X = std::max(rect->lower.X, rect->prev->lower.X);
-            rect->lower.Y = std::max(rect->lower.Y, rect->prev->lower.Y);
-            rect->upper.X = std::min(rect->upper.X, rect->prev->upper.X);
-            rect->upper.Y = std::min(rect->upper.Y, rect->prev->upper.Y);
-        }
-        self.clipRect = rect;
-    }
-    static void PopClipRect() {
-        HmGuiClipRect *rect = self.clipRect;
-        self.clipRect = rect->prev;
-        delete rect;
+    inline static bool IsClipped(HmGuiGroup *g, Position position) {
+        return
+            position.X < g->Position.X || position.Y < g->Position.Y ||
+            g->Position.X + g->Size.Width < position.X ||
+            g->Position.Y + g->Size.Height < position.Y;
     }
 
     static void ComputeSize(HmGuiGroup *g) {
         for (HmGuiWidget *e = g->head; e; e = e->next)
-            if (e->type == WidgetType::Group)
+            if (e->Type == WidgetType::Group)
                 ComputeSize((HmGuiGroup *)e);
 
         g->MinSize = { 0, 0 };
@@ -584,13 +542,70 @@ private:
         g->MinSize.Width = std::min(g->MinSize.Width, g->maxSize.x);
         g->MinSize.Height = std::min(g->MinSize.Height, g->maxSize.y);
     }
+
+    static void BeginGroup(Layout layout) {
+        HmGuiGroup *e = new HmGuiGroup();
+        InitWidget(e, WidgetType::Group);
+        e->head = 0;
+        e->tail = 0;
+        e->layout = layout;
+        e->children = 0;
+        e->focusStyle = FocusStyle::None;
+        e->paddingLower = { 0.0f, 0.0f };
+        e->paddingUpper = { 0.0f, 0.0f };
+        e->offset = { 0.0f, 0.0f };
+        e->maxSize = { 1e30f, 1e30f };
+        e->spacing = self.style->spacing;
+        e->frameOpacity = 0.0f;
+        e->clip = false;
+        e->expand = true;
+        for (int i = 0; i < (int)FocusMouse::Size; ++i) e->focusable[i] = false;
+        e->storeSize = false;
+        self.group = e;
+
+        switch (layout) {
+            case Layout::Stack:
+                e->Stretch = { 1, 1 };
+                break;
+            case Layout::Vertical:
+                e->Stretch = { 1, 0 };
+                break;
+            case Layout::Horizontal:
+                e->Stretch = { 0, 1 };
+                break;
+        }
+    }
+    static void InitWidget(HmGuiWidget *e, WidgetType type) {
+        e->parent = self.group;
+        e->next = 0;
+        e->prev = self.group ? self.group->tail : 0;
+
+        std::hash<uint64_t> hasher;
+        if (e->parent) {
+            e->parent->children++;
+            e->hash = hasher(e->parent->hash ^ e->parent->children);
+            (e->next ? e->next->prev : e->parent->tail) = e;
+            (e->prev ? e->prev->next : e->parent->head) = e;
+        } else {
+            e->hash = hasher(0);
+        }
+
+        e->Type = type;
+        e->Position = { 0, 0 };
+        e->Size = { 0, 0 };
+        e->MinSize = { 0, 0 };
+        e->Align = { 0, 0 };
+        e->Stretch = { 0, 0 };
+
+        self.last = e;
+    }
     static void LayoutWidget(HmGuiWidget *e, Position position, Size size) {
         e->Position = position;
         e->Size = e->MinSize;
-        e->Size.Width += e->stretch.x * (size.Width - e->MinSize.Width);
-        e->Size.Height += e->stretch.y * (size.Height - e->MinSize.Height);
-        e->Position.X += e->align.x * (size.Width - e->Size.Width);
-        e->Position.Y += e->align.y * (size.Height - e->Size.Height);
+        e->Size.Width += e->Stretch.X * (size.Width - e->MinSize.Width);
+        e->Size.Height += e->Stretch.Y * (size.Height - e->MinSize.Height);
+        e->Position.X += e->Align.X * (size.Width - e->Size.Width);
+        e->Position.Y += e->Align.Y * (size.Height - e->Size.Height);
     }
     static void LayoutGroup(HmGuiGroup *g) {
         Position pos = g->Position;
@@ -607,11 +622,11 @@ private:
             if (g->layout == Layout::Vertical) {
                 extra = g->Size.Height - g->MinSize.Height;
                 for (HmGuiWidget *e = g->head; e; e = e->next)
-                    totalStretch += e->stretch.y;
+                    totalStretch += e->Stretch.Y;
             } else if (g->layout == Layout::Horizontal) {
                 extra = g->Size.Width - g->MinSize.Width;
                 for (HmGuiWidget *e = g->head; e; e = e->next)
-                    totalStretch += e->stretch.x;
+                    totalStretch += e->Stretch.X;
             }
 
             if (totalStretch > 0)
@@ -629,19 +644,19 @@ private:
                     break;
                 case Layout::Vertical:
                     s = e->MinSize.Height;
-                    if (extra > 0) s += e->stretch.y * extra;
+                    if (extra > 0) s += e->Stretch.Y * extra;
                     LayoutWidget(e, pos, { size.Width, s });
                     pos.Y += e->Size.Height + g->spacing;
                     break;
                 case Layout::Horizontal:
                     s = e->MinSize.Width;
-                    if (extra > 0) s += e->stretch.x * extra;
+                    if (extra > 0) s += e->Stretch.X * extra;
                     LayoutWidget(e, pos, { s, size.Height });
                     pos.X += e->Size.Width + g->spacing;
                     break;
             }
 
-            if (e->type == WidgetType::Group)
+            if (e->Type == WidgetType::Group)
                 LayoutGroup((HmGuiGroup *)e);
         }
 
@@ -651,88 +666,106 @@ private:
             data->Size = g->Size;
         }
     }
-    inline static bool IsClipped(HmGuiGroup *g, Position position) {
-        return
-            position.X < g->Position.X || position.Y < g->Position.Y ||
-            g->Position.X + g->Size.Width < position.X ||
-            g->Position.Y + g->Size.Height < position.Y;
-    }
-    static void CheckFocus(HmGuiGroup *g) {
-        if (g->clip && IsClipped(g, self.FocusPos))
-            return;
 
-        for (HmGuiWidget *e = g->tail; e; e = e->prev)
-            if (e->type == WidgetType::Group)
-                CheckFocus((HmGuiGroup *)e);
-
-        for (int i = 0; i < (int)FocusMouse::Size; ++i) {
-            if (self.focus[i] == 0 && g->focusable[i]) {
-                if (g->Position.X <= self.FocusPos.X &&
-                    g->Position.Y <= self.FocusPos.Y &&
-                    self.FocusPos.X <= g->Position.X + g->Size.Width &&
-                    self.FocusPos.Y <= g->Position.Y + g->Size.Height) {
-                    self.focus[i] = g->hash;
-                }
-            }
+    static void PushClipRect(HmGuiGroup *g) {
+        HmGuiClipRect *rect = new HmGuiClipRect();
+        rect->prev = self.clipRect;
+        rect->lower = g->Position;
+        // ToDo: :(
+        //rect->upper = { g->Position, g->Size };
+        if (rect->prev) {
+            rect->lower.X = std::max(rect->lower.X, rect->prev->lower.X);
+            rect->lower.Y = std::max(rect->lower.Y, rect->prev->lower.Y);
+            rect->upper.X = std::min(rect->upper.X, rect->prev->upper.X);
+            rect->upper.Y = std::min(rect->upper.Y, rect->prev->upper.Y);
         }
+        self.clipRect = rect;
+    }
+    static void PopClipRect() {
+        HmGuiClipRect *rect = self.clipRect;
+        self.clipRect = rect->prev;
+        delete rect;
     }
 
-    static void DrawText(HmGuiText *e) {
-        #if HMGUI_DRAW_GROUP_FRAMES
-        Draw::Color(0.5f, 0.2f, 0.2f, 0.5f);
-        Draw::Border(1.0f, e->Position.X, e->Position.Y, e->Size.Width, e->Size.Height);
-        #endif
-
-        UIRenderer::Text(Position { e->Position.X, e->Position.Y + e->MinSize.Height }, e->text, Color { e->color.x, e->color.y, e->color.z, e->color.w }, e->font);
-    }
-    static void DrawRect(HmGuiRect *e) {
-        UIRenderer::Rect(Position { e->Position.X, e->Position.Y }, Size { e->Size.Width, e->Size.Height }, Color { e->color.x, e->color.y, e->color.z, e->color.w }, false);
-    }
-    static void DrawImage(HmGuiImage *e) {
-        UIRenderer::Image(Position { e->Position.X, e->Position.Y }, Size { e->Size.Width, e->Size.Height }, e->image);
-    }
     static void DrawGroup(HmGuiGroup *g) {
-        #if HMGUI_DRAW_GROUP_FRAMES
-        Draw::Color(0.2f, 0.2f, 0.2f, 0.5f);
-        Draw::Border(2.0f, g->Position.X, g->Position.Y, g->Size.Width, g->Size.Height);
-        #endif
-
-        UIRenderer::BeginLayer(Position { g->Position.X, g->Position.Y }, Size { g->Size.Width, g->Size.Height }, g->clip);
+        UIRenderer::BeginLayer(g->Position, g->Size, g->clip);
 
         for (HmGuiWidget *e = g->tail; e; e = e->prev) {
-            switch (e->type) {
-                case WidgetType::Group: DrawGroup((HmGuiGroup *)e); break;
-                case WidgetType::Text: DrawText((HmGuiText *)e); break;
-                case WidgetType::Rect: DrawRect((HmGuiRect *)e); break;
-                case WidgetType::Image: DrawImage((HmGuiImage *)e); break;
+            switch (e->Type) {
+                case WidgetType::Group: {
+                    DrawGroup((HmGuiGroup *)e);
+                    break;
+                }
+                case WidgetType::Text: {
+                    DrawText((HmGuiText *)e);
+                    break;
+                }
+                case WidgetType::Rect: {
+                    DrawRect((HmGuiRect *)e);
+                    break;
+                }
+                case WidgetType::Image: {
+                    DrawImage((HmGuiImage *)e);
+                    break;
+                }
             }
         }
 
         if (g->focusable[(int)FocusMouse::Mouse]) {
             bool focus = self.focus[(int)FocusMouse::Mouse] == g->hash;
-            if (g->focusStyle == FocusStyle::None) {
-                UIRenderer::Panel(Position { g->Position.X, g->Position.Y }, Size { g->Size.Width, g->Size.Height }, Color { 0.1f, 0.12f, 0.13f, 1.0f }, 8.0f , g->frameOpacity);
-            }
 
-            else if (g->focusStyle == FocusStyle::Fill) {
-                if (focus)
-                    UIRenderer::Panel(Position { g->Position.X, g->Position.Y }, Size { g->Size.Width, g->Size.Height }, Color { 0.1f, 0.5f, 1.0f, 1.0f }, 0.0f, 1.0f);
-                else
-                    UIRenderer::Panel(Position { g->Position.X, g->Position.Y }, Size { g->Size.Width, g->Size.Height }, Color { 0.15f, 0.15f, 0.15f, 0.8f }, 0.0f, g->frameOpacity);
-            }
-
-            else if (g->focusStyle == FocusStyle::Outline) {
-                if (focus) {
-                    UIRenderer::Rect(Position { g->Position.X, g->Position.Y }, Size { g->Size.Width, g->Size.Height }, Color { 0.1f, 0.5f, 1.0f, 1.0f }, true);
+            switch (g->focusStyle) {
+                case FocusStyle::None: {
+                    const auto color = Color(0.1f, 0.12f, 0.13f, 1.0f);
+                    UIRenderer::Panel(g->Position, g->Size, color, 8.0f, g->frameOpacity);
+                    break;
                 }
-            }
-
-            else if (g->focusStyle == FocusStyle::Underline) {
-                UIRenderer::Rect(Position { g->Position.X, g->Position.Y }, Size { g->Size.Width, g->Size.Height }, Color { 0.3f, 0.3f, 0.3f, focus ? 0.5f : g->frameOpacity }, false);
+                case FocusStyle::Fill: {
+                    if (focus) {
+                        const auto color = Color(0.1f, 0.5f, 1.0f, 1.0f);
+                        UIRenderer::Panel(g->Position, g->Size, color, 0.0f, 1.0f);
+                    } else {
+                        const auto color = Color(0.15f, 0.15f, 0.15f, 0.8f);
+                        UIRenderer::Panel(g->Position, g->Size, color, 0.0f, g->frameOpacity);
+                    }
+                    break;
+                }
+                case FocusStyle::Outline: {
+                    if (focus) {
+                        const auto color = Color(0.1f, 0.5f, 1.0f, 1.0f);
+                        UIRenderer::Rect(g->Position, g->Size, color, true);
+                    }
+                    break;
+                }
+                case FocusStyle::Underline: {
+                    auto color = Color(0.3f, 0.3f, 0.3f, focus ? 0.5f : g->frameOpacity);
+                    UIRenderer::Rect(g->Position, g->Size, color, false);
+                    break;
+                }
             }
         }
 
+        #if HMGUI_DRAW_GROUP_FRAMES
+        UIDraw::DrawColor(0.2f, 0.2f, 0.2f, 0.5f);
+        UIDraw::DrawBorder(2.0f, g->Position.X, g->Position.Y, g->Size.Width, g->Size.Height);
+        #endif
+
         UIRenderer::EndLayer();
+    }
+    static void DrawImage(HmGuiImage *e) {
+        UIRenderer::Image(e->Position, e->Size, e->image);
+    }
+    static void DrawRect(HmGuiRect *e) {
+        UIRenderer::Rect(e->Position, e->Size, e->Color, false);
+    }
+    static void DrawText(HmGuiText *e) {
+        #if HMGUI_DRAW_GROUP_FRAMES
+        UIDraw::DrawColor(0.5f, 0.2f, 0.2f, 0.5f);
+        UIDraw::DrawBorder(1.0f, e->Position.X, e->Position.Y, e->Size.Width, e->Size.Height);
+        #endif
+
+        Position position = { e->Position.X, e->Position.Y + e->MinSize.Height };
+        UIRenderer::Text(position, e->Text, e->Color, e->Font);
     }
 
 private:

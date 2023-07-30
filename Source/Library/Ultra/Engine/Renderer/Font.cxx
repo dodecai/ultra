@@ -13,7 +13,9 @@
 
 module Ultra.Engine.Font;
 
-import Ultra.Engine.Phoenix;
+import Ultra.Engine.Renderer.Texture;
+import Ultra.Engine.UIRenderer;
+import Ultra.Engine.Resource;
 
 namespace Ultra {
 
@@ -26,10 +28,11 @@ const float kRcpGamma = 1.0f / kGamma;
 
 struct Glyph {
     int index;
-    Tex2DData *tex;
     int x0, y0, x1, y1;
     int sx, sy;
     int advance;
+
+    Scope<Texture2D> Texture;
 };
 
 struct FontData {
@@ -88,9 +91,7 @@ static Glyph *Font_GetGlyph(FontData *self, uint32_t codepoint) {
     }
 
     /* Upload to texture. */ {
-        g->tex = Tex2D::Create(g->sx, g->sy, PhxTextureFormat::RGBA8);
-        //Tex2D::SetData(g->tex, buffer2.data(), PhxPixelFormat::RGBA, PhxDataFormat::Float);
-        Tex2D::SetData(g->tex, buffer.data(), PhxPixelFormat::RGBA, PhxDataFormat::Float);
+        g->Texture = Texture::Create({ (uint32_t)g->sx, (uint32_t)g->sy }, buffer.data(), sizeof(buffer.data()));
     }
 
 
@@ -142,19 +143,20 @@ void Font::Draw(FontData *self, const char * text, float x, float y, float r, fl
     uint32_t codepoint = *text++;
     x = std::floor(x);
     y = std::floor(y);
-    RenderState::PushBlendMode(PhxBlendMode::Alpha);
-    Draw::Color(r, g, b, a);
+    //RenderState::PushBlendMode(PhxBlendMode::Alpha);
+    UIDraw::DrawColor(r, g, b, a);
 
     while (codepoint) {
         Glyph *glyph = Font_GetGlyph(self, codepoint);
         if (glyph) {
-            if (glyphLast)
-                x += Font_GetKerning(self, glyphLast, glyph->index);
+            if (glyphLast) x += Font_GetKerning(self, glyphLast, glyph->index);
             float x0 = (float)(x + glyph->x0);
             float y0 = (float)(y + glyph->y0);
             float x1 = (float)(x + glyph->x1);
             float y1 = (float)(y + glyph->y1);
-            Tex2D::DrawEx(glyph->tex, x0, y0, x1, y1, 0, 0, 1, 1);
+
+            glyph->Texture->Draw(0, x0, y0, x1, y1, 0, 0, 1, 1);
+
             x += glyph->advance;
             glyphLast = glyph->index;
         } else {
@@ -163,8 +165,8 @@ void Font::Draw(FontData *self, const char * text, float x, float y, float r, fl
         codepoint = *text++;
     }
 
-    Draw::Color(1, 1, 1, 1);
-    RenderState::PopBlendMode();
+    UIDraw::DrawColor(1, 1, 1, 1);
+    //RenderState::PopBlendMode();
     FRAME_END;
 }
 
@@ -184,8 +186,11 @@ void Font::DrawShaded(FontData *self, const char * text, float x, float y) {
             float y0 = (float)(y + glyph->y0);
             float x1 = (float)(x + glyph->x1);
             float y1 = (float)(y + glyph->y1);
-            PhxShader::SetTex2D("glyph", glyph->tex);
-            Tex2D::DrawEx(glyph->tex, x0, y0, x1, y1, 0, 0, 1, 1);
+
+            // ToDO: Shader supported Draw
+            //PhxShader::SetTex2D("glyph", glyph->tex);
+            glyph->Texture->Draw(0, x0, y0, x1, y1, 0, 0, 1, 1);
+
             x += glyph->advance;
             glyphLast = glyph->index;
         } else {
