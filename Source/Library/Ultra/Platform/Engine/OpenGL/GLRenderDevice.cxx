@@ -2,6 +2,9 @@
 
 #include <glad/gl.h>
 
+// ToDo: Enable this awesome feature until C++23 implementation is stable
+//#include <stacktrace>
+
 module Ultra.Platform.Renderer.GLRenderDevice;
 
 import Ultra.Engine.Renderer;
@@ -13,18 +16,20 @@ namespace Ultra {
 
 // Helpers
 static void GLMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
+    //std::stacktrace *trace = (std::stacktrace *)userParam;
+
     switch (severity) {
         case GL_DEBUG_SEVERITY_HIGH:
-            LogError("Platform::OpenGL: {}", message);
+            LogError("Platform::OpenGL: {}", message); // "\n\t@{}" , (*trace)[2]
             break;
         case GL_DEBUG_SEVERITY_MEDIUM:
-            LogWarning("Platform::OpenGL: {}", message);
+            LogWarning("Platform::OpenGL: {}", message); // "\n\t@{}" , (*trace)[2]
             break;
         case GL_DEBUG_SEVERITY_LOW:
-            LogInfo("Platform::OpenGL: {}", message);
+            LogInfo("Platform::OpenGL: {}", message); // "\n\t@{}" , (*trace)[2]
             break;
         case GL_DEBUG_SEVERITY_NOTIFICATION:
-            LogTrace("Platform::OpenGL: {}", message);
+            LogTrace("Platform::OpenGL: {}", message); // "\n\t@{}" , (*trace)[2]
             break;
     }
 }
@@ -35,52 +40,41 @@ GLRenderDevice::GLRenderDevice() {}
 GLRenderDevice::~GLRenderDevice() {}
 
 void GLRenderDevice::Load() {
-
     uint32_t vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    // Properties
+    // Debugging-Support
+    //std::stacktrace trace;
+    //glDebugMessageCallback(GLMessage, &trace);
     glDebugMessageCallback(GLMessage, nullptr);
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
-    glEnable(GL_BLEND);
+    // 3D-Support
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LINE_SMOOTH);
+    glDepthFunc(GL_LEQUAL);   // Interprets a smaller value as "closer"
+
+    // Anti-Aliasing Support
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
-    //glFrontFace(GL_CCW);
-
-    //glEnable(GL_MULTISAMPLE);	// Information
-    //glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
-
-    // ToDo: From Phoenix
-    glDisable(GL_MULTISAMPLE);
-    glDisable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glDepthFunc(GL_LEQUAL);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ZERO);
-
-    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-    glDisable(GL_POINT_SMOOTH);
-    glDisable(GL_LINE_SMOOTH);
     glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
     glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);
-    glLineWidth(2);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    // ~ToDo
+    // Clipping-Support (triangles drawn anti-clock-wize are the front face)
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+
+    // Color-Mixing and Transparency-Support
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Pixel Byte Pack/Unpack-Alignment
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    // Multisampling-Support
+    glEnable(GL_MULTISAMPLE);
 
     // Information
     auto &capabilities = RenderDevice::GetCapabilities();
@@ -122,7 +116,7 @@ void GLRenderDevice::SetLineThickness(float value) {
 
 void GLRenderDevice::SetPolygonMode(PolygonMode mode) {
     switch (mode) {
-        case PolygonMode::Solid: { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); break; }
+        case PolygonMode::Solid:     { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); break; }
         case PolygonMode::Wireframe: { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break; }
         default: {
             AppAssert(false, "The specified polygon mode isn't implemented yet!");

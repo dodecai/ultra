@@ -71,10 +71,16 @@ enum class TextureWrap {
     Repeat,
 };
 
+enum class TextureDataType {
+    Byte,
+    Float,
+};
+
 struct TextureProperties {
     uint32_t Width = 1;
     uint32_t Height = 1;
     TextureFormat Format = TextureFormat::RGBA8;
+    TextureDataType DataType = TextureDataType::Byte;
 
     string Name;
 
@@ -109,7 +115,6 @@ public:
     static Scope<Texture> Create(const TextureProperties &properties, const string &path);
 
     virtual void Bind(uint32_t slot = 0) const = 0;
-    virtual void Draw(int index, float x0, float y0, float x1, float y1, float u0 = 0, float v0 = 0, float u1 = 1, float v1 = 1) {}
     virtual void Unbind(uint32_t slot = 0) const = 0;
 
     // Accessors

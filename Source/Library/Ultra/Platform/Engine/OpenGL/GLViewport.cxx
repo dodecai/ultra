@@ -7,7 +7,7 @@ module Ultra.Platform.Engine.Renderer.GLViewport;
 namespace Ultra {
 
 GLViewport::GLViewport(const ViewportProperties &properties): Viewport(properties) {
-    glViewport(properties.X, properties.Y, properties.Width, properties.Height);
+    glViewport(static_cast<GLint>(properties.X), static_cast<GLint>(properties.Y), static_cast<GLsizei>(properties.Width), static_cast<GLsizei>(properties.Height));
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 

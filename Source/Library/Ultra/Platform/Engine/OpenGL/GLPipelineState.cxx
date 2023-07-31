@@ -111,9 +111,9 @@ void GLPipelineState::UpdateProperties() {
     }
 
     if (mProperties.DepthWritable) {
-        glDepthMask(mProperties.DepthWritable);
+        glDepthMask(GL_TRUE);
     } else {
-        glDepthMask(mProperties.DepthWritable);
+        glDepthMask(GL_FALSE);
     }
 
     if (mProperties.Wireframe) {

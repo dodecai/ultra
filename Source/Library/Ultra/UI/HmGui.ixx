@@ -239,18 +239,15 @@ public:
         BeginGroupStack();
         SetStretch(0, 0);
         self.group->focusStyle = FocusStyle::None;
-        self.group->frameOpacity = 0.95f;
+        self.group->frameOpacity = 0.97f;
+
         #if HMGUI_ENABLE_DRAGGING
         HmGuiData *data = GetData(self.group);
         if (GroupHasFocus(FocusMouse::Mouse)) {
-            //if (Input_GetDown(Button_Mouse_Left)) {
             if (Input::GetMouseButtonState(MouseButton::Left)) {
-                Vector2Di md; //Input_GetMouseDelta(&md);
                 auto [x, y] = Input::GetMousePositionDelta();
-                md.x = x;
-                md.y = y;
-                data->Offset.X += md.x;
-                data->Offset.Y += md.y;
+                data->Offset.X += x;
+                data->Offset.Y += y;
             }
         }
 

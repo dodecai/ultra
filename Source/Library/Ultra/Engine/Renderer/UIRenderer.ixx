@@ -2,6 +2,7 @@
 export module Ultra.Engine.UIRenderer;
 
 import Ultra.Core;
+import Ultra.Engine.Renderer.CommandBuffer;
 import Ultra.Engine.Renderer.PipelineState;
 import Ultra.Engine.Renderer.Shader;
 import Ultra.Engine.Renderer.Texture;
@@ -9,7 +10,7 @@ import Ultra.Engine.Renderer.Viewport;
 import Ultra.Logger;
 import Ultra.Math;
 
-#define TEST_NEW_RENDERER1
+#define TEST_NEW_RENDERER
 
 export import Ultra.Engine.Font;
 
@@ -68,24 +69,11 @@ struct Stretch {
 
 class UIDraw {
 public:
-    static void Load();
-    static void StartFrame();
-    static void FinishFrame();
-
-    static void Flush();
-    static void FlushAndReset();
-    static void DrawPanel(glm::vec2 position, glm::vec2 size, glm::vec4 color, float innerAlpha, float bevel);
-    static void DrawRectangle(glm::vec2 position, glm::vec2 size, glm::vec4 color = glm::vec4(1.0f));
-    static void DrawText(glm::vec2 position, glm::vec2 size, glm::vec4 color, glm::vec2 uv1, glm::vec2 uv2);
-
     // Legacy
     static void DrawBorder(float s, float x, float y, float w, float h);
     static void DrawColor(float r, float g, float b, float a);
     static void DrawRect(float x1, float y1, float xs, float ys);
-
-private:
-    inline static glm::mat4 ProjectionMatrix {};
-    inline static glm::mat4 ModelViewMatrix = glm::mat4(1.0f);
+    static void DrawText(Reference<Texture> texture, int index, float x0, float y0, float x1, float y1, const Color &color);
 };
 
 class UIElement {
@@ -147,9 +135,7 @@ public:
     }
     ~Image() = default;
 
-    void Draw() const override {
-        mImage->Draw(0, mPosition.X, mPosition.Y, mSize.Width, mSize.Height);
-    }
+    void Draw() const override;
 
 private:
    Texture *mImage = nullptr;
@@ -162,15 +148,7 @@ public:
     }
     ~Panel() = default;
 
-    void Draw() const override {
-        const float pad = 64.0f;
-        float x = mPosition.X - pad;
-        float y = mPosition.Y - pad;
-        float width = mSize.Width + 2.0f * pad;
-        float height = mSize.Height + 2.0f * pad;
-
-        UIDraw::DrawPanel({ x, y }, { width, height }, { mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha }, mInnerAlpha, mBevel);
-    }
+    void Draw() const override;
 
 public:
     Color mColor {};
@@ -185,15 +163,7 @@ public:
     }
     ~Rectangle() = default;
 
-    void Draw() const override {
-        UIDraw::DrawColor(mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha);
-        if (mOutline) {
-            //UIDraw::DrawBorder2(1.0f, { mPosition.X, mPosition.Y }, { mSize.Width, mSize.Height }, { mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha });
-        } else {
-            //UIDraw::DrawRectangle({ mPosition.X, mPosition.Y }, { mSize.Width, mSize.Height }, { mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha });
-            UIDraw::DrawRect(mPosition.X, mPosition.Y, mSize.Width, mSize.Height);
-        }
-    }
+    void Draw() const override;
 
 private:
     Color mColor {};
@@ -207,9 +177,7 @@ public:
     }
     ~Text() = default;
 
-    void Draw() const override {
-        Font::Draw(mFont, mText.c_str(), mPosition.X, mPosition.Y, mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha);
-    }
+    void Draw() const override;
 
 private:
     Color mColor;
@@ -251,7 +219,6 @@ public:
                 panel->Draw();
             }
         #else
-
             const float pad = 64.0f;
 
             mUIShader->Bind();
@@ -272,7 +239,6 @@ public:
             }
 
             mUIShader->Unbind();
-
         #endif
         }
 
@@ -323,22 +289,194 @@ private:
 /// @brief Renderer
 ///
 
+struct UIComponent {
+    glm::vec3 Position;
+    glm::vec4 Color;
+    glm::vec2 TextureCoordinate;
+    float TextureIndex;
+    float TilingFactor;
+};
+
+struct UIPanelComponent {
+    glm::vec3 Position;
+    glm::vec4 Color;
+    glm::vec2 Size;
+    float InnerAlpha;
+    float Bevel;
+    glm::vec2 TextureCoordinate;
+};
+
 class UIRenderer {
 public:
     // Default
     UIRenderer() {
+        // Panel
+        {
+            SRenderData.PanelShader = Shader::Create("Assets/Shaders/UI.glsl");
+            PipelineProperties panelProperties;
+            panelProperties.BlendMode = BlendMode::Alpha;
+            panelProperties.DepthTest = true;
+            panelProperties.Layout = {
+                { ShaderDataType::Float3, "aPosition" },
+                { ShaderDataType::Float4, "aColor" },
+                { ShaderDataType::Float2, "aSize" },
+                { ShaderDataType::Float, "aInnerAlpha" },
+                { ShaderDataType::Float, "aBevel" },
+                { ShaderDataType::Float2, "aTextureCoordinate" },
+            };
+            SRenderData.PanelPipeline = PipelineState::Create(panelProperties);
+
+            SRenderData.PanelVertexBufferData.reserve(SRenderData.PanelMaxVertices);
+            SRenderData.PanelVertexBuffer = Buffer::Create(BufferType::Vertex, nullptr, SRenderData.PanelMaxVertices * sizeof(UIPanelComponent));
+            SRenderData.PanelVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
+            SRenderData.PanelVertexPositions[1] = { 0.5f, -0.5f, 0.0f, 1.0f };
+            SRenderData.PanelVertexPositions[2] = { 0.5f,  0.5f, 0.0f, 1.0f };
+            SRenderData.PanelVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
+
+            uint32_t offset = 0;
+            uint32_t *indices = new uint32_t[SRenderData.PanelMaxIndices];
+            for (uint32_t i = 0; i < SRenderData.PanelMaxIndices; i += 6) {
+                indices[i + 0] = offset + 0;
+                indices[i + 1] = offset + 1;
+                indices[i + 2] = offset + 2;
+
+                indices[i + 3] = offset + 2;
+                indices[i + 4] = offset + 3;
+                indices[i + 5] = offset + 0;
+                offset += 4;
+            }
+            SRenderData.PanelIndexBuffer = Buffer::Create(BufferType::Index, indices, SRenderData.PanelMaxVertices * sizeof(uint32_t));
+            delete[] indices;
+        }
+
+        // Component
+        {
+            SRenderData.ComponentShader = Shader::Create("Assets/Shaders/UIElement.glsl");
+            PipelineProperties componentProperties;
+            componentProperties.BlendMode = BlendMode::Alpha;
+            componentProperties.DepthTest = true;
+            componentProperties.Layout = {
+                { ShaderDataType::Float3, "aPosition" },
+                { ShaderDataType::Float4, "aColor" },
+                { ShaderDataType::Float2, "aTextureCoordinate" },
+                { ShaderDataType::Float, "aTextureIndex" },
+                { ShaderDataType::Float, "aTilingFactor" },
+            };
+            SRenderData.ComponentPipeline = PipelineState::Create(componentProperties);
+
+            SRenderData.ComponentVertexBufferData.reserve(SRenderData.ComponentMaxVertices);
+            SRenderData.ComponentVertexBuffer = Buffer::Create(BufferType::Vertex, nullptr, SRenderData.ComponentMaxVertices * sizeof(UIComponent));
+            SRenderData.ComponentVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
+            SRenderData.ComponentVertexPositions[1] = { 0.5f, -0.5f, 0.0f, 1.0f };
+            SRenderData.ComponentVertexPositions[2] = { 0.5f,  0.5f, 0.0f, 1.0f };
+            SRenderData.ComponentVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
+
+            uint32_t offset = 0;
+            uint32_t *indices = new uint32_t[SRenderData.ComponentMaxIndices];
+            for (uint32_t i = 0; i < SRenderData.ComponentMaxIndices; i += 6) {
+                indices[i + 0] = offset + 0;
+                indices[i + 1] = offset + 1;
+                indices[i + 2] = offset + 2;
+
+                indices[i + 3] = offset + 2;
+                indices[i + 4] = offset + 3;
+                indices[i + 5] = offset + 0;
+                offset += 4;
+            }
+            SRenderData.ComponentIndexBuffer = Buffer::Create(BufferType::Index, indices, SRenderData.ComponentMaxVertices * sizeof(uint32_t));
+            delete[] indices;
+
+            // Texture
+            uint32_t whiteTextureData = 0xffffffff;
+            SRenderData.WhiteTexture = Texture::Create(TextureProperties(), &whiteTextureData, sizeof(uint32_t));
+
+            int32_t samplers[SRenderData.MaxTextureSlots];
+            for (uint32_t i = 0; i < SRenderData.MaxTextureSlots; i++) samplers[i] = i;
+            SRenderData.ComponentShader->Bind();
+            SRenderData.ComponentShader->UpdateUniformBuffer("uTextures", (void *)samplers, SRenderData.MaxTextureSlots);
+            SRenderData.TextureSlots[0] = SRenderData.WhiteTexture;
+
+
+            CheckerBoard = Texture::Create(TextureProperties(), "Assets/Textures/smiley.png");
+        }
+
+        SCommandBuffer = CommandBuffer::Create();
+
+        // Legacy
         PipelineProperties properties {};
         properties.BlendMode = BlendMode::Alpha;
         properties.DepthTest = true;
         mPipelineState = PipelineState::Create(properties);
-
-        UIDraw::Load();
     }
     ~UIRenderer() = default;
     static UIRenderer &Instance() {
         static UIRenderer instance;
         return instance;
     }
+
+    void BeginScene() {
+        auto windowWidth = 1280.0f;
+        auto windowHeight = 1024.0f;
+        float fov = 45.0f;
+        float nearPlane = 0.1f;
+        float farPlane = 100.0f;
+
+        SRenderData.ProjectionMatrix = glm::ortho(0.0f, windowWidth, windowHeight, 0.0f); // glm::perspective(glm::radians(fov), windowWidth / windowHeight, nearPlane, farPlane);
+        SRenderData.ViewMatrix = glm::mat4(1.0f);
+    }
+
+    void DrawPanel(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color, float innerAlpha, float bevel);
+    void DrawRectangle(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color = glm::vec4(1.0f));
+    void DrawRectangle(const glm::vec3 &position, const glm::vec2 &size, const Reference<Texture> &texture, const glm::vec4 &color = glm::vec4(1.0f), float tiling = 1.0f);
+    void EndScene();
+
+private:
+    void Flush();
+    void Reset();
+
+private:
+    inline static Scope<CommandBuffer> SCommandBuffer {};
+    struct RenderData {
+        // Limits
+        const size_t MaxComponents = 4096;
+        const size_t MaxPanels = 4096;
+        static constexpr uint32_t MaxTextureSlots = 32; // ToDo: RenderDevice::GetCapabilities().MaxTextureUnits
+
+        // UI Panel
+        Reference<PipelineState> PanelPipeline;
+        Reference<Shader> PanelShader;
+        Reference<Buffer> PanelVertexBuffer;
+        Reference<Buffer> PanelIndexBuffer;
+
+        const size_t PanelMaxIndices = MaxPanels * 6;
+        const size_t PanelMaxVertices = MaxPanels * 4;
+        vector<UIPanelComponent> PanelVertexBufferData;
+        array<glm::vec4, 4> PanelVertexPositions;
+
+        // UI Component
+        Reference<PipelineState> ComponentPipeline;
+        Reference<Shader> ComponentShader;
+        Reference<Buffer> ComponentVertexBuffer;
+        Reference<Buffer> ComponentIndexBuffer;
+
+        const size_t ComponentMaxIndices = MaxComponents * 6;
+        const size_t ComponentMaxVertices = MaxComponents * 4;
+        vector<UIComponent> ComponentVertexBufferData;
+        array<glm::vec4, 4> ComponentVertexPositions;
+
+        // Textures
+        uint32_t TextureSlotIndex = 1;
+        array<Reference<Texture>, MaxTextureSlots> TextureSlots;
+        Reference<Texture> WhiteTexture;
+
+        // Transformation
+        glm::mat4 ProjectionMatrix;
+        glm::mat4 ViewMatrix;
+    } SRenderData;
+
+
+    /// Legacy
+public:
 
     // Functions
     static void Begin(const Scope<Viewport> &viewport) {
@@ -369,11 +507,22 @@ public:
         EndLayer();
     }
     static void Draw() {
+        #ifdef TEST_NEW_RENDERER
+            Instance().BeginScene();
+
+            Instance().DrawRectangle({ 0.0f, 0.0f, 0.0f }, { 200.0f, 200.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+            Instance().DrawRectangle({ 150.0f, 150.0f, 0.2f }, { 200.0f, 200.0f }, { 1.0f, 0.0f, 1.0f, 0.8f });
+            Instance().DrawRectangle({ 250.0f, 250.0f, 0.3f }, { 200.0f, 200.0f }, CheckerBoard);
+
+            UIRenderer::Instance().Render();
+
+            Instance().EndScene();
+            Instance().mLayers.clear();
+        #else
         UIRenderer::Instance().mPipelineState->Bind();
-        UIDraw::StartFrame();
         UIRenderer::Instance().Render();
-        UIDraw::FinishFrame();
         UIRenderer::Instance().mPipelineState->Unbind();
+        #endif
     }
 
     static void Panel(const Position &position, const Size &size, const Color &color, float bevel, float innerAlpha) {
@@ -425,6 +574,9 @@ private:
     inline static UILayer *mCurrentLayer {};
     vector<Reference<UILayer>> mLayers;
     inline static Viewport *mViewport = nullptr;
+
+
+    inline static Reference<Texture> CheckerBoard;
 };
 
 }

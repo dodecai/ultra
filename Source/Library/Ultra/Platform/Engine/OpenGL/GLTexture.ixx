@@ -11,7 +11,6 @@ public:
     virtual ~GLTexture();
 
     virtual void Bind(uint32_t slot) const override;
-    void Draw(int index, float x0, float y0, float x1, float y1, float u0, float v0, float u1, float v1) override;
     virtual void Unbind(uint32_t slot) const override;
 
 private:

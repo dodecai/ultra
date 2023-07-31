@@ -91,7 +91,7 @@ string Resource::ToString(PhyResourceType type) {
         case PhyResourceType::Tex3D:   return "Tex3D";
         case PhyResourceType::TexCube: return "TexCube";
     }
-    return 0;
+    return {};
 }
 
 }

@@ -1,6 +1,8 @@
 ﻿#type vertex
 #extension GL_EXT_gpu_shader4 : enable
 
+#define NEW_ENGINE_TEST
+
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
 layout(location = 2) in vec2 aSize;
@@ -26,14 +28,18 @@ void main() {
   vInnerAlpha = aInnerAlpha;
   vBevel = aBevel;
   
+  #ifdef NEW_ENGINE_TEST
+  vCoordinate = aCoordinate;
+  gl_Position = uProjection * (uModelView * vec4(aPosition, 1.0));
+  #else
   vCoordinate = gl_MultiTexCoord0.xy;
-  //vCoordinate = aCoordinate;
-  
   gl_Position = gl_ProjectionMatrix * (gl_ModelViewMatrix * vec4(aPosition, 1.0));
-  //gl_Position = uProjection * (uModelView * vec4(aPosition, 1.0));
+  #endif
 }
 
 #type fragment
+
+#define NEW_ENGINE_TEST
 
 layout(location = 0) in vec3 vPosition;
 layout(location = 1) in vec4 vColor;
@@ -59,15 +65,18 @@ float saturate(float x) {
 }
 
 void main() {
+
+  #ifdef NEW_ENGINE_TEST
+  vec4 color = vColor;
+  vec2 size = vSize;
+  float innerAlpha = vInnerAlpha;
+  float bevel = vBevel;
+  #else
   vec4 color = uColor;
   vec2 size = uSize;
   float innerAlpha = uInnerAlpha;
   float bevel = uBevel;
-
-  //vec4 color = vColor;
-  //vec2 size = vSize;
-  //float innerAlpha = vInnerAlpha;
-  //float bevel = vBevel;
+  #endif
 
   vec3 c;
   c = color.xyz * (1.25 - 0.5 * vCoordinate.y);

@@ -4,6 +4,8 @@ import Ultra.Core;
 import Ultra.Logger;
 import Ultra.Math;
 
+import Ultra.Engine.Renderer.Texture;
+
 ///
 /// @brief Font
 ///  Font_DrawShaded : In addition to drawing glyphs as textured quads,
@@ -15,11 +17,22 @@ import Ultra.Math;
 ///
 export namespace Ultra {
 
+class MSDFData;
+
 struct FontData;
 
 class Font {
 public:
+    Font(const string &font);
+    ~Font();
+
+    const MSDFData *GetMSDFData() const { return mData; }
+    Reference<Texture> GetAtlasTexture() const { return mAtlasTexture; }
+    Reference<Font> GetDefault();
+
     static FontData *Load(const char *name, int size);
+
+
     static void Acquire(FontData *);
     static void Free(FontData *);
 
@@ -30,6 +43,10 @@ public:
 
     static void GetSize(FontData *, Vector4Di *out, const char *text);
     static void GetSize2(FontData *, Vector2Di *out, const char *text);
+
+private:
+    MSDFData *mData;
+    Reference<Texture> mAtlasTexture;
 };
 
 

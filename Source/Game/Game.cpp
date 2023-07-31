@@ -145,6 +145,7 @@ public:
         Engine_Update();
     #else
         HmGui::Begin({ 1280, 1024 });
+        //ShowText();
         ShowSimple();
         ShowMetrics(deltaTime);
         ShowToDoWindow();
@@ -158,9 +159,19 @@ public:
 
 #ifdef NATIVE_RENDERER
 #else
+    void ShowText() {
+        HmGui::BeginWindow("Test");
+        HmGui::BeginGroupX();
+        HmGui::Text("Text");
+        HmGui::EndGroup();
+        HmGui::EndWindow();
+    }
+
     void ShowMetrics(float deltaTime) {
         HmGui::BeginWindow("Metrics");
-            HmGui::Text(std::format("fps: {:.2}", 1.0 / deltaTime));
+        HmGui::BeginGroupX();
+            HmGui::Text(std::format("fps: {:.2f}", 1.0f / deltaTime));
+        HmGui::EndGroup();
         HmGui::EndWindow();
     }
 

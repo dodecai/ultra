@@ -152,3 +152,67 @@ bool DecomposeTransform([[maybe_unused]] const glm::mat4 &transform, [[maybe_unu
 }
 
 }
+
+// Extensions
+
+namespace std {
+
+template<>
+struct std::formatter<glm::vec3> {
+    constexpr auto parse(format_parse_context &ctx) {
+        const auto it = ctx.begin();
+        if (it != ctx.end() && *it != '}')
+            throw format_error("Invalid format for glm::vec4!");
+        return it;
+    }
+
+    template<typename FormatContext>
+    auto format(const glm::vec4 &vec, FormatContext &ctx) {
+        return format_to(ctx.out(), "[{}, {}, {}]", vec.x, vec.y, vec.z);
+    }
+};
+
+
+template<>
+struct std::formatter<glm::vec4> {
+    constexpr auto parse(format_parse_context &ctx) {
+        const auto it = ctx.begin();
+        if (it != ctx.end() && *it != '}') throw format_error("Invalid format for glm::vec4!");
+        return it;
+    }
+
+    template<typename FormatContext>
+    auto format(const glm::vec4 &vec, FormatContext &ctx) {
+        return format_to(ctx.out(), "[{}, {}, {}, {}]", vec.x, vec.y, vec.z, vec.w);
+    }
+};
+
+template<>
+struct std::formatter<glm::mat4> {
+    constexpr auto parse(format_parse_context &ctx) {
+        const auto it = ctx.begin();
+        if (it != ctx.end() && *it != '}') throw format_error("Invalid format for für glm::mat4!");
+        return it;
+    }
+
+    template<typename FormatContext>
+    auto format(const glm::mat4 &mat, FormatContext &ctx) {
+        std::ostringstream os;
+        os << "[";
+        for (int i = 0; i < 4; ++i) {
+            os << "[";
+            for (int j = 0; j < 4; ++j) {
+                os << mat[i][j];
+                if (j < 3)
+                    os << ", ";
+            }
+            os << "]";
+            if (i < 3)
+                os << ", ";
+        }
+        os << "]";
+        return format_to(ctx.out(), "{}", os.str());
+    }
+};
+
+}

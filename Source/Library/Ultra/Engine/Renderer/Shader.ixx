@@ -162,6 +162,7 @@ size_t ShaderTypeFromString(const string &type) {
 
 string ShaderTypeToString(ShaderType type) {
     switch (type) {
+        case ShaderType::Linked:            { return "linked";}
         case ShaderType::Compute:           { return "compute"; }
         case ShaderType::Fragment:          { return "fragment"; }
         case ShaderType::Geometry:          { return "geometry"; }

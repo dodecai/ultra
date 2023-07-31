@@ -19,6 +19,13 @@ module Ultra.Platform.Renderer.GLTexture;
 namespace Ultra {
 
 // Helpers
+static GLenum  ConvertTextureDataType(TextureDataType type) {
+    switch (type) {
+        case TextureDataType::Byte: return GL_UNSIGNED_BYTE;
+        case TextureDataType::Float: return GL_FLOAT;
+    }
+}
+
 static GLenum ConvertTextureFormat(TextureFormat format) {
     switch (format) {
         case TextureFormat::R8: return GL_R8;
@@ -165,7 +172,7 @@ GLTexture::GLTexture(const TextureProperties &properties, const void *data, size
             glCreateTextures(GL_TEXTURE_2D, 1, &mTextureID);
             glTextureStorage2D(mTextureID, 1, ConvertTextureFormat(mProperties.Format), mProperties.Width, mProperties.Height);
             // ToDo: Allow to setup data type (was GL_UNSIGNED_BYTE)
-            glTextureSubImage2D(mTextureID, 0, 0, 0, mProperties.Width, mProperties.Height, Helpers::GLImageFormat(mProperties.Format), GL_FLOAT, data);
+            glTextureSubImage2D(mTextureID, 0, 0, 0, mProperties.Width, mProperties.Height, Helpers::GLImageFormat(mProperties.Format), ConvertTextureDataType(properties.DataType), data);
             break;
         }
         case TextureDimension::Texture3D: {
@@ -229,7 +236,7 @@ GLTexture::GLTexture(const TextureProperties &properties, const string &path): T
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-            glTextureSubImage2D(mTextureID, 0, 0, 0, width, height, ConvertTextureFormat(mProperties.Format), GL_UNSIGNED_BYTE, data);
+            glTextureSubImage2D(mTextureID, 0, 0, 0, width, height, Helpers::GLImageFormat(mProperties.Format), GL_UNSIGNED_BYTE, data);
             //glGenerateMipmap(GL_TEXTURE_2D);
 
             // Free image data
@@ -243,10 +250,10 @@ GLTexture::GLTexture(const TextureProperties &properties, const string &path): T
         data = stbi_load(path.c_str(), &width, &height, &channels, 0);
         if (channels == 4) {
             mProperties.Format = TextureFormat::RGBA8;
-            renderFormat = GL_RGBA16;
+            renderFormat = GL_RGBA8;
         } else if (channels == 3) {
             mProperties.Format = TextureFormat::RGB8;
-            renderFormat = GL_RGB16;
+            renderFormat = GL_RGB8;
         }
         mProperties.Height = height;
         mProperties.Width = width;
@@ -258,7 +265,7 @@ GLTexture::GLTexture(const TextureProperties &properties, const string &path): T
             // Set texture parameters
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+            //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -273,76 +280,16 @@ GLTexture::~GLTexture() {
 
 
 void GLTexture::Bind(uint32_t slot) const {
+    //glEnable(GL_TEXTURE_2D);
     glBindTextureUnit(slot, mTextureID);
     //glActiveTexture(GL_TEXTURE0 + 0);
     //glBindTexture(GL_TEXTURE_2D, mTextureID);
 }
 
-void GLTexture::Draw(int index, float x0, float y0, float x1, float y1, float u0, float v0, float u1, float v1) {
-    glEnable(GL_TEXTURE_2D);
-    Bind(index);
-    glBegin(GL_QUADS);
-    glTexCoord2f(u0, v0); glVertex2f(x0, y0); // 0, 0
-    glTexCoord2f(u0, v1); glVertex2f(x0, y1); // 0, 1
-    glTexCoord2f(u1, v1); glVertex2f(x1, y1); // 1, 1
-    glTexCoord2f(u1, v0); glVertex2f(x1, y0); // 1, 0
-    glEnd();
-    Unbind(index);
-    glDisable(GL_TEXTURE_2D);
-    return;
-
-
-    GLfloat vertices[] = {
-        // Positionen  // Texturkoordinaten
-        x0, y0, 0.0f,  u0, v0, // Unten links
-        x1, y0, 0.0f,  u1, v0, // Unten rechts
-        x1, y1, 0.0f,  u1, v1, // Oben rechts
-        x0, y1, 0.0f,  u0, v1  // Oben links
-    };
-
-    // Definieren Sie die Reihenfolge, in der die Eckpunkte gezeichnet werden
-    GLuint indices[] = { 0, 1, 2, 2, 3, 0 };
-
-    // Erstellen Sie einen Vertex-Array-Object (VAO)
-    GLuint VAO;
-    glGenVertexArrays(1, &VAO);
-
-    // Erstellen Sie einen Vertex-Buffer-Object (VBO)
-    GLuint VBO;
-    glGenBuffers(1, &VBO);
-
-    // Erstellen Sie einen Element-Buffer-Object (EBO)
-    GLuint EBO;
-    glGenBuffers(1, &EBO);
-
-    // Binden Sie den VAO
-    glBindVertexArray(VAO);
-
-    // Laden Sie die Vertices-Daten in den VBO
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // Laden Sie die Indizes-Daten in den EBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // Definieren Sie die Attributpointer
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    // Zeichnen Sie das Quad
-    Bind(GL_TEXTURE_2D);
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    Unbind(GL_TEXTURE_2D);
-}
-
 void GLTexture::Unbind(uint32_t slot) const {
     glBindTextureUnit(slot, 0);
     //glBindTexture(GL_TEXTURE_2D, 0);
+    //glDisable(GL_TEXTURE_2D);
 }
 
 
