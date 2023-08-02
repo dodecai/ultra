@@ -35,5 +35,5 @@ layout(location = 0) out vec4 oColor;
 layout(binding = 0) uniform sampler2D uTextures[32];
 
 void main() {
-    oColor = texture(uTextures[int(vTexIndex)], vTexCoord * vTilingFactor) * vColor;
+    oColor = texture(uTextures[int(vTexIndex)], vTexCoord) * vColor;
 }

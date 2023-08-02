@@ -128,20 +128,11 @@ bool ClipRect::Validate() {
 
 
 
-#define TEST_NEW_RENDERER
-
 void UIDraw::DrawBorder(float s, float x, float y, float w, float h) {
-    #ifdef TEST_NEW_RENDERER
     UIRenderer::Instance().DrawRectangle({ x, y, 0 }, { w, s });
     UIRenderer::Instance().DrawRectangle({ x, y + h - s, 0 }, { w, s });
     UIRenderer::Instance().DrawRectangle({ x, y + s, 0 }, { s, h - 2 * s });
     UIRenderer::Instance().DrawRectangle({ x + w - s , y + s, 0 }, { s, h - 2 * s });
-    #else
-    DrawRect(x, y, w, s);
-    DrawRect(x, y + h - s, w, s);
-    DrawRect(x, y + s, s, h - 2 * s);
-    DrawRect(x + w - s, y + s, s, h - 2 * s);
-    #endif
 }
 
 void UIDraw::DrawColor(float r, float g, float b, float a) {
@@ -163,27 +154,10 @@ void UIDraw::DrawRect(float x1, float y1, float xs, float ys) {
 }
 
 void UIDraw::DrawText(Reference<Texture> texture, int index, float x0, float y0, float x1, float y1, const Color &color) {
-    #ifdef TEST_NEW_RENDERER
     float alpha = 1.0f;
-    UIRenderer::Instance().DrawRectangle({ x0, y0, 0 }, { x1, y1 }, texture, { color.Red, color.Green, color.Blue, color.Alpha * alpha });
-    UIDraw::DrawColor(1, 1, 1, 1);
-    #else
-    UIDraw::DrawColor(color.Red, color.Green, color.Blue, color.Alpha);
-    glEnable(GL_TEXTURE_2D);
-    texture->Bind(index);
-
-    glBegin(GL_QUADS);
-    glTexCoord2f(0, 0); glVertex2f(x0, y0);
-    glTexCoord2f(0, 1); glVertex2f(x0, y1);
-    glTexCoord2f(1, 1); glVertex2f(x1, y1);
-    glTexCoord2f(1, 0); glVertex2f(x1, y0);
-    glEnd();
-
-    texture->Unbind(index);
-    UIDraw::DrawColor(1, 1, 1, 1);
-    glDisable(GL_TEXTURE_2D);
-    UIDraw::DrawColor(1, 1, 1, 1);
-    #endif
+    float width = x1 - x0;
+    float height = y1 - y0;
+    UIRenderer::Instance().DrawRectangle({ x0, y0, 0 }, { width, height }, texture, { color.Red, color.Green, color.Blue, color.Alpha * alpha });
 }
 
 
@@ -199,27 +173,15 @@ void Panel::Draw() const {
 }
 
 void Image::Draw() const {
-    #ifdef TEST_NEW_RENDERER
-    #else
     //mImage->Draw(0, mPosition.X, mPosition.Y, mSize.Width, mSize.Height);
-    #endif
 }
 
 void Rectangle::Draw() const {
-    #ifdef TEST_NEW_RENDERER
     UIRenderer::Instance().DrawRectangle({ mPosition.X, mPosition.Y, 0.0f }, { mSize.Width, mSize.Height }, { mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha });
-    #else
-    UIDraw::DrawColor(mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha);
-    if (mOutline) {
-        UIDraw::DrawBorder(1.0f, mPosition.X, mPosition.Y, mSize.Width, mSize.Height);
-    } else {
-        UIDraw::DrawRect(mPosition.X, mPosition.Y, mSize.Width, mSize.Height);
-    }
-    #endif
 }
 
 void Text::Draw() const {
-    //Font::Draw(mFont, mText.c_str(), mPosition.X, mPosition.Y, mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha);
+    Font::Draw(mFont, mText.c_str(), mPosition.X, mPosition.Y, mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha);
 }
 
 
@@ -262,7 +224,8 @@ void UIRenderer::DrawRectangle(const glm::vec3 &position, const glm::vec2 &size,
     };
     const float tiling = 1.0f;
 
-    glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+    glm::vec2 center = position + glm::vec3(size.x, size.y, 0.0f) *0.5f;
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(center, 0.0f)) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
     for (size_t i = 0; i < SRenderData.ComponentVertexPositions.size(); i++) {
         SRenderData.ComponentVertexBufferData.emplace_back((transform * SRenderData.ComponentVertexPositions[i]), color, textureCoords[i], textureIndex, tiling);
     }
@@ -279,7 +242,7 @@ void UIRenderer::DrawRectangle(const glm::vec3 &position, const glm::vec2 &size,
         { 0.0f, 0.0f },
         { 1.0f, 0.0f },
         { 1.0f, 1.0f },
-        { 0.0f, 1.0f }
+        { 0.0f, 1.0f },
     };
     for (uint32_t i = 1; i < SRenderData.TextureSlotIndex; i++) {
         if (*SRenderData.TextureSlots[i].get() == *texture.get()) {
@@ -295,7 +258,9 @@ void UIRenderer::DrawRectangle(const glm::vec3 &position, const glm::vec2 &size,
         SRenderData.TextureSlotIndex++;
     }
 
-    glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+    glm::vec2 center = position + glm::vec3(size.x, size.y, 0.0f) * 0.5f;
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(center, 0.0f)) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+    //glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
     for (size_t i = 0; i < SRenderData.ComponentVertexPositions.size(); i++) {
         SRenderData.ComponentVertexBufferData.emplace_back((transform * SRenderData.ComponentVertexPositions[i]), color, textureCoords[i], textureIndex, tiling);
     }

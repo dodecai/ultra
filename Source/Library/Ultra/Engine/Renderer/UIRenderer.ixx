@@ -10,8 +10,6 @@ import Ultra.Engine.Renderer.Viewport;
 import Ultra.Logger;
 import Ultra.Math;
 
-#define TEST_NEW_RENDERER
-
 export import Ultra.Engine.Font;
 
 ///
@@ -214,32 +212,9 @@ public:
     }
     void Draw() {
         if (!mPanels.empty()) {
-        #ifdef TEST_NEW_RENDERER
             for (const auto &panel : mPanels) {
                 panel->Draw();
             }
-        #else
-            const float pad = 64.0f;
-
-            mUIShader->Bind();
-            mUIShader->UpdateUniform("uPadding", pad);
-
-            for (auto &panel : mPanels) {
-                float x = panel->mPosition.X - pad;
-                float y = panel->mPosition.Y - pad;
-                float sx = panel->mSize.Width + 2.0f * pad;
-                float sy = panel->mSize.Height + 2.0f * pad;
-
-                mUIShader->UpdateUniform("uColor", Float4 { panel->mColor.Red, panel->mColor.Green, panel->mColor.Blue, panel->mColor.Alpha });
-                mUIShader->UpdateUniform("uSize", Float2 { sx, sy });
-                mUIShader->UpdateUniform("uInnerAlpha", panel->mInnerAlpha);
-                mUIShader->UpdateUniform("uBevel", panel->mBevel);
-
-                UIDraw::DrawRect(x, y, sx, sy);
-            }
-
-            mUIShader->Unbind();
-        #endif
         }
 
         if (mElements.empty()) return;
@@ -507,22 +482,16 @@ public:
         EndLayer();
     }
     static void Draw() {
-        #ifdef TEST_NEW_RENDERER
-            Instance().BeginScene();
+        Instance().BeginScene();
 
-            Instance().DrawRectangle({ 0.0f, 0.0f, 0.0f }, { 200.0f, 200.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
-            Instance().DrawRectangle({ 150.0f, 150.0f, 0.2f }, { 200.0f, 200.0f }, { 1.0f, 0.0f, 1.0f, 0.8f });
-            Instance().DrawRectangle({ 250.0f, 250.0f, 0.3f }, { 200.0f, 200.0f }, CheckerBoard);
+        Instance().DrawRectangle({ 500.0f, 200.0f, 0.0f }, { 200.0f, 200.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+        Instance().DrawRectangle({ 650.0f, 300.0f, 0.2f }, { 200.0f, 200.0f }, { 1.0f, 0.0f, 1.0f, 0.8f });
+        Instance().DrawRectangle({ 750.0f, 400.0f, 0.3f }, { 200.0f, 200.0f }, CheckerBoard);
 
-            UIRenderer::Instance().Render();
-
-            Instance().EndScene();
-            Instance().mLayers.clear();
-        #else
-        UIRenderer::Instance().mPipelineState->Bind();
         UIRenderer::Instance().Render();
-        UIRenderer::Instance().mPipelineState->Unbind();
-        #endif
+
+        Instance().EndScene();
+        Instance().mLayers.clear();
     }
 
     static void Panel(const Position &position, const Size &size, const Color &color, float bevel, float innerAlpha) {

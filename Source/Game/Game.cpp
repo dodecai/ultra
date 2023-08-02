@@ -162,6 +162,13 @@ public:
     void ShowText() {
         HmGui::BeginWindow("Test");
         HmGui::BeginGroupX();
+        HmGui::Button(" < "); HmGui::SetStretch(0, 1);
+        HmGui::Button("Tab1");
+        HmGui::Button("Tab2");
+        HmGui::Button("Tab3");
+        HmGui::Button(" > "); HmGui::SetStretch(0, 1);
+        HmGui::EndGroup();
+        HmGui::BeginGroupX();
         HmGui::Text("Text");
         HmGui::EndGroup();
         HmGui::EndWindow();
