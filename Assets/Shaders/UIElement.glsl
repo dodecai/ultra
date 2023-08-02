@@ -1,4 +1,5 @@
 ﻿#type vertex
+#version 450 core
 
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
@@ -11,8 +12,10 @@ layout(location = 1) out vec2 vTexCoord;
 layout(location = 2) out float vTexIndex;
 layout(location = 3) out float vTilingFactor;
 
-uniform mat4 uProjection;
-uniform mat4 uView;
+layout(std140, binding = 0) uniform Transform {
+    mat4 uProjection;
+    mat4 uView;
+};
 
 void main() {
     vColor = aColor;
@@ -24,6 +27,7 @@ void main() {
 }
 
 #type fragment
+#version 450 core
 
 layout(location = 0) in vec4 vColor;
 layout(location = 1) in vec2 vTexCoord;

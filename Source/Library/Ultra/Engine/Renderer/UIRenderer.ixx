@@ -377,6 +377,11 @@ public:
 
         SCommandBuffer = CommandBuffer::Create();
 
+        SRenderData.TransformUniformBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(RenderData::TransformUniform));
+        SRenderData.TransformUniformBuffer->Bind(0);
+        SRenderData.PanelPropertiesUniformBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(RenderData::PanelPropertiesUniform));
+        SRenderData.PanelPropertiesUniformBuffer->Bind(1);
+
         // Legacy
         PipelineProperties properties {};
         properties.BlendMode = BlendMode::Alpha;
@@ -396,8 +401,11 @@ public:
         float nearPlane = 0.1f;
         float farPlane = 100.0f;
 
-        SRenderData.ProjectionMatrix = glm::ortho(0.0f, windowWidth, windowHeight, 0.0f); // glm::perspective(glm::radians(fov), windowWidth / windowHeight, nearPlane, farPlane);
-        SRenderData.ViewMatrix = glm::mat4(1.0f);
+        SRenderData.Transform.ProjectionMatrix = glm::ortho(0.0f, windowWidth, windowHeight, 0.0f); // glm::perspective(glm::radians(fov), windowWidth / windowHeight, nearPlane, farPlane);
+        SRenderData.Transform.ViewMatrix = glm::mat4(1.0f);
+
+        SRenderData.TransformUniformBuffer->UpdateData(&SRenderData.Transform, sizeof(RenderData::TransformUniform));
+        SRenderData.PanelPropertiesUniformBuffer->UpdateData(&SRenderData.PanelProperties, sizeof(RenderData::PanelPropertiesUniform));
     }
 
     void DrawPanel(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color, float innerAlpha, float bevel);
@@ -445,8 +453,19 @@ private:
         Reference<Texture> WhiteTexture;
 
         // Transformation
-        glm::mat4 ProjectionMatrix;
-        glm::mat4 ViewMatrix;
+        struct TransformUniform {
+            glm::mat4 ProjectionMatrix {};
+            glm::mat4 ViewMatrix {};
+        } Transform;
+
+        struct PanelPropertiesUniform {
+            float Padding { 64.0f };
+        } PanelProperties;
+
+
+        Reference<Buffer> TransformUniformBuffer;
+        Reference<Buffer> PanelPropertiesUniformBuffer;
+
     } SRenderData;
 
 

@@ -287,10 +287,6 @@ void UIRenderer::Flush() {
 
         SRenderData.PanelShader->Bind();
 
-        const float pad = 64.0f;
-        SRenderData.PanelShader->UpdateUniform("uPadding", pad);
-        SRenderData.PanelShader->UpdateUniform("uProjection", SRenderData.ProjectionMatrix);
-        SRenderData.PanelShader->UpdateUniform("uModelView", SRenderData.ViewMatrix);
 
         SRenderData.PanelVertexBuffer->Bind();
         SRenderData.PanelPipeline->Bind();
@@ -308,8 +304,6 @@ void UIRenderer::Flush() {
         SRenderData.ComponentVertexBuffer->UpdateData(SRenderData.ComponentVertexBufferData.data(), dataSize);
 
         SRenderData.ComponentShader->Bind();
-        SRenderData.ComponentShader->UpdateUniform("uProjection", SRenderData.ProjectionMatrix);
-        SRenderData.ComponentShader->UpdateUniform("uView", SRenderData.ViewMatrix);
         //SRenderData.ComponentShader->UpdateUniform("uViewProjection", SRenderData.ViewProjectionMatrix);
 
         for (uint32_t i = 0; i < SRenderData.TextureSlotIndex; i++) {

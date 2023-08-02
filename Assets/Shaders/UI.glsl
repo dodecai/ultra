@@ -1,5 +1,5 @@
 ﻿#type vertex
-#extension GL_EXT_gpu_shader4 : enable
+#version 450 core
 
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec4 aColor;
@@ -15,9 +15,10 @@ layout(location = 3) out float vInnerAlpha;
 layout(location = 4) out float vBevel;
 layout(location = 5) out vec2 vCoordinate;
 
-uniform mat4 uProjection;
-uniform mat4 uModelView;
-uniform vec2 uCoordinate;
+layout(std140, binding = 0) uniform Transform {
+    uniform mat4 uProjection;
+    uniform mat4 uModelView;
+};
 
 void main() {
   vPosition = aPosition;
@@ -31,6 +32,7 @@ void main() {
 }
 
 #type fragment
+#version 450 core
 
 layout(location = 0) in vec3 vPosition;
 layout(location = 1) in vec4 vColor;
@@ -41,11 +43,9 @@ layout(location = 5) in vec2 vCoordinate;
 
 layout(location = 0) out vec4 oColor;
 
-uniform float uPadding;
-uniform vec2 uSize;
-uniform vec4 uColor;
-uniform float uInnerAlpha;
-uniform float uBevel;
+layout(std140, binding = 1) uniform PanelProperties {
+    float uPadding;
+};
 
 float dbox(vec2 p, vec2 s, float b) {
   return length(max(vec2(0.0, 0.0), abs(p) - (s - 2.0 * vec2(b, b)))) - b;

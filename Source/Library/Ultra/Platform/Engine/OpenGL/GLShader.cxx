@@ -71,20 +71,20 @@ void GLShader::Compile(ShaderList shaders) {
         // Create Shader
         auto type = GetGLShaderType((ShaderType)key);
         auto shader = glCreateShader(type);
-
+        
         // Option A: Compiled shader
         //if (FileSystemObjectExists(cache)) {
 
         //}
-        //auto spirv = ShaderCompiler::Compile(mShaderName, (ShaderType)key, code);
-        //glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, spirv.data(), spirv.size() * sizeof(uint32_t));
-        //string entrypoint = "main"; // Get VS entry point name
-        //glSpecializeShader(shader, entrypoint.c_str(), 0, nullptr, nullptr);
+        auto spirv = ShaderCompiler::Compile(mShaderName, (ShaderType)key, code);
+        glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, spirv.data(), spirv.size() * sizeof(uint32_t));
+        string entrypoint = "main"; // Get VS entry point name
+        glSpecializeShader(shader, entrypoint.c_str(), 0, nullptr, nullptr);
         
         // Opiton B: Compile Shader
-        const GLchar *source = code.c_str();
-        glShaderSource(shader, 1, &source, 0);
-        glCompileShader(shader);
+        //const GLchar *source = code.c_str();
+        //glShaderSource(shader, 1, &source, 0);
+        //glCompileShader(shader);
 
         GLint compiled = 0;
         glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
