@@ -19,256 +19,61 @@ import Ultra.Engine.Resource;
 
 namespace Ultra {
 
-//template<typename T, typename S, int N, msdf_atlas::GeneratorFunction<S, N> GenFunc>
-//static Ref<Texture2D> CreateAndCacheAtlas(const std::string &fontName, float fontSize, const std::vector<msdf_atlas::GlyphGeometry> &glyphs,
-//    const msdf_atlas::FontGeometry &fontGeometry, uint32_t width, uint32_t height) {
-//    msdf_atlas::GeneratorAttributes attributes;
-//    attributes.config.overlapSupport = true;
-//    attributes.scanlinePass = true;
-//
-//    msdf_atlas::ImmediateAtlasGenerator<S, N, GenFunc, msdf_atlas::BitmapAtlasStorage<T, N>> generator(width, height);
-//    generator.setAttributes(attributes);
-//    generator.setThreadCount(8);
-//    generator.generate(glyphs.data(), (int)glyphs.size());
-//
-//    msdfgen::BitmapConstRef<T, N> bitmap = (msdfgen::BitmapConstRef<T, N>)generator.atlasStorage();
-//
-//    TextureSpecification spec;
-//    spec.Width = bitmap.width;
-//    spec.Height = bitmap.height;
-//    spec.Format = ImageFormat::RGB8;
-//    spec.GenerateMips = false;
-//
-//    Ref<Texture2D> texture = Texture2D::Create(spec);
-//    texture->SetData((void *)bitmap.pixels, bitmap.width * bitmap.height * 3);
-//    return texture;
-//}
-
-
 Font::Font(const string &font) {
-    //mData = new MSDFData();
-    //msdfgen::FreetypeHandle *ft = msdfgen::initializeFreetype();
-    //assert(ft);
-
-    //std::string fileString = filepath.string();
-
-    //// TODO(Yan): msdfgen::loadFontData loads from memory buffer which we'll need 
-    //msdfgen::FontHandle *font = msdfgen::loadFont(ft, fileString.c_str());
-    //if (!font) {
-    //    HZ_CORE_ERROR("Failed to load font: {}", fileString);
-    //    return;
-    //}
-
-    //struct CharsetRange {
-    //    uint32_t Begin, End;
-    //};
-
-    //// From imgui_draw.cpp
-    //static const CharsetRange charsetRanges[] =
-    //{
-    //    { 0x0020, 0x00FF }
-    //};
-
-    //msdf_atlas::Charset charset;
-    //for (CharsetRange range : charsetRanges) {
-    //    for (uint32_t c = range.Begin; c <= range.End; c++)
-    //        charset.add(c);
-    //}
-
-    //double fontScale = 1.0;
-    //m_Data->FontGeometry = msdf_atlas::FontGeometry(&m_Data->Glyphs);
-    //int glyphsLoaded = m_Data->FontGeometry.loadCharset(font, fontScale, charset);
-    //HZ_CORE_INFO("Loaded {} glyphs from font (out of {})", glyphsLoaded, charset.size());
-
-
-    //double emSize = 40.0;
-
-    //msdf_atlas::TightAtlasPacker atlasPacker;
-    //// atlasPacker.setDimensionsConstraint()
-    //atlasPacker.setPixelRange(2.0);
-    //atlasPacker.setMiterLimit(1.0);
-    //atlasPacker.setPadding(0);
-    //atlasPacker.setScale(emSize);
-    //int remaining = atlasPacker.pack(m_Data->Glyphs.data(), (int)m_Data->Glyphs.size());
-    //HZ_CORE_ASSERT(remaining == 0);
-
-    //int width, height;
-    //atlasPacker.getDimensions(width, height);
-    //emSize = atlasPacker.getScale();
-
-    //#define DEFAULT_ANGLE_THRESHOLD 3.0
-    //#define LCG_MULTIPLIER 6364136223846793005ull
-    //#define LCG_INCREMENT 1442695040888963407ull
-    //#define THREAD_COUNT 8
-    //        // if MSDF || MTSDF
-
-    //uint64_t coloringSeed = 0;
-    //bool expensiveColoring = false;
-    //if (expensiveColoring) {
-    //    msdf_atlas::Workload([&glyphs = m_Data->Glyphs, &coloringSeed](int i, int threadNo) -> bool {
-    //        unsigned long long glyphSeed = (LCG_MULTIPLIER * (coloringSeed ^ i) + LCG_INCREMENT) * !!coloringSeed;
-    //        glyphs[i].edgeColoring(msdfgen::edgeColoringInkTrap, DEFAULT_ANGLE_THRESHOLD, glyphSeed);
-    //        return true;
-    //    }, m_Data->Glyphs.size()).finish(THREAD_COUNT);
-    //} else {
-    //    unsigned long long glyphSeed = coloringSeed;
-    //    for (msdf_atlas::GlyphGeometry &glyph : m_Data->Glyphs) {
-    //        glyphSeed *= LCG_MULTIPLIER;
-    //        glyph.edgeColoring(msdfgen::edgeColoringInkTrap, DEFAULT_ANGLE_THRESHOLD, glyphSeed);
-    //    }
-    //}
-
-
-    //m_AtlasTexture = CreateAndCacheAtlas<uint8_t, float, 3, msdf_atlas::msdfGenerator>("Test", (float)emSize, m_Data->Glyphs, m_Data->FontGeometry, width, height);
-
-
-    //#if 0
-    //msdfgen::Shape shape;
-    //if (msdfgen::loadGlyph(shape, font, 'C')) {
-    //    shape.normalize();
-    //    //                      max. angle
-    //    msdfgen::edgeColoringSimple(shape, 3.0);
-    //    //           image width, height
-    //    msdfgen::Bitmap<float, 3> msdf(32, 32);
-    //    //                     range, scale, translation
-    //    msdfgen::generateMSDF(msdf, shape, 4.0, 1.0, msdfgen::Vector2(4.0, 4.0));
-    //    msdfgen::savePng(msdf, "output.png");
-    //}
-    //#endif
-
-    //msdfgen::destroyFont(font);
-    //msdfgen::deinitializeFreetype(ft);
 }
 
 Font::~Font() {
-    delete mData;
 }
-
-Reference<Font> Font::GetDefault() {
-    static Reference<Font> DefaultFont;
-    if (!DefaultFont) DefaultFont = CreateReference<Font>("Assets/Fonts/Roboto/Roboto-Regular.ttf");
-
-    return DefaultFont;
-}
-
 
 /* TODO : Re-implement UTF-8 support */
 /* TODO : Atlas instead of individual textures. */
 
-/* NOTE : Gamma of 1.8 recommended by FreeType */
-const float kGamma = 1.8f;
-const float kRcpGamma = 1.0f / kGamma;
-
 struct Glyph {
-    int index;
-    int x0, y0, x1, y1;
-    int sx, sy;
-    int advance;
+    size_t index;
+
+    int32_t x0;
+    int32_t y0;
+    int32_t x1;
+    int32_t y1;
+    
+    int32_t sx;
+    int32_t sy;
+
+    int32_t advance;
 
     Reference<Texture2D> Texture;
 };
 
 struct FontData {
-    FT_Face handle;
-    //HashMap *glyphs;
-    unordered_map<uint32_t, Glyph *> glyphs;
-    Glyph *glyphsAscii[256];
+    FT_Face Handle;
+
+    Glyph *AsciiGlyphs[256];
+    unordered_map<uint32_t, Glyph *> Glyphs;
 };
 
-static FT_Library ft = 0;
-
-static Glyph *Font_GetGlyph(FontData *self, uint32_t codepoint) {
-    if (codepoint < 256 && self->glyphsAscii[codepoint])
-        return self->glyphsAscii[codepoint];
-
-    //Glyph *g = (Glyph *)HashMap_Get(self->glyphs, &codepoint);
-    Glyph *g = self->glyphs[codepoint];
-    if (g) return g;
-
-    FT_Face face = self->handle;
-    int glyph = FT_Get_Char_Index(face, codepoint);
-    if (glyph == 0)
-        return 0;
-    if (FT_Load_Glyph(face, glyph, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_RENDER))
-        return 0;
-
-    FT_Bitmap const *bitmap = &face->glyph->bitmap;
-    unsigned char const *pBitmap = bitmap->buffer;
-
-    /* Create a new glyph and fill out metrics. */ {
-        g = new Glyph();
-        g->index = glyph;
-        g->x0 = face->glyph->bitmap_left;
-        g->y0 = -face->glyph->bitmap_top;
-        g->sx = bitmap->width;
-        g->sy = bitmap->rows;
-        g->x1 = g->x0 + g->sx;
-        g->y1 = g->y0 + g->sy;
-        g->advance = face->glyph->advance.x >> 6;
-    }
-
-    vector<Vec4f> buffer (g->sx * g->sy);
-    vector<Vector4Df> buffer2(g->sx * g->sy);
-
-    /* Copy rendered bitmap into buffer. */ {
-        Vec4f *pBuffer = buffer.data();
-        Vector4Df *pBuffer2 = buffer2.data();
-        for (uint32_t dy = 0; dy < bitmap->rows; ++dy) {
-            for (uint32_t dx = 0; dx < bitmap->width; ++dx) {
-                float a = std::pow((float)(pBitmap[dx]) / 255.0f, kRcpGamma);
-                *pBuffer++ = Vec4f_Create(1.0f, 1.0f, 1.0f, a);
-                *pBuffer2++ = { 1.0f, 1.0f, 1.0f, a };
-            }
-            pBitmap += bitmap->pitch;
-        }
-    }
-
-    /* Upload to texture. */ {
-        g->Texture = Texture::Create({ (uint32_t)g->sx, (uint32_t)g->sy, TextureFormat::RGBA8, TextureDataType::Float }, buffer.data(), sizeof(buffer.data()));
-    }
-
-
-    /* Add to glyph cache. */
-    if (codepoint < 256) {
-        self->glyphsAscii[codepoint] = g;
-    } else {
-        //HashMap_Set(self->glyphs, &codepoint, g);
-        self->glyphs[codepoint] = g;
-    }
-    return g;
-}
-
-inline static int Font_GetKerning(FontData *self, int a, int b) {
-    FT_Vector kern;
-    FT_Get_Kerning(self->handle, a, b, FT_KERNING_DEFAULT, &kern);
-    return kern.x >> 6;
-}
 
 FontData *Font::Load(const char * name, int size) {
-    if (!ft) FT_Init_FreeType(&ft);
+    if (!mLibrary) FT_Init_FreeType(&mLibrary);
 
     string path = Resource::GetPath(PhyResourceType::Font, name);
-    FontData *self = new FontData();
+    FontData *data = new FontData();
 
-    if (FT_New_Face(ft, path.c_str(), 0, &self->handle)) LogFatal("Font_Load: Failed to load font <%s> at <%s>", name, path);
-    FT_Set_Pixel_Sizes(self->handle, 0, size);
+    if (FT_New_Face(mLibrary, path.c_str(), 0, &data->Handle)) LogFatal("Font_Load: Failed to load font <%s> at <%s>", name, path);
+    FT_Set_Pixel_Sizes(data->Handle, 0, size);
 
-    memset(self->glyphsAscii, 0, sizeof(self->glyphsAscii));
-    //self->glyphs = HashMap_Create(sizeof(uint32_t), 16);
-    return self;
-}
-
-void Font::Acquire(FontData *self) {
-    //RefCounted_Acquire(self);
+    memset(data->AsciiGlyphs, 0, sizeof(data->AsciiGlyphs));
+    //self->Glyphs = HashMap_Create(sizeof(uint32_t), 16);
+    return data;
 }
 
 void Font::Free(FontData *self) {
     {
-      /* TODO : Free glyphs! */
-        FT_Done_Face(self->handle);
+      /* TODO : Free Glyphs! */
+        FT_Done_Face(self->Handle);
         delete self;
     }
 }
+
 
 void Font::Draw(FontData *self, const char * text, float x, float y, float r, float g, float b, float a) {
     FRAME_BEGIN;
@@ -278,9 +83,9 @@ void Font::Draw(FontData *self, const char * text, float x, float y, float r, fl
     y = std::floor(y);
 
     while (codepoint) {
-        Glyph *glyph = Font_GetGlyph(self, codepoint);
+        Glyph *glyph = GetGlyph(self, codepoint);
         if (glyph) {
-            if (glyphLast) x += Font_GetKerning(self, glyphLast, glyph->index);
+            if (glyphLast) x += GetKerning(self, glyphLast, glyph->index);
             float x0 = (float)(x + glyph->x0);
             float y0 = (float)(y + glyph->y0);
             float x1 = (float)(x + glyph->x1);
@@ -299,40 +104,8 @@ void Font::Draw(FontData *self, const char * text, float x, float y, float r, fl
     FRAME_END;
 }
 
-void Font::DrawShaded(FontData *self, const char * text, float x, float y) {
-    FRAME_BEGIN;
-    int glyphLast = 0;
-    uint32_t codepoint = *text++;
-    x = std::floor(x);
-    y = std::floor(y);
-
-    while (codepoint) {
-        Glyph *glyph = Font_GetGlyph(self, codepoint);
-        if (glyph) {
-            if (glyphLast)
-                x += Font_GetKerning(self, glyphLast, glyph->index);
-            float x0 = (float)(x + glyph->x0);
-            float y0 = (float)(y + glyph->y0);
-            float x1 = (float)(x + glyph->x1);
-            float y1 = (float)(y + glyph->y1);
-
-            // ToDO: Shader supported Draw
-            //PhxShader::SetTex2D("glyph", glyph->tex);
-            UIDraw::DrawText(glyph->Texture, 0, x0, y0, x1, y1, {});
-
-            x += glyph->advance;
-            glyphLast = glyph->index;
-        } else {
-            glyphLast = 0;
-        }
-        codepoint = *text++;
-    }
-
-    FRAME_END;
-}
-
 int Font::GetLineHeight(FontData *self) {
-    return self->handle->size->metrics.height >> 6;
+    return self->Handle->size->metrics.height >> 6;
 }
 
 void Font::GetSize(FontData *self, Vector4Di *out, const char * text) {
@@ -349,10 +122,10 @@ void Font::GetSize(FontData *self, Vector4Di *out, const char * text) {
     }
 
     while (codepoint) {
-        Glyph *glyph = Font_GetGlyph(self, codepoint);
+        Glyph *glyph = GetGlyph(self, codepoint);
         if (glyph) {
             if (glyphLast)
-                x += Font_GetKerning(self, glyphLast, glyph->index);
+                x += GetKerning(self, glyphLast, glyph->index);
             lower.x = std::min(lower.x, x + glyph->x0);
             lower.y = std::min(lower.y, y + glyph->y0);
             upper.x = std::max(upper.x, x + glyph->x1);
@@ -383,10 +156,10 @@ void Font::GetSize2(FontData *self, Vector2Di *out, const char * text) {
     int glyphLast = 0;
     uint32_t codepoint = *text++;
     while (codepoint) {
-        Glyph *glyph = Font_GetGlyph(self, codepoint);
+        Glyph *glyph = GetGlyph(self, codepoint);
         if (glyph) {
             if (glyphLast)
-                out->x += Font_GetKerning(self, glyphLast, glyph->index);
+                out->x += GetKerning(self, glyphLast, glyph->index);
             out->x += glyph->advance;
             out->y = std::max(out->y, -glyph->y0 + 1);
             glyphLast = glyph->index;
@@ -397,6 +170,74 @@ void Font::GetSize2(FontData *self, Vector2Di *out, const char * text) {
     }
 
     FRAME_END;
+}
+
+
+Glyph *Font::GetGlyph(FontData *self, uint32_t codepoint) {
+    if (codepoint < 256 && self->AsciiGlyphs[codepoint])
+        return self->AsciiGlyphs[codepoint];
+
+    //Glyph *g = (Glyph *)HashMap_Get(self->Glyphs, &codepoint);
+    Glyph *g = self->Glyphs[codepoint];
+    if (g) return g;
+
+    FT_Face face = self->Handle;
+    int glyph = FT_Get_Char_Index(face, codepoint);
+    if (glyph == 0)
+        return 0;
+    if (FT_Load_Glyph(face, glyph, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_RENDER))
+        return 0;
+
+    FT_Bitmap const *bitmap = &face->glyph->bitmap;
+    unsigned char const *pBitmap = bitmap->buffer;
+
+    /* Create a new glyph and fill out metrics. */ {
+        g = new Glyph();
+        g->index = glyph;
+        g->x0 = face->glyph->bitmap_left;
+        g->y0 = -face->glyph->bitmap_top;
+        g->sx = bitmap->width;
+        g->sy = bitmap->rows;
+        g->x1 = g->x0 + g->sx;
+        g->y1 = g->y0 + g->sy;
+        g->advance = face->glyph->advance.x >> 6;
+    }
+
+    vector<Vec4f> buffer(g->sx * g->sy);
+    vector<Vector4Df> buffer2(g->sx * g->sy);
+
+    /* Copy rendered bitmap into buffer. */ {
+        Vec4f *pBuffer = buffer.data();
+        Vector4Df *pBuffer2 = buffer2.data();
+        for (uint32_t dy = 0; dy < bitmap->rows; ++dy) {
+            for (uint32_t dx = 0; dx < bitmap->width; ++dx) {
+                float a = std::pow((float)(pBitmap[dx]) / 255.0f, kRcpGamma);
+                *pBuffer++ = Vec4f_Create(1.0f, 1.0f, 1.0f, a);
+                *pBuffer2++ = { 1.0f, 1.0f, 1.0f, a };
+            }
+            pBitmap += bitmap->pitch;
+        }
+    }
+
+    /* Upload to texture. */ {
+        g->Texture = Texture::Create({ (uint32_t)g->sx, (uint32_t)g->sy, TextureFormat::RGBA8, TextureDataType::Float }, buffer.data(), sizeof(buffer.data()));
+    }
+
+
+    /* Add to glyph cache. */
+    if (codepoint < 256) {
+        self->AsciiGlyphs[codepoint] = g;
+    } else {
+        //HashMap_Set(self->Glyphs, &codepoint, g);
+        self->Glyphs[codepoint] = g;
+    }
+    return g;
+}
+
+int Font::GetKerning(FontData *self, int a, int b) {
+    FT_Vector kern;
+    FT_Get_Kerning(self->Handle, a, b, FT_KERNING_DEFAULT, &kern);
+    return kern.x >> 6;
 }
 
 }

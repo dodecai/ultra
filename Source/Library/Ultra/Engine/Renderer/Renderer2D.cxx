@@ -11,11 +11,6 @@ import Ultra.Engine.Renderer.Texture;
 
 namespace Ultra {
 
-template<typename T>
-size_t sizeof_vector(const typename std::vector<T> &vec) {
-    return sizeof(T) * vec.size();
-}
-
 Scope<CommandBuffer> Renderer2D::sCommandBuffer = nullptr;
 
 struct RendererData {

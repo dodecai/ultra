@@ -145,13 +145,15 @@ public:
         Engine_Update();
     #else
         HmGui::Begin({ 1280, 1024 });
-        //ShowText();
+        HmGui::Test();
+
         ShowSimple();
         ShowMetrics(deltaTime);
         ShowToDoWindow();
         HmGui::End();
 
         mRenderer->RenderFrame();
+        HmGui::DrawUI();
         HmGui::Draw(mViewport);
     #endif
     }
@@ -159,24 +161,9 @@ public:
 
 #ifdef NATIVE_RENDERER
 #else
-    void ShowText() {
-        HmGui::BeginWindow("Test");
-        HmGui::BeginGroupX();
-        HmGui::Button(" < "); HmGui::SetStretch(0, 1);
-        HmGui::Button("Tab1");
-        HmGui::Button("Tab2");
-        HmGui::Button("Tab3");
-        HmGui::Button(" > "); HmGui::SetStretch(0, 1);
-        HmGui::EndGroup();
-        HmGui::BeginGroupX();
-        HmGui::Text("Text");
-        HmGui::EndGroup();
-        HmGui::EndWindow();
-    }
-
     void ShowMetrics(float deltaTime) {
         HmGui::BeginWindow("Metrics");
-        HmGui::BeginGroupX();
+        HmGui::BeginGroup(UI::Layout::Horizontal);
             HmGui::Text(std::format("fps: {:.2f}", 1.0f / deltaTime));
         HmGui::EndGroup();
         HmGui::EndWindow();
@@ -185,7 +172,7 @@ public:
     void ShowSimple() {
         HmGui::BeginWindow("Test");
 
-        HmGui::BeginGroupX();
+        HmGui::BeginGroup(UI::Layout::Horizontal);
             HmGui::Button(" < "); HmGui::SetStretch(0, 1);
             HmGui::Button("Tab1");
             HmGui::Button("Tab2");
@@ -194,8 +181,8 @@ public:
         HmGui::EndGroup();
         HmGui::SetStretch(1, 1);
 
-        HmGui::BeginGroupX();
-            HmGui::BeginGroupY();
+        HmGui::BeginGroup(UI::Layout::Horizontal);
+            HmGui::BeginGroup(UI::Layout::Vertical);
                 HmGui::SetPadding(4, 4);
                 HmGui::Text("Welcome to...");
                 HmGui::SetAlign(0.5, 0.5);
@@ -213,9 +200,9 @@ public:
                 HmGui::Button("Stretchy");
                 HmGui::SetStretch(1, 1);
 
-                HmGui::BeginGroupX();
+                HmGui::BeginGroup(UI::Layout::Horizontal);
                 for (auto i = 1; i < 3; i++) {
-                    HmGui::BeginGroupY();
+                    HmGui::BeginGroup(UI::Layout::Vertical);
                     for (auto j = 1; j < 3; j++) {
                         HmGui::Button(":)");
                     }
@@ -229,7 +216,7 @@ public:
             HmGui::SetStretch(1, 1);
 
 
-            HmGui::BeginGroupY();
+            HmGui::BeginGroup(UI::Layout::Vertical);
                 HmGui::SetPadding(4, 4);
                 if (HmGui::Button("-- OPT 1 --")) {
                     logger << "Opt 1!\n";
@@ -243,10 +230,10 @@ public:
             HmGui::SetAlign(0, 1.0);
             HmGui::SetStretch(1, 1);
 
-            HmGui::BeginGroupY();
+            HmGui::BeginGroup(UI::Layout::Vertical);
                 HmGui::SetPadding(4, 4);
                 for (auto i = 1; i < 9; i++) {
-                    HmGui::BeginGroupX();
+                    HmGui::BeginGroup(UI::Layout::Horizontal);
                     for (auto j = 1; j < i; j++) {
                         auto result = std::format("{}.{}", i, j);
                         HmGui::Button(result);
@@ -261,7 +248,7 @@ public:
         HmGui::SetStretch(1, 0);
 
         HmGui::Text("Behold, the codez! \\o/");
-        HmGui::BeginGroupX();
+        HmGui::BeginGroup(UI::Layout::Horizontal);
         for (auto i = 0; i < 2; i++) {
             HmGui::BeginScroll(200);
                 HmGui::PushTextColor({0.1f, 0.5f, 1.0f, 1.0f});
@@ -285,7 +272,7 @@ public:
         HmGui::SetSpacing(8);
         for (auto &[entry, list] : gCheckList) {
             HmGui::TextExtended(entry, { 1.0f, 1.0f, 1.0f, 1.0f }, mFontRajdhani);
-            HmGui::BeginGroupY();
+            HmGui::BeginGroup(Layout::Vertical);
             HmGui::SetSpacing(2);
             HmGui::SetPaddingLeft(12);
             for (auto &[key, value] : list) {

@@ -39,9 +39,12 @@ struct Padding {
     float Bottom {};
     float Right {};
 
-    explicit Padding(float x, float y):
-        Left(x), Right(x),
-        Top(y), Bottom(y) {
+    Padding() = default;
+    explicit Padding(float left, float top, float right, float buttom):
+        Left(left),
+        Top(top),
+        Right(right),
+        Bottom(buttom) {
     }
 };
 

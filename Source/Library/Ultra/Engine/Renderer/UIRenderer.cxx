@@ -14,13 +14,6 @@ import Ultra.Engine.Renderer.Texture;
 
 namespace Ultra {
 
-template<typename T>
-size_t sizeof_vector(const typename std::vector<T> &vec) {
-    return sizeof(T) * vec.size();
-}
-
-
-
 void ClipRect::Activate() {
     if (mCurrentIndex < 0) return;
     auto &current = mRectangle[mCurrentIndex];

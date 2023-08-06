@@ -120,4 +120,10 @@ constexpr Scope<T> CreateScope(Args && ... args) {
     return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
+// Vector SizeOf
+template<typename T>
+size_t sizeof_vector(const typename std::vector<T> &vec) {
+    return sizeof(T) * vec.size();
+}
+
 }
