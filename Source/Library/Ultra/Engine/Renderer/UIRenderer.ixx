@@ -38,14 +38,6 @@ struct Padding {
     float Top {};
     float Bottom {};
     float Right {};
-
-    Padding() = default;
-    explicit Padding(float left, float top, float right, float buttom):
-        Left(left),
-        Top(top),
-        Right(right),
-        Bottom(buttom) {
-    }
 };
 
 struct Position {

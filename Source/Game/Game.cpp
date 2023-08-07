@@ -141,19 +141,27 @@ public:
     }
 
     void Update([[maybe_unused]] Timestamp deltaTime) {
+        mFrames++;
+        mDeltaDelay += deltaTime;
+        if (mDeltaDelay > 1.0f) {
+            mFPS = mFrames;
+            mMSPF = 1000.0 / mFrames;
+            mFrames = 0;
+            mDeltaDelay = 0;
+        }
+
     #ifdef NATIVE_RENDERER
         Engine_Update();
-    #else
+    #else#
         HmGui::Begin({ 1280, 1024 });
-        HmGui::Test();
+        HmGui::ShowDemo();
 
         ShowSimple();
-        ShowMetrics(deltaTime);
+        ShowMetrics();
         ShowToDoWindow();
         HmGui::End();
 
         mRenderer->RenderFrame();
-        HmGui::DrawUI();
         HmGui::Draw(mViewport);
     #endif
     }
@@ -161,12 +169,15 @@ public:
 
 #ifdef NATIVE_RENDERER
 #else
-    void ShowMetrics(float deltaTime) {
+    void ShowMetrics() {
         HmGui::BeginWindow("Metrics");
-        HmGui::BeginGroup(UI::Layout::Horizontal);
-            HmGui::Text(std::format("fps: {:.2f}", 1.0f / deltaTime));
+        HmGui::BeginGroup(UI::Layout::Vertical);
+        HmGui::Text("Applicaiton Statistics");
+            HmGui::Text(std::format("frames/s: {:.2f}", mFPS));
+            HmGui::Text(std::format("ms/Frame: {:.2f}", mMSPF));
         HmGui::EndGroup();
         HmGui::EndWindow();
+        HmGui::SetAlign(1.0f, 1.0f);
     }
 
     void ShowSimple() {
@@ -179,6 +190,7 @@ public:
             HmGui::Button("Tab3");
             HmGui::Button(" > "); HmGui::SetStretch(0, 1);
         HmGui::EndGroup();
+        
         HmGui::SetStretch(1, 1);
 
         HmGui::BeginGroup(UI::Layout::Horizontal);
@@ -247,6 +259,7 @@ public:
         HmGui::EndGroup();
         HmGui::SetStretch(1, 0);
 
+
         HmGui::Text("Behold, the codez! \\o/");
         HmGui::BeginGroup(UI::Layout::Horizontal);
         for (auto i = 0; i < 2; i++) {
@@ -287,6 +300,7 @@ public:
         HmGui::BeginWindow("ToDo");
         ShowToDo();
         HmGui::EndWindow();
+        HmGui::SetAlign(1.0f, 0.0f);
     }
 #endif
 
@@ -294,6 +308,11 @@ private:
 #ifdef NATIVE_RENDERER
     Lua *mLua = nullptr;
 #else
+    double mFrames {};
+    double mFPS {};
+    double mMSPF {};
+    double mDeltaDelay {};
+
     Scope<Renderer> mRenderer;
     Scope<Viewport> mViewport;
 
