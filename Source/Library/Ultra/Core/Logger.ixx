@@ -138,7 +138,7 @@ inline ofstream &operator<<(ofstream &os, T level) {
 /// Contains the format, the location, the loglevel and timestamp.
 ///
 struct LogRecord {
-    LogRecord(const char *format, const LogLevel &level = LogLevel::Default, const string_view &timestamp = apptime.GetTimeStamp(), const SourceLocation &location = SourceLocation::Current()):
+    LogRecord(const char *format, const LogLevel &level = LogLevel::Default, const string_view &timestamp = ""/*apptime.GetTimeStamp()*/, const SourceLocation &location = SourceLocation::Current()):
         Format(format),
         Level(level),
         Location(location),
@@ -236,7 +236,7 @@ public:
     }
 
     const string &GetName() override { return mName; }
-    void SwitchColored() { mColored != mColored; }
+    void SwitchColored() { mColored = !mColored; }
 
 private:
     string mName {};
@@ -341,7 +341,7 @@ public:
                         break;
                     }
                     default: {
-                        auto timestamp = apptime.GetTimeStamp();
+                        auto timestamp = ""/*apptime.GetTimeStamp()*/;
                         *this << Cli::Color::Gray << timestamp << data;
                         break;
                     }
@@ -387,7 +387,7 @@ public:
         try {
             for (auto sink : mSinks) {
                 if (mColored) {
-                    mColored != mColored;
+                    mColored = !mColored;
                     sink->SwitchColored();
                 }
                 *sink << std::make_format_args(std::forward<T>(data));
@@ -502,7 +502,7 @@ public:
         if constexpr (std::is_same_v<T, LogLevel>) {
             if (data >= mLogLevel) {
                 mSkip = false;
-                auto timestamp = apptime.GetTimeStamp();
+                auto timestamp = ""/*apptime.GetTimeStamp()*/;
                 switch (data) {
                     case LogLevel::Fatal: {
                         mStream << std::format("{}{} {}[{: ^7}] ", Cli::Color::Gray, timestamp, Cli::Color::Red, "Fatal");
@@ -671,8 +671,8 @@ template<typename ...Args> void LogFatal(Args &&...args)    { logger << LogLevel
 
 // Global Specialization
 template <>
-struct std::formatter<Ultra::LogLevel, char> {
-    constexpr auto parse(format_parse_context &ctx) {
+struct std::formatter<Ultra::LogLevel> {
+    constexpr auto parse(std::format_parse_context &ctx) {
         if (auto it = std::ranges::find(ctx.begin(), ctx.end(), 'c'); it != ctx.end()) {
             mColored = true;
             return it;
@@ -680,7 +680,7 @@ struct std::formatter<Ultra::LogLevel, char> {
         return ctx.begin();
     }
 
-    auto format(const Ultra::LogLevel &level, std::format_context &ctx) {
+    auto format(const Ultra::LogLevel &level, std::format_context &ctx) const {
         if (mColored) {
             switch (level) {
                 case Ultra::LogLevel::Trace:   { return format_to(ctx.out(), " {}[ Trace ]{} ", Ultra::Cli::Color::LightMagenta, Ultra::Cli::Color::White); }
@@ -727,3 +727,4 @@ struct std::formatter<Ultra::LogLevel, char> {
 private:
     bool mColored = false;
 };
+

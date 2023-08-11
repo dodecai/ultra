@@ -177,3 +177,29 @@ premake.override(premake.vstudio.vc2010.elements, "clCompile", function(base, pr
 	end
 	return calls
 end)
+
+-- Visual Studio: Build STL Modules C++ 23
+require('vstudio')
+premake.api.register {
+  name = "buildstlmodules",
+  scope = "project",
+  kind = "boolean",
+}
+premake.override(premake.vstudio.vc2010.elements, "clCompile", function(base, prj)
+	local m = premake.vstudio.vc2010
+	local calls = base(prj)
+
+	if premake.project.iscpp(prj) then
+		if prj.cppmodules then
+			table.insertafter(calls, premake.xmlDeclaration,  function()
+				premake.w('<BuildStlModules>true</BuildStlModules>')
+			end)
+		else
+			table.insertafter(calls, premake.xmlDeclaration,  function()
+				premake.w('<BuildStlModules>false</BuildStlModules>')
+			end)
+		end
+		base(prj)
+	end
+	return calls
+end)

@@ -167,17 +167,18 @@ void Test() {
 
 }
 
-// Global Overrides
 export namespace std {
 
+// Overrides
 template <Ultra::Cli::typename_climodifier T>
-struct formatter<T, char> {
-    constexpr auto parse(format_parse_context &ctx) {
+struct formatter<T> {
+    template <typename FormatParseContext>
+    constexpr auto parse(FormatParseContext &ctx) -> decltype(ctx.begin()) {
         return ctx.begin();
     }
 
     template <typename FormatContext>
-    auto format(const T &modifier, FormatContext &ctx) {
+    auto format(const T &modifier, FormatContext &ctx) const {
         return format_to(ctx.out(), "\x1b[{:d}m", static_cast<int>(modifier));
     }
 };

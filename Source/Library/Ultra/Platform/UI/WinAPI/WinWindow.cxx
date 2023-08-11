@@ -304,7 +304,7 @@ WinWindow::~WinWindow() {
     // Ensure that the Window Class gets released
     if (ApplicationHandle) {
         if (!UnregisterClass(ConvertChar2WChar(Properties.ID).c_str(), ApplicationHandle)) {
-            logger << LogLevel::Error << "Could not unregister window class.\n";
+            LogError("Could not unregister window class.\n");
             Log(GetLastErrorAsString());
         }
     }
@@ -400,7 +400,7 @@ intptr_t WinWindow::Message(void *event) {
             if (DestroyWindow(WindowHandle)) {
                 WindowHandle = nullptr;
             } else {
-                logger << LogLevel::Error << "Could not release handle to window.\n";
+                LogError("Could not release handle to window.\n");
             }
 
             result = 0;

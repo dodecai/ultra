@@ -1,6 +1,6 @@
 ﻿# Ultra Spectra
 
-[Cpp-Badge]: https://img.shields.io/badge/C%2B%2B-20-blue
+[Cpp-Badge]: https://img.shields.io/badge/C%2B%2B-23-blue
 [C-Badge]: https://img.shields.io/badge/C-17-blue
 [License-Badge]: https://img.shields.io/badge/License-MIT-blue
 

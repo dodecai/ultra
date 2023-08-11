@@ -18,13 +18,8 @@
         },
     },
     ["Build"] = {
-        ["Projects"] = {
-            "Source/App/App.lua",
-            "Source/Library/Library.lua",
-            "Source/Spectra/Spectra.lua",
-            "Source/Test/Test.lua",
-        },
         "3rd-Party/3rd-Party.lua",
+        "Source/Library/Library.lua",
         "3rd-Party/Build/Modules.lua",
         "Prepare.bat",
         "Scripts/Prepare.ps1",

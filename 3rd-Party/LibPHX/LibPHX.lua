@@ -7,7 +7,7 @@
 	cppdialect "C++11"
     staticruntime "on"
     toolset "msc"
-    warnings "Default"
+    warnings "Off"
     defines { "_CRT_SECURE_NO_DEPRECATE", "WIN32_LEAN_AND_MEAN", "WINDOWS=1" }
     
     externalincludedirs {
@@ -61,14 +61,15 @@
 		systemversion "latest"
 
 project "libphx64"
-	kind "SharedLib"
+    kind "None"
+	--kind "SharedLib"
 	language "C++"
     characterset "MBCS"
     conformancemode "true"
     cdialect "C11"
 	cppdialect "C++11"
     toolset "msc"
-    warnings "Default"
+    warnings "Off"
     defines { "_CRT_SECURE_NO_DEPRECATE", "WIN32_LEAN_AND_MEAN", "WINDOWS=1", "LIBPHX_BUILDING=1" }
     buildoptions { "/MP", "/MD", "/EHs-c-", "/fp:fast", "/GL", "/GS-", "/GR-", "/arch:SSE2" }
     libdirs { "ext/lib/win64" }
