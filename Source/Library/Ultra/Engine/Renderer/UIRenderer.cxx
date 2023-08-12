@@ -174,7 +174,7 @@ void Rectangle::Draw() const {
 }
 
 void Text::Draw() const {
-    Font::Draw(mFont, mText.c_str(), mPosition.X, mPosition.Y, mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha);
+    mFont->Draw(mText.c_str(), mPosition.X, mPosition.Y, mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha);
 }
 
 

@@ -165,7 +165,7 @@ private:
 
 class Text: public UIElement {
 public:
-    Text(Position position, Size size, const string &text, Color color, FontData *font):
+    Text(Position position, Size size, const string &text, Color color, Font *font):
         UIElement(position, size), mText(text), mColor(color), mFont(font) {
     }
     ~Text() = default;
@@ -175,7 +175,7 @@ public:
 private:
     Color mColor;
     string mText;
-    FontData *mFont;
+    Font *mFont;
 };
 
 ///
@@ -517,7 +517,7 @@ public:
     static void Image(const Position &position, const Size &size, Texture *image) {
         mCurrentLayer->AddElement(CreateScope<Ultra::Image>(position, size, image));
     }
-    static void Text(const Position &position, const string &text, const Color &color, FontData *font) {
+    static void Text(const Position &position, const string &text, const Color &color, Font *font) {
         mCurrentLayer->AddElement(CreateScope<Ultra::Text>(position, Size {}, text.c_str(), color, font));
     }
 

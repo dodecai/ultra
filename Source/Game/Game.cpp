@@ -123,9 +123,9 @@ public:
 
         Resource::Instance();
 
-        mFontExo2Bold = Font::Load("Exo2Bold", 30);
-        mFontFiraMono = Font::Load("FiraMono", 10);
-        mFontRajdhani = Font::Load("Rajdhani", 18);
+        mFontExo2Bold = CreateScope<Font>("Exo2Bold", 30);
+        mFontFiraMono = CreateScope<Font>("FiraMono", 10);
+        mFontRajdhani = CreateScope<Font>("Rajdhani", 18);
     #endif
     }
 
@@ -134,9 +134,6 @@ public:
         Lua_Free(mLua);
         Engine_Free();
     #else
-        Font::Free(mFontExo2Bold);
-        Font::Free(mFontFiraMono);
-        Font::Free(mFontRajdhani);
     #endif
     }
 
@@ -200,7 +197,7 @@ public:
                 HmGui::SetAlign(0.5, 0.5);
 
                 HmGui::PushTextColor({ 1.0f, 0.0f, 0.3f, 1.0f });
-                HmGui::PushFont(mFontExo2Bold);
+                HmGui::PushFont(mFontExo2Bold.get());
                 HmGui::Text("~ Hybrid Mode ~");
                 HmGui::PopStyle(2);
                 HmGui::SetAlign(0.5, 0.5);
@@ -260,12 +257,12 @@ public:
         HmGui::SetStretch(1, 0);
 
 
-        HmGui::Text("Behold, the codez! \\o/");
+        HmGui::Text("水 Behold, the codez! \\o/");
         HmGui::BeginGroup(UI::Layout::Horizontal);
         for (auto i = 0; i < 2; i++) {
             HmGui::BeginScroll(200);
                 HmGui::PushTextColor({0.1f, 0.5f, 1.0f, 1.0f});
-                HmGui::PushFont(mFontFiraMono);
+                HmGui::PushFont(mFontFiraMono.get());
                 auto lines = String::Split(gCodeExample, '\n');
                 for (auto &line : lines) {
                     HmGui::Text(line);
@@ -284,7 +281,7 @@ public:
         HmGui::BeginScroll(256);
         HmGui::SetSpacing(8);
         for (auto &[entry, list] : gCheckList) {
-            HmGui::TextExtended(entry, { 1.0f, 1.0f, 1.0f, 1.0f }, mFontRajdhani);
+            HmGui::TextExtended(entry, { 1.0f, 1.0f, 1.0f, 1.0f }, mFontRajdhani.get());
             HmGui::BeginGroup(Layout::Vertical);
             HmGui::SetSpacing(2);
             HmGui::SetPaddingLeft(12);
@@ -316,9 +313,9 @@ private:
     Scope<Renderer> mRenderer;
     Scope<Viewport> mViewport;
 
-    FontData *mFontExo2Bold = nullptr;
-    FontData *mFontFiraMono = nullptr;
-    FontData *mFontRajdhani = nullptr;
+    Scope<Font> mFontExo2Bold = nullptr;
+    Scope<Font> mFontFiraMono = nullptr;
+    Scope<Font> mFontRajdhani = nullptr;
 #endif
 };
 

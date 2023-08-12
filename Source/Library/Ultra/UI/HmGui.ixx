@@ -123,7 +123,7 @@ struct HmGuiRect: public HmGuiWidget {
 struct HmGuiText: public HmGuiWidget {
     string Text {};
     Color Color {};
-    FontData *Font {};
+    Font *Font {};
 };
 
 ///
@@ -143,7 +143,7 @@ struct HmGuiData {
 struct HmGuiStyle {
     HmGuiStyle *Previous {};
 
-    FontData *Font {};
+    Font *Font {};
 
     float Spacing {};
 
@@ -220,7 +220,7 @@ struct UIStyle {
     Color ColorFrame {};
     Color ColorText {};
 
-    FontData *Font {};
+    Font *Font {};
 
     float Spacing {};
 };
@@ -359,7 +359,7 @@ public:
     ~UIText() = default;
 
     string Text {};
-    FontData *Font {};
+    Font *Font {};
 };
 
 
@@ -811,7 +811,7 @@ public:
     HmGui() {
         // From Begin init
         mUIManager = CreateScope<UIManager>();
-        mUIManager->GetRoot()->Style.Font = Font::Load("Rajdhani", 14);
+        mUIManager->GetRoot()->Style.Font = new Font("Rajdhani", 14);
         mUIManager->GetRoot()->Style.Spacing = 6;
         mUIManager->GetRoot()->Style.ColorPrimary = { 0.1f, 0.5f, 1.0f, 1.0f };
         mUIManager->GetRoot()->Style.ColorFrame = { 0.1f, 0.1f, 0.1f, 0.5f };
@@ -1185,7 +1185,7 @@ public:
 
             self.style = new HmGuiStyle();
             self.style->Previous = nullptr;
-            self.style->Font = Font::Load("Rajdhani", 14);
+            self.style->Font = new Font("Rajdhani", 14);
             self.style->Spacing = 6;
 
             self.style->ColorPrimary = { 0.1f, 0.5f, 1.0f, 1.0f };
@@ -1399,15 +1399,14 @@ public:
     static void TextColored(string_view text, const Color &color) {
         TextExtended(text, color, self.style->Font);
     }
-    static void TextExtended(string_view text, const Color &color, FontData *Font) {
+    static void TextExtended(string_view text, const Color &color, Font *font) {
         HmGuiText *e = new HmGuiText();
         InitWidget(e, ControlType::Text);
         e->Text = text;
         e->Color = color;
-        e->Font = Font;
-        Vector2Di size;
-        Font::GetSize2(e->Font, &size, e->Text.c_str());
-        e->MinSize = { (float)size.x, (float)size.y };
+        e->Font = font;
+        auto size = e->Font->GetSize(e->Text.c_str());
+        e->MinSize = { (float)size.X, (float)size.Y };
         SetAlign(0.0f, 1.0f);
     }
 
@@ -1460,7 +1459,7 @@ public:
         self.last->Stretch = { x, y };
     }
 
-    static void PushFont(FontData *Font) {
+    static void PushFont(Font *Font) {
         PushStyle();
         self.style->Font = Font;
     }

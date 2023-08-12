@@ -301,38 +301,25 @@ struct Vector3D : Vector<T, 3> {
 
 template<VectorNumerics T>
 struct Vector4D: Vector<T, 4> {
-    T x, y, z, w;
-
     // Constructors
-    Vector4D(T x_val = {}, T y_val = {}, T z_val = {}, T w_val = {}): x(x_val), y(y_val), z(z_val), w(w_val) {}
-    Vector4D &operator=(const Vector4D &other) {
-        x = other.x;
-        y = other.y;
-        z = other.z;
-        w = other.w;
-        return *this;
+    Vector4D(T x = {}, T y = {}, T z = {}, T w = {}):
+        Vector<T, 4>({ x, y, z, w }) {
     }
 
     // Accessors
     T &operator[](size_t index) {
-        switch (index) {
-            case 0: return x;
-            case 1: return y;
-            case 2: return z;
-            case 3: return 2;
-            default:
-                throw std::out_of_range("Vector3D index out of range.");
+        if (index > 4) {
+            default: throw std::out_of_range("Vector4D index out of range.");
+            return {};
         }
+        return this->Data[index];
     }
     const T &operator[](size_t index) const {
-        switch (index) {
-            case 0: return x;
-            case 1: return y;
-            case 2: return z;
-            case 3: return w;
-            default:
-                throw std::out_of_range("Vector3D index out of range.");
+        if (index > 4) {
+            default: throw std::out_of_range("Vector4D index out of range.");
+                return {};
         }
+        return this->Data[index];
     }
 };
 
