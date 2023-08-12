@@ -1,8 +1,50 @@
 ﻿solutionitems {
     ["Assets"] = {
         ["Fonts"] = {
+            ["Dosis"] = {
+                "Assets/Fonts/Dosis/*",
+            },
+            ["Exo2"] = {
+                "Assets/Fonts/Exo2/*",
+            },
+            ["FiraMono"] = {
+                "Assets/Fonts/FiraMono/*",
+            },
+            ["Iceland"] = {
+                "Assets/Fonts/Iceland/*",
+            },
+            ["NovaFlat"] = {
+                "Assets/Fonts/NovaFlat/*",
+            },
+            ["NovaSquare"] = {
+                "Assets/Fonts/NovaSquare/*",
+            },
+            ["Oswald"] = {
+                "Assets/Fonts/Oswald/*",
+            },
+            ["Play"] = {
+                "Assets/Fonts/Play/*",
+            },
+            ["Rajdhani"] = {
+                "Assets/Fonts/Rajdhani/*",
+            },
             ["Roboto"] = {
                 "Assets/Fonts/Roboto/*",
+            },
+            ["Share"] = {
+                "Assets/Fonts/Share/*",
+            },
+            ["ShareTech"] = {
+                "Assets/Fonts/ShareTech/*",
+            },
+            ["ShareTechMono"] = {
+                "Assets/Fonts/ShareTechMono/*",
+            },
+            ["TitilliumWeb"] = {
+                "Assets/Fonts/TitilliumWeb/*",
+            },
+            ["Ubuntu"] = {
+                "Assets/Fonts/Ubuntu/*",
             },
         },
         ["Meshes"] = {

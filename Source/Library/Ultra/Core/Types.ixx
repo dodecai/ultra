@@ -37,9 +37,6 @@ export import <unordered_set>;
 export import <vector>;
 export import <utility>;
 
-// Extensions
-export import "Private/Types.h";
-
 ///
 /// @brief The following containers, literals and types are used quite often, therefore they are exposed under the root namespace.
 ///
@@ -88,6 +85,11 @@ using std::uint16_t;
 using std::uint32_t;
 using std::uint64_t;
 using std::uintptr_t;
+
+// Literals
+using namespace std::literals::chrono_literals;
+using namespace std::literals::string_literals;
+using namespace std::literals::string_view_literals;
 
 ///
 /// @brief The following definitions serve as replacement possibility.

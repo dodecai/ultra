@@ -26,7 +26,7 @@ public:
     Font(const string &font);
     ~Font();
 
-    static FontData *Load(const char *name, int size);
+    static FontData *Load(string_view name, int size);
     static void Free(FontData *);
 
     static void Draw(FontData *, const char *text, float x, float y, float r, float g, float b, float a);

@@ -52,10 +52,10 @@ struct FontData {
 };
 
 
-FontData *Font::Load(const char * name, int size) {
+FontData *Font::Load(string_view name, int size) {
     if (!mLibrary) FT_Init_FreeType(&mLibrary);
 
-    string path = Resource::GetPath(PhyResourceType::Font, name);
+    string path = Resource::GetPath(PhyResourceType::Font, name.data());
     FontData *data = new FontData();
 
     if (FT_New_Face(mLibrary, path.c_str(), 0, &data->Handle)) LogFatal("Font_Load: Failed to load font <%s> at <%s>", name, path);
