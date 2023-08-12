@@ -18,14 +18,34 @@ import Ultra.Engine.Renderer.Texture;
 ///
 export namespace Ultra {
 
-struct Glyph;
-struct FontData;
+struct Glyph {
+    size_t index;
+    int32_t advance;
+
+    int32_t x0;
+    int32_t y0;
+    int32_t x1;
+    int32_t y1;
+
+    int32_t sx;
+    int32_t sy;
+
+    Reference<Texture2D> Texture;
+};
+
+struct FontData {
+    FT_Face Handle;
+
+    Glyph *AsciiGlyphs[256];
+    unordered_map<uint32_t, Glyph *> Glyphs;
+};
 
 class Font {
 public:
-    Font(const string &font);
+    Font(string_view name, uint32_t size);
     ~Font();
 
+    // ToDo: Legacy
     static FontData *Load(string_view name, int size);
     static void Free(FontData *);
 
@@ -41,6 +61,7 @@ private:
 
 private:
     inline static FT_Library mLibrary = 0;
+    Scope<FontData> mData;
 
     // @Note : Gamma of 1.8 recommended by FreeType
     inline static const float kGamma = 1.8f;

@@ -7,49 +7,32 @@
 #include FT_GLYPH_H
 #include FT_BITMAP_H
 
-// ToDo: Check Profiler
-#define FRAME_BEGIN
-#define FRAME_END
-
 module Ultra.Engine.Font;
 
-import Ultra.Engine.Renderer.Texture;
 import Ultra.Engine.UIRenderer;
 import Ultra.Engine.Resource;
 
+/* TODO : Re-implement UTF-8 support */
+/* TODO : Atlas instead of individual textures. */
+
 namespace Ultra {
 
-Font::Font(const string &font) {
+Font::Font(string_view name, uint32_t size) {
+    if (!mLibrary) FT_Init_FreeType(&mLibrary);
+    auto path = Resource::GetPath(PhyResourceType::Font, name.data());
+    mData = CreateScope<FontData>();
+
+    if (FT_New_Face(mLibrary, path.c_str(), 0, &mData->Handle)) {
+        LogFatal("Failed to load font '{}' from {}!", name, path);
+        mData.reset();
+        return;
+    }
+    FT_Set_Pixel_Sizes(mData->Handle, 0, size);
 }
 
 Font::~Font() {
 }
 
-/* TODO : Re-implement UTF-8 support */
-/* TODO : Atlas instead of individual textures. */
-
-struct Glyph {
-    size_t index;
-
-    int32_t x0;
-    int32_t y0;
-    int32_t x1;
-    int32_t y1;
-    
-    int32_t sx;
-    int32_t sy;
-
-    int32_t advance;
-
-    Reference<Texture2D> Texture;
-};
-
-struct FontData {
-    FT_Face Handle;
-
-    Glyph *AsciiGlyphs[256];
-    unordered_map<uint32_t, Glyph *> Glyphs;
-};
 
 
 FontData *Font::Load(string_view name, int size) {
@@ -62,7 +45,6 @@ FontData *Font::Load(string_view name, int size) {
     FT_Set_Pixel_Sizes(data->Handle, 0, size);
 
     memset(data->AsciiGlyphs, 0, sizeof(data->AsciiGlyphs));
-    //self->Glyphs = HashMap_Create(sizeof(uint32_t), 16);
     return data;
 }
 
@@ -76,7 +58,6 @@ void Font::Free(FontData *self) {
 
 
 void Font::Draw(FontData *self, const char * text, float x, float y, float r, float g, float b, float a) {
-    FRAME_BEGIN;
     int glyphLast = 0;
     uint32_t codepoint = *text++;
     x = std::floor(x);
@@ -100,8 +81,6 @@ void Font::Draw(FontData *self, const char * text, float x, float y, float r, fl
         }
         codepoint = *text++;
     }
-
-    FRAME_END;
 }
 
 int Font::GetLineHeight(FontData *self) {
@@ -109,8 +88,8 @@ int Font::GetLineHeight(FontData *self) {
 }
 
 void Font::GetSize(FontData *self, Vector4Di *out, const char * text) {
-    FRAME_BEGIN;
-    int x = 0, y = 0;
+    int x = 0;
+    int y = 0;
     Vector2Di lower = { INT_MAX, INT_MAX };
     Vector2Di upper = { INT_MIN, INT_MIN };
 
@@ -139,7 +118,6 @@ void Font::GetSize(FontData *self, Vector4Di *out, const char * text) {
     }
 
     *out = { lower.x, lower.y, upper.x - lower.x, upper.y - lower.y };
-    FRAME_END;
 }
 
 ///
@@ -149,7 +127,6 @@ void Font::GetSize(FontData *self, Vector4Di *out, const char * text) {
 /// pos.y - (size.y + bound.y) / 2
 ///
 void Font::GetSize2(FontData *self, Vector2Di *out, const char * text) {
-    FRAME_BEGIN;
     out->x = 0;
     out->y = 0;
 
@@ -168,8 +145,6 @@ void Font::GetSize2(FontData *self, Vector2Di *out, const char * text) {
         }
         codepoint = *text++;
     }
-
-    FRAME_END;
 }
 
 

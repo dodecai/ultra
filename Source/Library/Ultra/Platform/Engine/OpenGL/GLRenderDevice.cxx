@@ -1,9 +1,7 @@
 ﻿module;
 
 #include <glad/gl.h>
-
-// ToDo: Enable this awesome feature until C++23 implementation is stable
-//#include <stacktrace>
+#include <stacktrace>
 
 module Ultra.Platform.Renderer.GLRenderDevice;
 
@@ -16,20 +14,38 @@ namespace Ultra {
 
 // Helpers
 static void GLMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
-    //std::stacktrace *trace = (std::stacktrace *)userParam;
+    auto &&stacktrace = ((std::stacktrace *)userParam)->current();
+    string line {};
+    if (stacktrace.size() >= 2) {
+        auto lastInternalEntry = std::ranges::find_if(stacktrace | std::views::drop(1), [](const auto &entry) {
+            auto &&view = entry.description();
+            return view.find("Ultra") != string_view::npos;
+        });
+
+        if (lastInternalEntry != stacktrace.end()) {
+            line = std::format("{}[Line: {}]", lastInternalEntry->source_file(), lastInternalEntry->source_line());
+        } else {
+            line = "StackTrace: There are no internal entries!";
+        }
+    } else {
+        line = "StackTrace: Empty!";
+    }
 
     switch (severity) {
         case GL_DEBUG_SEVERITY_HIGH:
-            LogError("Platform::OpenGL: {}", message); // "\n\t@{}" , (*trace)[2]
+            LogError("Platform::OpenGL: {}\n  @{}", message, line);
             break;
         case GL_DEBUG_SEVERITY_MEDIUM:
-            LogWarning("Platform::OpenGL: {}", message); // "\n\t@{}" , (*trace)[2]
+            LogWarning("Platform::OpenGL: {}\n  @{}", message, line);
             break;
         case GL_DEBUG_SEVERITY_LOW:
-            LogInfo("Platform::OpenGL: {}", message); // "\n\t@{}" , (*trace)[2]
+            LogInfo("Platform::OpenGL: {}\n  @{}", message, line);
             break;
         case GL_DEBUG_SEVERITY_NOTIFICATION:
-            LogTrace("Platform::OpenGL: {}", message); // "\n\t@{}" , (*trace)[2]
+            LogTrace("Platform::OpenGL: {}\n  @{}", message, line);
+            break;
+        case GL_DONT_CARE:
+            Log("Platform::OpenGL: {}\n  @{}", message, line);
             break;
     }
 }
@@ -45,9 +61,9 @@ void GLRenderDevice::Load() {
     glBindVertexArray(vao);
 
     // Debugging-Support
-    //std::stacktrace trace;
-    //glDebugMessageCallback(GLMessage, &trace);
-    glDebugMessageCallback(GLMessage, nullptr);
+    std::stacktrace trace;
+    glDebugMessageCallback(GLMessage, &trace);
+    //glDebugMessageCallback(GLMessage, nullptr);
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
@@ -57,8 +73,8 @@ void GLRenderDevice::Load() {
 
     // Anti-Aliasing Support
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-    glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
     glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);
+    glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
 
     // Clipping-Support (triangles drawn anti-clock-wize are the front face)
     glEnable(GL_CULL_FACE);
