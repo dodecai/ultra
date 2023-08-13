@@ -257,7 +257,7 @@ public:
         HmGui::SetStretch(1, 0);
 
 
-        HmGui::Text("水 Behold, the codez! \\o/");
+        HmGui::Text("水 Behöld, the codez! \\o/");
         HmGui::BeginGroup(UI::Layout::Horizontal);
         for (auto i = 0; i < 2; i++) {
             HmGui::BeginScroll(200);

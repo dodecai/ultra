@@ -19,15 +19,39 @@ concept VectorNumerics =
 ///
 template<VectorNumerics T, size_t N>
 struct Vector {
+    // Compile-Time Checks
     static_assert(N >= 2 && N <= 4, "Vector size must be between 2 and 4.");
-    array<T, N> Data {};
+    
+    // Types
+    struct EmptyType {};
+    using T1 = typename std::conditional_t<N >= 1, T, EmptyType>; // Left for future use, maybe needed
+    using T2 = typename std::conditional_t<N >= 2, T, EmptyType>;
+    using T3 = typename std::conditional_t<N >= 3, T, EmptyType>;
+    using T4 = typename std::conditional_t<N >= 4, T, EmptyType>;
 
-    // Assignment
+    // Properties
+    union {
+        struct {
+            T1 X;
+            T2 Y;
+            T3 Z;
+            T4 W;
+        };
+
+        array<T, N> Data;
+    };
+
+    // Default
+    Vector(const array<T, N> &data):
+        Data(data) {
+    }
+
+    // Operators
     T &operator[](size_t index) {
-        return Data[index];
+        return Data.at(index);
     }
     const T &operator[](size_t index) const {
-        return Data[index];
+        return Data.at(index);
     }
 
     // Comparisons
@@ -51,9 +75,6 @@ struct Vector {
 
     // Methods
     T Angle(const Vector &other) {
-        return std::acos(Dot(other) / (Length() * other.Length()));
-    }
-    T AngleBetween(const Vector &other) {
         return std::acos(Dot(other) / (Length() * other.Length()));
     }
     T AngleInDegrees(const Vector &other) {
@@ -94,7 +115,7 @@ struct Vector {
         }
         return result;
     }
-    T Length() {
+    T Length() const {
         return std::sqrt(SquaredLength());
     }
     Vector Lerp(const Vector &other, T factor) const {
@@ -219,82 +240,17 @@ private:
 
 template<VectorNumerics T>
 struct Vector2D: Vector<T, 2> {
-    T x, y;
-
     // Constructors
-    Vector2D(T x_val = {}, T y_val = {}): x(x_val), y(y_val) {}
-    Vector2D &operator=(const Vector2D &other) {
-        x = other.x;
-        y = other.y;
-        return *this;
+    Vector2D(T x = {}, T y = {}):
+        Vector<T, 2>({ x, y }) {
     }
-
-    // Accessors
-    T &operator[](size_t index) {
-        switch (index) {
-            case 0: return x;
-            case 1: return y;
-            default:
-                throw std::out_of_range("Vector2D index out of range.");
-        }
-    }
-    const T &operator[](size_t index) const {
-        switch (index) {
-            case 0: return x;
-            case 1: return y;
-            default:
-                throw std::out_of_range("Vector2D index out of range.");
-        }
-    }
-
 };
 
 template <VectorNumerics T>
 struct Vector3D : Vector<T, 3> {
-    T x, y, z;
-
     // Constructors
-    Vector3D(T x_val = {}, T y_val = {}, T z_val = {}): x(x_val), y(y_val), z(z_val) {}
-    Vector3D &operator=(const Vector3D &other) {
-        x = other.x;
-        y = other.y;
-        z = other.z;
-        return *this;
-    }
-
-    template <typename T>
-    Vector3D(const Vector<T, 3> &other)
-        : x(static_cast<float>(other[0])),
-        y(static_cast<float>(other[1])),
-        z(static_cast<float>(other[2])) {
-    }
-
-    // Accessors
-    T &operator[](size_t index) {
-        switch (index) {
-            case 0: return x;
-            case 1: return y;
-            case 2: return z;
-            default:
-                throw std::out_of_range("Vector3D index out of range.");
-        }
-    }
-    const T &operator[](size_t index) const {
-        switch (index) {
-            case 0: return x;
-            case 1: return y;
-            case 2: return z;
-            default:
-                throw std::out_of_range("Vector3D index out of range.");
-        }
-    }
-
-    Vector3D operator+(const Vector3D &other) const {
-        return Vector3D(x + other.x, y + other.y);
-    }
-
-    Vector3D operator*(const Vector3D &other) const {
-        return Vector3D(x * other.x, y * other.y);
+    Vector3D(T x = {}, T y = {}, T z = {}):
+        Vector<T, 3>({ x, y, z }) {
     }
 
 };
@@ -304,22 +260,6 @@ struct Vector4D: Vector<T, 4> {
     // Constructors
     Vector4D(T x = {}, T y = {}, T z = {}, T w = {}):
         Vector<T, 4>({ x, y, z, w }) {
-    }
-
-    // Accessors
-    T &operator[](size_t index) {
-        if (index > 4) {
-            default: throw std::out_of_range("Vector4D index out of range.");
-            return {};
-        }
-        return this->Data[index];
-    }
-    const T &operator[](size_t index) const {
-        if (index > 4) {
-            default: throw std::out_of_range("Vector4D index out of range.");
-                return {};
-        }
-        return this->Data[index];
     }
 };
 
@@ -335,8 +275,6 @@ using Vector4Dd = Vector4D<double>;
 using Vector2Df = Vector2D<float>;
 using Vector3Df = Vector3D<float>;
 using Vector4Df = Vector4D<float>;
-
-
 
 using Vector2Di = Vector2D<int32_t>;
 using Vector3Di = Vector3D<int32_t>;

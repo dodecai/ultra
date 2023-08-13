@@ -152,11 +152,11 @@ FontSize Font::GetSizeFull(const char *text) {
         Glyph *glyph = GetGlyph(codepoint);
         if (glyph) {
             if (glyphLast)
-                x += GetKerning(glyphLast, glyph->index);
-            lower.x = std::min(lower.x, x + glyph->x0);
-            lower.y = std::min(lower.y, y + glyph->y0);
-            upper.x = std::max(upper.x, x + glyph->x1);
-            upper.y = std::max(upper.y, y + glyph->y1);
+            x += GetKerning(glyphLast, glyph->index);
+            lower.X = std::min(lower.X, x + glyph->x0);
+            lower.Y = std::min(lower.Y, y + glyph->y0);
+            upper.X = std::max(upper.X, x + glyph->x1);
+            upper.Y = std::max(upper.Y, y + glyph->y1);
             x += glyph->advance;
             glyphLast = glyph->index;
         } else {
@@ -165,18 +165,18 @@ FontSize Font::GetSizeFull(const char *text) {
         codepoint = *text++;
     }
 
-    return { lower.x, lower.y, upper.x - lower.x, upper.y - lower.y };
+    return { lower[0], lower[1], upper[0] - lower[0], upper[1] - lower[1] };
 }
 
 
-Glyph *Font::GetGlyph(uint32_t character) {
-    if (character < 256 && mData->AsciiGlyphs[character]) return mData->AsciiGlyphs[character];
+Glyph *Font::GetGlyph(uint32_t codepoint) {
+    if (codepoint < 256 && mData->AsciiGlyphs[codepoint]) return mData->AsciiGlyphs[codepoint];
 
-    Glyph *g = mData->Glyphs[character];
+    Glyph *g = mData->Glyphs[codepoint];
     if (g) return g;
 
     FT_Face face = mData->Handle;
-    int glyph = FT_Get_Char_Index(face, character);
+    int glyph = FT_Get_Char_Index(face, codepoint);
     if (glyph == 0) return 0;
     if (FT_Load_Glyph(face, glyph, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_RENDER)) return 0;
 
@@ -184,44 +184,36 @@ Glyph *Font::GetGlyph(uint32_t character) {
     unsigned char const *pBitmap = bitmap->buffer;
 
     // Create a new glyph and fill out metrics
-    {
-        g = new Glyph();
-        g->index = glyph;
-        g->advance = face->glyph->advance.x >> 6;
-        g->x0 = face->glyph->bitmap_left;
-        g->y0 = -face->glyph->bitmap_top;
-        g->sx = bitmap->width;
-        g->sy = bitmap->rows;
-        g->x1 = g->x0 + g->sx;
-        g->y1 = g->y0 + g->sy;
-    }
+    g = new Glyph();
+    g->index = glyph;
+    g->advance = face->glyph->advance.x >> 6;
+    g->x0 = face->glyph->bitmap_left;
+    g->y0 = -face->glyph->bitmap_top;
+    g->sx = bitmap->width;
+    g->sy = bitmap->rows;
+    g->x1 = g->x0 + g->sx;
+    g->y1 = g->y0 + g->sy;
 
-    vector<Vector4D<float>> buffer {};
+    vector<Vector4Df> buffer {};
     buffer.reserve(g->sx * g->sy);
 
     // Copy rendered bitmap into buffer
-    {
-        for (uint32_t dy = 0; dy < bitmap->rows; ++dy) {
-            for (uint32_t dx = 0; dx < bitmap->width; ++dx) {
-                float a = std::pow((float)(pBitmap[dx]) / 255.0f, kRcpGamma);
-                buffer.push_back({ 1.0f, 1.0f, 1.0f, a });
-            }
-            pBitmap += bitmap->pitch;
+    for (uint32_t dy = 0; dy < bitmap->rows; ++dy) {
+        for (uint32_t dx = 0; dx < bitmap->width; ++dx) {
+            float a = std::pow((float)(pBitmap[dx]) / 255.0f, kRcpGamma);
+            buffer.push_back({ 1.0f, 1.0f, 1.0f, a });
         }
+        pBitmap += bitmap->pitch;
     }
 
     // Upload to texture
-    {
-        g->Texture = Texture::Create({ (uint32_t)g->sx, (uint32_t)g->sy, TextureFormat::RGBA8, TextureDataType::Float }, buffer.data(), sizeof(buffer.data()) * sizeof(float));
-    }
-
+    g->Texture = Texture::Create({ (uint32_t)g->sx, (uint32_t)g->sy, TextureFormat::RGBA8, TextureDataType::Float }, buffer.data(), sizeof(buffer.data()) * sizeof(float));
 
     // Add to glyph cache
-    if (character < 256) {
-        mData->AsciiGlyphs[character] = g;
+    if (codepoint < 256) {
+        mData->AsciiGlyphs[codepoint] = g;
     } else {
-        //HashMap_Set(self->Glyphs, &character, g);
-        mData->Glyphs[character] = g;
+        mData->Glyphs[codepoint] = g;
     }
     return g;
 }

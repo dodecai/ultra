@@ -1317,10 +1317,8 @@ public:
     static void EndScroll() {
         HmGuiData *data = GetData(self.group);
         if (GroupHasFocus(FocusType::Scroll)) {
-            Vector2Di scroll; //Input_GetMouseScroll(&scroll);
             auto delta = Input::GetMouseWheelDelta();
-            scroll.y = delta;
-            data->Offset.Y -= 10.0f * scroll.y;
+            data->Offset.Y -= 10.0f * delta;
         }
 
         float maxScroll = std::max(0.0f, data->MinSize.Height - data->Size.Height);
