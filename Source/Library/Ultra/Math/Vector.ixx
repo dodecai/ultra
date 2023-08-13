@@ -3,6 +3,9 @@
 import <numbers>;
 import Ultra.Core;
 
+///
+/// @brief Vector
+///
 export namespace Ultra {
 
 // Concepts
@@ -240,7 +243,7 @@ private:
 
 template<VectorNumerics T>
 struct Vector2D: Vector<T, 2> {
-    // Constructors
+    // Default
     Vector2D(T x = {}, T y = {}):
         Vector<T, 2>({ x, y }) {
     }
@@ -248,7 +251,7 @@ struct Vector2D: Vector<T, 2> {
 
 template <VectorNumerics T>
 struct Vector3D : Vector<T, 3> {
-    // Constructors
+    // Default
     Vector3D(T x = {}, T y = {}, T z = {}):
         Vector<T, 3>({ x, y, z }) {
     }
@@ -257,12 +260,11 @@ struct Vector3D : Vector<T, 3> {
 
 template<VectorNumerics T>
 struct Vector4D: Vector<T, 4> {
-    // Constructors
+    // Default
     Vector4D(T x = {}, T y = {}, T z = {}, T w = {}):
         Vector<T, 4>({ x, y, z, w }) {
     }
 };
-
 
 using Vector2Db = Vector2D<bool>;
 using Vector3Db = Vector3D<bool>;
@@ -283,5 +285,48 @@ using Vector4Di = Vector4D<int32_t>;
 using Vector2Du = Vector2D<uint32_t>;
 using Vector3Du = Vector3D<uint32_t>;
 using Vector4Du = Vector4D<uint32_t>;
+
+void TestVector() {
+    //// Create two 3D vectors for testing.
+    //Vector<int, 3> v1({ 1, 2, 3 });
+    //Vector<int, 3> v2({ 4, 5, 6 });
+
+    //// Test basic properties
+    //assert(v1[0] == 1 && v1[1] == 2 && v1[2] == 3);
+    //assert(v1.X == 1 && v1.Y == 2 && v1.Z == 3);
+
+    //// Test arithmetic operations
+    //auto sum = v1 + v2;
+    //assert(sum[0] == 5 && sum[1] == 7 && sum[2] == 9);
+
+    //auto diff = v2 - v1;
+    //assert(diff[0] == 3 && diff[1] == 3 && diff[2] == 3);
+
+    //auto prod = v1 * 2;
+    //assert(prod[0] == 2 && prod[1] == 4 && prod[2] == 6);
+
+    //// Test Dot product
+    //int dotProd = v1.Dot(v2);
+    //assert(dotProd == 32);  // 1*4 + 2*5 + 3*6
+
+    //// Test Cross product for 3D vectors
+    //auto crossProd = v1.Cross(v2);
+    //assert(crossProd[0] == -3 && crossProd[1] == 6 && crossProd[2] == -3);
+
+    //// Test normalization (will use a 2D vector for easier computation)
+    //Vector<double, 2> v3({ 3.0, 4.0 }); // A 3-4-5 right triangle
+    //auto normalized = v3.Normalize();
+    //double length = normalized.Length();
+    //assert(length > 0.99 && length < 1.01);  // Close enough to 1 for floating point precision
+
+    //// Test comparison
+    //assert((v1 <=> v2) == std::strong_ordering::less);
+
+    //// Test string conversion
+    //std::string v1Str = static_cast<std::string>(v1);
+    //assert(v1Str == "[ 1, 2, 3 ]");
+
+    //std::cout << "All tests passed!" << std::endl;
+}
 
 }

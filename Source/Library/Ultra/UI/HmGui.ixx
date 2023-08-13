@@ -931,8 +931,8 @@ public:
                     break;
                     auto *native = element->As<UIText>();
                     if constexpr (DrawGroupFrames) {
-                        UIDraw::DrawColor(0.5f, 0.2f, 0.2f, 0.5f);
-                        UIDraw::DrawBorder(1.0f, native->Position.X, native->Position.Y, native->Size.Width, native->Size.Height);
+                        UIRenderer::DrawColor(0.5f, 0.2f, 0.2f, 0.5f);
+                        UIRenderer::DrawBorder(1.0f, native->Position.X, native->Position.Y, native->Size.Width, native->Size.Height);
                     }
 
                     Position position = { native->Position.X, native->Position.Y + native->MinSize.Height };
@@ -982,8 +982,8 @@ public:
             }
         }
         if constexpr (DrawGroupFrames) {
-            UIDraw::DrawColor(0.2f, 0.2f, 0.2f, 0.5f);
-            UIDraw::DrawBorder(2.0f, current->Position.X, current->Position.Y, current->Size.Width, current->Size.Height);
+            UIRenderer::DrawColor(0.2f, 0.2f, 0.2f, 0.5f);
+            UIRenderer::DrawBorder(2.0f, current->Position.X, current->Position.Y, current->Size.Width, current->Size.Height);
         }
 
         UIRenderer::EndLayer();
@@ -1403,8 +1403,7 @@ public:
         e->Text = text;
         e->Color = color;
         e->Font = font;
-        auto size = e->Font->GetSize(e->Text.c_str());
-        e->MinSize = { (float)size.X, (float)size.Y };
+        e->MinSize = e->Font->GetSize(e->Text);
         SetAlign(0.0f, 1.0f);
     }
 
@@ -1729,8 +1728,8 @@ private:
         }
 
         if constexpr (DrawGroupFrames) {
-            UIDraw::DrawColor(0.2f, 0.2f, 0.2f, 0.5f);
-            UIDraw::DrawBorder(2.0f, g->Position.X, g->Position.Y, g->Size.Width, g->Size.Height);
+            UIRenderer::DrawColor(0.2f, 0.2f, 0.2f, 0.5f);
+            UIRenderer::DrawBorder(2.0f, g->Position.X, g->Position.Y, g->Size.Width, g->Size.Height);
         }
 
         UIRenderer::EndLayer();
@@ -1755,8 +1754,8 @@ private:
     }
     static void DrawText(HmGuiText *e) {
         if constexpr (DrawGroupFrames) {
-            UIDraw::DrawColor(0.5f, 0.2f, 0.2f, 0.5f);
-            UIDraw::DrawBorder(1.0f, e->Position.X, e->Position.Y, e->Size.Width, e->Size.Height);
+            UIRenderer::DrawColor(0.5f, 0.2f, 0.2f, 0.5f);
+            UIRenderer::DrawBorder(1.0f, e->Position.X, e->Position.Y, e->Size.Width, e->Size.Height);
         }
 
         Position position = { e->Position.X, e->Position.Y + e->MinSize.Height };

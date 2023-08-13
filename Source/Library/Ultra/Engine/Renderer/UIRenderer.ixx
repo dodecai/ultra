@@ -1,6 +1,8 @@
 ﻿
 export module Ultra.Engine.UIRenderer;
 
+export import Ultra.Engine.Renderer.Data;
+
 import Ultra.Core;
 import Ultra.Engine.Renderer.CommandBuffer;
 import Ultra.Engine.Renderer.PipelineState;
@@ -26,28 +28,11 @@ struct Alignment {
     float Y {};
 };
 
-struct Color {
-    float Red {};
-    float Green {};
-    float Blue {};
-    float Alpha {};
-};
-
 struct Padding {
     float Left {};
     float Top {};
     float Bottom {};
     float Right {};
-};
-
-struct Position {
-    float X;
-    float Y;
-};
-
-struct Size {
-    float Width;
-    float Height;
 };
 
 struct Stretch {
@@ -59,15 +44,6 @@ struct Stretch {
 ///
 /// @brief Elements
 ///
-
-class UIDraw {
-public:
-    // Legacy
-    static void DrawBorder(float s, float x, float y, float w, float h);
-    static void DrawColor(float r, float g, float b, float a);
-    static void DrawRect(float x1, float y1, float xs, float ys);
-    static void DrawText(Reference<Texture> texture, int index, float x0, float y0, float x1, float y1, const Color &color);
-};
 
 class UIElement {
 public:
@@ -507,6 +483,14 @@ public:
         Instance().EndScene();
         Instance().mLayers.clear();
     }
+    
+    static void DrawBorder(float s, float x, float y, float w, float h) {
+        UIRenderer::Instance().DrawRectangle({ x, y, 0 }, { w, s });
+        UIRenderer::Instance().DrawRectangle({ x, y + h - s, 0 }, { w, s });
+        UIRenderer::Instance().DrawRectangle({ x, y + s, 0 }, { s, h - 2 * s });
+        UIRenderer::Instance().DrawRectangle({ x + w - s , y + s, 0 }, { s, h - 2 * s });
+    }
+    static void DrawColor(float r, float g, float b, float a);
 
     static void Panel(const Position &position, const Size &size, const Color &color, float bevel, float innerAlpha) {
         mCurrentLayer->AddPanel(CreateScope<Ultra::Panel>(position, size, color, bevel, innerAlpha));

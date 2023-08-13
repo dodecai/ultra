@@ -14,6 +14,50 @@ import Ultra.Engine.Renderer.Texture;
 
 namespace Ultra {
 
+// Helpers
+inline uint32_t DecodeUtf8(string_view::iterator &begin, string_view::iterator end) {
+    unsigned char byte = *begin;
+    uint32_t codepoint = 0;
+    int additionalBytes = 0;
+
+    // 1-Byte Character (ASCII)
+    if (byte <= 0x7F) {
+        codepoint = byte;
+    // 2-Byte Character
+    } else if ((byte & 0xE0) == 0xC0) {
+        codepoint = byte & 0x1F;
+        additionalBytes = 1;
+    // 3-Byte Character
+    } else if ((byte & 0xF0) == 0xE0) {
+        codepoint = byte & 0x0F;
+        additionalBytes = 2;
+    // 4-Byte Character
+    } else if ((byte & 0xF8) == 0xF0) {
+        codepoint = byte & 0x07;
+        additionalBytes = 3;
+    // Invalid UTF-8 start byte
+    } else {
+        begin++;
+        return 0xFFFD; // Unicode replacement character
+    }
+
+    begin++;
+
+    while (additionalBytes > 0) {
+        if (begin == end || (*begin & 0xC0) != 0x80) {
+            // Premature end or invalid UTF-8 continuation byte
+            return 0xFFFD; // Unicode replacement character
+        }
+
+        codepoint = (codepoint << 6) | (*begin & 0x3F);
+        begin++;
+        additionalBytes--;
+    }
+
+    return codepoint;
+}
+
+
 void ClipRect::Activate() {
     if (mCurrentIndex < 0) return;
     auto &current = mRectangle[mCurrentIndex];
@@ -121,40 +165,6 @@ bool ClipRect::Validate() {
 
 
 
-void UIDraw::DrawBorder(float s, float x, float y, float w, float h) {
-    UIRenderer::Instance().DrawRectangle({ x, y, 0 }, { w, s });
-    UIRenderer::Instance().DrawRectangle({ x, y + h - s, 0 }, { w, s });
-    UIRenderer::Instance().DrawRectangle({ x, y + s, 0 }, { s, h - 2 * s });
-    UIRenderer::Instance().DrawRectangle({ x + w - s , y + s, 0 }, { s, h - 2 * s });
-}
-
-void UIDraw::DrawColor(float r, float g, float b, float a) {
-    float alpha = 1.0f;
-    Vector4Df color = { 1, 1, 1, 1 };
-    color = { r, g, b, a };
-    glColor4f(r, g, b, a * alpha);
-}
-
-void UIDraw::DrawRect(float x1, float y1, float xs, float ys) {
-    float x2 = x1 + xs;
-    float y2 = y1 + ys;
-    glBegin(GL_QUADS);
-    glTexCoord2f(0, 0); glVertex2f(x1, y1);
-    glTexCoord2f(0, 1); glVertex2f(x1, y2);
-    glTexCoord2f(1, 1); glVertex2f(x2, y2);
-    glTexCoord2f(1, 0); glVertex2f(x2, y1);
-    glEnd();
-}
-
-void UIDraw::DrawText(Reference<Texture> texture, int index, float x0, float y0, float x1, float y1, const Color &color) {
-    float alpha = 1.0f;
-    float width = x1 - x0;
-    float height = y1 - y0;
-    UIRenderer::Instance().DrawRectangle({ x0, y0, 0 }, { width, height }, texture, { color.Red, color.Green, color.Blue, color.Alpha * alpha });
-}
-
-
-
 void Panel::Draw() const {
     const float pad = 64.0f;
     float x = mPosition.X - pad;
@@ -174,7 +184,28 @@ void Rectangle::Draw() const {
 }
 
 void Text::Draw() const {
-    mFont->Draw(mText.c_str(), mPosition.X, mPosition.Y, mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha);
+    auto x = std::floor(mPosition.X);
+    auto y = std::floor(mPosition.Y);
+
+    string_view view = mText;
+    auto begin = view.begin();
+    auto end = view.end();
+    uint32_t lastGlyph = 0;
+    while (begin != end) {
+        uint32_t codepoint = DecodeUtf8(begin, end);
+        auto *glyph = mFont->GetGlyph(codepoint);
+        if (!glyph) {
+            lastGlyph = 0;
+            continue;
+        }
+
+        if (lastGlyph) x += mFont->GetKerning(lastGlyph, glyph->UniqueID);
+        lastGlyph = glyph->UniqueID;
+
+        UIRenderer::Instance().DrawRectangle({ x + glyph->X, y + glyph->Y, 0.0f }, { glyph->Width, glyph->Height }, glyph->Texture, { mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha });
+
+        x += glyph->Advance;
+    }
 }
 
 
@@ -261,6 +292,14 @@ void UIRenderer::DrawRectangle(const glm::vec3 &position, const glm::vec2 &size,
     // ToDo: Implement Statistics
     Reset();
 }
+
+void UIRenderer::DrawColor(float r, float g, float b, float a) {
+    float alpha = 1.0f;
+    Vector4Df color = { 1, 1, 1, 1 };
+    color = { r, g, b, a };
+    glColor4f(r, g, b, a * alpha);
+}
+
 
 void UIRenderer::EndScene() {
     Reset();

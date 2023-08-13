@@ -14,7 +14,7 @@ import Ultra.Engine.Resource;
 namespace Ultra {
 
 // Helpers
-uint32_t DecodeUtf8(string_view::iterator &begin, string_view::iterator end) {
+inline uint32_t DecodeUtf8(string_view::iterator &begin, string_view::iterator end) {
     unsigned char byte = *begin;
     uint32_t codepoint = 0;
     int additionalBytes = 0;
@@ -73,107 +73,70 @@ Font::Font(string_view name, uint32_t size) {
 Font::~Font() {
 }
 
-void Font::Draw(string_view text, float x, float y, float r, float g, float b, float a) {
-    int glyphLast = 0;
-    x = std::floor(x);
-    y = std::floor(y);
-
-    if (text.find("Behold") != string_view::npos) {
-        auto test = text;
-    }
-
-    auto begin = text.begin();
-    auto end = text.end();
-
-    while (begin != end) {
-        uint32_t codepoint = DecodeUtf8(begin, end);
-        Glyph *glyph = GetGlyph(codepoint);
-        if (glyph) {
-            if (glyphLast) x += GetKerning(glyphLast, glyph->index);
-            float x0 = (float)(x + glyph->x0);
-            float y0 = (float)(y + glyph->y0);
-            float x1 = (float)(x + glyph->x1);
-            float y1 = (float)(y + glyph->y1);
-
-            UIDraw::DrawText(glyph->Texture, 0, x0, y0, x1, y1, { r, g, b, a });
-
-            x += glyph->advance;
-            glyphLast = glyph->index;
-        } else {
-            glyphLast = 0;
-        }
-    }
-}
 
 int Font::GetLineHeight() {
     return mData->Handle->size->metrics.height >> 6;
 }
 
-///
-/// @note: The height returned here is the maximal *ascender* height for the string. This allows easy centering of text while still allowing descending characters to look correct.
-/// To correctly center text, first compute bounds via this function, then draw it at:
-/// pos.x - (size.x - bound.x) / 2
-/// pos.y - (size.y + bound.y) / 2
-///
-FontSize Font::GetSize(const char *text) {
-    FontSize size {};
+Size Font::GetSize(string_view text) {
+    Size size {};
 
-    int glyphLast = 0;
-    uint32_t codepoint = *text++;
-    while (codepoint) {
-        Glyph *glyph = GetGlyph(codepoint);
-        if (glyph) {
-            if (glyphLast)
-                size.X += GetKerning(glyphLast, glyph->index);
-            size.X += glyph->advance;
-            size.Y = std::max(size.Y, -glyph->y0 + 1);
-            glyphLast = glyph->index;
-        } else {
-            glyphLast = 0;
+    auto begin = text.begin();
+    auto end = text.end();
+    uint32_t lastGlyph = 0;
+    while (begin != end) {
+        uint32_t codepoint = DecodeUtf8(begin, end);
+        auto *glyph = GetGlyph(codepoint);
+        if (!glyph) {
+            lastGlyph = 0;
+            continue;
         }
-        codepoint = *text++;
+
+        if (lastGlyph) size.Width += GetKerning(lastGlyph, glyph->UniqueID);
+        lastGlyph = glyph->UniqueID;
+
+        size.Width += glyph->Advance;
+        size.Height = std::max(size.Height, (float)-glyph->Y + 1.0f);
     }
     return size;
 }
 
-FontSize Font::GetSizeFull(const char *text) {
+FontSize Font::GetSizeFull(string_view text) {
     int x = 0;
     int y = 0;
     Vector2Di lower = { INT_MAX, INT_MAX };
     Vector2Di upper = { INT_MIN, INT_MIN };
 
-    int glyphLast = 0;
-    uint32_t codepoint = *text++;
-    if (!codepoint) {
-        return {};
-    }
+    auto begin = text.begin();
+    auto end = text.end();
+    uint32_t lastGlyph = 0;
 
-    while (codepoint) {
-        Glyph *glyph = GetGlyph(codepoint);
-        if (glyph) {
-            if (glyphLast)
-            x += GetKerning(glyphLast, glyph->index);
-            lower.X = std::min(lower.X, x + glyph->x0);
-            lower.Y = std::min(lower.Y, y + glyph->y0);
-            upper.X = std::max(upper.X, x + glyph->x1);
-            upper.Y = std::max(upper.Y, y + glyph->y1);
-            x += glyph->advance;
-            glyphLast = glyph->index;
-        } else {
-            glyphLast = 0;
+    while (begin != end) {
+        uint32_t codepoint = DecodeUtf8(begin, end);
+        auto *glyph = GetGlyph(codepoint);
+        if (!glyph) {
+            lastGlyph = 0;
+            continue;
         }
-        codepoint = *text++;
+
+        if (lastGlyph) x += GetKerning(lastGlyph, glyph->UniqueID);
+        lastGlyph = glyph->UniqueID;
+
+        lower.X = std::min(lower.X, x + glyph->X);
+        lower.Y = std::min(lower.Y, y + glyph->Y);
+        upper.X = std::max(upper.X, x + (glyph->X + glyph->Width));
+        upper.Y = std::max(upper.Y, y + (glyph->Y + glyph->Height));
+        x += glyph->Advance;
     }
 
-    return { lower[0], lower[1], upper[0] - lower[0], upper[1] - lower[1] };
+    return { (float)lower.X, (float)lower.Y, (float)upper.X - lower.X, (float)upper.Y - lower.Y };
 }
 
 
 Glyph *Font::GetGlyph(uint32_t codepoint) {
-    if (codepoint < 256 && mData->AsciiGlyphs[codepoint]) return mData->AsciiGlyphs[codepoint];
-
-    Glyph *g = mData->Glyphs[codepoint];
-    if (g) return g;
+    if (codepoint < 256 && mData->AsciiGlyphs[codepoint]) return mData->AsciiGlyphs[codepoint].get();
+    Glyph *hashed = mData->Glyphs[codepoint].get();
+    if (hashed) return hashed;
 
     FT_Face face = mData->Handle;
     int glyph = FT_Get_Char_Index(face, codepoint);
@@ -184,18 +147,16 @@ Glyph *Font::GetGlyph(uint32_t codepoint) {
     unsigned char const *pBitmap = bitmap->buffer;
 
     // Create a new glyph and fill out metrics
-    g = new Glyph();
-    g->index = glyph;
-    g->advance = face->glyph->advance.x >> 6;
-    g->x0 = face->glyph->bitmap_left;
-    g->y0 = -face->glyph->bitmap_top;
-    g->sx = bitmap->width;
-    g->sy = bitmap->rows;
-    g->x1 = g->x0 + g->sx;
-    g->y1 = g->y0 + g->sy;
-
+    auto g = CreateScope<Glyph>();
+    g->UniqueID = glyph;
+    g->Advance = face->glyph->advance.x >> 6;
+    g->Width = bitmap->width;
+    g->Height = bitmap->rows;
+    g->X = face->glyph->bitmap_left;
+    g->Y = -face->glyph->bitmap_top;
+    
     vector<Vector4Df> buffer {};
-    buffer.reserve(g->sx * g->sy);
+    buffer.reserve(g->Width * g->Height);
 
     // Copy rendered bitmap into buffer
     for (uint32_t dy = 0; dy < bitmap->rows; ++dy) {
@@ -207,20 +168,20 @@ Glyph *Font::GetGlyph(uint32_t codepoint) {
     }
 
     // Upload to texture
-    g->Texture = Texture::Create({ (uint32_t)g->sx, (uint32_t)g->sy, TextureFormat::RGBA8, TextureDataType::Float }, buffer.data(), sizeof(buffer.data()) * sizeof(float));
+    g->Texture = Texture::Create({ (uint32_t)g->Width, (uint32_t)g->Height, TextureFormat::RGBA8, TextureDataType::Float }, buffer.data(), sizeof(buffer.data()) * sizeof(float));
 
     // Add to glyph cache
     if (codepoint < 256) {
-        mData->AsciiGlyphs[codepoint] = g;
+        mData->AsciiGlyphs[codepoint] = std::move(g);
     } else {
-        mData->Glyphs[codepoint] = g;
+        mData->Glyphs[codepoint] = std::move(g);
     }
-    return g;
+    return g.get();
 }
 
-int Font::GetKerning(int a, int b) {
-    FT_Vector kern;
-    FT_Get_Kerning(mData->Handle, a, b, FT_KERNING_DEFAULT, &kern);
+int32_t Font::GetKerning(uint32_t leftGlyph, uint32_t rightGlyph) {
+    FT_Vector kern {};
+    FT_Get_Kerning(mData->Handle, leftGlyph, rightGlyph, FT_KERNING_DEFAULT, &kern);
     return kern.x >> 6;
 }
 

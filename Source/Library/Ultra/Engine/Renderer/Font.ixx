@@ -8,37 +8,8 @@ export module Ultra.Engine.Font;
 import Ultra.Core;
 import Ultra.Logger;
 import Ultra.Math;
-
+import Ultra.Engine.Renderer.Data;
 import Ultra.Engine.Renderer.Texture;
-
-///
-/// @brief Internal Types
-///
-namespace Ultra {
-
-struct Glyph {
-    size_t index;
-    int32_t advance;
-
-    int32_t x0;
-    int32_t y0;
-    int32_t x1;
-    int32_t y1;
-
-    int32_t sx;
-    int32_t sy;
-
-    Reference<Texture2D> Texture;
-};
-
-struct FontData {
-    FT_Face Handle;
-
-    Glyph *AsciiGlyphs[256];
-    unordered_map<uint32_t, Glyph *> Glyphs;
-};
-
-}
 
 ///
 /// @brief Font
@@ -46,10 +17,27 @@ struct FontData {
 export namespace Ultra {
 
 struct FontSize {
-    int X {};
-    int Y {};
-    int Width {};
-    int Height {};
+    Position Position;
+    Size Size;
+};
+
+struct Glyph {
+    size_t UniqueID;
+    int32_t Advance;
+
+    int32_t X;
+    int32_t Y;
+    int32_t Width;
+    int32_t Height;
+
+    Reference<Texture2D> Texture;
+};
+
+struct FontData {
+    FT_Face Handle;
+
+    array<Scope<Glyph>, 256> AsciiGlyphs {};
+    unordered_map<uint32_t, Scope<Glyph>> Glyphs;
 };
 
 class Font {
@@ -58,18 +46,20 @@ public:
     Font(string_view name, uint32_t size);
     ~Font();
 
-    // Methods
-    void Draw(string_view text, float x, float y, float r, float g, float b, float a);
-    
     // Accessors
     int GetLineHeight();
-    FontSize GetSize(const char *text);
-    FontSize GetSizeFull(const char *text);
+    ///
+    /// @note: The height returned here is the maximal *ascender* height for the string. This allows easy centering of text while still allowing descending characters to look correct.
+    /// To correctly center text, first compute bounds via this function, then draw it at:
+    /// pos.x - (size.x - bound.x) / 2
+    /// pos.y - (size.y + bound.y) / 2
+    ///
+    Size GetSize(string_view text);
+    FontSize GetSizeFull(string_view text);
 
-private:
     // Helpers
     Glyph *GetGlyph(uint32_t codepoint);
-    int GetKerning(int a, int b);
+    int32_t GetKerning(uint32_t leftGlyph, uint32_t rightGlyph);
 
 private:
     // Handles
