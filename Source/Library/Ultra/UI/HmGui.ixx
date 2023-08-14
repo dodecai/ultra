@@ -14,16 +14,6 @@ import Ultra.System.Input;
 ///
 export namespace Ultra::UI {
 
-enum class ControlType {
-    None,
-    Panel,
-    Image,
-    Line,
-    Rect,
-    Text,
-    Window,
-};
-
 enum class FocusStyle {
     None,
     Fill,
@@ -51,6 +41,19 @@ enum class Layout {
 /// @brief ToDo: Remove this legacy code
 ///
 namespace Ultra::UI {
+
+///
+/// @brief Enumerations and Types
+///
+enum class ControlType {
+    None,
+    Panel,
+    Image,
+    Line,
+    Rect,
+    Text,
+    Window,
+};
 
 ///
 /// @brief Containers
@@ -106,7 +109,7 @@ struct HmGuiGroup: public HmGuiWidget {
 struct HmGuiCursor: public HmGuiWidget {};
 
 struct HmGuiImage: public HmGuiWidget {
-    Texture *Image {};
+    Reference<Texture> Image {};
 };
 
 struct HmGuiLine: public HmGuiWidget {
@@ -207,16 +210,50 @@ CheckList gCheckList = {
 };
 
 ///
-/// @brief Custom UI Types
+/// @brief Base Types and Component Interface
 ///
 
-struct UIClipArea {
-    Position Lower {};
-    Position Upper {};
+enum class ComponentType {
+    // Containers
+    None,
+    Container,
+    Panel,
+    ScrollView,
+    Window,
+
+    // Controls
+    Button,
+    Cursor,
+    CheckBox,
+    ColorPicker,
+    Grid,
+    Image,
+    Input,
+    Label,
+    Selection,
+    Seperator,
+    Slider,
+    Table,
+
+    // Information
+    Badge,
+    Notification,
+    Tooltip,
+
+    // Navigation (multiple-controls)
+    MenuBar,
+    SideBar,
+    TabBar,
 };
 
-struct UIStyle {
+struct ClipArea {
+    Position TopLeft;
+    Position BottomRight;
+};
+
+struct Style {
     Color ColorPrimary {};
+    Color ColorSecondary {};
     Color ColorFrame {};
     Color ColorText {};
 
@@ -225,57 +262,14 @@ struct UIStyle {
     float Spacing {};
 };
 
-///
-/// @brief This class contains basic data for containers and controls.
-///
-class UIElement {
+class Component {
 public:
-    // Default
-    UIElement(const string &id):
+    Component(const string &id, const ComponentType &type):
         mID(id),
-        mHash(mHasher(id)) {
+        mHash(mHasher(id)),
+        Type(type) {
     }
-    virtual ~UIElement() = default;
-
-    // Methods
-    void AddChild(Scope<UIElement> child) {
-        child->mParent = this;
-        mChildren.push_back(std::move(child));
-    }
-    virtual void DebugPrint(size_t level = 0) const {
-        LogInfo("{}{}{} [ childs: {} ]", level == 0 ? "" : string(level * 2 - 2, ' '), level == 0 ? "" : "◌ ", mID, mChildren.size());
-        for (const auto &child : mChildren) {
-            child->DebugPrint(level + 1);
-        }
-    }
-
-    // Accessors
-    string GetID() {
-        return mID;
-    }
-    UIElement *GetElement(const std::string &id) {
-        if (mID == id) return this;
-        for (const auto &child : mChildren) {
-            if (auto result = child->GetElement(id)) {
-                return result;
-            }
-        }
-        return nullptr;
-    }
-    const vector<Scope<UIElement>> &GetElements() const {
-        return mChildren;
-    }
-    UIElement *GetFirstElement() {
-        if (mChildren.empty()) return nullptr;
-        return mChildren.front().get();
-    }
-    UIElement *GetLastElement() {
-        if (mChildren.empty()) return nullptr;
-        return mChildren.back().get();
-    }
-    UIElement *GetParent() const {
-        return mParent;
-    }
+    virtual ~Component() = default;
 
     // Converters
     template<typename T>
@@ -283,144 +277,197 @@ public:
         return dynamic_cast<T *>(this);
     }
 
-public:
-    ControlType Type { ControlType::None };
-
-    Ultra::Color Color { 1.0f, 1.0f, 1.0f, 1.0f };
-    Ultra::Position Position {};
-    Ultra::Size Size {};
-    UIStyle Style {};
-
-    Ultra::Size MinSize {};
-    Ultra::Alignment Alignment {};
-    Ultra::Stretch Stretch {};
+    // Accessors
+    const string &GetID() {
+        return mID;
+    }
 
 protected:
-    UIElement *mParent = nullptr;
     string mID;
     size_t mHash;
-    vector<Scope<UIElement>> mChildren;
+
+public:
+    Component *Parent {};
+    ComponentType Type {};
+
+    Color Color {};
+    Position Position {};
+    Size Size {};
+
+    // Transformation
+    Ultra::Padding Padding {};
+    Ultra::Position Offset {};
+    Ultra::Size MinSize {};
+    Ultra::Stretch Stretch {};
+
+    // States
+    bool Active {};
+    bool Clip {};
+    ClipArea ClipArea {};
+    float FrameOpacity {};
+    bool Visible { true };
+    float ZIndex {};
 
 private:
     std::hash<std::string> mHasher;
 };
 
 ///
-/// @brief This class contains the basic control data.
+/// @brief Controls
 ///
-class UIControl: public UIElement {
+
+class Control: public Component {
 public:
-    UIControl(const string &name):
-        UIElement(name) {
+    Control(const string &id, const ComponentType &type):
+        Component(id, type) {
     }
-    ~UIControl() = default;
+    virtual ~Control() = default;
+
+    // Methods
+    virtual void DebugPrint(int indent) const {
+        LogInfo("{}{}{}", indent == 0 ? "" : string(indent * 2, ' '), indent == 0 ? "" : "◌ ", mID);
+    }
+
+public:
+    array<bool, (int)FocusType::Size> Focused {};
+    array<bool, (int)FocusType::Size> Focusable {};
+    FocusStyle FocusStyle {};
 };
 
-
-struct UICursor: public UIControl {
-};
-
-struct UIImage: public UIControl {
+class Cursor: public Control {
 public:
-    UIImage(const string &name):
-        UIControl(name) {
+    Cursor(const string &id):
+        Control(id, ComponentType::Cursor) {
     }
-    ~UIImage() = default;
+    virtual ~Cursor() = default;
 
-    Texture *Image {};
-};
-
-struct UILine: public UIControl {
-public:
-    UILine(const string &name):
-        UIControl(name) {
-    }
-    ~UILine() = default;
-
-    Ultra::Position Start;
-    Ultra::Position Stop;
-};
-
-struct UIRect: public UIControl {
-public:
-    UIRect(const string &name):
-        UIControl(name) {
-    }
-    ~UIRect() = default;
-
+    Texture *Data {};
     bool Outline {};
 };
 
-struct UIText: public UIControl {
+class Button: public Control {
 public:
-    UIText(const string &name):
-        UIControl(name) {
+    Button(const string &id):
+        Control(id, ComponentType::Button) {
     }
-    ~UIText() = default;
+    virtual ~Button() = default;
 
-    string Text {};
+    // Methods
+    void DebugPrint(int indent) const override {
+        LogInfo("{}{}{} [ Text: '{}' ]", indent == 0 ? "" : string(indent * 2, ' '), indent == 0 ? "" : "◌ ", mID, Text);
+    }
+
+public:
     Font *Font {};
+    bool Outline {};
+    string Text {};
 };
 
-
-struct UIButton: public UIControl {
-    UIButton(const string &name):
-        UIControl(name) {
-    }
-    ~UIButton() = default;
-};
-
-struct UICheckBox: public UIControl {
-    UICheckBox(const string &name):
-        UIControl(name) {
-    }
-    ~UICheckBox() = default;
-};
-
-struct UILabel: public UIControl {
-    UILabel(const string &name):
-        UIControl(name) {
-    }
-    ~UILabel() = default;
-};
-
-struct UISlider: public UIControl {
-    UISlider(const string &name):
-        UIControl(name) {
-    }
-    ~UISlider() = default;
-};
-
-///
-/// @brief This class contains container data.
-///
-class UIScrollView;
-
-class UIContainer: public UIElement {
+class CheckBox: public Control {
 public:
-    UIContainer(const string &name):
-        UIElement(name) {
+    CheckBox(const string &id):
+        Control(id, ComponentType::CheckBox) {
     }
-    UIContainer(const Layout &layout, const string &name):
-        UIElement(name),
-        Layout(layout) {
+    virtual ~CheckBox() = default;
+
+    // Methods
+    void DebugPrint(int indent) const override {
+        LogInfo("{}{}{} [ Text: '{}' ]", indent == 0 ? "" : string(indent * 2, ' '), indent == 0 ? "" : "◌ ", mID, Text);
     }
-    ~UIContainer() = default;
 
-    // Factory
+public:
+    Font *Font {};
+    bool Outline {};
+    string Text {};
+    
+    Ultra::Position CheckInner {};
+    Ultra::Position CheckOuther {};
+};
 
-    UIContainer *CreateContainer(const Layout &layout = Layout::None, const string &id = "") {
-        string identifier = id.empty() ? std::format("Container#{}", sContainerCounter++) : id;
+class Label: public Control {
+public:
+    Label(const string &id):
+        Control(id, ComponentType::Label) {
+    }
+    virtual ~Label() = default;
 
-        UIElement *element = GetElement(identifier);
-        if (element) return element->As<UIContainer>();
+    // Methods
+    void DebugPrint(int indent) const override {
+        LogInfo("{}{}{} [ Text: '{}' ]", indent == 0 ? "" : string(indent * 2, ' '), indent == 0 ? "" : "◌ ", mID, Text);
+    }
 
-        auto container = CreateScope<UIContainer>(layout, identifier);
-        container->Type = ControlType::Panel;
+public:
+    Font *Font {};
+    bool Outline {};
+    string Text {};
+};
+
+class Seperator: public Control {
+public:
+    Seperator(const string &id):
+        Control(id, ComponentType::Seperator) {
+    }
+    virtual ~Seperator() = default;
+};
+
+struct Image: public Control {
+public:
+    Image(const string &id):
+        Control(id, ComponentType::Image) {
+    }
+    virtual ~Image() = default;
+
+public:
+    Texture *Data {};
+};
+
+class ScrollView: public Control {
+public:
+    ScrollView(const string &id):
+        Control(id, ComponentType::ScrollView) {
+    }
+    virtual ~ScrollView() = default;
+
+    // Methods
+    void DebugPrint(int indent) const override {
+        LogInfo("{}{}{} [ MaxHeight: {} ]", indent == 0 ? "" : string(indent * 2, ' '), indent == 0 ? "" : "◌ ", mID, MaxHeight);
+    }
+
+public:
+    float MaxHeight;
+};
+
+class Slider: public Control {
+public:
+    Slider(const string &id):
+        Control(id, ComponentType::Slider) {
+    }
+    virtual ~Slider() = default;
+};
+
+///
+/// @brief Containers
+///
+
+class Container: public Component {
+public:
+    Container(const string &id):
+        Component(id, ComponentType::Container) {
+    }
+    virtual ~Container() = default;
+
+    // Factory Methods
+    Container *CreateContainer(const Layout &layout = Layout::None, const string &id = "")  {
+        string identifier = id.empty() ? std::format("Container#{}", sContainerCounter++) : std::format("{}#{}", id, sContainerCounter++);
+
+        auto *component = GetChild(identifier);
+        if (component) return component->As<Container>();
+
+        auto container = CreateScope<Container>(identifier);
+        // ToDo: Default Properties
         container->Expand = true;
         container->MaxSize = { 1e30f, 1e30f };
         container->Spacing = this->Style.Spacing;
-        container->StoreSize = true;
         switch (layout) {
             case Layout::Stack:
                 container->Stretch = { 1.0f, 1.0f };
@@ -433,282 +480,236 @@ public:
                 break;
         }
 
-        UIContainer *result = container.get();
+        auto result = container.get();
         AddChild(std::move(container));
-
         return result;
     }
-    UIControl *CreateControl(const ControlType &type = ControlType::None) {
-        string id = std::format("Control#{}", sControlCounter++);
-
-        UIElement *element = GetElement(id);
-        if (element) return element->As<UIControl>();
-
-        Scope<UIControl> control;
-        switch (type) {
-            case ControlType::Image: {
-                control = std::make_unique<UIImage>(id);
-                break;
-            }
-            case ControlType::Line: {
-                control = std::make_unique<UILine>(id);
-                break;
-            }
-            case ControlType::Rect: {
-                control = std::make_unique<UIRect>(id);
-                break;
-            }
-            case ControlType::Text: {
-                control = std::make_unique<UIText>(id);
-                break;
-            }
-            default: {
-                control = std::make_unique<UIControl>(id);
-            }
-        }
-
-        UIControl *result = control.get();
-        AddChild(std::move(control));
-
-        return result;
-    }
-
-    UIButton *CreateButton(string_view text) {
+    Button *CreateButton(string_view text)  {
         string id = std::format("Button#{}", sButtonCounter++);
 
-        UIElement *element = GetElement(id);
-        if (element) return element->As<UIButton>();
+        auto *component = GetChild(id);
+        if (component) return component->As<Button>();
 
-        auto container = CreateScope<UIContainer>(Layout::Stack, id);
-        container->Type = ControlType::Panel;
-        container->FocusStyle = FocusStyle::Fill;
-        container->FrameOpacity = 0.5f;
-        container->Padding = { 8.0f, 8.0f, 8.0f, 8.0f };
-        bool focus = HasFocus(FocusType::Mouse) && Active;
+        auto button = CreateScope<Button>(id);
+        button->Text = text;
+        //button->Layout = Layout::Stack;
+        //button->Alignment = { 0.5f, 0.5f };
+        button->FocusStyle = FocusStyle::Fill;
+        button->FrameOpacity = 0.5f;
+        button->Padding = { 8.0f, 8.0f, 8.0f, 8.0f };
+        //bool focus = HasFocus(FocusType::Mouse) && Active;
 
-        auto label = container->CreateControl(ControlType::Text)->As<UIText>();
-        label->Type = ControlType::Text;
-        label->Alignment = { 0.5f, 0.5f };
-        label->Text = text;
-
-        auto *result = container->As<UIButton>();
-        AddChild(std::move(container));
-
+        auto result = button.get();
+        AddChild(std::move(button));
         return result;
     }
-    UICheckBox *CreateCheckBox(string_view text, bool value) {
+    CheckBox *CreateCheckBox(string_view text, bool value)  {
         string id = std::format("CheckBox#{}", sCheckBoxCounter++);
 
-        UIElement *element = GetElement(id);
-        if (element) return element->As<UICheckBox>();
+        auto *component = GetChild(id);
+        if (component) return component->As<CheckBox>();
 
-        auto container = CreateScope<UIContainer>(Layout::Horizontal, id);
-        container->Type = ControlType::Panel;
-        container->FocusStyle = FocusStyle::Underline;
-        if (HasFocus(FocusType::Mouse) && Active) value = !value;
-        container->Padding = { 4.0f, 4.0f, 4.0f, 4.0f };
-        container->Spacing = 8.0f;
-        container->Stretch = { 1.0f, 0.0f };
+        auto checkbox = CreateScope<CheckBox>(id);
+        checkbox->Text = text;
+        //checkbox->Layout = Layout::Horizontal;
+        checkbox->FocusStyle = FocusStyle::Underline;
+        //if (HasFocus(FocusType::Mouse) && Active) value = !value;
+        //checkbox->Alignment = { 0.0f, 0.5f };
+        checkbox->Padding = { 4.0f, 4.0f, 4.0f, 4.0f };
+        //checkbox->Spacing = 8.0f;
+        checkbox->Stretch = { 1.0f, 0.0f };
+        // ToDo: Default Properties
+        //auto canvas = checkbox->CreateContainer(Layout::Stack);
+        //
+        //auto rect = canvas->CreateControl(ControlType::Rect)->As<UIRectOld>();
+        //rect->Type = ControlType::Rect;
+        //rect->Color = this->Style.ColorFrame;
+        //rect->Size = { 16.0f, 16.0f };
+        //if (value) {
+        //    auto rect = canvas->CreateControl(ControlType::Rect)->As<UIRectOld>();
+        //    rect->Type = ControlType::Rect;
+        //    rect->Alignment = { 0.5f, 0.5f };
+        //    rect->Color = this->Style.ColorPrimary;
+        //    rect->Size = { 10.0f, 10.0f };
+        //}
 
-        auto label = container->CreateControl(ControlType::Text)->As<UIText>();
-        label->Type = ControlType::Text;
-        label->Alignment = { 0.0f, 0.5f };
-        label->Stretch = { 1.0f, 0.0f };
-        label->Text = text;
-
-        auto canvas = container->CreateContainer(Layout::Stack);
-
-        auto rect = canvas->CreateControl(ControlType::Rect)->As<UIRect>();
-        rect->Type = ControlType::Rect;
-        rect->Color = this->Style.ColorFrame;
-        rect->Size = { 16.0f, 16.0f };
-        if (value) {
-            auto rect = canvas->CreateControl(ControlType::Rect)->As<UIRect>();
-            rect->Type = ControlType::Rect;
-            rect->Alignment = { 0.5f, 0.5f  };
-            rect->Color = this->Style.ColorPrimary;
-            rect->Size = { 10.0f, 10.0f };
-        }
-        
-        auto *result = container->As<UICheckBox>();
-        AddChild(std::move(container));
-
+        auto result = checkbox.get();
+        AddChild(std::move(checkbox));
         return result;
     }
-    UIImage *CreateImage(string_view path) {
+    Image *CreateImage(string_view path)  {
         string id = std::format("Image#{}", sImageCounter++);
 
-        UIElement *element = GetElement(id);
-        if (element) return element->As<UIImage>();
+        auto *component = GetChild(id);
+        if (component) return component->As<Image>();
 
-        auto control = CreateScope<UIImage>(id);
-        control->Type = ControlType::Image;
-        control->Stretch = { 1.0f, 1.0f };
-        //control->Texture = texture;
+        auto image = CreateScope<Image>(id);
+        // ToDo: Default Properties
+        //auto control = CreateScope<UIImageOld>(id);
+        //control->Type = ControlType::Image;
+        //control->Stretch = { 1.0f, 1.0f };
+        ////control->Texture = texture;
 
-        auto *result = control.get();
-        AddChild(std::move(control));
-
+        auto result = image.get();
+        AddChild(std::move(image));
         return result;
     }
-    UILabel *CreateLabel(string_view text) {
+    Label *CreateLabel(string_view text)  {
         string id = std::format("Label#{}", sLabelCounter++);
 
-        UIElement *element = GetElement(id);
-        if (element) return element->As<UILabel>();
+        auto *component = GetChild(id);
+        if (component) return component->As<Label>();
 
-        auto label = CreateScope<UILabel>(id);
-        //label->Type = ControlType::Text;
-        label->Alignment = { 0.0f, 1.0f };
+        auto label = CreateScope<Label>(id);
+        label->Text = text;
+        //label->Alignment = { 0.0f, 1.0f };
         //label->Color = this->Style.Color;
-        //label->Font = this->Style.Font;
-        //label->Text = text;
-        
-        //Vector2Di size;
-        //Font::GetSize2(this->Style.Font, &size, text.data());
-        //label->MinSize = { (float)size.x, (float)size.y };
+        label->Font = this->Style.Font;
+        //auto size = label->Font->GetSize(text);
+        //label->MinSize = { (float)size.Width, (float)size.Height };
 
-        auto *result = label.get();
+        auto result = label.get();
         AddChild(std::move(label));
-
         return result;
     }
-    UIContainer *CreateScrollView(float maxHeight) {
+    Container *CreateScrollView(float maxHeight)  {
         string id = std::format("ScrollView#{}", sScrollViewCounter++);
 
-        UIElement *element = GetElement(id);
-        if (element) return element->As<UIContainer>();
-        
-        auto container = CreateScope<UIContainer>(Layout::Stack, id);
-        container->Type = ControlType::Panel;
+        auto *component = GetChild(id);
+        if (component) return component->As<Container>();
 
-        auto outer = container->CreateContainer(Layout::Horizontal);
-        outer->Type = ControlType::Panel;
-        outer->Clip = true;
-        outer->Stretch = { 1.0f, 1.0f };
-        outer->Spacing = 2.0f;
+        auto scrollview = CreateScope<Container>(id);
+        // ToDo: Default Properties
+        //auto container = CreateScope<UIContainerOld>(Layout::Stack, id);
+        //container->Type = ControlType::Panel;
+        //
+        //auto outer = container->CreateContainer(Layout::Horizontal);
+        //outer->Type = ControlType::Panel;
+        //outer->Clip = true;
+        //outer->Stretch = { 1.0f, 1.0f };
+        //outer->Spacing = 2.0f;
+        //
+        //auto inner = outer->CreateContainer(Layout::Vertical);
+        //outer->Type = ControlType::Panel;
+        //outer->Expand = false;
+        //outer->StoreSize = true;
+        //outer->MaxSize.Height = maxHeight;
 
-        auto inner = outer->CreateContainer(Layout::Vertical);
-        outer->Type = ControlType::Panel;
-        outer->Expand = false;
-        outer->StoreSize = true;
-        outer->MaxSize.Height = maxHeight;
-
-        auto *result = container->As<UIContainer>();
-        AddChild(std::move(container));
-
+        auto result = scrollview.get();
+        AddChild(std::move(scrollview));
         return result;
     }
-    UIContainer *CreateSlider(float value, float min = 0.0f, float max = 128.0f) {
-        string id = std::format("Label#{}", sSliderCounter++);
+    Slider *CreateSlider(float value, float min = 0.0f, float max = 128.0f)  {
+        string id = std::format("Slider#{}", sSliderCounter++);
 
-        UIElement *element = GetElement(id);
-        if (element) return element->As<UIContainer>();
+        auto *component = GetChild(id);
+        if (component) return component->As<Slider>();
 
-        auto container = CreateScope<UIContainer>(Layout::Stack, id);
-        container->Type = ControlType::Panel;
-        container->Alignment = { 0.5f, 0.5f };
-        container->Stretch = { 1.0f, 0.0f };
+        auto slider = CreateScope<Slider>(id);
+        // ToDo: Default Properties
+        //auto container = CreateScope<UIContainerOld>(Layout::Stack, id);
+        //container->Type = ControlType::Panel;
+        //container->Alignment = { 0.5f, 0.5f };
+        //container->Stretch = { 1.0f, 0.0f };
+        //
+        //auto rect = container->CreateControl(ControlType::Rect)->As<UIRectOld>();
+        //rect->Type = ControlType::Rect;
+        //rect->Color = { 0.5f, 0.5f, 0.5f, 1.0f };
+        //rect->Size = { 0.0f, 2.0f };
+        //
+        ////HmGuiData *data = GetData(self.group);
+        ////if (GroupHasFocus(FocusType::Scroll)) {
+        ////    Vector2Di scroll; //Input_GetMouseScroll(&scroll);
+        ////    auto delta = Input::GetMouseWheelDelta();
+        ////    scroll.y = delta;
+        ////    data->Offset.Y -= 10.0f * scroll.y;
+        ////}
+        //
+        ////float maxScroll = std::max(0.0f, data->MinSize.Height - data->Size.Height);
+        ////data->Offset.Y = std::clamp(data->Offset.Y, 0.0f, maxScroll);
+        //
+        ////EndGroup();
+        //
+        ////BeginGroup(Layout::Vertical);
+        ////SetStretch(0, 1);
+        ////SetSpacing(0);
+        ////if (maxScroll > 0) {
+        ////    float handleSize = data->Size.Height * (data->Size.Height / data->MinSize.Height);
+        ////    float handlePos = std::lerp(0.0f, data->Size.Height - handleSize, data->Offset.Y / maxScroll);
+        ////    Rectangle({ 4.0f, handlePos }, { 0.0f, 0.0f, 0.0f, 0.0f });
+        ////    Rectangle({ 4.0f, handleSize }, self.style->ColorFrame);
+        ////} else {
+        ////    Rectangle({ 4.0f, 16.0f }, { 0.0f, 0.0f, 0.0f, 0.0f });
+        ////}
 
-        auto rect = container->CreateControl(ControlType::Rect)->As<UIRect>();
-        rect->Type = ControlType::Rect;
-        rect->Color = { 0.5f, 0.5f, 0.5f, 1.0f };
-        rect->Size = { 0.0f, 2.0f };
-
-        //HmGuiData *data = GetData(self.group);
-        //if (GroupHasFocus(FocusType::Scroll)) {
-        //    Vector2Di scroll; //Input_GetMouseScroll(&scroll);
-        //    auto delta = Input::GetMouseWheelDelta();
-        //    scroll.y = delta;
-        //    data->Offset.Y -= 10.0f * scroll.y;
-        //}
-
-        //float maxScroll = std::max(0.0f, data->MinSize.Height - data->Size.Height);
-        //data->Offset.Y = std::clamp(data->Offset.Y, 0.0f, maxScroll);
-
-        //EndGroup();
-
-        //BeginGroup(Layout::Vertical);
-        //SetStretch(0, 1);
-        //SetSpacing(0);
-        //if (maxScroll > 0) {
-        //    float handleSize = data->Size.Height * (data->Size.Height / data->MinSize.Height);
-        //    float handlePos = std::lerp(0.0f, data->Size.Height - handleSize, data->Offset.Y / maxScroll);
-        //    Rectangle({ 4.0f, handlePos }, { 0.0f, 0.0f, 0.0f, 0.0f });
-        //    Rectangle({ 4.0f, handleSize }, self.style->ColorFrame);
-        //} else {
-        //    Rectangle({ 4.0f, 16.0f }, { 0.0f, 0.0f, 0.0f, 0.0f });
-        //}
-
-        auto *result = container.get();
-        AddChild(std::move(container));
-
+        auto result = slider.get();
+        AddChild(std::move(slider));
         return result;
-    }
-
-    // Events
-    bool HasFocus(const FocusType &type) {
-        Focusable[(int)type] = true;
-        return Focused[(int)type] == mHash;
-    }
-    void OnClick(const string &id) {
-        UIElement *element = GetElement(id);
-        if (element && element->GetParent()) {
-            MoveToTop(element->GetParent()->GetID());
-        }
     }
 
     // Methods
+    void AddChild(Scope<Component> child) {
+        child->Parent = this;
+        mChildren.push_back(std::move(child));
+    }
     void ComputeSize() {
-        for (const auto &child : mChildren) {
-            if (child->Type == ControlType::Window || child->Type == ControlType::Panel) {
-                //child->ComputeSize();
-            }
-        }
-        MinSize = { 0, 0 };
+        //for (const auto &child : mChildren) {
+        //    if (child->Type == ControlType::Window || child->Type == ControlType::Panel) {
+        //        //child->ComputeSize();
+        //    }
+        //}
+        //MinSize = { 0, 0 };
 
-        for (const auto &child : mChildren) {
-            switch (Layout) {
-                case Layout::Stack:
-                    //MinSize.Width = std::max(MinSize.Width, e->MinSize.Width);
-                    //MinSize.Height = std::max(MinSize.Height, e->MinSize.Height);
-                    break;
-                case Layout::Vertical:
-                    //MinSize.Width = std::max(MinSize.Width, e->MinSize.Width);
-                    //MinSize.Height += e->MinSize.Height;
-                    //if (e != Head) MinSize.Height += Spacing;
-                    break;
-                case Layout::Horizontal:
-                    //MinSize.Width += e->MinSize.Width;
-                    //MinSize.Height = std::max(MinSize.Height, e->MinSize.Height);
-                    //if (e != Head) MinSize.Width += Spacing;
-                    break;
-            }
-        }
+        //for (const auto &child : mChildren) {
+        //    switch (Layout) {
+        //        case Layout::Stack:
+        //            //MinSize.Width = std::max(MinSize.Width, e->MinSize.Width);
+        //            //MinSize.Height = std::max(MinSize.Height, e->MinSize.Height);
+        //            break;
+        //        case Layout::Vertical:
+        //            //MinSize.Width = std::max(MinSize.Width, e->MinSize.Width);
+        //            //MinSize.Height += e->MinSize.Height;
+        //            //if (e != Head) MinSize.Height += Spacing;
+        //            break;
+        //        case Layout::Horizontal:
+        //            //MinSize.Width += e->MinSize.Width;
+        //            //MinSize.Height = std::max(MinSize.Height, e->MinSize.Height);
+        //            //if (e != Head) MinSize.Width += Spacing;
+        //            break;
+        //    }
+        //}
 
-        MinSize.Width += Padding.Left + Padding.Right;
-        MinSize.Height += Padding.Top + Padding.Bottom;
+        //MinSize.Width += Padding.Left + Padding.Right;
+        //MinSize.Height += Padding.Top + Padding.Bottom;
 
-        if (StoreSize) {
-            //HmGuiData *data = GetData(g);
-            //data->MinSize = MinSize;
-        }
+        //if (StoreSize) {
+        //    //HmGuiData *data = GetData(g);
+        //    //data->MinSize = MinSize;
+        //}
 
-        MinSize.Width = std::min(MinSize.Width, MaxSize.Width);
-        MinSize.Height = std::min(MinSize.Height, MaxSize.Height);
+        //MinSize.Width = std::min(MinSize.Width, MaxSize.Width);
+        //MinSize.Height = std::min(MinSize.Height, MaxSize.Height);
     }
-
+    void DebugPrint(size_t level = 0) const {
+        LogInfo("{}{}{} [ childs: {} ]", level == 0 ? "" : string(level * 2 - 2, ' '), level == 0 ? "" : "◌ ", mID, mChildren.size());
+        for (const auto &child : mChildren) {
+            if (child->Type == ComponentType::Container) {
+                child->As<Container>()->DebugPrint(level + 1);
+            } else {
+                child->As<Control>()->DebugPrint(level);
+            }
+        }
+    }
     void MoveToTop(const string &id) {
-        auto it = std::find_if(mChildren.begin(), mChildren.end(), [&id](const auto &child) {
-            return child->GetID() == id;
-        });
-        if (it != mChildren.end()) {
-            std::rotate(it, it + 1, mChildren.end());
-        }
+        //auto it = std::find_if(mChildren.begin(), mChildren.end(), [&id](const auto &child) {
+        //    return child->GetID() == id;
+        //});
+        //if (it != mChildren.end()) {
+        //    std::rotate(it, it + 1, mChildren.end());
+        //}
     }
-    static void Reset() {
+    static void Update() {
         sContainerCounter = 0;
-        sControlCounter = 0;
         sButtonCounter = 0;
         sCheckBoxCounter = 0;
         sImageCounter = 0;
@@ -717,34 +718,67 @@ public:
         sSliderCounter = 0;
     }
 
-public:
-    // Layout
-    FocusStyle FocusStyle { FocusStyle::None };
-    Layout Layout { Layout::None };
-
-    // Transformation
-    Ultra::Position Offset {};
-    Ultra::Padding Padding {};
-    Ultra::Size MaxSize {};
-    Ultra::Stretch TotalStretch {};
+    // Accessors
+    Component *GetParent() {
+        return Parent;
+    }
+    Component *GetChild(const string &id) {
+        if (mID == id) return this;
+        for (const auto &child : mChildren) {
+            if (child->Type == ComponentType::Container) {
+                if (auto *const result = child->As<Container>()->GetChild(id)) {
+                    return result;
+                }
+            } else {
+                if (child->GetID() == id) {
+                    return child.get();
+                }
+            }
+        }
+        return nullptr;
+    }
+    vector<Scope<Component>> &GetChildren() {
+        return mChildren;
+    }
+    Component *GetFirstChild() {
+        if (mChildren.empty()) return nullptr;
+        return mChildren.front().get();
+    }
+    Component *GetLastChild() {
+        if (mChildren.empty()) return nullptr;
+        return mChildren.back().get();
+    }
 
     // States
-    bool Active {};
-    bool Clip {};
-    bool Expand {};
-    array<bool, (int)FocusType::Size> Focused {};
-    array<bool, (int)FocusType::Size> Focusable {};
+    bool HasFocus(const FocusType &type) {
+        //Focusable[(int)type] = true;
+        //return Focused[(int)type] == mHash;
+    }
+    void OnClick(const string &id) {
+        //UIElementOld *element = GetElement(id);
+        //if (element && element->GetParent()) {
+        //    MoveToTop(element->GetParent()->GetID());
+        //}
+    }
 
-    UIClipArea ClipArea {};
-    Ultra::Position FocusPosition {};
-    float FrameOpacity {};
+protected:
+    Container *mParent = nullptr;
+    vector<Scope<Component>> mChildren;
+
+public:
+    Layout Layout {};
+    Style Style {};
+
+    bool Expand { true };
     float Spacing {};
-    bool StoreSize {};
+
+    Alignment Aligment {};
+    Ultra::Size MaxSize { 1e30f, 1e30f };
+    Ultra::Stretch TotalStretch {};
 
 private:
-    // Counter
+    // Counter for ComponentIDs
     inline static size_t sContainerCounter {};
-    inline static size_t sControlCounter {};
     inline static size_t sButtonCounter {};
     inline static size_t sCheckBoxCounter {};
     inline static size_t sImageCounter {};
@@ -754,36 +788,35 @@ private:
 };
 
 ///
-/// @brief This class manages the UI Tree.
+/// @brief This class manages the UI layout.
 ///
-class UIManager {
+class UILayoutManager {
 public:
-    UIManager():
-        mRoot(CreateScope<UIContainer>("Root")) {
+    UILayoutManager():
+        mRoot(CreateScope<Container>("Root")) {
     }
-    ~UIManager() = default;
+    ~UILayoutManager() = default;
 
     // Accessors
-    UIElement *GetElement(const string &id) {
-        auto element = mRoot->GetElement(id);
-        return element;
-    }
-    UIElement *GetRoot() {
+    Container *GetRoot() {
         return mRoot.get();
+    }
+    Component *GetComponent(const string &id) {
+        auto element = mRoot->GetChild(id);
+        return element;
     }
 
     // Methods
-    void AddRootElement(Scope<UIElement> id) {
+    void AddContainer(Scope<Container> id) {
         mRoot->AddChild(std::move(id));
     }
     void DebugPrint(int level = 0) {
         mRoot->DebugPrint();
     }
 
-
 private:
-    Scope<UIElement> mRoot;
-    unordered_map<string, UIElement> mElements {};
+    Scope<Container> mRoot;
+    unordered_map<string, Component> mComponents {};
 };
 
 }
@@ -810,18 +843,21 @@ class HmGui {
 public:
     HmGui() {
         // From Begin init
-        mUIManager = CreateScope<UIManager>();
-        mUIManager->GetRoot()->Style.Font = new Font("Rajdhani", 14);
-        mUIManager->GetRoot()->Style.Spacing = 6;
-        mUIManager->GetRoot()->Style.ColorPrimary = { 0.1f, 0.5f, 1.0f, 1.0f };
-        mUIManager->GetRoot()->Style.ColorFrame = { 0.1f, 0.1f, 0.1f, 0.5f };
-        mUIManager->GetRoot()->Style.ColorText = { 1.0f, 1.0f, 1.0f, 1.0f };
+        mUILayout = CreateScope<UILayoutManager>();
+        auto *root = mUILayout->GetRoot();
+
+        root->Style.Font = new Font("Rajdhani", 14);
+        root->Style.Spacing = 6;
+        root->Style.ColorPrimary = { 0.1f, 0.5f, 1.0f, 1.0f };
+        root->Style.ColorSecondary = { 0.1f, 1.0f, 0.5f, 1.0f };
+        root->Style.ColorFrame = { 0.1f, 0.1f, 0.1f, 0.5f };
+        root->Style.ColorText = { 1.0f, 1.0f, 1.0f, 1.0f };
 
         // From Begin
-        mUIManager->GetRoot()->As<UIContainer>()->Active = Input::GetMouseButtonState(MouseButton::Left);
-        mUIManager->GetRoot()->As<UIContainer>()->Clip = true;
-        mUIManager->GetRoot()->As<UIContainer>()->Position = { 0, 0 };
-        mUIManager->GetRoot()->As<UIContainer>()->Size = {1280, 1024};
+        root->Active = Input::GetMouseButtonState(MouseButton::Left);
+        root->Clip = true;
+        root->Position = { 0.0f, 0.0f };
+        root->Size = { 1280.0f, 1024.0f };
     };
     ~HmGui() = default;
     static HmGui &Instance() {
@@ -832,27 +868,26 @@ public:
     /// @brief Creates a window or returns an existing window
     /// @param title Specify the window title.
     /// @return Returns a non owning pointer to the object.
-    static UIContainer *CreateWindow(string_view title) {
+    static Container *CreateWindow(string_view title) {
         string id = std::format("Window#{}", sWindowCounter++);
 
-        auto &manager = Instance().mUIManager;
-        auto element = manager->GetElement(id);
-        if (element) return element->As<UIContainer>();
+        auto &manager = Instance().mUILayout;
+        auto *component = manager->GetComponent(id);
+        if (component) return component->As<Container>();
 
-        auto window = CreateScope<UIContainer>(id);
-        auto *result = window.get();
+        auto window = CreateScope<Container>(id);
 
         // BeginWindow
-        window->Layout = Layout::Stack;
-        window->Type = ControlType::Window;
-        window->FrameOpacity = 0.97f;
+        //window->Layout = Layout::Stack;
+        //window->Type = ControlType::Window;
+        //window->FrameOpacity = 0.97f;
 
         // Title
-        auto titleBar = window->CreateContainer();
-        titleBar->Alignment = { 0.5f, 0.0f };
-        titleBar->Clip = true;
-        titleBar->Padding = { 8.0f, 8.0f, 8.0f, 8.0f };
-        titleBar->Stretch = { 1.0f, 1.0f };
+        //auto titleBar = window->CreateContainer();
+        //titleBar->Alignment = { 0.5f, 0.0f };
+        //titleBar->Clip = true;
+        //titleBar->Padding = { 8.0f, 8.0f, 8.0f, 8.0f };
+        //titleBar->Stretch = { 1.0f, 1.0f };
 
         //auto titleLabel = titleBar->CreateLabel(title);
         //titleLabel->Color = { 1.0f, 1.0f, 1.0f, 0.3f };
@@ -872,7 +907,8 @@ public:
 
         // ~BeginWindow
 
-        manager->AddRootElement(std::move(window));
+        auto *result = window.get();
+        manager->AddContainer(std::move(window));
         return result;
     }
 
@@ -880,56 +916,49 @@ public:
     //UIRenderer::Begin(viewport);
     //UIRenderer::End();
     //UIRenderer::Draw();
-    static void DrawUI(UIContainer *current = nullptr) {
+    static void DrawUI(Container *current = nullptr) {
         static bool once = true;
         if (once) {
-            Instance().mUIManager->DebugPrint();
-            once = false;
+            Instance().mUILayout->DebugPrint();
         }
 
-        auto &manager = Instance().mUIManager;
-        if (!current) current = manager->GetRoot()->As<UIContainer>();
-
+        auto &manager = Instance().mUILayout;
+        if (!current) current = manager->GetRoot();
+        
         UIRenderer::BeginLayer(current->Position, current->Size, current->Clip);
 
         // Draw Elements
-        for (const auto &element : current->GetElements()) {
+        for (auto &element : current->GetChildren()) {
             switch (element->Type) {
-                case ControlType::Window: [[falltrough]]
-                case ControlType::Panel: {
-                    DrawUI(element->As<UIContainer>());
+                case ComponentType::Window: [[falltrough]]
+                case ComponentType::Panel: [[falltrough]]
+                case ComponentType::Container: {
+                    const auto color = Color(0.1f, 0.12f, 0.13f, 1.0f);
+                    UIRenderer::Panel(current->Position, current->Size, color, 8.0f, current->FrameOpacity);
+                    DrawUI(element->As<Container>());
                     break;
                 }
-                case ControlType::Image: {
-                    break;
-                    auto *native = element->As<UIImage>();
-                    UIRenderer::Image(native->Position, native->Size, native->Image);
-                    break;
-                }
-                case ControlType::Line: {
-                    break;
-                    auto *native = element->As<UILine>();
-                    // ToDo: Check also line shader "vertex/ui" "fragment/ui/line"
-                    // ToDo: Additive BlendMode
-                    const float padding = 64.0f;
-                    float minX = std::min(native->Start.X, native->Stop.X) - padding;
-                    float minY = std::min(native->Start.Y, native->Stop.Y) - padding;
-                    float maxX = std::max(native->Start.X, native->Stop.X) + padding;
-                    float maxY = std::max(native->Start.Y, native->Stop.Y) + padding;
-                    float width = maxX - minX;
-                    float height = maxY - minY;
-                    // UIRenderer::Line(e->Start, e->Stop, e->Color);
+                
+                case ComponentType::Button: {
+                    auto *native = element->As<Ultra::UI::Button>();
+
+                    native->Color = { 0.1f, 0.12f, 0.13f, 1.0f };
+                    native->Size = { 200.0f, 200.0f };
+
+                    UIRenderer::Rect(native->Position, native->Size, native->Color, native->Outline);
                     break;
                 }
-                case ControlType::Rect: {
-                    auto *native = element->As<UIRect>();
-                    native->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
-                    UIRenderer::Rect(native->Position, native->Size, native->Color, false);
+                case ComponentType::Image: {
+                    auto *native = element->As<Ultra::UI::Image>();
+                    //UIRenderer::Image(native->Position, native->Size, CreateReference<Texture>(native->Data));
                     break;
                 }
-                case ControlType::Text: {
+                case ComponentType::Label: {
                     break;
-                    auto *native = element->As<UIText>();
+                    auto *native = element->As<Ultra::UI::Label>();
+
+                    UIRenderer::Rect(native->Position, native->Size, native->Color, native->Outline);
+
                     if constexpr (DrawGroupFrames) {
                         UIRenderer::DrawColor(0.5f, 0.2f, 0.2f, 0.5f);
                         UIRenderer::DrawBorder(1.0f, native->Position.X, native->Position.Y, native->Size.Width, native->Size.Height);
@@ -939,12 +968,28 @@ public:
                     UIRenderer::Text(position, native->Text, native->Color, native->Font);
                     break;
                 }
+                case ComponentType::Seperator: {
+                    break;
+                    auto *native = element->As<Ultra::UI::Seperator>();
+                    // ToDo: Check also line shader "vertex/ui" "fragment/ui/line"
+                    // ToDo: Additive BlendMode
+                    //const float padding = 64.0f;
+                    //float minX = std::min(native->Start.X, native->Stop.X) - padding;
+                    //float minY = std::min(native->Start.Y, native->Stop.Y) - padding;
+                    //float maxX = std::max(native->Start.X, native->Stop.X) + padding;
+                    //float maxY = std::max(native->Start.Y, native->Stop.Y) + padding;
+                    //float width = maxX - minX;
+                    //float height = maxY - minY;
+                    // UIRenderer::Line(e->Start, e->Stop, e->Color);
+                    break;
+                }
                 default: {
-                    //LogWarning("The control type was not specified!");
+                    //LogWarning("The component type was not specified!");
                 }
             }
         }
 
+        #if TODO
         // Draw Effects
         if (current->Focusable[(int)FocusType::Mouse]) {
             // ToDo: Find out what has has to do with the focused element, which should be a bool ...
@@ -985,11 +1030,14 @@ public:
             UIRenderer::DrawColor(0.2f, 0.2f, 0.2f, 0.5f);
             UIRenderer::DrawBorder(2.0f, current->Position.X, current->Position.Y, current->Size.Width, current->Size.Height);
         }
+        #endif
+
 
         UIRenderer::EndLayer();
 
         sWindowCounter = 0;
-        UIContainer::Reset();
+        Container::Update();
+        once = false;
     }
 
     // Shows some demo windows and is also used for tests
@@ -1001,19 +1049,19 @@ public:
         //
         {
             auto window = CreateWindow("Test");
-            window->Alignment = { 0.5f, 0.5f };
+            //window->Alignment = { 0.5f, 0.5f };
 
             // TabBar
             {
                 auto tabs = window->CreateContainer(Layout::Horizontal);
                 auto tabsButtonLeft = tabs->CreateButton(" < ");
-                tabs->Stretch = { 0.0f, 1.0f };
+                //tabs->Stretch = { 0.0f, 1.0f };
 
                 auto tabsButton1 = tabs->CreateButton(" Tab1 ");
                 auto tabsButton2 = tabs->CreateButton(" Tab2 ");
                 auto tabsButton3 = tabs->CreateButton(" Tab3 ");
                 
-                tabs->Stretch = { 0.0f, 1.0f };
+                //tabs->Stretch = { 0.0f, 1.0f };
                 
                 auto tabsButtonRight = tabs->CreateButton(" > ");
             }
@@ -1025,8 +1073,8 @@ public:
                 // Column A
                 {
                     auto group = buttons->CreateContainer(Layout::Vertical);
-                    group->Alignment = { 0.5f, 0.5f };
-                    group->Padding = { 4.0f, 4.0f, 4.0f, 4.0f };
+                    //group->Alignment = { 0.5f, 0.5f };
+                    //group->Padding = { 4.0f, 4.0f, 4.0f, 4.0f };
 
                     auto welcome = group->CreateLabel("Welcome to...");
                     //welcome->Alignment = { 0.5f, 0.5f };
@@ -1044,7 +1092,7 @@ public:
                     auto subGroup = group->CreateContainer(Layout::Horizontal);
                     for (auto i = 1; i < 3; i++) {
                         auto innerGroup = subGroup->CreateContainer(Layout::Vertical);
-                        innerGroup->Stretch = { 1.0f, 1.0f };
+                        //innerGroup->Stretch = { 1.0f, 1.0f };
                         for (auto j = 1; j < 3; j++) {
                             auto button = innerGroup->CreateButton(":)");
                         }
@@ -1054,9 +1102,9 @@ public:
                 // Column B
                 {
                     auto group = buttons->CreateContainer(Layout::Vertical);
-                    group->Alignment = { 0.0f, 1.0f };
-                    group->Padding = { 4.0f, 4.0f, 4.0f, 4.0f };
-                    group->Stretch = { 1.0f, 1.0f };
+                    //group->Alignment = { 0.0f, 1.0f };
+                    //group->Padding = { 4.0f, 4.0f, 4.0f, 4.0f };
+                    //group->Stretch = { 1.0f, 1.0f };
 
                     auto eventButton = group->CreateButton("-- OPT 1 --");
                     //eventButton->OnClick = [](){ logger << "Opt 1!" };
@@ -1073,12 +1121,12 @@ public:
                 // Column C
                 {
                     auto group = buttons->CreateContainer(Layout::Vertical);
-                    group->Padding = { 4.0f, 4.0f, 4.0f, 4.0f };
-                    group->Stretch = { 1.0f, 0.0f };
+                    //group->Padding = { 4.0f, 4.0f, 4.0f, 4.0f };
+                    //group->Stretch = { 1.0f, 0.0f };
 
                     for (auto i = 1; i < 9; i++) {
                         auto autoGroup = group->CreateContainer(Layout::Horizontal);
-                        autoGroup->Alignment = { 0.5f, 0.5f };
+                        //autoGroup->Alignment = { 0.5f, 0.5f };
 
                         for (auto j = 1; j < i; j++) {
                             auto result = std::format("{}.{}", i, j);
@@ -1096,8 +1144,8 @@ public:
                         //caption->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
                         //caption->Font = mFontRajdhani;
                         auto group = view->CreateContainer(Layout::Vertical);
-                        group->Spacing = 2.0f;
-                        group->Padding.Left = 12.0f;
+                        //group->Spacing = 2.0f;
+                        //group->Padding.Left = 12.0f;
                         for (auto &[key, value] : list) {
                             auto check = group->CreateCheckBox(key, value);
                         }
@@ -1117,7 +1165,6 @@ public:
                     //auto lines = String::Split(gCodeExample, '\n');
                     //for (auto &line : lines) {
                     //auto text = scrollView->CreateLabel(line);
-                    //}
                 }
             }
         }
@@ -1127,18 +1174,18 @@ public:
         //
         {
             auto window = CreateWindow("ToDo List");
-            window->Alignment = { 1.0f, 0.0f };
+            //window->Alignment = { 1.0f, 0.0f };
 
             auto view = window->CreateScrollView(256.0f);
-            view->Spacing = 8.0f;
+            //view->Spacing = 8.0f;
             for (auto &[entry, list] : gCheckList) {
                 auto caption = view->CreateLabel(entry);
                 //caption->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
                 //caption->Font = mFontRajdhani;
                 auto group = view->CreateContainer();
-                group->Layout = Layout::Vertical;
-                group->Spacing = 2.0f;
-                group->Padding.Left = 12.0f;
+                //group->Layout = Layout::Vertical;
+                //group->Spacing = 2.0f;
+                //group->Padding.Left = 12.0f;
                 for (auto &[key, value] : list) {
                     auto check = group->CreateCheckBox(key, value);
                 }
@@ -1150,11 +1197,11 @@ public:
         //
         {
             auto window = CreateWindow("Metrics");
-            window->Alignment = { 1.0f, 1.0f };
+            //window->Alignment = { 1.0f, 1.0f };
 
             auto container = window->CreateContainer(Layout::Horizontal);
 
-            auto fps = container->CreateControl();
+            auto fps = container->CreateLabel("");
             //fps.Text = std::format("fps: {:.2f}", 1.0f / deltaTime);
         }
 
@@ -1162,11 +1209,11 @@ public:
     }
 
 private:
-    // Counter for ObjectIDs
+    // Counter for ComponentIDs
     inline static size_t sWindowCounter {};
 
     // Instances
-    Scope<UIManager> mUIManager {};
+    Scope<UILayoutManager> mUILayout {};
 
     ///
     /// @brief ToDo: Remove this legacy code
@@ -1377,10 +1424,10 @@ public:
         EndGroup();
         return value;
     }
-    static void Image(Scope<Texture> Image) {
+    static void Image(Reference<Texture> Image) {
         HmGuiImage *e = new HmGuiImage();
         InitWidget(e, ControlType::Image);
-        e->Image = Image.get();
+        e->Image = Image;
         e->Stretch = { 1, 1 };
     }
     static float Slider(float Lower, float Upper, float value) {
@@ -1663,7 +1710,6 @@ private:
         self.clipRect = rect->Previous;
         delete rect;
     }
-
 
     // Replacement Done...
     static void DrawGroup(HmGuiGroup *g) {

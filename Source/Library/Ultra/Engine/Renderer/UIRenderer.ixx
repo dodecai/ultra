@@ -99,15 +99,18 @@ private:
 
 class Image: public UIElement {
 public:
-    Image(Position position, Size size, Texture *image):
-        UIElement(position, size), mImage(image) {
+    Image(Position position, Size size, Reference<Texture> image, const Color &color = { 1.0f, 1.0f, 1.0f, 1.0f }):
+        UIElement(position, size),
+        mImage(image),
+        mColor(color) {
     }
     ~Image() = default;
 
     void Draw() const override;
 
 private:
-   Texture *mImage = nullptr;
+   Color mColor;
+   Reference<Texture> mImage;
 };
 
 class Panel: public UIElement {
@@ -358,6 +361,8 @@ public:
         properties.BlendMode = BlendMode::Alpha;
         properties.DepthTest = true;
         mPipelineState = PipelineState::Create(properties);
+
+        //mBackground = Texture::Create(TextureProperties(), "Assets/Textures/Wallpaper.png");;
     }
     ~UIRenderer() = default;
     static UIRenderer &Instance() {
@@ -474,6 +479,7 @@ public:
     static void Draw() {
         Instance().BeginScene();
 
+        //Instance().DrawRectangle({ 0.0f, 0.0f, 0.3f }, { 1280.0f, 1204.0f }, mBackground);
         Instance().DrawRectangle({ 500.0f, 200.0f, 0.0f }, { 200.0f, 200.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
         Instance().DrawRectangle({ 650.0f, 300.0f, 0.2f }, { 200.0f, 200.0f }, { 1.0f, 0.0f, 1.0f, 0.8f });
         Instance().DrawRectangle({ 750.0f, 400.0f, 0.3f }, { 200.0f, 200.0f }, CheckerBoard);
@@ -498,7 +504,7 @@ public:
     static void Rect(const Position &position, const Size &size, const Color &color, bool outline) {
         mCurrentLayer->AddElement(CreateScope<Rectangle>(position, size, color, outline));
     }
-    static void Image(const Position &position, const Size &size, Texture *image) {
+    static void Image(const Position &position, const Size &size, Reference<Texture>image) {
         mCurrentLayer->AddElement(CreateScope<Ultra::Image>(position, size, image));
     }
     static void Text(const Position &position, const string &text, const Color &color, Font *font) {
@@ -542,7 +548,7 @@ private:
     vector<Reference<UILayer>> mLayers;
     inline static Viewport *mViewport = nullptr;
 
-
+    inline static Reference<Texture> mBackground = nullptr;
     inline static Reference<Texture> CheckerBoard;
 };
 

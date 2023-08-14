@@ -176,7 +176,7 @@ void Panel::Draw() const {
 }
 
 void Image::Draw() const {
-    //mImage->Draw(0, mPosition.X, mPosition.Y, mSize.Width, mSize.Height);
+    UIRenderer::Instance().DrawRectangle({ mPosition.X, mPosition.Y, 0.0f }, { mSize.Width, mSize.Height }, mImage, { mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha });
 }
 
 void Rectangle::Draw() const {

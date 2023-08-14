@@ -126,6 +126,7 @@ public:
         mFontExo2Bold = CreateScope<Font>("Exo2Bold", 30);
         mFontFiraMono = CreateScope<Font>("FiraMono", 10);
         mFontRajdhani = CreateScope<Font>("Rajdhani", 18);
+
     #endif
     }
 
@@ -316,6 +317,7 @@ private:
     Scope<Font> mFontExo2Bold = nullptr;
     Scope<Font> mFontFiraMono = nullptr;
     Scope<Font> mFontRajdhani = nullptr;
+
 #endif
 };
 
