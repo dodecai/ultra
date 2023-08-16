@@ -293,13 +293,6 @@ void UIRenderer::DrawRectangle(const glm::vec3 &position, const glm::vec2 &size,
     Reset();
 }
 
-void UIRenderer::DrawColor(float r, float g, float b, float a) {
-    float alpha = 1.0f;
-    Vector4Df color = { 1, 1, 1, 1 };
-    color = { r, g, b, a };
-    glColor4f(r, g, b, a * alpha);
-}
-
 
 void UIRenderer::EndScene() {
     Reset();

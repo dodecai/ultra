@@ -490,13 +490,13 @@ public:
         Instance().mLayers.clear();
     }
     
-    static void DrawBorder(float s, float x, float y, float w, float h) {
-        UIRenderer::Instance().DrawRectangle({ x, y, 0 }, { w, s });
-        UIRenderer::Instance().DrawRectangle({ x, y + h - s, 0 }, { w, s });
-        UIRenderer::Instance().DrawRectangle({ x, y + s, 0 }, { s, h - 2 * s });
-        UIRenderer::Instance().DrawRectangle({ x + w - s , y + s, 0 }, { s, h - 2 * s });
+    static void DrawBorder(float s, const Position &position, const Size &size, const Color &color) {
+        glm::vec4 colorOld = { color.Red, color.Green, color.Blue, color.Alpha *1.0f };
+        UIRenderer::Instance().DrawRectangle({ position.X, position.Y, 0 }, { size.Width, s });
+        UIRenderer::Instance().DrawRectangle({ position.X, position.Y + size.Height - s, 0 }, { size.Width, s });
+        UIRenderer::Instance().DrawRectangle({ position.X, position.Y + s, 0 }, { s, size.Height - 2 * s });
+        UIRenderer::Instance().DrawRectangle({ position.X + size.Width - s , position.Y + s, 0 }, { s, size.Height - 2 * s });
     }
-    static void DrawColor(float r, float g, float b, float a);
 
     static void Panel(const Position &position, const Size &size, const Color &color, float bevel, float innerAlpha) {
         mCurrentLayer->AddPanel(CreateScope<Ultra::Panel>(position, size, color, bevel, innerAlpha));

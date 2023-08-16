@@ -171,12 +171,13 @@ Glyph *Font::GetGlyph(uint32_t codepoint) {
     g->Texture = Texture::Create({ (uint32_t)g->Width, (uint32_t)g->Height, TextureFormat::RGBA8, TextureDataType::Float }, buffer.data(), sizeof(buffer.data()) * sizeof(float));
 
     // Add to glyph cache
+    auto result = g.get();
     if (codepoint < 256) {
         mData->AsciiGlyphs[codepoint] = std::move(g);
     } else {
         mData->Glyphs[codepoint] = std::move(g);
     }
-    return g.get();
+    return result;
 }
 
 int32_t Font::GetKerning(uint32_t leftGlyph, uint32_t rightGlyph) {
