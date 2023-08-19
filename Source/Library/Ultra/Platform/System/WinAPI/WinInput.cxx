@@ -10,7 +10,7 @@ module Ultra.Platform.System.WinAPI.Input;
 
 namespace Ultra {
 
-static POINT sLastCursorPos {};
+static POINT sLastMousePosition {};
 static float sWheelState {};
 
 bool WinInput::GetKeyStatePlatform(KeyCode code) const {
@@ -28,28 +28,88 @@ bool WinInput::GetMouseButtonStatePlatform(MouseButton button) const {
     }
 }
 
+bool WinInput::GetMouseButtonStateDeltaPlatform(MouseButton button) const {
+    switch (button) {
+        case MouseButton::Left: {
+            static thread_local bool last {};
+            auto current = (bool)::GetAsyncKeyState((int)VK_LBUTTON);
+            if (current != last) {
+                last = current;
+                return current;
+            }
+            break;
+        }
+        case MouseButton::Middle: {
+            static thread_local bool last {};
+            auto current = (bool)::GetAsyncKeyState((int)VK_MBUTTON);
+            if (current != last) {
+                last = current;
+                return current;
+            }
+            break;
+        }
+        case MouseButton::Right: {
+            static thread_local bool last {};
+            auto current = (bool)::GetAsyncKeyState((int)VK_RBUTTON);
+            if (current != last) {
+                last = current;
+                return current;
+            }
+            break;
+        }
+        case MouseButton::X1: {
+            static thread_local bool last {};
+            auto current = (bool)::GetAsyncKeyState((int)VK_XBUTTON1);
+            if (current != last) {
+                last = current;
+                return current;
+            }
+            break;
+        }
+        case MouseButton::X2: {
+            static thread_local bool last {};
+            auto current = (bool)::GetAsyncKeyState((int)VK_XBUTTON2);
+            if (current != last) {
+                last = current;
+                return current;
+            }
+            break;
+        }
+    }
+    return false;
+}
+
 std::pair<float, float> WinInput::GetMousePositionPlatform() const {
+    static thread_local POINT delta {};
+
     POINT current {};
     GetCursorPos(&current);
     ScreenToClient(GetActiveWindow(), &current);
 
-    sLastCursorPos = current;
+    sLastMousePosition = current;
     return { static_cast<float>(current.x), static_cast<float>(current.y) };
 }
 
 std::pair<float, float> WinInput::GetMousePositionDeltaPlatform() const {
+    static thread_local POINT delta {};
+
     POINT current {};
     GetCursorPos(&current);
     ScreenToClient(GetActiveWindow(), &current);
 
-    current.x -= sLastCursorPos.x;
-    current.y -= sLastCursorPos.y;
+    current.x -= sLastMousePosition.x;
+    current.y -= sLastMousePosition.y;
 
-    sLastCursorPos = current;
     return { static_cast<float>(current.x), static_cast<float>(current.y) };
 }
 
 float WinInput::GetMouseWheelDeltaPlatform() const {
+    static thread_local float delta {};
+    if (sMouseWheelDelta != delta) {
+        delta = sMouseWheelDelta;
+        return delta;
+    }
+
     return {};
 }
 

@@ -25,6 +25,7 @@ module Ultra.Platform.System.WinAPI.Event;
 
 import Ultra.Platform.UI.WinAPI.Window;
 import Ultra.Core.Event.Data;
+import Ultra.System.Input;
 
 namespace Ultra {
 
@@ -381,6 +382,8 @@ intptr_t WinEventListener::Register(void *event) {
 			data.Action = MouseAction::Wheel;
 
 			data.DeltaWheelY =(float) GET_WHEEL_DELTA_WPARAM(msg.wParam) / (float)WHEEL_DELTA;
+            
+            Input::sMouseWheelDelta = data.DeltaWheelY;
 
             Emitter.publish(data);
 			result = 0;

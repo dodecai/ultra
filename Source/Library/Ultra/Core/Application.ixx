@@ -234,7 +234,7 @@ public:
     static Context &GetContext() { return *Instance().mContext; }
     static Dialog &GetDialog() { return *Instance().mDialog; };
     static Statistics GetStatistics() { return Instance().mStatistics; }
-    static Window &GetWindow() { return *Instance().mWindow; };
+    static Window &GetWindow() { return *Instance().mWindow.get(); };
 
     ///
     /// Methods
