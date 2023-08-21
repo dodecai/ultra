@@ -1,9 +1,7 @@
 ﻿module;
 
+// Hack: The included header unit in the Core module doesn't work here.
 #include "Ultra/Core/Core.h"
-#if __INTELLISENSE__
-    #include "Ultra/Core/Logger.h"
-#endif
 
 module Ultra.System.Event;
 
@@ -19,7 +17,7 @@ Scope<EventListener> EventListener::Create() {
     #ifdef APP_PLATFORM_WINDOWS
         return CreateScope<WinEventListener>();
     #else
-        //APP_ASSERT(nullptr, "The current platform isn't supported!");
+        AppAssert(nullptr, "The current platform isn't supported!");
         return nullptr;
     #endif
 }

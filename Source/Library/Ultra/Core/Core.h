@@ -6,13 +6,6 @@
 /// @brief Library Extensions
 ///
 
-namespace Ultra {
-
-// Disable Warning Example
-//#pragma warning(push)
-//#pragma warning(disable: #)
-//#pragma warning(pop)
-
 // Export/Import for Dynamic Libraries
 #ifdef APP_PLATFORM_WINDOWS
     #ifdef APP_SHARED_LIBRARY
@@ -38,5 +31,3 @@ namespace Ultra {
 #else
 	#define APP_DEBUGBREAK()
 #endif
-
-}

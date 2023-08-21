@@ -1,13 +1,7 @@
 ﻿#pragma once
 
 ///
-/// @brief These values are used to control platform specific features during compilation.
-///
-
-namespace Ultra {
-
-///
-/// Preprocessor Utilities
+/// @brief Preprocessor Utilities
 ///
 
 // String
@@ -15,7 +9,7 @@ namespace Ultra {
 #define TOSTRING(s) STRINGIZE(s)
 
 ///
-/// Properties
+/// @brief These properties are used to control platform specific features during compilation.
 ///
 
 // Compiler
@@ -137,5 +131,3 @@ namespace Ultra {
 	#define APP_PLATFORM_API	"Unknown"
     inline constexpr auto AppPlatformAPI = "Unknown";
 #endif
-
-}

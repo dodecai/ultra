@@ -1,7 +1,8 @@
 ﻿module;
 
+// Hack: The included header unit in the Core module doesn't work here.
 #include "Ultra/Core/Core.h"
-//#define __SPECSTRINGS_STRICT_LEVEL 0
+
 #include <glad/gl.h>
 
 #if defined(APP_PLATFORM_WINDOWS)

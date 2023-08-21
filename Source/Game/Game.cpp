@@ -47,6 +47,8 @@ public:
         mRenderer = Renderer::Create();
         Resource::Instance();
 
+        AppAssert(true, "Test");
+
         auto test = true;
     #endif
     }

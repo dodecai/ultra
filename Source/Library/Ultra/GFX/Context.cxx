@@ -1,10 +1,10 @@
 ﻿module;
 
+// Hack: The included header unit in the Core module doesn't work here.
 #include "Ultra/Core/Core.h"
 
 module Ultra.GFX.Context;
 
-import Ultra.Core;
 import Ultra.Logger;
 
 #ifdef APP_PLATFORM_WINDOWS

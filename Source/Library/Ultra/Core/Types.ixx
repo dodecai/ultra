@@ -39,7 +39,6 @@ export import <utility>;
 
 export import Ultra.Core.Arguments;
 export import Ultra.Core.Concepts;
-export import Ultra.Core.Extensions;
 export import Ultra.Core.Object;
 export import Ultra.Core.Property;
 export import Ultra.Core.SmartPointer;

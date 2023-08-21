@@ -1,9 +1,7 @@
 ﻿module;
 
+// Hack: The included header unit in the Core module doesn't work here.
 #include "Ultra/Core/Core.h"
-#if __INTELLISENSE__
-    #include "Ultra/Core/Logger.h"
-#endif
 
 // Properties
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD2

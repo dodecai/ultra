@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Core/Core.h"
+#include "Ultra/Core/Core.h"
 
 ///
 /// Library Properties
