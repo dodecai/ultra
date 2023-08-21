@@ -24,12 +24,17 @@
     }
     
     externalincludedirs {
-	    "%{Headers.ThirdParty}",
 	    "%{Headers.assimp}",
 	    "%{Headers.DearImGui}",
 	    "%{Headers.EnTT}",
+	    "%{Headers.glad}",
 	    "%{Headers.glm}",
         "%{Headers.yamlcpp}",
+        
+        "%{Headers.ShaderC}",
+        "%{Headers.Vulkan}",
+        "%{Headers.VulkanVideo}",
+
         "%{Headers.LibPHX}",
         "%{Headers.LibPHXext}",
     }
@@ -40,6 +45,7 @@
         --"assimp",
         "DearImGui",
         "Glad",
+        "yaml-cpp",
         "LibPHX",
         "%{Library.ShaderC}",
 	    "%{Library.Vulkan}",

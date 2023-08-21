@@ -12,10 +12,11 @@
     linkoptions { "/ignore:4006" }
     
     externalincludedirs {
-        "../@Headers",
+        "../",
         "ext/include",
     }
     includedirs {
+        "../glad/include",
 	    "include",
 	    "ext/include/bullet",
     }
@@ -76,7 +77,7 @@ project "libphx64"
     libdirs { "ext/lib/win64" }
     
     externalincludedirs {
-        "../@Headers",
+        "../glad/include",
         "ext/include",
     }
     includedirs {

@@ -97,7 +97,9 @@ public:
         logger << LogLevel::Caption << "Initialization" << "\n";
 
         // Load Configuration
-        //mConfig = CreateReference<Config>();
+        mConfig = CreateReference<Config>();
+        mConfig->Load("Data/Config.yml");
+        //Log("Config: Engine-Resolution={}", mConfig->GetSetting<string>("Engine", "Resolution"));;
 
         // Load Window, Context and Events
         mDialog = Dialog::Create();
@@ -355,6 +357,7 @@ private:
     // Objects
     GuiLayer *pCoreLayer;
     LayerStack mLayers;
+    Reference<Config> mConfig;
     Reference<Context> mContext;
     Reference<Dialog> mDialog;
     Scope<EventListener> mListener;

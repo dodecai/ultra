@@ -11,7 +11,7 @@ export namespace Ultra {
 /// 
 /// @example
 /// Property<size_t> Size { 0, [this](const size_t &value) {
-///    return value == 1000 ? 0 : value;
+///    return value > 1000 ? 0 : value;
 /// }};
 ///
 template <typename T>

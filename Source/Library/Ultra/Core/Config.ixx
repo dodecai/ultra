@@ -1,6 +1,6 @@
 ﻿module;
 
-#define YAML_BUILD_SHARED_LIBS OFF
+#define YAML_CPP_STATIC_DEFINE
 #include <yaml-cpp/yaml.h>
 
 export module Ultra.Config;
@@ -11,16 +11,21 @@ import Ultra.Logger;
 export namespace Ultra {
 
 ///
-/// @brief Application Configuration
-/// @note under construction!
+/// @brief Configuration
+/// @note ToDo: Instead of fixed properties, we want tu use the multimap directly
 /// 
+/// @example
+/// Scope<Config> config = CreateScope<Config>();
+/// config->Load("Data/Config.yml");
+/// auto setting = config->GetSetting<string>("key", "value");
+///
 class Config {
 public:
-    Config() {};
-    ~Config() = delete;
+    Config() = default;
+    ~Config() = default;
 
-    void Load(const string &object) {
-        mConfigFile = object;
+    void Load(const string &file) {
+        mConfigFile = file;
         try {
             mConfigData = YAML::LoadFile(mConfigFile);
         } catch (std::exception ex) {
@@ -30,6 +35,7 @@ public:
         try {
             if (mConfigData["App"]) {
                 AppCaption = mConfigData["App"]["Caption"].as<std::string>();
+                AppDescription = mConfigData["App"]["Description"].as<std::string>();
                 AppVersion = mConfigData["App"]["Version"].as<std::string>();
             }
 
@@ -62,14 +68,15 @@ public:
     }
 
 private:
-    string mConfigFile = "null";
+    string mConfigFile {};
     YAML::Node mConfigData;
 
-    string AppCaption;
-    string AppVersion;
+    string AppCaption {};
+    string AppDescription {};
+    string AppVersion {};
 
-    size_t WindowHeight;
-    size_t WindowWidth;
+    size_t WindowHeight {};
+    size_t WindowWidth {};
 };
 
 }

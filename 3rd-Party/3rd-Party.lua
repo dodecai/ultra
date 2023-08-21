@@ -1,15 +1,14 @@
 ﻿-- Build Environment
 --VulkanSdkPath = os.get('VULKANK_SDK')
 
--- Built-In Headers
-Headers["ThirdParty"] = "%{wks.location}/3rd-Party/@Headers"
+-- Built-In Headers, Libraries and Packages
 
--- Project Headers
-Headers["assimp"] = "%{wks.location}/3rd-Party/assimp/include"
-Headers["DearImGui"] = "%{wks.location}/3rd-Party/imgui"
-Headers["EnTT"] = "%{wks.location}/3rd-Party/entt/single_include"
-Headers["glm"] = "%{wks.location}/3rd-Party/glm"
-Headers["yamlcpp"] = "%{wks.location}/3rd-Party/yaml-cpp/include"
+Library["ShaderC"] = "%{wks.location}/3rd-Party/shaderc/lib/shaderc_shared.lib"
+Library["Vulkan"] = "%{wks.location}/3rd-Party/vulkan/lib/vulkan-1.lib"
+--Library["Vulkan"] = "${VulkanSdkPath}/Lib/vulkan-1.lib"
+--Library["VulkanUtils"] = "${VulkanSdkPath}/Lib/VkLayer_utils.lib"
+
+Package["ShaderC"] = "%{wks.location}3rd-Party\\shaderc\\lib\\shaderc_shared.dll"
 
 -- Projects
 include "assimp/assimp.lua"
@@ -18,13 +17,16 @@ include "entt/EnTT.lua"
 include "glad/glad.lua"
 include "yaml-cpp/yaml-cpp.lua"
 
--- Libraries and Packages
-Library["ShaderC"] = "%{wks.location}/3rd-Party/@Library/shaderc/shaderc_shared.lib"
-Library["Vulkan"] = "%{wks.location}/3rd-Party//@Library/vulkan/vulkan-1.lib"
---Library["Vulkan"] = "${VulkanSdkPath}/Lib/vulkan-1.lib"
---Library["VulkanUtils"] = "${VulkanSdkPath}/Lib/VkLayer_utils.lib"
+Headers["assimp"] = "%{wks.location}/3rd-Party/assimp/include"
+Headers["DearImGui"] = "%{wks.location}/3rd-Party/imgui"
+Headers["EnTT"] = "%{wks.location}/3rd-Party/entt/single_include"
+Headers["glad"] = "%{wks.location}/3rd-Party/glad/include"
+Headers["glm"] = "%{wks.location}/3rd-Party/glm"
+Headers["yamlcpp"] = "%{wks.location}/3rd-Party/yaml-cpp/include"
 
-Package["ShaderC"] = "%{wks.location}3rd-Party\\@Library\\shaderc\\shaderc_shared.dll"
+Headers["ShaderC"] = "%{wks.location}/3rd-Party/shaderC/include"
+Headers["Vulkan"] = "%{wks.location}/3rd-Party/vulkan/include"
+Headers["VulkanVideo"] = "%{wks.location}/3rd-Party/vk_video/include"
 
 -- Phoenix Test
 Headers["LibPHX"] = "%{wks.location}/3rd-Party/LibPHX/include"

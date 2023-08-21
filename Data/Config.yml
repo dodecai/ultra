@@ -7,9 +7,6 @@ Variables:
   Custom: "User-defined variables can be used anywhere in the engine."
 
 Settings:
-  Designer:
-    Camera: "Scene"
-    Resolution: "1024x768"
   Engine:
-    Resolution: "1024x768"
+    Resolution: "1280x1024"
     VSync: true

@@ -7,14 +7,13 @@
     warnings "Default"
 
 	files {
+        "include/glad/gl.h",
+        "source/gl.c",
         "glad.lua",
-        "gl.h",
-        "gl.c"
 	}
 
     includedirs {
-		"%{Headers.ThirdParty}",
-		"%{Headers.glad}"
+		"include"
     }
     
     filter { "configurations:Debug" }
