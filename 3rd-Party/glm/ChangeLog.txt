@@ -1,0 +1,10 @@
+git rm .github/*
+git rm cmake/*
+git rm test/*
+git rm util/*
+git rm .appveyor.yml
+git rm .gitignore
+git rm .travis.yml
+
+git mv ".\copying.txt" License
+git mv ".\readme.md" ReadMe.md
