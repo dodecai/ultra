@@ -1,10 +1,10 @@
-git rm .github/*
-git rm cmake/*
-git rm test/*
-git rm util/*
-git rm .appveyor.yml
-git rm .gitignore
-git rm .travis.yml
+git rm -f ".github"
+git rm -f "cmake"
+git rm -f "test"
+git rm -f "util"
+git rm -f ".appveyor.yml"
+git rm -f ".gitignore"
+git rm -f ".travis.yml"
 
-git mv ".\copying.txt" License
-git mv ".\readme.md" ReadMe.md
+git mv ".\copying.txt" "License"
+git mv ".\readme.md" "ReadMe.md"
