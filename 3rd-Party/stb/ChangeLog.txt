@@ -1,10 +1,17 @@
 git rm -f ".github"
-git rm -f "data"
-git rm -f "deprecated"
 git rm -f "docs"
-git rm -f "tests"
-git rm -f "tools"
-git rm -f ".travis"
+git rm -f "test"
+git rm -f "util"
+git rm -f ".clang-format"
+git rm -f ".codedocs"
+git rm -f ".gitignore"
+git rm -f "BUILD.bazel"
+git rm -f "cmake_uninstall.cmake.in"
+git rm -f "CONTRIBUTING.md"
+git rm -f "install.txt"
+git rm -f "SECURITY.md"
+git rm -f "WORKSPACE"
 
 git mv ".\LICENSE" License
-git mv ".\docs\README.md" ".\ReadMe.md"
+git mv ".\README.md" ".\ReadMe.md"
+
