@@ -4,7 +4,7 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
-export import <glad/gl.h>;
+#include <glad/gl.h>
 #pragma warning(pop)
 
 export module Ultra.UI.GUILayer;

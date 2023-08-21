@@ -13,7 +13,8 @@
 	}
 
     includedirs {
-		"%{Headers.ThirdParty}"
+		"%{Headers.ThirdParty}",
+		"%{Headers.glad}"
     }
     
     filter { "configurations:Debug" }

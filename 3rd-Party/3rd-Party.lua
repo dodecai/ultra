@@ -1,4 +1,10 @@
-﻿Headers["ThirdParty"] = "%{wks.location}/3rd-Party"
+﻿--Headers["ThirdParty"] = "%{wks.location}/3rd-Party"
+
+-- Built-In Headers
+Headers["ThirdParty"] = "%{wks.location}/3rd-Party/headers"
+Headers["stb"] = "%{wks.location}/3rd-Party/stb"
+
+
 Headers["assimp"] = "%{wks.location}/3rd-Party/assimp/include"
 Headers["DearImGui"] = "%{wks.location}/3rd-Party/imgui"
 Headers["EnTT"] = "%{wks.location}/3rd-Party/entt/single_include"
@@ -9,7 +15,7 @@ Headers["stb"] = "%{wks.location}/3rd-Party/stb"
 Headers["Vulkan"] = "%{wks.location}/3rd-Party/vulkan"
 Headers["VulkanVideo"] = "%{wks.location}/3rd-Party/vk_video"
 Headers["LibPHX"] = "%{wks.location}/3rd-Party/LibPHX/include"
-Headers["LibPHXExt"] = "%{wks.location}/3rd-Party/LibPHX/ext/include"
+--Headers["LibPHXExt"] = "%{wks.location}/3rd-Party/LibPHX/ext/include"
 
 include "assimp/assimp.lua"
 include "imgui/DearImGui.lua"
