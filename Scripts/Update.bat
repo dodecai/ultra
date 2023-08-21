@@ -1,7 +1,7 @@
 ::: Properties
 	@echo off
 	cls
-	cd /d "%~dp0"
+	cd /d "%~dp0\..\"
 	
 ::: Update SubTree
 	git subtree pull --prefix=3rd-Party/entt https://github.com/OmniVortexStudios/entt.git master --squash
