@@ -51,6 +51,6 @@ Expect a slew of surprises until my satisfaction knows no bounds!
 
 # Legalities
 
-Several [third-party](3rd-Party/3rd-Party.md "3rd-Party") libraries power this project.
+Several [third-party](3rd-Party/ReadMe.md "3rd-Party") libraries power this project.
 
 Let's embrace the future of gaming together! 🎮🌟🚀
