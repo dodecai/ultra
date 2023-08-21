@@ -1,7 +1,7 @@
 ﻿export module Ultra.Core.Types;
 
 // Default
-//import std;
+//export import std;
 export import <algorithm>;
 export import <array>;
 export import <atomic>;
@@ -36,6 +36,15 @@ export import <unordered_map>;
 export import <unordered_set>;
 export import <vector>;
 export import <utility>;
+
+export import Ultra.Core.Arguments;
+export import Ultra.Core.Concepts;
+export import Ultra.Core.Extensions;
+export import Ultra.Core.Object;
+export import Ultra.Core.Property;
+export import Ultra.Core.SmartPointer;
+export import Ultra.Core.Timestamp;
+export import Ultra.Core.UUID;
 
 ///
 /// @brief The following containers, literals and types are used quite often, therefore they are exposed under the root namespace.
@@ -90,42 +99,5 @@ using std::uintptr_t;
 using namespace std::literals::chrono_literals;
 using namespace std::literals::string_literals;
 using namespace std::literals::string_view_literals;
-
-///
-/// @brief The following definitions serve as replacement possibility.
-/// 
-
-// Reference Pointer
-template<typename T>
-using Reference = std::shared_ptr<T>;
-
-template<typename T, typename ... Args>
-constexpr Reference<T> CreateReference(Args && ... args) {
-    return std::make_shared<T>(std::forward<Args>(args)...);
-}
-
-// Reference View Pointer
-template<typename T>
-using ReferenceView = std::weak_ptr<T>;
-
-template<typename T, typename ... Args>
-constexpr ReferenceView<T> CreateReferenceView(const Reference<T> &reference) {
-    return ReferenceView<T>(reference);
-}
-
-// Scope Pointer
-template<typename T>
-using Scope = std::unique_ptr<T>;
-
-template<typename T, typename ... Args>
-constexpr Scope<T> CreateScope(Args && ... args) {
-    return std::make_unique<T>(std::forward<Args>(args)...);
-}
-
-// Vector SizeOf
-template<typename T>
-size_t sizeof_vector(const typename std::vector<T> &vec) {
-    return sizeof(T) * vec.size();
-}
 
 }

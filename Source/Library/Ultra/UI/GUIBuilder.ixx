@@ -1,6 +1,6 @@
 ﻿module;
 
-#include "Ultra/Core/Private/Core.h"
+#include "Ultra/Core/Core.h"
 
 ///
 /// @brief This module contains the needed backends from DearImGui

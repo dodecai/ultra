@@ -21,8 +21,6 @@ public:
     virtual int32_t FindUniformLocation(const string &name) const override;
 
     // Mutators
-    void UpdateTexture(const string &name, uint32_t index, const Texture &texture) override;
-
     void UpdateUniformBuffer(const string &name, const void *data, size_t size) override;
     void UpdateUniform(const string &name, const Bool &data) override;
     void UpdateUniform(const string &name, const Bool2 &data) override;

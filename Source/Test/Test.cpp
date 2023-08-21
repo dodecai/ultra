@@ -6,8 +6,8 @@ import Ultra.Engine.DesignerCamera;
 import Ultra.Utility.ThreadPool;
 
 // Switches
-#define ENGINE_TESTS
-//#define LIBRARY_TESTS
+//#define ENGINE_TESTS
+#define LIBRARY_TESTS
 //#define MISCELLANEOUS_TESTS
 
 namespace Ultra {
@@ -226,6 +226,11 @@ public:
         logger << LogLevel::Trace << "Hello World! 🦄" << "\n";
         LogTrace("{}: {} {:.2}", "Hello", "World!", 1.234567f);
 
+        // Property
+        //LogTrace("PropertySize before: ", PropertySize);
+        PropertySize = 1001;
+        //LogTrace("PropertySize after setting: ", PropertySize);
+
         // String
         String::Test();
 
@@ -395,6 +400,10 @@ private:
     DesignerCamera mDesignerCamera;
     Reference<Texture> mCheckerBoard;
     Scope<Renderer> mRenderer;
+
+    Ultra::Property<size_t> PropertySize { 50, [this](const size_t &value) {
+        return value > 1000 ? 1000 : 0;
+    }};
 };
 
 // Application Entry-Point

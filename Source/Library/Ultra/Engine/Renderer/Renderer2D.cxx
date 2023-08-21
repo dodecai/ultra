@@ -241,15 +241,6 @@ void Renderer2D::StartScene(const Camera &camera) {
     NextBatch();
 }
 
-void Renderer2D::StartScene(const Camera &camera, const glm::mat4 &transform) {
-    sData.DepthTest = true;
-
-    sData.CameraBuffer.ViewProjectionMatrix = camera.GetProjection();
-    sData.CameraUniformBuffer->UpdateData(&sData.CameraBuffer, sizeof(RendererData::CameraData));
-
-    NextBatch();
-}
-
 void Renderer2D::StartScene(const DesignerCamera &camera) {
     sData.DepthTest = true;
 

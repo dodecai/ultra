@@ -1,4 +1,4 @@
-#ifndef PHX_Intersect
+﻿#ifndef PHX_Intersect
 #define PHX_Intersect
 
 #include "Common.h"
@@ -12,7 +12,9 @@
  * -------------------------------------------------------------------------- */
 
 /* NOTE : See Intersect.cpp for information on choosing these epsilons. */
+#pragma warning(disable: 4305)
 const float PLANE_THICKNESS_EPSILON     = 1e-4;
+#pragma warning(default: 4305)
 const float POINT_INTERSECTION_EPSILON  = (2.0f*PLANE_THICKNESS_EPSILON);
 const float RAY_INTERSECTION_EPSILON    = (8.0f*PLANE_THICKNESS_EPSILON);
 const float SPHERE_INTERSECTION_EPSILON = (2.0f*PLANE_THICKNESS_EPSILON);

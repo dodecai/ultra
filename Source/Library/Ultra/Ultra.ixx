@@ -42,6 +42,11 @@ export import Ultra.Logger;
 // UI Extensions
 #ifdef LIB_EXTENSION_UI
     export import Ultra.UI.GUILayer;
+    export import Ultra.Math;
+    export import Ultra.Engine.Resource;
+    export import Ultra.Engine.Renderer.Viewport;
+    export import Ultra.Engine.UIRenderer;
+    export import Ultra.UI.HmGui;
 #endif
 
 // Utility Extensions
@@ -50,15 +55,12 @@ export import Ultra.Logger;
     export import Ultra.Utility.Delegate;
     export import Ultra.Utility.Dispatcher;
     export import Ultra.Utility.Emitter;
-    export import Ultra.Utility.Enum;
     export import Ultra.Utility.Future;
-    export import Ultra.Utility.Property;
     export import Ultra.Utility.Random;
     export import Ultra.Utility.Signal;
     export import Ultra.Utility.String;
     export import Ultra.Utility.ThreadPool;
     export import Ultra.Utility.Timer;
-    export import Ultra.Utility.UUID;
 #endif
 
 export namespace Ultra {

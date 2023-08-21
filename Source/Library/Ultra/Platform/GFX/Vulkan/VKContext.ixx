@@ -1,6 +1,6 @@
 ﻿module;
 
-#include "Ultra/Core/Private/Core.h"
+#include "Ultra/Core/Core.h"
 
 #if defined(APP_PLATFORM_WINDOWS)
     #define VC_EXTRALEAN

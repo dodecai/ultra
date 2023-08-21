@@ -1,4 +1,4 @@
-#ifndef PHX_String
+﻿#ifndef PHX_String
 #define PHX_String
 
 #include "Common.h"
@@ -182,6 +182,7 @@ inline bool StrMatch (cstr s, cstr p) {
   return !*p;
 }
 
+#pragma warning(disable: 4996)
 inline cstr StrReplace (cstr s, cstr search, cstr replace) {
   char *result, *ins, *tmp;
   size_t len_search, len_replace, len_front, count;
@@ -207,6 +208,7 @@ inline cstr StrReplace (cstr s, cstr search, cstr replace) {
   strcpy(tmp, s);
   return result;
 }
+#pragma warning(default: 4996)
 
 inline int StrSplit (cstr s, cstr delim, cstr** out) {
   size_t len_orig = StrLen(s);

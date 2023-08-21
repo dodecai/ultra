@@ -1,6 +1,6 @@
 ﻿module;
 
-#include "Ultra/Core/Private/Core.h"
+#include "Ultra/Core/Core.h"
 
 #if defined(APP_PLATFORM_WINDOWS)
     // Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
@@ -123,6 +123,7 @@ VKInstance::VKInstance() {
         nullptr,
     };
     VkResult result = CreateDebugUtilsMessengerEXT(mInstance, reinterpret_cast<VkDebugUtilsMessengerCreateInfoEXT *>(&messengerCreateInfo), nullptr, &mDebugUtilsMessanger);
+    if (result) { /* ToDo: Check result */ }
     #endif
 }
 

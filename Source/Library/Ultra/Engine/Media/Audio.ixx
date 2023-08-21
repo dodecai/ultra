@@ -64,7 +64,7 @@ class Source {
 
 public:
     Source() = default;
-    Source(uint32_t handle, bool loaded, float length): BufferHandle(handle), Loaded(loaded) {}
+    Source(uint32_t handle, [[maybe_unused]] bool loaded, [[maybe_unused]] float length): BufferHandle(handle), Loaded(loaded) {}
     ~Source() {}
 
     static Source LoadFromFile(const string &file, bool spatial = false) {
@@ -108,7 +108,7 @@ public:
 
 
 private:
-    static Source LoadSourceOgg(const string &file) {
+    static Source LoadSourceOgg([[maybe_unused]] const string &file) {
         //FILE *f = fopen(file.c_str(), "rb");
 
         //OggVorbis_File vf;

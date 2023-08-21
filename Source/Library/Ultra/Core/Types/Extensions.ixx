@@ -1,6 +1,6 @@
-﻿export module Ultra.Utility.Enum;
+﻿export module Ultra.Core.Extensions;
 
-import Ultra.Core;
+import <vector>;
 
 export namespace Ultra {
 
@@ -37,5 +37,15 @@ public:
     explicit DeriveEnum(int val): Derived(static_cast<derivedT>(val)) {}
     operator derivedT() const { return Derived; }
 };
+
+
+
+///
+/// @brief Vector SizeOf
+///
+template<typename T>
+size_t sizeof_vector(const typename std::vector<T> &vec) {
+    return sizeof(T) * vec.size();
+}
 
 }

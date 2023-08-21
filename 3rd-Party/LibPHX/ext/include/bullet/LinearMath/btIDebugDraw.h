@@ -1,4 +1,4 @@
-/*
+﻿/*
 Bullet Continuous Collision Detection and Physics Library
 Copyright (c) 2003-2009 Erwin Coumans  http://bulletphysics.org
 
@@ -179,6 +179,7 @@ public:
 		}
 	}
 
+    #pragma warning(disable: 4305)
 	virtual void drawTransform(const btTransform& transform, btScalar orthoLen)
 	{
 		btVector3 start = transform.getOrigin();
@@ -186,6 +187,7 @@ public:
 		drawLine(start, start + transform.getBasis() * btVector3(0, orthoLen, 0), btVector3(0.3, 1.f, 0.3));
 		drawLine(start, start + transform.getBasis() * btVector3(0, 0, orthoLen), btVector3(0.3, 0.3, 1.f));
 	}
+    #pragma warning(default: 4305)
 
 	virtual void drawArc(
 	    const btVector3& center,

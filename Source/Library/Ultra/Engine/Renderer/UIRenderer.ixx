@@ -373,11 +373,12 @@ public:
     void BeginScene() {
         auto windowWidth = 1280.0f;
         auto windowHeight = 1024.0f;
-        float fov = 45.0f;
-        float nearPlane = 0.1f;
-        float farPlane = 100.0f;
+        //float fov = 45.0f;
+        //float nearPlane = 0.1f;
+        //float farPlane = 100.0f;
 
-        SRenderData.Transform.ProjectionMatrix = glm::ortho(0.0f, windowWidth, windowHeight, 0.0f); // glm::perspective(glm::radians(fov), windowWidth / windowHeight, nearPlane, farPlane);
+        SRenderData.Transform.ProjectionMatrix = glm::ortho(0.0f, windowWidth, windowHeight, 0.0f);
+        // glm::perspective(glm::radians(fov), windowWidth / windowHeight, nearPlane, farPlane);
         SRenderData.Transform.ViewMatrix = glm::mat4(1.0f);
 
         SRenderData.TransformUniformBuffer->UpdateData(&SRenderData.Transform, sizeof(RenderData::TransformUniform));

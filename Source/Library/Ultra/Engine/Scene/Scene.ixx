@@ -12,8 +12,6 @@ import Ultra.Engine.Components;
 import Ultra.Engine.SceneCamera;
 import Ultra.Engine.Renderer2D;
 import Ultra.Engine.Renderer.Framebuffer;
-import Ultra.Utility.Timer;
-import Ultra.Utility.UUID;
 
 export namespace Ultra {
 
@@ -53,7 +51,7 @@ public:
     void Clear() {
         Registry.clear();
     }
-    void UpdateDesigner(Timestamp deltaTime, DesignerCamera &camera) {
+    void UpdateDesigner([[maybe_unused]] Timestamp deltaTime, [[maybe_unused]] DesignerCamera &camera) {
         Renderer2D::StartScene(camera);
         //{
         //    try {
@@ -69,7 +67,7 @@ public:
 
         Renderer2D::FinishScene();
     }
-    void UpdateRuntime(Timestamp deltaTime) {
+    void UpdateRuntime([[maybe_unused]] Timestamp deltaTime) {
         // Update Scripts
         {
             //Registry.view<Component::NativeScript>().each([=](auto entity, auto &nsc) {
@@ -85,7 +83,7 @@ public:
 
         // 2D 
         Camera *sceneCamera = nullptr;
-        glm::mat4 cameraTransform;
+        //glm::mat4 cameraTransform;
         {
             //auto view = Registry.view<Component::Camera, Component::Transform>();
             //for (auto entity : view) {
@@ -98,7 +96,7 @@ public:
             //}
         }
         if (sceneCamera) {
-            Renderer2D::StartScene(*sceneCamera, cameraTransform);
+            //Renderer2D::StartScene(*sceneCamera, cameraTransform);
             //{
             //    try {
             //        auto group = Registry.group<Component::Transform>(entt::get<Component::Sprite>);
@@ -112,7 +110,7 @@ public:
             //    }
             //}
 
-            Renderer2D::FinishScene();
+            //Renderer2D::FinishScene();
         }
 
     }
@@ -200,7 +198,8 @@ public:
     void Push(Reference<Scene> &scene) {
         mScenes.push_back(scene);
     }
-    void Pop(Reference<Scene> &scene) {
+    void Pop([[maybe_unused]] Reference<Scene> &scene) {
+        // ToDo: Implement Pop
     }
 
 private:

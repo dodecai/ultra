@@ -7,13 +7,6 @@ import Ultra;
 
 #ifdef NATIVE_RENDERER
     import Ultra.Module.Phoenix;
-#else
-    import Ultra.Math;
-    import Ultra.Engine.Resource;
-    import Ultra.Engine.Renderer.Viewport;
-    import Ultra.Engine.UIRenderer;
-    import Ultra.Utility.String;
-    import Ultra.UI.HmGui;
 #endif
 
 namespace Ultra {
@@ -52,9 +45,9 @@ public:
         Lua_DoFile(mLua, "./Script/Main.lua");
     #else
         mRenderer = Renderer::Create();
-        mViewport = Viewport::Create({ 0, 0, 1280, 1024, true });
-
         Resource::Instance();
+
+        auto test = true;
     #endif
     }
 
@@ -71,7 +64,7 @@ public:
     #else#
         HmGui::ShowDemo(deltaTime);
         mRenderer->RenderFrame();
-        HmGui::Draw(mViewport);
+        HmGui::Draw();
     #endif
     }
 
@@ -80,7 +73,6 @@ private:
     Lua *mLua = nullptr;
 #else
     Scope<Renderer> mRenderer;
-    Scope<Viewport> mViewport;
 #endif
 };
 

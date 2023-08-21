@@ -330,7 +330,8 @@ void VKSwapChainLegacy::CreateGraphicsPipeline() {
     vertexCreateInfo.pCode = reinterpret_cast<const uint32_t *>(vertexShader.data());
 
     vk::ShaderModule vertexModule;
-    mDevice->Call().createShaderModule(&vertexCreateInfo, nullptr, &vertexModule);
+    auto result = mDevice->Call().createShaderModule(&vertexCreateInfo, nullptr, &vertexModule);
+    if (result == vk::Result::eSuccess) { /* ToDo: Check Result */ }
 
     auto fragmentShader = ReadFileBinary("./Data/Cache/Shaders/Test.fragment.spirv");
     vk::ShaderModuleCreateInfo fragmentCreateInfo {};
@@ -338,7 +339,8 @@ void VKSwapChainLegacy::CreateGraphicsPipeline() {
     fragmentCreateInfo.pCode = reinterpret_cast<const uint32_t *>(fragmentShader.data());
 
     vk::ShaderModule fragmentModule;
-    mDevice->Call().createShaderModule(&fragmentCreateInfo, nullptr, &fragmentModule);
+    result = mDevice->Call().createShaderModule(&fragmentCreateInfo, nullptr, &fragmentModule);
+    if (result == vk::Result::eSuccess) { /* ToDo: Check Result */ }
 
     // Shader Stage
     vk::PipelineShaderStageCreateInfo vertexShaderStageCreateInfo {};
@@ -457,7 +459,8 @@ void VKSwapChainLegacy::CreateGraphicsPipeline() {
     pipelineLayoutInfo.pPushConstantRanges = VK_NULL_HANDLE;
 
     vk::PipelineLayout pipelineLayout;
-    mDevice->Call().createPipelineLayout(&pipelineLayoutInfo, nullptr, &pipelineLayout); // ToDo: Must be manually destroyed
+    result = mDevice->Call().createPipelineLayout(&pipelineLayoutInfo, nullptr, &pipelineLayout); // ToDo: Must be manually destroyed
+    if (result == vk::Result::eSuccess) { /* ToDo: Check Result */ }
 
     vk::GraphicsPipelineCreateInfo pipelineInfo {};
     pipelineInfo.stageCount = 2;
@@ -477,7 +480,8 @@ void VKSwapChainLegacy::CreateGraphicsPipeline() {
     pipelineInfo.basePipelineIndex = -1;
 
     vk::Pipeline graphicsPipeline;
-    mDevice->Call().createGraphicsPipelines(nullptr, 1, &pipelineInfo, nullptr, &graphicsPipeline);
+    result = mDevice->Call().createGraphicsPipelines(nullptr, 1, &pipelineInfo, nullptr, &graphicsPipeline);
+    if (result == vk::Result::eSuccess) { /* ToDo: Check Result */ }
     // ToDo: Destroy Pipeline and PipelineLayout
 }
 

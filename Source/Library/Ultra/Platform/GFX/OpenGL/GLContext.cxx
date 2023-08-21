@@ -1,6 +1,6 @@
 ﻿module;
 
-#include "Ultra/Core/Private/Core.h"
+#include "Ultra/Core/Core.h"
 //#define __SPECSTRINGS_STRICT_LEVEL 0
 #include <glad/gl.h>
 

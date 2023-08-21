@@ -89,7 +89,6 @@ void GuiLayer::Attach() {
         ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
         platform_io.Platform_CreateVkSurface = ImGui_ImplWin32_CreateVkSurface;
 
-        Application &app = Application::Instance();
         auto context = Application::GetContext().As<VKContext>();
         ImGui_ImplWin32_Init(app.GetWindow().GetNativeWindow());
 
@@ -116,6 +115,7 @@ void GuiLayer::Attach() {
         pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
         pool_info.pPoolSizes = pool_sizes;
         VkResult err = vkCreateDescriptorPool(context->GetDevice()->Call(), &pool_info, nullptr, &descriptorPool);
+        if (err == VK_SUCCESS) { /* ToDo: Check Result */ }
 
         // UI Command Buffer/Pool, Framebuffers, RenderPass
         ImGui_ImplVulkan_InitInfo vkInfo = {};

@@ -22,7 +22,7 @@ struct FontSize {
 };
 
 struct Glyph {
-    size_t UniqueID;
+    uint32_t UniqueID;
     int32_t Advance;
 
     int32_t X;

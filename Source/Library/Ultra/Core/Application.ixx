@@ -2,7 +2,6 @@
 
 import Ultra.Core;
 import Ultra.Core.Layer;
-import Ultra.Core.LayerStack;
 import Ultra.Config;
 import Ultra.Logger;
 import Ultra.GFX.Context;
@@ -16,15 +15,6 @@ import Ultra.Utility.Timer;
 int main(int, char **);
 
 export namespace Ultra {
-
-// List of passed command line arguments
-struct Arguments {
-    Arguments() = default;
-    Arguments(const vector<string> &arguments): mArgumentList(arguments) {}
-
-private:
-    vector<string> mArgumentList = {};
-};
 
 // The title, resolution and graphics API can be passed as structure.
 struct ApplicationProperties {

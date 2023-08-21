@@ -1,7 +1,6 @@
 ﻿export module Ultra.UI.Window.Data;
 
 import Ultra.Core;
-import Ultra.Utility.Enum;
 
 export namespace Ultra {
 

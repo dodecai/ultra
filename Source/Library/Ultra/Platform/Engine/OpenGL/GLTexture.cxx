@@ -23,6 +23,10 @@ static GLenum  ConvertTextureDataType(TextureDataType type) {
     switch (type) {
         case TextureDataType::Byte: return GL_UNSIGNED_BYTE;
         case TextureDataType::Float: return GL_FLOAT;
+        default: {
+            AppAssert("Not implemented!");
+            return {};
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Core/Private/Core.h"
+#include "Core/Core.h"
 
 ///
 /// Library Properties

@@ -21,10 +21,23 @@
 #pragma endregion
 
 // Module
-export module Ultra.Utility.UUID;
+export module Ultra.Core.UUID;
 
 // Library
-import Ultra.Core;
+import <array>;
+import <cstdint>;
+import <string>;
+import <random>;
+import <iostream>;
+import <iomanip>;
+import <strstream>;
+
+using std::array;
+using std::uint8_t;
+using std::uint32_t;
+using std::uint64_t;
+using std::string;
+using std::ostream;
 
 export namespace Ultra {
 
@@ -91,13 +104,13 @@ private:
             
             // Convert bytes to string format
             std::stringstream result;
-            result << std::hex << std::setfill('0');
+            //result << std::hex << std::setfill('0');
             
             for (int i = 0; i < 16; i++) {
                 if (i == 4 || i == 6 || i == 8 || i == 10) {
                     result << '-';
                 }
-                result << std::setw(2) << static_cast<int>(bytes[i]);
+                //result << std::setw(2) << static_cast<int>(bytes[i]);
             }
             Value = result.str();
         }

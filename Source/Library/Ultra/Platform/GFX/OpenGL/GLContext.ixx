@@ -2,13 +2,12 @@
 
 import Ultra.Core;
 import Ultra.GFX.Context;
-import Ultra.Utility.Property;
 import Ultra.Platform.GFX.OpenGL;
 
 export namespace Ultra {
 
 struct ContextProperties {
-    Property<bool> Compatible = false;
+    bool Compatible = false;
     ArithmeticProperty<short> AlphaDepth { 0, 8 };
     ArithmeticProperty<short> ColorDepth { 0, 32 };
     ArithmeticProperty<short> DepthBuffer { 0, 24 };

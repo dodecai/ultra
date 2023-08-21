@@ -11,7 +11,6 @@ export module Ultra.Engine.Components;
 
 import Ultra.Core;
 import Ultra.Logger;
-import Ultra.Utility.UUID;
 import Ultra.Engine.SceneCamera;
 
 export namespace Ultra {

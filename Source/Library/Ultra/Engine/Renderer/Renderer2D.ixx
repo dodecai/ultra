@@ -51,7 +51,6 @@ public:
     static void Dispose();
 
     static void StartScene(const Camera &camera);
-    static void StartScene(const Camera &camera, const glm::mat4 &transform);
     static void StartScene(const DesignerCamera &camera);
     static void StartScene(const PerspectiveCamera &camera);
     static void StartScene(const OrthographicCamera &camera);
@@ -88,7 +87,7 @@ public:
     struct Statistics {
         uint32_t DrawCalls = 0;
         uint32_t Triangles = 0;
-        size_t CircleCount = 0;
+        uint32_t CircleCount = 0;
         uint32_t LineCount = 0;
         uint32_t QuadCount = 0;
 

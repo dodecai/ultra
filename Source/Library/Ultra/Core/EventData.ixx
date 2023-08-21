@@ -1,7 +1,6 @@
 ﻿export module Ultra.Core.Event.Data;
 
 import Ultra.Core;
-import Ultra.Utility.Enum;
 
 template<typename T, typename = typename std::enable_if_t<std::is_arithmetic_v<T>, T>>
 constexpr inline auto BitMask(T x) { return (1 << x); }

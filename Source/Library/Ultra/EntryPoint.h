@@ -1,13 +1,9 @@
 ﻿#pragma once
 
-#include "Ultra/Core/Private/Core.h"
-#if __INTELLISENSE__
-    #include "Ultra/Core/Private/Types.h"
-#endif
-
 // Library
 import Ultra.Core;
 import Ultra.Core.Application;
+import "Ultra/Core/Platform.h";
 
 ///
 /// @brief Application EntryPoint

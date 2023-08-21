@@ -27,25 +27,29 @@ GLenum GetGLShaderType(ShaderType type) {
 
 string GetGLShaderDataTypeName(ShaderDataType type) {
     switch (type) {
-        case ShaderDataType::Bool:          {return "bool"; break; }
-        case ShaderDataType::Bool2:         {return "bvec2"; break; }
-        case ShaderDataType::Bool3:         {return "bvec3"; break; }
-        case ShaderDataType::Bool4:         {return "bvec4"; break; }
-        case ShaderDataType::Float:         {return "float"; break; }
-        case ShaderDataType::Float2:        {return "vec2"; break; }
-        case ShaderDataType::Float3:        {return "vec3"; break; }
-        case ShaderDataType::Float4:        {return "vec4"; break; }
-        case ShaderDataType::Int:           {return "int"; break; }
-        case ShaderDataType::Int2:          {return "ivec2"; break; }
-        case ShaderDataType::Int3:          {return "ivec3"; break; }
-        case ShaderDataType::Int4:          {return "ivec4"; break; }
-        case ShaderDataType::Mat2:          {return "mat2"; break; }
-        case ShaderDataType::Mat3:          {return "mat3"; break; }
-        case ShaderDataType::Mat4:          {return "mat4"; break; }
-        case ShaderDataType::Texture1D:     {return "sampler1D"; break; }
-        case ShaderDataType::Texture2D:     {return "sampler2D"; break; }
-        case ShaderDataType::Texture3D:     {return "sampler3D"; break; }
-        case ShaderDataType::TextureCube:   {return "samplerCube"; break; }
+        case ShaderDataType::Bool:          { return "bool"; break; }
+        case ShaderDataType::Bool2:         { return "bvec2"; break; }
+        case ShaderDataType::Bool3:         { return "bvec3"; break; }
+        case ShaderDataType::Bool4:         { return "bvec4"; break; }
+        case ShaderDataType::Float:         { return "float"; break; }
+        case ShaderDataType::Float2:        { return "vec2"; break; }
+        case ShaderDataType::Float3:        { return "vec3"; break; }
+        case ShaderDataType::Float4:        { return "vec4"; break; }
+        case ShaderDataType::Int:           { return "int"; break; }
+        case ShaderDataType::Int2:          { return "ivec2"; break; }
+        case ShaderDataType::Int3:          { return "ivec3"; break; }
+        case ShaderDataType::Int4:          { return "ivec4"; break; }
+        case ShaderDataType::Mat2:          { return "mat2"; break; }
+        case ShaderDataType::Mat3:          { return "mat3"; break; }
+        case ShaderDataType::Mat4:          { return "mat4"; break; }
+        case ShaderDataType::Texture1D:     { return "sampler1D"; break; }
+        case ShaderDataType::Texture2D:     { return "sampler2D"; break; }
+        case ShaderDataType::Texture3D:     { return "sampler3D"; break; }
+        case ShaderDataType::TextureCube:   { return "samplerCube"; break; }
+        default: {
+            AppAssert("Not implemented!");
+            return {};
+        }
     }
 }
 
@@ -77,7 +81,7 @@ void GLShader::Compile(ShaderList shaders) {
 
         //}
         auto spirv = ShaderCompiler::Compile(mShaderName, (ShaderType)key, code);
-        glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, spirv.data(), spirv.size() * sizeof(uint32_t));
+        glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, spirv.data(), static_cast<GLsizei>(spirv.size() * sizeof(uint32_t)));
         string entrypoint = "main"; // Get VS entry point name
         glSpecializeShader(shader, entrypoint.c_str(), 0, nullptr, nullptr);
         
@@ -152,20 +156,6 @@ int32_t GLShader::FindUniformLocation(const string &name) const {
     return glGetUniformLocation(mShaderID, name.c_str());
 }
 
-
-void GLShader::UpdateTexture(const string &name, uint32_t index, const Texture &texture) {
-    auto location = FindUniformLocation(name);
-    glUniform1i(location, index);
-    glActiveTexture(GL_TEXTURE0 + index);
-
-    switch (texture.GetProperties().Dimension) {
-        case TextureDimension::Texture1D:   { glBindTexture(GL_TEXTURE_1D, texture.GetRendererID()); break; }
-        case TextureDimension::Texture2D:   { glBindTexture(GL_TEXTURE_2D, texture.GetRendererID()); break; }
-        case TextureDimension::Texture3D:   { glBindTexture(GL_TEXTURE_3D, texture.GetRendererID()); break; }
-        case TextureDimension::TextureCube: { glBindTexture(GL_TEXTURE_CUBE_MAP, texture.GetRendererID()); break; }
-    }
-    glActiveTexture(GL_TEXTURE0);
-}
 
 void GLShader::UpdateUniformBuffer(const string &name, const void *data, size_t size) {
     auto location = FindUniformLocation(name);

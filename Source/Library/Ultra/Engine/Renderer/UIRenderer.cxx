@@ -72,7 +72,7 @@ void ClipRect::Activate() {
         TransformRectangle(x, y, width, height);
 
         glEnable(GL_SCISSOR_TEST);
-        glScissor(x, properties.Height - (y + height), width, height);
+        glScissor(static_cast<GLint>(x), static_cast<GLint>(properties.Height - (y + height)), static_cast<GLsizei>(width), static_cast<GLsizei>(height));
     } else {
         glDisable(GL_SCISSOR_TEST);
     }
@@ -339,7 +339,7 @@ void UIRenderer::Flush() {
         SRenderData.ComponentPipeline->Bind();
         SRenderData.ComponentIndexBuffer->Bind();
         //SCommandBuffer->DrawIndexed({ SRenderData.PanelVertexBufferData.size() * 6 }, PrimitiveType::Triangle, true);
-        glDrawElements(GL_TRIANGLES, (SRenderData.ComponentVertexBufferData.size() * 6), GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(SRenderData.ComponentVertexBufferData.size() * 6), GL_UNSIGNED_INT, nullptr);
 
         // ToDo: Implement Statistics
     }

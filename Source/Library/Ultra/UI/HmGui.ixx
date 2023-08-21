@@ -27,7 +27,6 @@ enum class FocusType {
     Mouse,
     Keyboard,
     Scroll,
-    Size,
 };
 
 enum class Layout {
@@ -95,7 +94,7 @@ CheckList gCheckList = {
 constexpr const char *gCodeExample = R"(
 #include <print>
 
-// The amazing and well known foo class, which doesn't need to be explained.
+// The amazing and well known foo class.
 class Foo {
 public:
     Foo() = default;
@@ -120,42 +119,45 @@ int main() {
 }
 )";
 
-
 ///
 /// @brief Base Types and Component Interface
 ///
 
 enum class ComponentType {
     // Containers
-    None,
-    Container,
-    Panel,
-    ScrollView,
-    Window,
+    None        = 0x00,
+    Container   = 0x01,
+    Window      = 0x02,
+    Panel       = 0x03,
+    ScrollView  = 0x04,
+    Containers  = 0x1F, // Used as less than boundary
 
     // Controls
-    Button,
-    Cursor,
-    CheckBox,
-    ColorPicker,
-    Grid,
-    Image,
-    Input,
-    Label,
-    Selection,
-    Seperator,
-    Slider,
-    Table,
+    Button      = 0x20,
+    Cursor      = 0x21,
+    CheckBox    = 0x22,
+    ColorPicker = 0x23,
+    Grid        = 0x24,
+    Image       = 0x25,
+    Input       = 0x26,
+    Label       = 0x27,
+    Selection   = 0x28,
+    Seperator   = 0x29,
+    Slider      = 0x2A,
+    Table       = 0x2B,
+    Controls    = 0x4F, // Used as less than boundary
 
     // Information
-    Badge,
-    Notification,
-    Tooltip,
+    Badge           = 0x50,
+    Notification    = 0x51,
+    Tooltip         = 0x52,
+    Information     = 0x6F, // Used as less than boundary
 
     // Navigation (multiple-controls)
-    MenuBar,
-    SideBar,
-    TabBar,
+    MenuBar     = 0x70,
+    SideBar     = 0x71,
+    TabBar      = 0x72,
+    Navigations = 0x8F, // Used as less than boundary
 };
 
 struct ClipArea {
@@ -194,19 +196,14 @@ public:
     }
     virtual ~Component() = default;
 
-    // Converters
-    template<typename T>
-    T *As() {
-        return dynamic_cast<T *>(this);
-    }
-
     // Accessors
-    const string &GetID() {
+    const string &GetID() const {
         return mID;
     }
-
-    // Methods
-    bool CheckHover(const Position &hoverPosition) {
+    size_t GetHash() const {
+        return mHash;
+    }
+    bool Hovered(const Position &hoverPosition) const {
         if (Position.X <= hoverPosition.X &&
             Position.Y <= hoverPosition.Y &&
             hoverPosition.X <= Position.X + Size.Width &&
@@ -215,50 +212,50 @@ public:
         }
         return false;
     }
-    bool CheckHover(const Position &position, const Position &mousePosition) {
-        if (position.X < mousePosition.X &&
-            position.Y < mousePosition.Y &&
-            mousePosition.X < position.X + Size.Width &&
-            mousePosition.Y < position.Y + Size.Height) {
-            return true;
-        }
-        return false;
+
+    // Converters
+    template<typename T>
+    T *As() {
+        return reinterpret_cast<T *>(this);
     }
 
+    // Methods
+    virtual void Draw() {}
+
 protected:
-    string mID;
-    size_t mHash;
+    const string mID;
+    const size_t mHash;
 
 public:
     Component *Parent {};
     ComponentType Type {};
 
-    Ultra::UI::Layout Layout {};
-    Color Color {};
-    Position Position {};
-    Size Size {};
-
     // Transformation
     Ultra::Alignment Alignment {};
+    bool Clip {};
+    ClipArea ClipArea {};
     Ultra::Padding Padding {};
     Ultra::Position Offset {};
+    Ultra::Size MaxSize { 1e30f, 1e30f };
     Ultra::Size MinSize {};
+    Position Position {};
+    Size Size {};
     Ultra::Stretch Stretch {};
     float Spacing {};
 
     // States
     bool Active {};
-    bool Clip {};
-    ClipArea ClipArea {};
-    float FrameOpacity {};
+    bool Disabled {};
+    bool Focused {};
     bool Visible { true };
+
+    // Style
+    Color Color {};
+    float FrameOpacity { 1.0f };
+    Ultra::UI::Layout Layout {};
     float ZIndex {};
 
     FocusStyle FocusStyle {};
-    bool Hovered {};
-    Ultra::Position FocusPosition {};
-    array<bool, (int)FocusType::Size> Focused {};
-    array<bool, (int)FocusType::Size> Focusable {};
 private:
     std::hash<std::string> mHasher;
 };
@@ -275,12 +272,13 @@ public:
     virtual ~Control() = default;
 
     // Methods
-    virtual void DebugPrint(int indent) const {
+    virtual void DebugPrint(size_t indent) const {
         LogInfo("{}{}{}", indent == 0 ? "" : string(indent * 2, ' '), indent == 0 ? "" : "◌ ", mID);
     }
 
-public:
-    bool Dirty = false;
+private:
+    Ultra::Position CanvasPosition {};
+    Ultra::Size CanvasSize {};
 };
 
 class Cursor: public Control {
@@ -300,10 +298,12 @@ public:
         Control(id, ComponentType::Button) {
     }
     virtual ~Button() = default;
+    static Scope<Button> Create(const string &id, string_view text);
 
     // Methods
-    void DebugPrint(int indent) const override {
-        LogInfo("{}{}{} [ Text: '{}' | Position: 'x={}, y={}' | Size '{}x{}' ]",
+    void Draw() override;
+    void DebugPrint(size_t indent) const override {
+        Log("{}{}{} [ Text: '{}' | Position: 'x={}, y={}' | Size '{}x{}' ]",
             indent == 0 ? "" : string(indent * 2, ' '),
             indent == 0 ? "" : "◌ ",
             mID,
@@ -314,6 +314,7 @@ public:
     }
 
 public:
+    std::function<void()> Callback;
     Font *Font {};
     bool Outline {};
     string Text {};
@@ -327,8 +328,9 @@ public:
     virtual ~CheckBox() = default;
 
     // Methods
-    void DebugPrint(int indent) const override {
-        LogInfo("{}{}{} [ Text: '{}' | Position: 'x={}, y={}' | Size '{}x{}' ]",
+    void Draw() override;
+    void DebugPrint(size_t indent) const override {
+        Log("{}{}{} [ Text: '{}' | Position: 'x={}, y={}' | Size '{}x{}' ]",
             indent == 0 ? "" : string(indent * 2, ' '),
             indent == 0 ? "" : "◌ ",
             mID,
@@ -362,8 +364,9 @@ public:
     virtual ~Label() = default;
 
     // Methods
-    void DebugPrint(int indent) const override {
-        LogInfo("{}{}{} [ Text: '{}' | Position: 'x={}, y={}' | Size '{}x{}' ]",
+    void Draw() override;
+    void DebugPrint(size_t indent) const override {
+        Log("{}{}{} [ Text: '{}' | Position: 'x={}, y={}' | Size '{}x{}' ]",
             indent == 0 ? "" : string(indent * 2, ' '),
             indent == 0 ? "" : "◌ ",
             mID,
@@ -385,6 +388,8 @@ public:
         Control(id, ComponentType::Seperator) {
     }
     virtual ~Seperator() = default;
+
+    void Draw() override;
 };
 
 struct Image: public Control {
@@ -393,6 +398,8 @@ public:
         Control(id, ComponentType::Image) {
     }
     virtual ~Image() = default;
+
+    void Draw() override;
 
 public:
     Reference<Texture> Data {};
@@ -404,6 +411,8 @@ public:
         Control(id, ComponentType::Slider) {
     }
     virtual ~Slider() = default;
+
+    void Draw() override;
 };
 
 ///
@@ -450,19 +459,12 @@ public:
     Button *CreateButton(string_view text)  {
         string id = std::format("Button#{}", sButtonCounter++);
 
-        auto *component = GetChild(id);
-        if (component) return component->As<Button>();
+        auto *component = GetChild(id)->As<Button>();
+        if (component) return component;
 
-        auto button = CreateScope<Button>(id);
-        button->Layout = Layout::Stack;
-        button->Text = text;
-        button->Alignment = { 0.5f, 0.5f };
+        auto button = Button::Create(id, text);
+        button->Parent = this;
         button->Color = this->Style.ColorText;
-        button->Stretch = { 1.0f, 1.0f };
-        button->FocusStyle = FocusStyle::Fill;
-        button->FrameOpacity = 0.5f;
-        button->Padding = { 8.0f, 8.0f, 8.0f, 8.0f };
-        //bool focus = button->As<Control>()->HasFocus(FocusType::Mouse) && Active;
         button->Font = this->Style.Font.get();
         if (button->Font) {
             button->MinSize = button->Font->GetSize(text);
@@ -470,13 +472,10 @@ public:
             button->MinSize.Height += button->Padding.Top + button->Padding.Bottom;
             button->Position.X -= button->Padding.Left + button->Offset.X;
             button->Position.Y -= button->Padding.Top + button->Offset.Y;
-        } else {
-            LogError("Something went wrong in the style tree!");
         }
 
         auto result = button.get();
         AddChild(std::move(button));
-        Parent = this;
         return result;
     }
     CheckBox *CreateCheckBox(string_view text, bool value = false)  {
@@ -671,7 +670,7 @@ public:
     void ComputeSize() {
         // Calculate the minimum size for each child
         for (const auto &child : mChildren) {
-            if (child->Type == ComponentType::Container || child->Type == ComponentType::Window || child->Type == ComponentType::ScrollView) {
+            if (child->Type < ComponentType::Containers) {
                 child->As<Container>()->ComputeSize();
             }
         }
@@ -711,8 +710,9 @@ public:
         MinSize.Width = std::min(MinSize.Width, MaxSize.Width);
         MinSize.Height = std::min(MinSize.Height, MaxSize.Height);
     }
+    void Draw() override;
     void DebugPrint(size_t level = 0) const {
-        LogInfo("{}{}{} [ childs: {} | Position: 'x={}, y={}' | Size '{}x{}' ]",
+        Log("{}{}{} [ childs: {} | Position: 'x={}, y={}' | Size '{}x{}' ]",
             level == 0 ? "" : string(level * 2 - 2, ' '),
             level == 0 ? "" : "◌ ", mID,
             mChildren.size(),
@@ -720,7 +720,7 @@ public:
             Size.Width, Size.Height
         );
         for (const auto &child : mChildren) {
-            if (child->Type == ComponentType::Container || child->Type == ComponentType::Window || child->Type == ComponentType::ScrollView) {
+            if (child->Type < ComponentType::Containers) {
                 child->As<Container>()->DebugPrint(level + 1);
             } else {
                 child->As<Control>()->DebugPrint(level);
@@ -792,7 +792,7 @@ public:
             }
 
             // Recursively layout child containers or windows
-            if (child->Type == ComponentType::Container || child->Type == ComponentType::Window || child->Type == ComponentType::ScrollView) child->As<Container>()->LayoutGroup();
+            if (child->Type < ComponentType::Containers) child->As<Container>()->LayoutGroup();
         }
     }
     void LayoutControl(const Scope<Component> &component, const Ultra::Position &position, const Ultra::Size &size) {
@@ -809,12 +809,12 @@ public:
         component->Position.Y += component->Alignment.Y * (size.Height - component->Size.Height);
     }
     void MoveToTop(const string &id) {
-        //auto it = std::find_if(mChildren.begin(), mChildren.end(), [&id](const auto &child) {
-        //    return child->GetID() == id;
-        //});
-        //if (it != mChildren.end()) {
-        //    std::rotate(it, it + 1, mChildren.end());
-        //}
+        auto it = std::find_if(mChildren.begin(), mChildren.end(), [&id](const auto &child) {
+            return child->GetID() == id;
+        });
+        if (it != mChildren.end()) {
+            std::rotate(it, it + 1, mChildren.end());
+        }
     }
     static void Update() {
         sContainerCounter = 0;
@@ -833,7 +833,7 @@ public:
     Component *GetChild(const string &id) {
         if (mID == id) return this;
         for (const auto &child : mChildren) {
-            if (child->Type == ComponentType::Container || child->Type == ComponentType::Window || child->Type == ComponentType::ScrollView) {
+            if (child->Type < ComponentType::Containers) {
                 if (auto *const result = child->As<Container>()->GetChild(id)) {
                     return result;
                 }
@@ -857,27 +857,17 @@ public:
         return mChildren.back().get();
     }
 
-    // States
+    // Mutators
     void UpdateClipRect() {
+        //ClipRect.Right = Position.X;
+        //ClipRect.Bottom = Position.Y;
 
-        //HmGuiClipRect *rect = new HmGuiClipRect();
-        //rect->Previous = self.clipRect;
-        //rect->Lower = g->Position;
-        //// ToDo: :(
-        ////rect->Upper = { g->Position, g->Size };
-        //if (rect->Previous) {
-        //    rect->Lower.X = std::max(rect->Lower.X, rect->Previous->Lower.X);
-        //    rect->Lower.Y = std::max(rect->Lower.Y, rect->Previous->Lower.Y);
-        //    rect->Upper.X = std::min(rect->Upper.X, rect->Previous->Upper.X);
-        //    rect->Upper.Y = std::min(rect->Upper.Y, rect->Previous->Upper.Y);
-        //}
-        //self.clipRect = rect;
-    }
-    void OnClick(const string &id) {
-        //UIElementOld *element = GetElement(id);
-        //if (element && element->GetParent()) {
-        //    MoveToTop(element->GetParent()->GetID());
-        //}
+        //?rect->Upper = { g->Position, g->Size };
+
+        //ClipRect->Left = std::min(rect->Upper.X, rect->Previous->Upper.X);
+        //ClipRect->Top = std::min(rect->Upper.Y, rect->Previous->Upper.Y);
+        //ClipRect->Right = std::max(rect->Lower.Y, rect->Previous->Lower.Y);
+        //ClipRect->Bottom = std::max(rect->Lower.X, rect->Previous->Lower.X);
     }
 
 protected:
@@ -888,7 +878,6 @@ public:
 
     bool Expand { true };
 
-    Ultra::Size MaxSize { 1e30f, 1e30f };
     Ultra::Stretch TotalStretch {};
 
 private:
@@ -903,7 +892,7 @@ private:
 };
 
 ///
-/// @brief This class manages the UI layout.
+/// @brief This class manages the GUI layout.
 ///
 class UILayoutManager {
 public:
@@ -925,8 +914,8 @@ public:
     void AddContainer(Scope<Container> id) {
         mRoot->AddChild(std::move(id));
     }
-    void DebugPrint(int level = 0) {
-        mRoot->DebugPrint();
+    void DebugPrint(size_t level = 0) {
+        mRoot->DebugPrint(level);
     }
 
 private:
@@ -942,40 +931,42 @@ private:
 export namespace Ultra::UI {
 
 ///
-/// @brief Switches
-///
-
-constexpr bool DrawLayoutFrames = false;
-constexpr bool DrawGroupFrames = false;
-constexpr bool EnableWindowDragging = true;
-
-///
-/// @brief Hybrid-Mode-UI, a combination of immediate mode and retained mode.
+/// @brief Hybrid-Mode-GUI, a combination of immediate mode and retained mode.
+/// It's simple but effective and has a built-in automatic layout system.
 /// @note This implementation is inspired by Josh Parnell
 /// @link http://forums.ltheory.com/viewtopic.php?t=6582
 ///
 class HmGui {
-public:
+    // Constructors and Destructor
     HmGui() {
-        // From Begin init
         mUILayout = CreateScope<UILayoutManager>();
-        auto *root = mUILayout->GetRoot();
+        auto root = mUILayout->GetRoot();
 
-        root->Active = Input::GetMouseButtonState(MouseButton::Left);
+        //root->Active = Input::GetMouseButtonState(MouseButton::Left);
         root->Clip = true;
         root->Position = { 0.0f, 0.0f };
         root->Size = { 1280.0f, 1024.0f };
         root->Style.Font = CreateReference<Font>("Rajdhani", 14);
 
+        mViewport = Viewport::Create({ 0, 0, 1280, 1024, true });
+
         mFontExo2Bold = CreateScope<Font>("Exo2Bold", 30);
         mFontFiraMono = CreateScope<Font>("FiraMono", 10);
         mFontRajdhani = CreateScope<Font>("Rajdhani", 18);
     };
+    HmGui(const HmGui &hmgui) = delete;
+    HmGui(HmGui &&hmgui) = delete;
+    HmGui &operator=(const Logger &) = delete;
+    HmGui &operator=(Logger &&) noexcept = delete;
     ~HmGui() = default;
+
+    // Global Instance
     static HmGui &Instance() {
         static HmGui instance;
         return instance;
     }
+
+public:
 
     /// @brief Creates a window or returns an existing window
     /// @param title Specify the window title.
@@ -1017,8 +1008,8 @@ public:
         return result;
     }
 
-    // External Call
-    static void Draw(const Scope<Viewport> &viewport) {
+    // Draws the GUI
+    static void Draw() {
         if (mUpdateInput) {
             auto [mouseX, mouseY] = Input::GetMousePosition();
             sLastMousePosition.X = mouseX;
@@ -1041,19 +1032,32 @@ public:
             }
         }
 
-        UIRenderer::Begin(viewport);
-        HmGui::DrawUI();
+        UIRenderer::Begin(Instance().mViewport);
+        auto root = Instance().mUILayout->GetRoot();
+
+        if (static bool once = true) {
+            root->DebugPrint();
+            root->ComputeSize();
+            root->LayoutGroup();
+            once = false;
+        }
+        root->Draw();
+
+        sWindowCounter = 0;
+        Container::Update();
         UIRenderer::End();
         UIRenderer::Draw();
     }
 
     // Shows some demo windows and is also used for tests
     static void ShowDemo(Timestamp deltaTime) {
+        #pragma warning(disable: 4189)
         /// @brief Here we test new API styles, until we find the best one...
         mFrames++;
         mDeltaDelay += deltaTime;
         mUpdateInput = false;
-        if (mDeltaDelay > 0.16f) {
+        mUpdateInput = true;
+        if (mDeltaDelay > 0.1f) {
             mUpdateInput = true;
         }
         if (mDeltaDelay > 1.0f) {
@@ -1092,8 +1096,8 @@ public:
                 // Column A
                 {
                     auto group = buttons->CreateContainer(Layout::Vertical);
+                    group->Padding = { 4.0f, 8.0f, 4.0f, 8.0f };
                     group->Stretch = { 1.0f, 1.0f };
-                    group->Padding = { 4.0f, 4.0f, 4.0f, 4.0f };
 
                     auto welcome = group->CreateLabel("Welcome to...");
                     welcome->Alignment = { 0.5f, 0.5f };
@@ -1125,10 +1129,13 @@ public:
                 {
                     auto group = buttons->CreateContainer(Layout::Vertical);
                     //group->Alignment = { 0.0f, 1.0f };
-                    group->Padding = { 4.0f, 4.0f, 4.0f, 4.0f };
+                    group->Padding = { 4.0f, 8.0f, 4.0f, 8.0f };
                     group->Stretch = { 1.0f, 1.0f };
 
                     auto eventButton = group->CreateButton("-- OPT 1 --");
+                    eventButton->Callback = [&]() {
+                        LogInfo("Button '-- OPT 1 --' clicked!");
+                    };
                     //eventButton->OnClick = [](){ logger << "Opt 1!" };
 
                     auto silentButton = group->CreateButton("-- OPT 2 --");
@@ -1143,8 +1150,8 @@ public:
                 // Column C
                 {
                     auto group = buttons->CreateContainer(Layout::Vertical);
-                    group->Padding = { 4.0f, 4.0f, 4.0f, 4.0f };
-                    group->Stretch = { 1.0f, 0.0f };
+                    group->Padding = { 4.0f, 8.0f, 4.0f, 8.0f };
+                    group->Stretch = { 1.0f, 1.0f };
 
                     for (auto i = 1; i < 9; i++) {
                         auto autoGroup = group->CreateContainer(Layout::Horizontal);
@@ -1179,6 +1186,7 @@ public:
             {
                 auto editorTitle = window->CreateLabel("水 Behöld, the codez! \\o/");
                 auto editors = window->CreateContainer(Layout::Horizontal);
+                editors->Stretch = { 1.0f, 1.0f };
                 for (auto i = 0; i < 2; i++) {
                     auto scrollView = editors->CreateScrollView(200);
                     auto lines = String::Split(gCodeExample, '\n');
@@ -1227,205 +1235,7 @@ public:
             auto msf = container->CreateLabel("ms/Frame: ####.##");
             msf->Text = std::format("ms/Frame: {:.2f}", mMSPF);
         }
-
-        auto test = true;
-    }
-
-private:        
-    // Calculates the layout and draws the complete UI
-    static void DrawUI(Container *current = nullptr) {
-        static bool once = true;
-        if (once) {
-            auto root = Instance().mUILayout->GetRoot();
-            root->ComputeSize();
-            root->LayoutGroup();
-            Instance().mUILayout->DebugPrint();
-        }
-        once = false;
-
-        auto &manager = Instance().mUILayout;
-        if (!current) {
-            current = manager->GetRoot();
-        }
-                
-        UIRenderer::BeginLayer(current->Position, current->Size, current->Clip);
-
-        // Draw Elements
-        //auto clicked = Input::GetMouseButtonStateDelta(MouseButton::Left);
-
-        for (auto &element : current->GetChildren()) {
-            switch (element->Type) {
-                case ComponentType::Window: {
-                    if constexpr (EnableWindowDragging) {
-                        auto hovered = element->CheckHover(sLastMousePosition);
-                        if (hovered && sMousePressed) {
-                            element->Offset = sMouseDragCurrentPosition;
-                        }
-                        if (!sMousePressed && element->Offset.X != 0 && element->Offset.Y != 0) {
-                            element->Position.X += element->Offset.X;
-                            element->Position.Y += element->Offset.Y;
-                            element->Offset = {};
-                        }
-                        element->As<Container>()->LayoutGroup();
-                    }
-
-                    const auto color = Color(0.1f, 0.12f, 0.13f, 1.0f);
-                    auto position = element->Position;
-                    position.X += element->Offset.X;
-                    position.Y += element->Offset.Y;
-                    UIRenderer::Panel(position, element->Size, color, 8.0f, element->FrameOpacity);
-                    DrawUI(element->As<Container>());
-                    break;
-                }
-                case ComponentType::Panel: [[falltrough]]
-                case ComponentType::Container: {
-                    if constexpr (DrawLayoutFrames) {
-                        UIRenderer::DrawBorder(3.0f, element->Position, element->Size, { 1.0f, 1.0f, 1.0f, 1.0f });
-                    }
-                    DrawUI(element->As<Container>());
-                    break;
-                }
-                case ComponentType::ScrollView: {
-                    auto hovered = element->CheckHover(sLastMousePosition);
-                    float offsetY {};
-                    if (hovered) {
-                        auto scrollDelta = Input::GetMouseWheelDelta();
-                        if (scrollDelta) {
-                            offsetY -= 12.0f * scrollDelta;
-                        }
-                    }
-                    float maxScroll = std::max(0.0f, element->MinSize.Height - element->Size.Height) + 12.0f;
-                    element->Offset.Y = std::clamp(offsetY, 0.0f, maxScroll);
-                    element->As<Container>()->LayoutGroup();
-
-                    auto position = element->Position;
-                    position.X += element->Size.Width;
-                    if (maxScroll > 0) {
-                        float handleSize = element->Size.Height * (element->Size.Height / element->MinSize.Height);
-                        float handlePos = std::lerp(0.0f, element->Size.Height - handleSize, element->Offset.Y / maxScroll);
-                        UIRenderer::Rect(position, { 6.0, handlePos }, {}, false);
-                        UIRenderer::Rect(position, { 6.0, handleSize }, { 0.1f, 0.1f, 0.1f, 0.5f }, false);
-                    } else {
-                        UIRenderer::Rect(position, { 6.0f, 16.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, false);
-                    }
-
-                    if constexpr (DrawLayoutFrames) {
-                        UIRenderer::DrawBorder(3.0f, element->Position, element->Size, { 1.0f, 1.0f, 1.0f, 1.0f });
-                    }
-                    DrawUI(element->As<Container>());
-                    break;
-                }
-                
-                case ComponentType::Button: {
-                    auto *native = element->As<Ultra::UI::Button>();
-
-                    auto hovered = native->CheckHover(sLastMousePosition);
-                    if (hovered) {
-                        if (sMousePressed) {
-                            const auto color = Color(0.2f, 0.7f, 1.0f, 1.0f);
-                            UIRenderer::Panel(native->Position, native->Size, color, 0.0f, 1.0f);
-                            // ToDo: Execute bound lambda
-                        } else {
-                            const auto color = Color(0.1f, 0.5f, 1.0f, 1.0f);
-                            UIRenderer::Panel(native->Position, native->Size, color, 0.0f, 1.0f);
-                        }
-                    } else {
-                        const auto color = Color(0.15f, 0.15f, 0.15f, 0.8f);
-                        UIRenderer::Panel(native->Position, native->Size, color, 0.0f, native->FrameOpacity);
-                    }
-
-                    //if constexpr (DrawLayoutFrames) {
-                    //    UIRenderer::DrawBorder(1.0f, native->Position, native->Size, { 1.0f, 1.0f, 1.0f, 1.0f });
-                    //}
-
-                    Position position = {
-                        (native->Position.X + 8.0f + (native->Size.Width - native->MinSize.Width) * native->Alignment.X),
-                        (native->Position.Y + 4.0f + (native->Size.Height) * native->Alignment.Y),
-                    };
-                    UIRenderer::Text(position, native->Text, native->Color, native->Font);
-
-                    break;
-                }
-                case ComponentType::CheckBox: {
-                    auto *native = element->As<Ultra::UI::CheckBox>();
-
-                    auto hovered = native->CheckHover(sLastMousePosition);
-                    if (hovered) {
-                        auto color = Color(0.3f, 0.3f, 0.3f, 0.5f);
-                        UIRenderer::Rect(native->Position, native->Size, color, true);
-
-                        if (sMouseClicked) {
-                            native->Value = native->Value == true ? false : true;
-                        }
-                    }
-
-                    //if constexpr (DrawLayoutFrames) {
-                    //    UIRenderer::DrawBorder(1.0f, native->Position, native->Size, { 1.0f, 1.0f, 1.0f, 1.0f });
-                    //}
-
-                    // CheckBox Label
-                    Position position = { native->Position.X + 8.0f, (native->Position.Y + native->MinSize.Height / 2 + 4.0f) };
-                    UIRenderer::Text(position, native->Text, native->Color, native->Font);
-
-                    // CheckBox Outer Rectangle
-                    position.X = native->Position.X + native->Size.Width - native->OutherSize.Width - 4.0f;
-                    position.Y -= 12.0f;
-                    UIRenderer::Rect(position, native->OutherSize, native->OutherColor, true);
-
-                    // CheckBox Inner Rectangle
-                    if (native->Value) {
-                        position.X += 3.0f;
-                        position.Y += 3.0f;
-                        UIRenderer::Rect(position, native->InnerSize, native->InnerColor, false);
-                    }
-
-
-                    break;
-                }
-                case ComponentType::Image: {
-                    auto *native = element->As<Ultra::UI::Image>();
-                    //UIRenderer::Image(native->Position, native->Size, CreateReference<Texture>(native->Data));
-                    break;
-                }
-                case ComponentType::Label: {
-                    auto *native = element->As<Ultra::UI::Label>();
-
-                    //if constexpr (DrawLayoutFrames) {
-                    //    UIRenderer::DrawBorder(1.0f, native->Position, native->Size, { 1.0f, 1.0f, 1.0f, 1.0f });
-                    //}
-
-
-                    Position position = { native->Position.X, native->Position.Y + native->MinSize.Height };
-
-                    UIRenderer::Text(position, native->Text, native->Color, native->Font);
-
-                    break;
-                }
-                case ComponentType::Seperator: {
-                    break;
-                    auto *native = element->As<Ultra::UI::Seperator>();
-                    // ToDo: Check also line shader "vertex/ui" "fragment/ui/line"
-                    // ToDo: Additive BlendMode
-                    //const float padding = 64.0f;
-                    //float minX = std::min(native->Start.X, native->Stop.X) - padding;
-                    //float minY = std::min(native->Start.Y, native->Stop.Y) - padding;
-                    //float maxX = std::max(native->Start.X, native->Stop.X) + padding;
-                    //float maxY = std::max(native->Start.Y, native->Stop.Y) + padding;
-                    //float width = maxX - minX;
-                    //float height = maxY - minY;
-                    // UIRenderer::Line(e->Start, e->Stop, e->Color);
-                    break;
-                }
-                default: {
-                    //LogWarning("The component type was not specified!");
-                }
-            }
-        }
-
-        UIRenderer::EndLayer();
-
-        sWindowCounter = 0;
-        Container::Update();
+        #pragma warning(default: 4189)
     }
 
 private:
@@ -1434,6 +1244,7 @@ private:
 
     // Instances
     Scope<UILayoutManager> mUILayout {};
+    Scope<Viewport> mViewport;
 
     // Test
     Scope<Font> mFontExo2Bold = nullptr;
@@ -1444,12 +1255,226 @@ private:
     inline static thread_local double mMSPF {};
     inline static thread_local double mDeltaDelay {};
 
+public:
     inline static thread_local bool mUpdateInput {};
     inline static thread_local bool sMouseClicked {};
     inline static thread_local bool sMousePressed {};
+
     inline static thread_local Position sLastMousePosition {};
     inline static thread_local Position sMouseDragCurrentPosition {};
     inline static thread_local Position sMouseDragStartPosition {};
 };
+
+}
+
+module :private;
+
+///
+/// @brief The internal Magic
+///
+
+namespace Ultra::UI {
+
+///
+/// @brief Switches
+///
+
+constexpr bool DrawLayoutFrames = false;
+constexpr bool DrawGroupFrames = false;
+constexpr bool EnableWindowDragging = true;
+
+
+void Container::Draw() {
+    UIRenderer::BeginLayer(Position, Size, Clip);
+    for (auto &element : GetChildren()) {
+        switch (element->Type) {
+            // Container
+            case ComponentType::Window: {
+                if constexpr (EnableWindowDragging) {
+                    auto hovered = element->Hovered(HmGui::sLastMousePosition);
+                    if (hovered && HmGui::sMousePressed) {
+                        element->Offset = HmGui::sMouseDragCurrentPosition;
+                    }
+                    if (!HmGui::sMousePressed && element->Offset.X != 0 && element->Offset.Y != 0) {
+                        element->Position.X += element->Offset.X;
+                        element->Position.Y += element->Offset.Y;
+                        element->Offset = {};
+                    }
+                    element->As<Container>()->LayoutGroup();
+                }
+
+                const auto color = Ultra::Color(0.1f, 0.12f, 0.13f, 1.0f);
+                auto position = element->Position;
+                position.X += element->Offset.X;
+                position.Y += element->Offset.Y;
+                UIRenderer::Panel(position, element->Size, color, 8.0f, element->FrameOpacity);
+                element->As<Container>()->Draw();
+                break;
+            }
+            case ComponentType::ScrollView:  {
+                auto hovered = element->Hovered(HmGui::sLastMousePosition);
+                float offsetY {};
+                if (hovered) {
+                    auto scrollDelta = Input::GetMouseWheelDelta();
+                    if (scrollDelta) {
+                        offsetY -= 12.0f * scrollDelta;
+                    }
+                }
+                float maxScroll = std::max(0.0f, element->MinSize.Height - element->Size.Height) + 12.0f;
+                element->Offset.Y = std::clamp(offsetY, 0.0f, maxScroll);
+                element->As<Container>()->LayoutGroup();
+
+                auto position = element->Position;
+                position.X += element->Size.Width;
+                if (maxScroll > 0) {
+                    float handleSize = element->Size.Height * (element->Size.Height / element->MinSize.Height);
+                    float handlePos = std::lerp(0.0f, element->Size.Height - handleSize, element->Offset.Y / maxScroll);
+                    UIRenderer::Rect(position, { 6.0, handlePos }, {}, false);
+                    UIRenderer::Rect(position, { 6.0, handleSize }, { 0.1f, 0.1f, 0.1f, 0.5f }, false);
+                } else {
+                    UIRenderer::Rect(position, { 6.0f, 16.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, false);
+                }
+                if constexpr (DrawLayoutFrames) {
+                    UIRenderer::DrawBorder(3.0f, element->Position, element->Size, { 1.0f, 1.0f, 1.0f, 1.0f });
+                }
+                element->As<Container>()->Draw();
+                break;
+            }
+
+            case ComponentType::Panel: [[fallthrough]];
+            case ComponentType::Container: {
+                if constexpr (DrawLayoutFrames) {
+                    UIRenderer::DrawBorder(3.0f, element->Position, element->Size, { 1.0f, 1.0f, 1.0f, 1.0f });
+                }
+                element->As<Container>()->Draw();
+                break;
+            }
+
+            // Controls
+            default: {
+                element->Draw();
+                break;
+            }
+        }
+    }
+    UIRenderer::EndLayer();
+}
+
+
+Scope<Button> Button::Create(const string &id, string_view text) {
+    auto button = CreateScope<Button>(id);
+    button->Text = text;
+
+    button->Layout = Layout::Stack;
+    button->Alignment = { 0.5f, 0.5f };
+    button->Stretch = { 1.0f, 1.0f };
+    button->FocusStyle = FocusStyle::Fill;
+    button->FrameOpacity = 0.5f;
+    button->Padding = { 8.0f, 8.0f, 8.0f, 8.0f };
+    return std::move(button);
+}
+
+void Button::Draw() {
+    auto hovered = Hovered(HmGui::sLastMousePosition);
+    if (hovered) {
+        if (HmGui::sMouseClicked) {
+            if (Callback) Callback();
+        }
+
+        if (HmGui::sMousePressed) {
+            const auto color = Ultra::Color(0.2f, 0.7f, 1.0f, 1.0f);
+            UIRenderer::Panel(Position, Size, color, 0.0f, 1.0f);
+            // ToDo: Execute bound lambda
+        } else {
+            const auto color = Ultra::Color(0.1f, 0.5f, 1.0f, 1.0f);
+            UIRenderer::Panel(Position, Size, color, 0.0f, 1.0f);
+        }
+    } else {
+        const auto color = Ultra::Color(0.15f, 0.15f, 0.15f, 0.8f);
+        UIRenderer::Panel(Position, Size, color, 0.0f, FrameOpacity);
+    }
+
+    //if constexpr (DrawLayoutFrames) {
+    //    UIRenderer::DrawBorder(1.0f, Position, Size, { 1.0f, 1.0f, 1.0f, 1.0f });
+    //}
+
+    Ultra::Position position = {
+        (Position.X + 8.0f + (Size.Width - MinSize.Width) * Alignment.X),
+        (Position.Y + 4.0f + (Size.Height) * Alignment.Y),
+    };
+    UIRenderer::Text(position, Text, Color, Font);
+
+}
+
+
+void CheckBox::Draw() {
+    auto hovered = Hovered(HmGui::sLastMousePosition);
+    if (hovered) {
+        auto color = Ultra::Color(0.3f, 0.3f, 0.3f, 0.5f);
+        UIRenderer::Rect(Position, Size, color, true);
+
+        if (HmGui::sMouseClicked) Value = !Value;
+    }
+
+    //if constexpr (DrawLayoutFrames) {
+    //    UIRenderer::DrawBorder(1.0f, native->Position, native->Size, { 1.0f, 1.0f, 1.0f, 1.0f });
+    //}
+
+    // CheckBox Label
+    Ultra::Position position = { Position.X + 8.0f, (Position.Y + MinSize.Height / 2 + 4.0f) };
+    UIRenderer::Text(position, Text, Color, Font);
+
+    // CheckBox Outer Rectangle
+    position.X = Position.X + Size.Width - OutherSize.Width - 4.0f;
+    position.Y -= 12.0f;
+    UIRenderer::Rect(position, OutherSize, OutherColor, true);
+
+    // CheckBox Inner Rectangle
+    position.X += 3.0f;
+    position.Y += 3.0f;
+    if (Value) {
+        UIRenderer::Rect(position, InnerSize, InnerColor, false);
+    } else {
+        UIRenderer::Rect(position, InnerSize, {}, false);
+    }
+
+
+}
+
+
+void Label::Draw() {
+    //if constexpr (DrawLayoutFrames) {
+    //    UIRenderer::DrawBorder(1.0f, native->Position, native->Size, { 1.0f, 1.0f, 1.0f, 1.0f });
+    //}
+
+
+    Ultra::Position position = { Position.X, Position.Y + MinSize.Height };
+
+    UIRenderer::Text(position, Text, Color, Font);
+}
+
+
+void Image::Draw() {
+    //UIRenderer::Image(Position, Size, CreateReference<Texture>(Data));
+}
+
+
+void Seperator::Draw() {
+    return;
+    // ToDo: Check also line shader "vertex/ui" "fragment/ui/line"
+    // ToDo: Additive BlendMode
+    //const float padding = 64.0f;
+    //float minX = std::min(native->Start.X, native->Stop.X) - padding;
+    //float minY = std::min(native->Start.Y, native->Stop.Y) - padding;
+    //float maxX = std::max(native->Start.X, native->Stop.X) + padding;
+    //float maxY = std::max(native->Start.Y, native->Stop.Y) + padding;
+    //float width = maxX - minX;
+    //float height = maxY - minY;
+    // UIRenderer::Line(e->Start, e->Stop, e->Color);
+}
+
+
+void Slider::Draw() {
+}
 
 }

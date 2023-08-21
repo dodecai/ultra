@@ -1,8 +1,8 @@
 ﻿module;
 
-#include "Ultra/Core/Private/Core.h"
+#include "Ultra/Core/Core.h"
 #if __INTELLISENSE__
-    #include "Ultra/Core/Private/Logger.h"
+    #include "Ultra/Core/Logger.h"
 #endif
 
 module Ultra.UI.Window;

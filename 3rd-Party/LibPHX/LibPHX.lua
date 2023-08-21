@@ -9,6 +9,7 @@
     toolset "msc"
     warnings "Off"
     defines { "_CRT_SECURE_NO_DEPRECATE", "WIN32_LEAN_AND_MEAN", "WINDOWS=1" }
+    linkoptions { "/ignore:4006" }
     
     externalincludedirs {
         "../",

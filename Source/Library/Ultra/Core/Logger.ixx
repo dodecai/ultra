@@ -1,8 +1,5 @@
 ﻿export module Ultra.Logger;
 
-// Extensions
-export import "Private/Logger.h";
-
 // Library
 import Ultra.Core;
 import Ultra.System.Cli;
@@ -631,43 +628,47 @@ inline LoggerOld &logger = LoggerOld::Instance();
 /// they will help removing unnecessary code in release and distribution builds, therefore they also override the log levels.
 ///
 
-template<typename ...Args> void Log(Args &&...args) { logger << LogLevel::Default; (logger << ... << args); logger << "\n"; }
+template<typename ...Args> void Log(Args &&...args)         { logger << LogLevel::Default;  (logger(args...)); logger << "\n"; }
 #ifdef APP_MODE_DEBUG
-    // Workaround, add the debug break after the message.
-    //#define AppAssert(x, ...)   if (AppAssert(x, __VA_ARGS__)) APP_DEBUGBREAK()
-template<typename T, typename ...Args> bool AppAssert(T *object, Args &&...args) {
-    if (!object) {
-        logger << LogLevel::Fatal; (logger << ... << args); logger << "\n";
-        return true;
+    template<typename T, typename ...Args> bool AppAssert(T *object, Args &&...args) {
+        if (!object) {
+            logger << LogLevel::Fatal; (logger << ... << args); logger << "\n";
+            return true;
+        }
+        return false;
     }
-    return false;
-}
-template<typename T, typename ...Args> bool AppAssert(T object, Args &&...args) {
-    if (!object) {
-        logger << LogLevel::Fatal; (logger << ... << args); logger << "\n";
-        return true;
+    template<typename T, typename ...Args> bool AppAssert(T object, Args &&...args) {
+        if (!object) {
+            logger << LogLevel::Fatal; (logger << ... << args); logger << "\n";
+            return true;
+        }
+        return false;
     }
-    return false;
-}
-template<typename ...Args> void LogTrace(Args &&...args) { logger << LogLevel::Trace;    (logger(args...)); logger << "\n"; }
-template<typename ...Args> void LogDebug(Args &&...args) { logger << LogLevel::Debug;    (logger(args...)); logger << "\n"; }
-template<typename ...Args> void LogInfo(Args &&...args) { logger << LogLevel::Info;     (logger(args...)); logger << "\n"; }
-#elif APP_MODE_DISTRIBUTION
-template<typename ...Args> void AppAssert([[maybe_unused]] Args &&...args) {}
-template<typename ...Args> void LogTrace([[maybe_unused]] Args &&...args) {}
-template<typename ...Args> void LogDebug([[maybe_unused]] Args &&...args) {}
-template<typename ...Args> void LogInfo(Args &&...args) { logger << LogLevel::Info;     (logger(args...)); logger << "\n"; }
+
+    template<typename ...Args> void LogTrace(Args &&...args)    { logger << LogLevel::Trace;    (logger(args...)); logger << "\n"; }
+    template<typename ...Args> void LogDebug(Args &&...args)    { logger << LogLevel::Debug;    (logger(args...)); logger << "\n"; }
+    template<typename ...Args> void LogInfo(Args &&...args)     { logger << LogLevel::Info;     (logger(args...)); logger << "\n"; }
 #elif APP_MODE_RELEASE
-template<typename ...Args> void AppAssert([[maybe_unused]] Args &&...args) {}
-template<typename ...Args> void LogTrace([[maybe_unused]] Args &&...args) {}
-template<typename ...Args> void LogDebug([[maybe_unused]] Args &&...args) {}
-template<typename ...Args> void LogInfo([[maybe_unused]] Args &&...args) {}
+    template<typename ...Args> void AppAssert([[maybe_unused]] Args &&...args)  {}
+
+    template<typename ...Args> void LogTrace([[maybe_unused]] Args &&...args)   {}
+    template<typename ...Args> void LogDebug([[maybe_unused]] Args &&...args)   {}
+    template<typename ...Args> void LogInfo(Args &&...args)     { logger << LogLevel::Info;     (logger(args...)); logger << "\n"; }
+#elif APP_MODE_DISTRIBUTION
+    template<typename ...Args> void AppAssert([[maybe_unused]] Args &&...args)  {}
+
+    template<typename ...Args> void LogTrace([[maybe_unused]] Args &&...args)   {}
+    template<typename ...Args> void LogDebug([[maybe_unused]] Args &&...args)   {}
+    template<typename ...Args> void LogInfo([[maybe_unused]] Args &&...args)    {}
 #endif
 template<typename ...Args> void LogWarning(Args &&...args)  { logger << LogLevel::Warn;     (logger(args...)); logger << "\n"; }
 template<typename ...Args> void LogError(Args &&...args)    { logger << LogLevel::Error;    (logger(args...)); logger << "\n"; }
 template<typename ...Args> void LogFatal(Args &&...args)    { logger << LogLevel::Fatal;    (logger(args...)); logger << "\n"; }
 
 }
+
+// Extensions
+export import "Logger.h";
 
 // Global Specialization
 template <>
@@ -727,4 +728,3 @@ struct std::formatter<Ultra::LogLevel> {
 private:
     bool mColored = false;
 };
-

@@ -2,7 +2,8 @@
 
 ///
 /// @brief This module contains original source code from the Phoenix game engine.
-/// @source https://github.com/JoshParnell/libphx/tree/master
+/// @note It's only used for testing purposes, not in production!
+/// @link https://github.com/JoshParnell/libphx/tree/master
 ///
 
 #pragma warning(push, 0)

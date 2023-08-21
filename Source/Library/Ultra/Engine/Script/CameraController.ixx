@@ -21,7 +21,7 @@ public:
 
     void Update([[maybe_unused]] Timestamp deltaTime) override {
         //auto &transform = GetComponent<Component::Transform>();
-        float speed = 12.0f;
+        //float speed = 12.0f;
 
         //if (Input::GetKeyState(KeyCode::KeyA)) { transform.Position.x -= speed * deltaTime; }
         //if (Input::GetKeyState(KeyCode::KeyD)) { transform.Position.x += speed * deltaTime; }

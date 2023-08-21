@@ -66,25 +66,26 @@ uint32_t ShaderDataTypeSize(ShaderDataType type) {
 
 string GetShaderDataTypeAsString(ShaderDataType type) {
     switch (type) {
-        case ShaderDataType::Bool:          {return "Bool"; break; }
-        case ShaderDataType::Bool2:         {return "Bool2"; break; }
-        case ShaderDataType::Bool3:         {return "Bool3"; break; }
-        case ShaderDataType::Bool4:         {return "Bool4"; break; }
-        case ShaderDataType::Float:         {return "Float"; break; }
-        case ShaderDataType::Float2:        {return "Float2"; break; }
-        case ShaderDataType::Float3:        {return "Float3"; break; }
-        case ShaderDataType::Float4:        {return "Float4"; break; }
-        case ShaderDataType::Int:           {return "Int"; break; }
-        case ShaderDataType::Int2:          {return "Int2"; break; }
-        case ShaderDataType::Int3:          {return "Int3"; break; }
-        case ShaderDataType::Int4:          {return "Int4"; break; }
-        case ShaderDataType::Mat2:          {return "Matrix2"; break; }
-        case ShaderDataType::Mat3:          {return "Matrix3"; break; }
-        case ShaderDataType::Mat4:          {return "Matrix4"; break; }
-        case ShaderDataType::Texture1D:     {return "Texture1D"; break; }
-        case ShaderDataType::Texture2D:     {return "Texture2D"; break; }
-        case ShaderDataType::Texture3D:     {return "Texture3D"; break; }
-        case ShaderDataType::TextureCube:   {return "TextureCube"; break; }
+        case ShaderDataType::Bool:          { return "Bool"; break; }
+        case ShaderDataType::Bool2:         { return "Bool2"; break; }
+        case ShaderDataType::Bool3:         { return "Bool3"; break; }
+        case ShaderDataType::Bool4:         { return "Bool4"; break; }
+        case ShaderDataType::Float:         { return "Float"; break; }
+        case ShaderDataType::Float2:        { return "Float2"; break; }
+        case ShaderDataType::Float3:        { return "Float3"; break; }
+        case ShaderDataType::Float4:        { return "Float4"; break; }
+        case ShaderDataType::Int:           { return "Int"; break; }
+        case ShaderDataType::Int2:          { return "Int2"; break; }
+        case ShaderDataType::Int3:          { return "Int3"; break; }
+        case ShaderDataType::Int4:          { return "Int4"; break; }
+        case ShaderDataType::Mat2:          { return "Matrix2"; break; }
+        case ShaderDataType::Mat3:          { return "Matrix3"; break; }
+        case ShaderDataType::Mat4:          { return "Matrix4"; break; }
+        case ShaderDataType::Texture1D:     { return "Texture1D"; break; }
+        case ShaderDataType::Texture2D:     { return "Texture2D"; break; }
+        case ShaderDataType::Texture3D:     { return "Texture3D"; break; }
+        case ShaderDataType::TextureCube:   { return "TextureCube"; break; }
+        default: { return "Null"; break; }
     }
 }
 
@@ -169,6 +170,10 @@ string ShaderTypeToString(ShaderType type) {
         case ShaderType::TessControl:       { return "control"; }
         case ShaderType::TessEvaluation:    { return "evaluation"; }
         case ShaderType::Vertex:            { return "vertex"; }
+        default: {
+            AppAssert("Not implemented!");
+            return {};
+        }
     }
 }
 
@@ -204,8 +209,6 @@ public:
     virtual int32_t FindUniformLocation(const string &name) const = 0;
 
     // Mutators
-    virtual void UpdateTexture(const string &name, uint32_t index, const Texture &texture) {};
-
     virtual void UpdateUniformBuffer(const string &name, const void *data, size_t size) = 0;
     virtual void UpdateUniform(const string &name, const Bool &data) = 0;
     virtual void UpdateUniform(const string &name, const Bool2 &data) = 0;

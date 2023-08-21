@@ -44,9 +44,9 @@ public:
                 continue;
             }
 
-            particle.LifeRemaining -= deltaTime;
+            particle.LifeRemaining -= static_cast<float>(deltaTime);
             particle.Position += particle.Velocity * (float)deltaTime;
-            particle.Rotation += 0.01f * deltaTime;
+            particle.Rotation += 0.01f * static_cast<float>(deltaTime);
         }
     }
     void Render(PerspectiveCamera &camera) {
