@@ -6,8 +6,8 @@ import Ultra.Engine.DesignerCamera;
 import Ultra.Utility.ThreadPool;
 
 // Switches
-//#define ENGINE_TESTS
-#define LIBRARY_TESTS
+#define ENGINE_TESTS
+//#define LIBRARY_TESTS
 //#define MISCELLANEOUS_TESTS
 
 namespace Ultra {
@@ -145,8 +145,7 @@ public:
     /// @brief Engine Tests
     ///
     void EngineTest(Timestamp deltaTime) {
-        //// Begin
-        //// Begin recording commands
+        // Begin recording commands
         //commandBuffer->Begin();
         //commandBuffer->Clear(0.2f, 0.3f, 0.3f, 1.0f);     // Clear the framebuffer
         //commandBuffer->BindRenderState(renderState);      // Set up the render state
@@ -155,13 +154,12 @@ public:
         mDesignerCamera.Update(deltaTime);
         Renderer2D::StartScene(mDesignerCamera);
 
-        //    // Bind shaders, buffers, textures
+        // Bind shaders, buffers, textures
         //    commandBuffer->BindShader(vertexShader);
         //    commandBuffer->BindShader(fragmentShader);
         //    commandBuffer->BindVertexBuffer(vertexBuffer);
         //    commandBuffer->BindIndexBuffer(indexBuffer);
         //    commandBuffer->BindTexture(0, texture);
-
         //    commandBuffer->DrawIndexed(indexCount);           // Draw the mesh
          
         
@@ -408,7 +406,7 @@ private:
 
 // Application Entry-Point
 Application *CreateApplication() {
-    return new App({ "Spectra", "1280x1024", GraphicsAPI::OpenGL });
+    return new App({ "Spectra", "1280x1024" });
 }
 
 }

@@ -12,7 +12,7 @@
     linkoptions { "/ignore:4006" }
     
     externalincludedirs {
-        "../",
+        "../@Headers",
         "ext/include",
     }
     includedirs {
@@ -76,6 +76,7 @@ project "libphx64"
     libdirs { "ext/lib/win64" }
     
     externalincludedirs {
+        "../@Headers",
         "ext/include",
     }
     includedirs {
@@ -83,6 +84,8 @@ project "libphx64"
 	    "ext/include/bullet",
     }
     links {
+        "Glad",
+
         "BulletCollision",
         "BulletDynamics",
         "fmod64_vc",

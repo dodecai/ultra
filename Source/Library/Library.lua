@@ -29,11 +29,9 @@
 	    "%{Headers.DearImGui}",
 	    "%{Headers.EnTT}",
 	    "%{Headers.glm}",
-        "%{Headers.stb}",
-	    "%{Headers.Vulkan}",
-	    "%{Headers.VulkanVideo}",
+        "%{Headers.yamlcpp}",
         "%{Headers.LibPHX}",
-        "%{Headers.LibPHXExt}",
+        "%{Headers.LibPHXext}",
     }
     includedirs {
 	    "%{Headers.Library}",

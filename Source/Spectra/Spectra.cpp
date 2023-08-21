@@ -5,6 +5,8 @@ import Ultra;
 
 namespace Ultra {
 
+using namespace Ultra::UI;
+
 // Application
 class Spectra: public Application {
 public:
@@ -13,9 +15,18 @@ public:
     ~Spectra() = default;
 
     // Methods
-    void Create() {}
+    void Create() {
+        mRenderer = Renderer::Create();
+        Resource::Instance();
+    }
+
     void Destroy() {}
-    void Update([[maybe_unused]] Timestamp deltaTime) {}
+
+    void Update([[maybe_unused]] Timestamp deltaTime) {
+        HmGui::ShowDemo(deltaTime);
+        mRenderer->RenderFrame();
+        HmGui::Draw();
+    }
 
     // Styles
     string AsciiLogo() {
@@ -27,11 +38,14 @@ public:
      |______/ |____/__|  |__|  (____  /  /_______  /   __/ \___  >___  >__|  |__|  (____  /
                                     \/           \/|__|        \/    \/                 \/ )";
     }
+
+private:
+    Scope<Renderer> mRenderer;
 };
 
 // Application Entry-Point
 Application *CreateApplication() {
-    return new Spectra({ "Spectra", "1280x1024" });
+    return new Spectra({ "Spectra", "1280x1024", GraphicsAPI::OpenGL });
 }
 
 }

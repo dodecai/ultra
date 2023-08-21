@@ -1,19 +1,19 @@
-﻿[submodule "3rd-Party/imgui"]
-	path = 3rd-Party/imgui
-	url = https://github.com/OmniVortexStudios/imgui.git
-	branch = docking
+﻿[submodule "3rd-Party/assimp"]
+	path = 3rd-Party/assimp
+	url = https://github.com/OmniVortexStudios/assimp.git
 [submodule "3rd-Party/entt"]
 	path = 3rd-Party/entt
 	url = https://github.com/OmniVortexStudios/entt.git
 [submodule "3rd-Party/glm"]
 	path = 3rd-Party/glm
 	url = https://github.com/OmniVortexStudios/glm.git
+[submodule "3rd-Party/imgui"]
+	path = 3rd-Party/imgui
+	url = https://github.com/OmniVortexStudios/imgui.git
+	branch = docking
 [submodule "3rd-Party/stb"]
 	path = 3rd-Party/stb
 	url = https://github.com/OmniVortexStudios/stb.git
-[submodule "3rd-Party/assimp"]
-	path = 3rd-Party/assimp
-	url = https://github.com/OmniVortexStudios/assimp.git
 [submodule "3rd-Party/yaml-cpp"]
 	path = 3rd-Party/yaml-cpp
 	url = https://github.com/OmniVortexStudios/yaml-cpp

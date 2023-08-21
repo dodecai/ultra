@@ -2,31 +2,19 @@
 #include <Ultra/EntryPoint.h>
 
 import Ultra;
-
-#define NATIVE_RENDERER1
-
-#ifdef NATIVE_RENDERER
-    import Ultra.Module.Phoenix;
-#endif
+import Ultra.Module.Phoenix;
 
 namespace Ultra {
-
-using namespace Ultra::UI;
 
 // Application
 class App: public Application {
 public:
     // Constructors and Destructor
-#ifdef NATIVE_RENDERER
     App(const ApplicationProperties &properties): Application(ApplicationProperties(true)) {}
-#else
-    App(const ApplicationProperties &properties): Application(properties) {}
-#endif
     ~App() = default;
 
     // Methods
     void Create() {
-    #ifdef NATIVE_RENDERER
         Engine_Init(2, 1);
         mLua = Lua_Create();
 
@@ -43,39 +31,20 @@ public:
         Lua_SetNumber(mLua, "__checklevel__", 0); // CHECK_LEVEL [=0]
         Lua_SetStr(mLua, "__app__", "TestHmGui");
         Lua_DoFile(mLua, "./Script/Main.lua");
-    #else
-        mRenderer = Renderer::Create();
-        Resource::Instance();
-
-        AppAssert(true, "Test");
-
-        auto test = true;
-    #endif
     }
 
     void Destroy() {
-    #ifdef NATIVE_RENDERER
         Lua_Free(mLua);
         Engine_Free();
-    #endif
     }
 
     void Update([[maybe_unused]] Timestamp deltaTime) {
-    #ifdef NATIVE_RENDERER
         Engine_Update();
-    #else#
-        HmGui::ShowDemo(deltaTime);
-        mRenderer->RenderFrame();
-        HmGui::Draw();
-    #endif
     }
 
 private:
-#ifdef NATIVE_RENDERER
     Lua *mLua = nullptr;
-#else
     Scope<Renderer> mRenderer;
-#endif
 };
 
 // Application Entry-Point
