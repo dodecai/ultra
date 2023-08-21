@@ -3,20 +3,24 @@
 import <string>;
 import <vector>;
 
-using std::string;
-using std::vector;
-
 export namespace Ultra {
 
 ///
-/// @brief List of passed command line arguments
+/// @brief Container for passed command line arguments
+/// 
+/// @example
+/// Arguments arguments { argv + 1, argv + argc };
 ///
-struct Arguments {
+class Arguments {
+private:
+    using ArgumentList = std::vector<std::string>;
+
+public:
     Arguments() = default;
-    Arguments(const vector<string> &arguments): mArgumentList(arguments) {}
+    Arguments(const ArgumentList &arguments): mArgumentList(arguments) {}
 
 private:
-    vector<string> mArgumentList = {};
+    ArgumentList mArgumentList = {};
 };
 
 }

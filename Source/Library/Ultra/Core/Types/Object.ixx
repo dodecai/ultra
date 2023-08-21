@@ -4,9 +4,9 @@ import <exception>;
 import <mutex>;
 
 ///
-/// @brief  Contains classes for managing object behavior and immutability.
-/// @note   The classes here are useful for controlling copying, moving, and modification of objects in the application.
-///         They can be used as base classes to ensure specific behaviors.
+/// @brief Contains classes for managing object behavior and immutability.
+/// They can be used as base classes to ensure specific behaviors.
+/// @note The classes here are useful for controlling copying, moving, and modification of objects in the application.
 ///
 
 export namespace Ultra {
@@ -55,7 +55,6 @@ private:
 
 ///
 /// @brief Restricts access to certain methods or properties of objects.
-/// @note Left for future use.
 ///
 class AccessControlledObject {
 protected:
@@ -83,17 +82,18 @@ protected:
 ///
 /// @brief Provides a template for objects that can be serialized and deserialized.
 /// @tparam T The data type that represents the serialized form of the object.
+/// 
 /// @example
-///     class ExampleClass : public SerializableObject<string> {
-///     public:
-///         string Serialize() override {
-///             // Implement serialization logic to convert object data to a string
-///         }
-///     
-///         void Deserialize(const string &data) override {
-///             // Implement deserialization logic to restore object data from the string
-///         }
-///     };
+/// class ExampleClass : public SerializableObject<string> {
+/// public:
+///     string Serialize() override {
+///         // Implement serialization logic to convert object data to a string
+///     }
+/// 
+///     void Deserialize(const string &data) override {
+///         // Implement deserialization logic to restore object data from the string
+///     }
+/// };
 ///
 template <typename T>
 class SerializableObject {
@@ -107,9 +107,9 @@ public:
 
 ///
 /// @brief Ensures thread-safe usage of objects through locking mechanisms.
-/// @note Like in the example, use the LockGuard in every methods head.
+/// 
 /// @example
-///     ThreadSafeObject::LockGuard lock(*this);
+/// ThreadSafeObject::LockGuard lock(*this);
 ///
 class ThreadSafeObject {
 protected:

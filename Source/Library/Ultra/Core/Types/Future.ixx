@@ -2,6 +2,14 @@
 
 import Ultra.Core;
 
+import <future>;
+
 export namespace Ultra {
-// ToDo: Left for future use.
+
+///
+/// @brief Container for future objects, with some syntactic sugar.
+/// @note ToDo: Implement future utility classes, functions here.
+///
+class Future;
+
 }

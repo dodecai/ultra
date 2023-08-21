@@ -3,7 +3,7 @@
 import <memory>;
 
 ///
-/// @brief The following definitions serve as replacement possibility.
+/// @brief The following definitions serve as replacement possibilities for standard smart pointers.
 /// 
 
 export namespace Ultra {
@@ -23,7 +23,7 @@ using ReferenceView = std::weak_ptr<T>;
 
 template<typename T, typename ... Args>
 constexpr ReferenceView<T> CreateReferenceView(const Reference<T> &reference) {
-    return ReferenceView<T>(reference);
+    return ReferenceView<T>(reference); // Ensure that the shared_ptr remains valid while using the weak_ptr.
 }
 
 // Scope Pointer

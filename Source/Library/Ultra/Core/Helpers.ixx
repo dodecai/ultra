@@ -3,7 +3,7 @@
 import <vector>;
 
 ///
-/// @brief These little helpers can be usefully in some cases.
+/// @brief These little helpers can be very useful in some cases.
 ///
 
 export namespace Ultra {

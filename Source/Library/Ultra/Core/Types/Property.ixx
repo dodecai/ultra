@@ -2,14 +2,15 @@
 
 import <algorithm>;
 import <functional>;
+import Ultra.Core.Concepts;
 
 export namespace Ultra {
 
 ///
 /// @brief Property: Built-In Getter and Setter for <any> type
-///
+/// 
 /// @example
-/// Ultra::Property<size_t> Size { 0, [this](const size_t &value) {
+/// Property<size_t> Size { 0, [this](const size_t &value) {
 ///    return value == 1000 ? 0 : value;
 /// }};
 ///
@@ -35,14 +36,17 @@ private:
 
 ///
 /// @brief Property: Built-In Getter and Setter for <arithmetic> types with clamping 'from # to # in steps #' feature
+/// 
+/// @example
+/// ArithmeticProperty<short> VersionMajor { 2, 0, 100, 2 };
+/// VersionMajor++;
 ///
-template <typename T>
+template <typename_arithmetic T>
 class ArithmeticProperty {
-    static_assert(std::is_arithmetic<T>::value);
-    T Value = 0;
-    T Minimum = 0;
-    T Maximum = 0;
-    T Step = 0;
+    T Value {};
+    T Minimum {};
+    T Maximum {};
+    T Step = {};
 
 public:
     // Predefined values {0}
@@ -53,13 +57,30 @@ public:
     ArithmeticProperty(T value, T min, T max): Value {value}, Minimum {min}, Maximum {max} {};
 
     T &operator=(const T &value) {
-        // ToDo: Implement 'in steps #' feature
         if (!Minimum && !Maximum) {
             return Value;
         } else {
             return Value = std::clamp(value, Minimum, Maximum);
         }
     };
+    ArithmeticProperty &operator++() {
+        Value = std::min(Value + Step, Maximum);
+        return *this;
+    }
+    ArithmeticProperty operator++(int) {
+        ArithmeticProperty temp = *this;
+        ++(*this);
+        return temp;
+    }
+    ArithmeticProperty &operator--() {
+        Value = std::max(Value - Step, Minimum);
+        return *this;
+    }
+    ArithmeticProperty operator--(int) {
+        ArithmeticProperty temp = *this;
+        --(*this);
+        return temp;
+    }
     operator T const &() const { return Value; }
 };
 

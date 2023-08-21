@@ -6,76 +6,6 @@ import Ultra.Core;
 
 export namespace Ultra {
 
-// All-String Types
-template<typename T>
-struct is_xstring: public std::disjunction<
-    std::is_same<char *, typename std::decay_t<T>>,
-    std::is_same<const char *, typename std::decay_t<T>>,
-    std::is_same<std::string, typename std::decay_t<T>>,
-    std::is_same<std::string_view, typename std::decay_t<T>>,
-    std::is_same<wchar_t *, typename std::decay_t<T>>,
-    std::is_same<const wchar_t *, typename std::decay_t<T>>,
-    std::is_same<std::wstring, typename std::decay_t<T>>,
-    std::is_same<std::wstring_view, typename std::decay_t<T>>
-> {};
-
-template<typename T>
-constexpr bool is_xstring_v = is_xstring<T>::value;
-
-// Default-String Types
-template<typename T>
-struct is_string: public std::disjunction<
-    std::is_same<char *, typename std::decay_t<T>>,
-    std::is_same<const char *, typename std::decay_t<T>>,
-    std::is_same<std::string, typename std::decay_t<T>>,
-    std::is_same<std::string_view, typename std::decay_t<T>>
-> {};
-
-template<typename T>
-constexpr bool is_string_v = is_string<T>::value;
-
-// Wide-String Types
-template<typename T>
-struct is_wstring: public std::disjunction<
-    std::is_same<wchar_t *, typename std::decay_t<T>>,
-    std::is_same<const wchar_t *, typename std::decay_t<T>>,
-    std::is_same<std::wstring, typename std::decay_t<T>>,
-    std::is_same<std::wstring_view, typename std::decay_t<T>>
-> {};
-
-template<typename T>
-constexpr bool is_wstring_v = is_wstring<T>::value;
-
-// All-String Concept
-template<typename T>
-concept typename_string =
-std::is_same_v<char *, std::decay<T>> ||
-std::is_same_v<wchar_t *, std::decay<T>> ||
-std::is_same_v<const char *, std::decay<T>> ||
-std::is_same_v<const wchar_t *, std::decay<T>> ||
-std::is_same_v<std::string, std::decay<T>> ||
-std::is_same_v<std::string_view, std::decay<T>> ||
-std::is_same_v<std::wstring, std::decay<T>> ||
-std::is_same_v<std::wstring_view, std::decay<T>>;
-
-// All-StringView Concept
-template<typename T>
-concept typename_string_view =
-std::is_same_v<std::string_view, std::decay<T>> ||
-std::is_same_v<std::wstring_view, std::decay<T>>;
-
-template<typename T>
-concept hashable = requires(T a) {
-    { std::hash<T>{}(a) } -> std::convertible_to<std::size_t>;
-};
-
-constexpr inline size_t operator"" _hash(const char *value, size_t count) {
-    if (count > 0) {
-        return !value ? 0 : std::hash<string> {}(value);
-    }
-    return 0;
-}
-
 /// @brief This class offers easy to use string extensions
 class String {
     // Default
@@ -196,7 +126,6 @@ public:
         string string03 = "ThIrD";
         string string04 = "-Foruth";
 
-        string string10 = "-123,456.789";
         string string11 = "-123,456.789a";
         string string12 = "0123456789";
         string string13 = "0123456789a";
@@ -204,6 +133,7 @@ public:
         string string15 = "0x123456789ABCDEFG";
         string string16 = "01234567";
         string string17 = "012345678";
+        string string10 = "-123,456.789";
 
         string string20 = "This is a very long sentence for a small string!";
         string string21 = "What the ... should i do. Maybe it would be my 1st try to 3489032840921384092384902318490823149203945803294.";

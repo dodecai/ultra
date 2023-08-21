@@ -12,8 +12,8 @@ public:
     ~Timestamp() = default;
 
     // Accessors
-    inline const double GetSeconds() { return mTime / 1000.0; }
-    inline const double GetMilliseconds() { return mTime; }
+    inline const double GetSeconds() const { return mTime / 1000.0; }
+    inline const double GetMilliseconds() const { return mTime; }
 
     // Operators
     inline operator double() { return GetSeconds(); }

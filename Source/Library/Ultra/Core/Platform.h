@@ -90,19 +90,20 @@
 	#if TARGET_OS_IPHONE == 1
 		#define APP_PLATFORM_IOS
 		#define APP_PLATFORM "iOS"
+        inline constexpr auto AppPlatform = "iOS";
 	#elif TARGET_OS_MAC == 1
 		#define APP_PLATFORM_MACOSX
 		#define APP_PLATFORM "MacOSX"
+        inline constexpr auto AppPlatform = "MacOSX";
 	#endif
-    inline constexpr auto AppPlatform = "MacOSX";
 #elif !defined(__linux__) && defined(unix) || defined(__unix) || defined(__unix__)
 	#define APP_PLATFORM_UNIX
 	#define APP_PLATFORM "Unix"
     inline constexpr auto AppPlatform = "Unix";
 #elif defined(APP_COMPILER_EMSCRIPTEN)
 	#define APP_PLATFORM_WEB
-	#define APP_PLATFORM "WEB"
-    inline constexpr auto AppPlatform = "WEB";
+	#define APP_PLATFORM "Web"
+    inline constexpr auto AppPlatform = "Web";
 #else
 	#define APP_PLATFORM_UNKNOWN
 	#define APP_PLATFORM "Unknown"
