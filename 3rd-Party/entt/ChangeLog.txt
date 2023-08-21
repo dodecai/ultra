@@ -1,0 +1,24 @@
+git rm -f ".github"
+git rm -f "build"
+git rm -f "cmake"
+git rm -f "conan"
+git rm -f "docs"
+git rm -f "scripts"
+git rm -f "src"
+git rm -f "test"
+git rm -f ".clang-format"
+git rm -f ".gitignore"
+git rm -f "AUTHORS"
+git rm -f "BUILD.bazel"
+git rm -f "CMakeLists.txt"
+git rm -f "CONTRIBUTING.md"
+git rm -f "WORKSPACE"
+git rm -f "conanfile.py"
+git rm -f "entt.imp"
+
+git mv ".\single_include\entt" ".\entt"
+git mv ".\LICENSE" License
+git mv ".\README.md" ReadMe.md
+git mv ".\TODO" ToDo
+
+git rm -f "single_include"

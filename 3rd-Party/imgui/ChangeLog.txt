@@ -1,0 +1,18 @@
+git rm -f ".github"
+git rm -f "examples"
+git rm -f "misc/cpp"
+git rm -f "misc/freetype"
+git rm -f "misc/single-file"
+git rm -f "misc/README.txt"
+git rm -f ".editorconfig"
+git rm -f ".gitattributes"
+git rm -f ".gitignore"
+git rm -f ".clang-format"
+
+git mv ".\docs\README.md" ".\ReadMe.md"
+git mv ".\docs\TODO.txt" ToDo.txt
+git mv ".\misc\debuggers\imgui.natvis" ".\natvis\imgui\imgui.natvis"
+git mv ".\LICENSE.txt" License
+
+git rm -f "docs"
+git rm -f "misc/debuggers"
