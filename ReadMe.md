@@ -54,4 +54,3 @@ Expect a slew of surprises until my satisfaction knows no bounds!
 Several [third-party](3rd-Party/3rd-Party.md "3rd-Party") libraries power this project.
 
 Let's embrace the future of gaming together! 🎮🌟🚀
-Bitte lass mich wissen, wenn noch weitere Anpassungen nötig sind!
