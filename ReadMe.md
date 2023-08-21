@@ -24,7 +24,7 @@ This project currently serves primarily for educational purposes.
 
 - A game engine which runs on nearly any platform and with any API.
 - A game designer which fullfills anyones needs.
-- Not an Unity, Unreal, etc replacement, rather like something which can coexist for "have-fun" projects.
+- Not a Unity, Unreal, etc. replacement, rather like something which can coexist for "have-fun" projects.
 
 ## Features ##
 > Note: The main development platform is Windows, therefore everything will be implemented there first.
