@@ -19,7 +19,7 @@ include "yaml-cpp/yaml-cpp.lua"
 
 Headers["assimp"] = "%{wks.location}/3rd-Party/assimp/include"
 Headers["DearImGui"] = "%{wks.location}/3rd-Party/imgui"
-Headers["EnTT"] = "%{wks.location}/3rd-Party/entt/single_include"
+Headers["EnTT"] = "%{wks.location}/3rd-Party/entt/include"
 Headers["glad"] = "%{wks.location}/3rd-Party/glad/include"
 Headers["glm"] = "%{wks.location}/3rd-Party/glm"
 Headers["yamlcpp"] = "%{wks.location}/3rd-Party/yaml-cpp/include"
