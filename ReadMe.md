@@ -17,7 +17,7 @@
 
 > Attention: Currently under construction, heavy-development and in an early-stage.
 
-This projects mirrors my odyssey to get into game engine development since I was a child. As everyone knows, this is a task which will take some years, anyways as long as I have fun while coding, it doesn't realy matter.
+This projects mirrors my odyssey to get into game engine development since I was a child. As everyone knows, this is a task which will take some years, anyways as long as I have fun while coding, it doesn't really matter.
 
 ## Project Goal ##
 This project currently serves primarily for educational purposes.
