@@ -14,3 +14,6 @@
 [submodule "3rd-Party/assimp"]
 	path = 3rd-Party/assimp
 	url = https://github.com/larioteo/assimp.git
+[submodule "3rd-Party/yaml-cpp"]
+	path = 3rd-Party/yaml-cpp
+	url = https://github.com/OmniVortexStudios/yaml-cpp
