@@ -4,9 +4,6 @@
 [submodule "3rd-Party/entt"]
 	path = 3rd-Party/entt
 	url = https://github.com/OmniVortexStudios/entt.git
-[submodule "3rd-Party/glm"]
-	path = 3rd-Party/glm
-	url = https://github.com/OmniVortexStudios/glm.git
 [submodule "3rd-Party/imgui"]
 	path = 3rd-Party/imgui
 	url = https://github.com/OmniVortexStudios/imgui.git
