@@ -1,4 +1,4 @@
-﻿# Ultra Spectra
+﻿# <img src="https://github.com/OmniVortexStudios/ultra/blob/master/Assets/Images/Ultra%20Spectra.png" alt="Logo" width="64"/> Ultra Spectra #
 
 [Cpp-Badge]: https://img.shields.io/badge/C%2B%2B-23-blue
 [C-Badge]: https://img.shields.io/badge/C-17-blue
@@ -10,44 +10,48 @@
 
 [![Cpp-Badge]][Cpp-Url]
 [![C-Badge]][C-Url]
-[![License][License-Badge]][License-Url]
-[![DevSkim](https://github.com/larioteo/ultra/actions/workflows/devskim.yml/badge.svg)](https://github.com/larioteo/ultra/actions/workflows/devskim.yml)
-[![MSBuild](https://github.com/larioteo/ultra/actions/workflows/msbuild.yml/badge.svg)](https://github.com/larioteo/ultra/actions/workflows/msbuild.yml)
+[![License-Url][License-Badge]][License-Url]
+[![DevSkim](https://github.com/OmniVortexStudios/ultra/actions/workflows/devskim.yml/badge.svg)](https://github.com/larioteo/ultra/actions/workflows/devskim.yml)
+[![MSBuild](https://github.com/OmniVortexStudios/ultra/actions/workflows/msbuild.yml/badge.svg)](https://github.com/larioteo/ultra/actions/workflows/msbuild.yml)
 
-> Attention: Currently under construction, heavy development, and in an early stage.
+> **Attention:** Currently under construction, heavy development, and in an early stage.
 This project was restarted from scratch. Switch to the 'prototype' branch to get the most out of it.
 
-The reason I started this game engine framework is simple: it's fun, and I enjoy coding it. <br/>
-<br/>
-So, no, I'm not reinventing the wheel. Look at the current market – every day, there is a "new" solution for existing problems.
+I embarked on this journey to create Ultra Spectra, a dynamic game engine framework. My motivation? Simple – it's immensely enjoyable, and coding is my passion.
 
-## Build
+Now, let's address the elephant in the room: am I reinventing the wheel? Look around the market – each day, a "new" solution emerges for age-old problems.
+
+## Crafting the Foundation
 
 Supported Development Environments:
 - Visual Studio 2022 >v17.7
 
-### VS2022
-1. Execute 'prepare.bat' to build the Visual Studio solution.
-2. Execute 'msbuild' in the developer console.
+### For VS2022 Enthusiasts
+1. Run 'prepare.bat' to build the Visual Studio solution.
+2. In your developer console, execute 'msbuild'.
 
-## Goals
+## Aspirations
 
-This project primarily serves educational purposes, but there could be something interesting here and there. I want to achieve the following:
-- A game engine framework that runs on nearly any platform and with any API
-- A game editor that fulfills anyone's needs and is easy to use
-- Not a replacement for Unity, Unreal, etc., but something that can coexist for "have-fun" projects
+While this project has educational roots, it also holds the promise of intrigue. My goals include:
+- Creating a versatile game engine framework compatible across platforms and APIs
+- Crafting an intuitive game editor catering to diverse needs
+- Not a rival to Unity, Unreal, and their ilk, but a sidekick for "have-fun" projects
 
+## Features at a Glance
 
-## Features
-> Note: The main development platform is Windows. Therefore, everything will be implemented on it first.
+> **Note:** Windows is the central development platform. As such, it'll be the initial recipient of all the goodies.
 
-I'm implementing features that interest me. For everything else, I use libraries like everyone else.
+Features are my canvas. For the rest, I wield libraries like any other creator.
 
 ### @Work
-Everything around the application and renderer itself.
+Everything revolving around the application and its renderer.
 
-### Planned
-A lot, until I'm satisfied with the result!
+### On the Horizon
+Expect a slew of surprises until my satisfaction knows no bounds!
 
-# Disclaimer
-This project uses several [third-party](3rd-Party/3rd-Party.md "3rd-Party") libraries.
+# Legalities
+
+Several [third-party](3rd-Party/3rd-Party.md "3rd-Party") libraries power this project.
+
+Let's embrace the future of gaming together! 🎮🌟🚀
+Bitte lass mich wissen, wenn noch weitere Anpassungen nötig sind!

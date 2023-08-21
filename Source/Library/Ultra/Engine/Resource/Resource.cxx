@@ -9,6 +9,9 @@ using PathList = std::list<string>;
 static unordered_map<PhyResourceType, PathList> sPaths;
 
 Resource::Resource() {
+    Resource::AddPath(PhyResourceType::Font, "./Assets/Fonts/{}.otf");
+    Resource::AddPath(PhyResourceType::Font, "./Assets/Fonts/{}.ttf");
+
     Resource::AddPath(PhyResourceType::Font, "./Assets/Phoenix/res/font/{}.ttf");
     Resource::AddPath(PhyResourceType::Font, "./Assets/Phoenix/res/font/{}.otf");
     Resource::AddPath(PhyResourceType::Mesh, "./Assets/Phoenix/res/mesh/{}.bin");

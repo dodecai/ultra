@@ -47,16 +47,47 @@
                 "Assets/Fonts/Ubuntu/*",
             },
         },
+        ["Images"] = {
+            "Assets/Images/*.ico",
+            "Assets/Images/*.png",
+            "Assets/Images/*.svg",
+        },
         ["Meshes"] = {
+            ["Cone"] = {
+                "Assets/Meshes/Cone/*",
+            },
             ["Cube"] = {
                 "Assets/Meshes/Cube/*",
+            },
+            ["Cylinder"] = {
+                "Assets/Meshes/Cylinder/*",
+            },
+            ["Monkey"] = {
+                "Assets/Meshes/Monkey/*",
+            },
+            ["Plane"] = {
+                "Assets/Meshes/Plane/*",
+            },
+            ["Sphere"] = {
+                "Assets/Meshes/Sphere/*",
+            },
+            ["Torus"] = {
+                "Assets/Meshes/Torus/*",
             },
         },
         ["Shaders"] = {
             "Assets/Shaders/*",
         },
+        ["Sounds"] = {
+            "Assets/Sounds/*.mp3",
+            "Assets/Sounds/*.wav",
+        },
         ["Phoenix"] = {
             "Assets/Phoenix/script/*.lua",
+        },
+        ["Textures"] = {
+            "Assets/Textures/*.png",
+            "Assets/Textures/*.tga",
         },
     },
     ["Build"] = {
@@ -85,6 +116,7 @@
         "Manual/*",
     },
     "License",
+    "Contributing.md",
     "ReadMe.md",
     "Security.md",
 }
