@@ -7,11 +7,11 @@
 Welcome!
 
 ## Pull Requests
-  1. Is the feature desired or usefull?
+  1. Is the feature desired or useful?
   2. Do you follow the style guide and rules?
 
 ## Reporting bugs
   1. Search the database for existing bugs.
   2. Use the template and fill in needed data.
-  3. Specify sthe steps to reproduce the issue.
+  3. Specify the steps to reproduce the issue.
   4. If needed, provide a simple example.
