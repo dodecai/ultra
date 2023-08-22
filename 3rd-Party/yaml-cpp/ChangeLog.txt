@@ -1,0 +1,16 @@
+git rm -f -r  ".github"
+git rm -f -r  "docs"
+git rm -f -r  "test"
+git rm -f -r  "util"
+git rm -f ".clang-format"
+git rm -f ".codedocs"
+git rm -f ".gitignore"
+git rm -f "BUILD.bazel"
+git rm -f "cmake_uninstall.cmake.in"
+git rm -f "CONTRIBUTING.md"
+git rm -f "install.txt"
+git rm -f "SECURITY.md"
+git rm -f "WORKSPACE"
+
+git mv ".\LICENSE" License
+git mv ".\README.md" ".\ReadMe.md"

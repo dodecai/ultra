@@ -1,0 +1,13 @@
+git rm -f -r ".github"
+git rm -f -r "cmake"
+git rm -f -r "doc"
+git rm -f -r "test"
+git rm -f -r "util"
+git rm -f ".appveyor.yml"
+git rm -f ".gitignore"
+git rm -f ".travis.yml
+git rm -f "CMakeLists.txt"
+git rm -f "manual.md"
+
+git mv ".\copying.txt" "License"
+git mv ".\readme.md" "ReadMe.md"
