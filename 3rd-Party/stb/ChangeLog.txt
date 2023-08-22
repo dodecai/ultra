@@ -9,3 +9,5 @@ git rm -f ".travis.yml"
 git mv ".\LICENSE" License
 git mv ".\README.md" ".\ReadMe.md"
 
+mkdir include\stb
+gci ".\" -Filter "stb_*.h" | % { git mv "$_" ".\include\stb\" }

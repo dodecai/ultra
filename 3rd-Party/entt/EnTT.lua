@@ -11,7 +11,7 @@
 
 	files {
         "EnTT.lua",
-		"single_include/entt/entt.hpp",
+		"include/entt/entt.hpp",
 	}
 
     filter { "configurations:Debug" }

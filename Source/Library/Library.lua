@@ -29,6 +29,7 @@
 	    "%{Headers.EnTT}",
 	    "%{Headers.glad}",
 	    "%{Headers.glm}",
+	    "%{Headers.stb}",
         "%{Headers.yamlcpp}",
         
         "%{Headers.ShaderC}",

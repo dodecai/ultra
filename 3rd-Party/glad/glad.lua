@@ -31,4 +31,6 @@
         defines { "NDEBUG" }
         optimize "On"
         symbols "Off"
-
+        
+	filter "system:windows"
+		systemversion "latest"

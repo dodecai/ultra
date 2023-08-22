@@ -14,12 +14,15 @@
     externalincludedirs {
         "../",
         "ext/include",
+	    "%{Headers.glad}",
+	    "%{Headers.stb}",
     }
+
     includedirs {
-        "../glad/include",
 	    "include",
 	    "ext/include/bullet",
     }
+
     links {
         "ext/lib/win64/BulletCollision.lib",
         "ext/lib/win64/BulletDynamics.lib",
@@ -77,13 +80,16 @@ project "libphx64"
     libdirs { "ext/lib/win64" }
     
     externalincludedirs {
-        "../glad/include",
         "ext/include",
+	    "%{Headers.glad}",
+	    "%{Headers.stb}",
     }
+
     includedirs {
 	    "include",
 	    "ext/include/bullet",
     }
+
     links {
         "Glad",
 

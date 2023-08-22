@@ -1,4 +1,4 @@
-project "assimp"
+﻿project "assimp"
   kind "StaticLib"
   language "C++"
   conformancemode "true"
@@ -126,9 +126,6 @@ project "assimp"
       "contrib/zlib",
   }
 
-  filter "system:windows"
-     systemversion "latest"
-
   filter  "configurations:Debug"
       runtime "Debug"
       symbols "on"
@@ -136,3 +133,6 @@ project "assimp"
   filter  "configurations:Release"
       runtime "Release"
       optimize "on"
+      
+  filter "system:windows"
+     systemversion "latest"
