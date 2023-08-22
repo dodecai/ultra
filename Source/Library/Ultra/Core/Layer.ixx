@@ -6,6 +6,9 @@ import Ultra.System.Event;
 
 export namespace Ultra {
 
+///
+/// @brief Simple Application Layer Implementation
+///
 class Layer {
 public:
     Layer(const string &name = "Layer"): mName(name) {}
@@ -35,11 +38,10 @@ protected:
     string mName;
 };
 
+///
+/// @brief Container for the Application Layers
+///
 class LayerStack {
-    vector<Layer *> Layers;
-    vector<Layer *>::iterator LayerInsert;
-    uint32_t LayerInsertIndex = 0;
-
 public:
     LayerStack() = default;
     ~LayerStack() {
@@ -83,6 +85,11 @@ public:
     auto end() const { return Layers.end(); }
     auto rbegin() const { return Layers.rbegin(); }
     auto rend() const { return Layers.rend(); }
+
+private:
+    uint32_t LayerInsertIndex = 0;
+    vector<Layer *> Layers;
+    vector<Layer *>::iterator LayerInsert;
 };
 
 }

@@ -2,9 +2,6 @@
 
 import Ultra.Core;
 
-template<typename T, typename = typename std::enable_if_t<std::is_arithmetic_v<T>, T>>
-constexpr inline auto BitMask(T x) { return (1 << x); }
-
 export namespace Ultra {
 
 ///
@@ -114,7 +111,6 @@ inline bool IsEventCategory(EventSource source, EventCategory category) {
     if (GetEnumType(source) & 1 << GetEnumType(category)) { return true; }
     return false;
 }
-
 
 
 ///
@@ -353,7 +349,6 @@ inline std::ostream &operator<<(std::ostream &stream, TouchAction action) {
 	}
 	return stream;
 }
-
 
 
 ///
@@ -951,7 +946,6 @@ inline std::ostream &operator<<(std::ostream &stream, TouchStyle style) {
 }
 
 
-
 ///
 /// @brief States
 ///
@@ -1030,7 +1024,6 @@ inline std::ostream &operator<<(std::ostream &stream, ModifierStateMask state) {
 	stream << std::bitset<8>(state.Mask);
 	return stream;
 }
-
 
 
 ///
