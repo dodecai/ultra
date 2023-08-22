@@ -140,13 +140,13 @@ WinWindow::WinWindow(const WindowProperties &properties):
     windowStyle.ClassStyle = (DWORD)ClassStyle::Application;
     //SetThreadExecutionState(ES_DISPLAY_REQUIRED && ES_SYSTEM_REQUIRED);
 
-    // Load Ressources
+    // Load Resources
     AppIcon = (HICON)LoadIconFile(Properties.Icon);
 
     // Register Window Class
     WNDCLASSEX classProperties = {
         .cbSize	= sizeof(WNDCLASSEX),			// Structure Size (in bytes)
-        .style = windowStyle.ClassStyle,		// Seperate device context for window and redraw on move
+        .style = windowStyle.ClassStyle,		// Separate device context for window and redraw on move
         .lpfnWndProc = MessageCallback,			// Message Callback (WndProc)
         .cbClsExtra = 0,						// Extra class data
         .cbWndExtra = WS_EX_TOPMOST,			// Extra window data
@@ -176,21 +176,21 @@ WinWindow::WinWindow(const WindowProperties &properties):
             .dmPelsHeight = screenHeight,	// Selected Screen Height
         };
 
-        // Try to set selected fullscreen mode
+        // Try to set selected Fullscreen mode
         if ((Properties.Size.Width != screenWidth) && (Properties.Size.Height != screenHeight)) {
             // If the switching fails, offer the user an option to switch to windowed mode
             if (ChangeDisplaySettings(&screenProperties, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL) {
                 if (MessageBox(NULL, (LPCWSTR)L"The requested mode 'FullScreen' isn't supported by\nyour graphics card. Switch to windowed mode Instead?", (LPCWSTR)__FUNCTION__, MB_YESNO | MB_ICONEXCLAMATION) == IDYES) {
                     Properties.Style = WindowStyle::Default;
                 } else {
-                    LogFatal("[Window]: ", "Switching to fullscreen mode failed!");
+                    LogFatal("[Window]: ", "Switching to Fullscreen mode failed!");
                     return;
                 }
             }
         }
     }
 
-    // FullScreen more convinient?
+    // FullScreen more convenient?
     //Properties.Style = WindowStyle::FullScreen;
     //HMONITOR hmon = MonitorFromWindow(WindowHandle, MONITOR_DEFAULTTONEAREST);
     //MONITORINFO mi = { sizeof(mi) };
@@ -265,26 +265,28 @@ WinWindow::WinWindow(const WindowProperties &properties):
         SetFocus(WindowHandle);
     }
 
-    // Transperency
+    // Transparency
     HMODULE hUser = GetModuleHandle(L"user32.dll");
-    pfnSetWindowCompositionAttribute SetWindowCompositionAttribute = (pfnSetWindowCompositionAttribute)GetProcAddress(hUser, "SetWindowCompositionAttribute");
-    if (SetWindowCompositionAttribute) {
-        // AGBR
-        ACCENT_POLICY accent = {
-            ACCENT_ENABLE_HOSTBACKDROP,
-            0,
-            0xEA000000,
-            0
-        };
-        WINDOWCOMPOSITIONATTRIBDATA data = {};
-        data.Attrib = WCA_ACCENT_POLICY;
-        data.pvData = &accent;
-        data.cbData = sizeof(accent);
-        SetWindowCompositionAttribute(WindowHandle, &data);
+    if (hUser) {
+        pfnSetWindowCompositionAttribute SetWindowCompositionAttribute = (pfnSetWindowCompositionAttribute)GetProcAddress(hUser, "SetWindowCompositionAttribute");
+        if (SetWindowCompositionAttribute) {
+            // AGBR
+            ACCENT_POLICY accent = {
+                ACCENT_ENABLE_HOSTBACKDROP,
+                0,
+                0xEA000000,
+                0
+            };
+            WINDOWCOMPOSITIONATTRIBDATA data = {};
+            data.Attrib = WCA_ACCENT_POLICY;
+            data.pvData = &accent;
+            data.cbData = sizeof(accent);
+            SetWindowCompositionAttribute(WindowHandle, &data);
+        }
+        // Simple Transparency (Requires: WS_EX_LAYERED)
+        SetWindowLong(WindowHandle, GWL_EXSTYLE, GetWindowLong(WindowHandle, GWL_EXSTYLE) | WS_EX_LAYERED);
+        SetLayeredWindowAttributes(WindowHandle, NULL, 252, LWA_ALPHA);
     }
-    // Simple Transperancy (Requires: WS_EX_LAYERED)
-    SetWindowLong(WindowHandle, GWL_EXSTYLE, GetWindowLong(WindowHandle, GWL_EXSTYLE) | WS_EX_LAYERED);
-    SetLayeredWindowAttributes(WindowHandle, NULL, 252, LWA_ALPHA);
 
     // Taskbar Settings
     RegisterWindowMessage(L"TaskbarButtonCreated");
@@ -347,7 +349,7 @@ LRESULT CALLBACK WinWindow::MessageCallback(HWND hWnd, UINT uMsg, WPARAM wParam,
 		};
 		return pCurrentWindow->Message(&message);
 	}
-	// ... return it as unhandeld
+	// ... return it as unhandled
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
@@ -380,17 +382,17 @@ intptr_t WinWindow::Message(void *event) {
     switch (msg.message) {
         // Pre-Check: Does this message belong to the current window?
         case WM_NULL: {
-            // Note: Could be usefull in the future.
+            // Note: Could be useful in the future.
             break;
         }
 
         // Preparation
         case WM_NCCREATE: {
-            // Note: Could be usefull in the future.
+            // Note: Could be useful in the future.
             break;
         }
         case WM_NCDESTROY : {
-            // Note: Could be usefull in the future.
+            // Note: Could be useful in the future.
             break;
         }
 
@@ -422,7 +424,7 @@ intptr_t WinWindow::Message(void *event) {
 
         // Information
         case WM_DPICHANGED: {
-            // Note: Could be usefull in the future.
+            // Note: Could be useful in the future.
             break;
         }
         case WM_GETMINMAXINFO: {
@@ -541,6 +543,7 @@ intptr_t WinWindow::Message(void *event) {
                     break;
                 }
             }
+            break;
         }
 
         // Default: Currently nothing of interest
@@ -651,7 +654,7 @@ void WinWindow::SetDisplayPosition(const int32_t x, const int32_t y) {
 }
 
 void WinWindow::SetDisplaySize(const uint32_t width, const uint32_t height) {
-	WINDOWPLACEMENT position;
+    WINDOWPLACEMENT position {};
 	GetWindowPlacement(WindowHandle, &position);
 
 	RECT dimension = {};

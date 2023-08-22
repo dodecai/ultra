@@ -74,7 +74,7 @@ intptr_t WinEventListener::Register(void *event) {
 	// - Raw Input:			https://docs.microsoft.com/en-us/windows/win32/inputdev/raw-input-notifications
 	// - Keyboard Input:	https://docs.microsoft.com/en-us/windows/win32/inputdev/keyboard-input-notifications
 	// - Mouse Input:		https://docs.microsoft.com/en-us/windows/win32/inputdev/mouse-input-notifications
-	// Pre-Flight-Test: Check if there are any observers in the goups, so the user gets only what he needs.
+	// Pre-Flight-Test: Check if there are any observers in the groups, so the user gets only what he needs.
 	switch (uMsg) {
 		/**
 		 *	Input Events
@@ -246,6 +246,7 @@ intptr_t WinEventListener::Register(void *event) {
 					short button = GET_XBUTTON_WPARAM(msg.wParam);
 					data.Button = (button & XBUTTON1 ? MouseButton::X1 : MouseButton::X2);
 					data.State = (msg.message == WM_XBUTTONDOWN ? ButtonState::Press : ButtonState::Release);
+                    break;
 				}
 				default: {
 					data.Button = MouseButton::Undefined;
@@ -288,27 +289,35 @@ intptr_t WinEventListener::Register(void *event) {
 			switch (msg.wParam) {
 				case MK_CONTROL: {
 					data.Modifier.Control = true;
+                    break;
 				}
 				case MK_SHIFT: {
 					data.Modifier.Shift = true;
+                    break;
 				}
 				case MK_LBUTTON: {
 					data.Button = MouseButton::Left;
+                    break;
 				}
 				case MK_MBUTTON: {
 					data.Button = MouseButton::Middle;
+                    break;
 				}
 				case MK_RBUTTON: {
 					data.Button = MouseButton::Right;
+                    break;
 				}
 				case MK_XBUTTON1: {
 					data.Button = MouseButton::X1;
+                    break;
 				}
 				case MK_XBUTTON2: {
 					data.Button = MouseButton::X2;
+                    break;
 				}
 				default: {
 					data.Button = MouseButton::Undefined;
+                    break;
 				}
 			}
 
@@ -410,7 +419,7 @@ intptr_t WinEventListener::Register(void *event) {
 
 		// System
 		case WM_CHAR:		case WM_SYSCHAR:		case WM_UNICHAR: {
-			// Perparation
+			// Preparation
 			KeyboardEventData data;
 			data.Action = KeyboardAction::Input;
 			data.State = KeyState::Undefined;
@@ -557,6 +566,7 @@ intptr_t WinEventListener::Register(void *event) {
 					PowerEventData data;
 					data.Action = PowerAction::Null;
                     Emitter.publish(data);
+                    break;
 				}
 				
 				// Default
