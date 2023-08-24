@@ -3,6 +3,29 @@
 #include <glad/gl.h>
 #include <stacktrace>
 
+///
+/// @brief Hack: This is an nasty fix for Microsoft's STL implementation
+/// The logger fails in multiple modules due to chrono template resolutions
+///
+/// @note
+/// type_traits(1344,53): error C2794: 'type': is not a member of any direct or indirect base class of 'std::common_type<_Rep1,_Rep2>'
+///     with
+///     [
+///         _Rep1 = __int64,
+///         _Rep2 = __int64
+///     ]
+/// __msvc_chrono.hpp(268,35): error C2938: 'std::common_type_t' : Failed to specialize alias template
+/// __msvc_chrono.hpp(268,56): error C2752: 'std::common_type<_Rep1,_Rep2>': more than one partial specialization matches the template argument list
+///     with
+///     [
+///         _Rep1 = __int64,
+///         _Rep2 = __int64
+///     ]
+/// __msvc_chrono.hpp(113,54): error C2955: 'std::chrono::duration': use of class template requires template argument list
+/// __msvc_chrono.hpp(118,54): error C2955: 'std::chrono::duration': use of class template requires template argument list
+///
+#include <chrono>
+
 module Ultra.Platform.Renderer.GLRenderDevice;
 
 import Ultra.Engine.Renderer;
@@ -33,19 +56,19 @@ static void GLMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GL
 
     switch (severity) {
         case GL_DEBUG_SEVERITY_HIGH:
-            //LogError("Platform::OpenGL: {}\n  @{}", message, line);
+            LogError("Platform::OpenGL: {}\n  @{}", message, line);
             break;
         case GL_DEBUG_SEVERITY_MEDIUM:
-            //LogWarning("Platform::OpenGL: {}\n  @{}", message, line);
+            LogWarning("Platform::OpenGL: {}\n  @{}", message, line);
             break;
         case GL_DEBUG_SEVERITY_LOW:
-            //LogInfo("Platform::OpenGL: {}\n  @{}", message, line);
+            LogInfo("Platform::OpenGL: {}\n  @{}", message, line);
             break;
         case GL_DEBUG_SEVERITY_NOTIFICATION:
-            //LogTrace("Platform::OpenGL: {}\n  @{}", message, line);
+            LogTrace("Platform::OpenGL: {}\n  @{}", message, line);
             break;
         case GL_DONT_CARE:
-            //Log("Platform::OpenGL: {}\n  @{}", message, line);
+            Log("Platform::OpenGL: {}\n  @{}", message, line);
             break;
     }
 }

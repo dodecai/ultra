@@ -7,6 +7,29 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+///
+/// @brief Hack: This is an nasty fix for Microsoft's STL implementation
+/// The logger fails in multiple modules due to chrono template resolutions
+///
+/// @note
+/// type_traits(1344,53): error C2794: 'type': is not a member of any direct or indirect base class of 'std::common_type<_Rep1,_Rep2>'
+///     with
+///     [
+///         _Rep1 = __int64,
+///         _Rep2 = __int64
+///     ]
+/// __msvc_chrono.hpp(268,35): error C2938: 'std::common_type_t' : Failed to specialize alias template
+/// __msvc_chrono.hpp(268,56): error C2752: 'std::common_type<_Rep1,_Rep2>': more than one partial specialization matches the template argument list
+///     with
+///     [
+///         _Rep1 = __int64,
+///         _Rep2 = __int64
+///     ]
+/// __msvc_chrono.hpp(113,54): error C2955: 'std::chrono::duration': use of class template requires template argument list
+/// __msvc_chrono.hpp(118,54): error C2955: 'std::chrono::duration': use of class template requires template argument list
+///
+#include <chrono>
+
 export module Ultra.Engine.Components;
 
 import Ultra.Core;
@@ -44,7 +67,7 @@ struct Identifier {
 
     // Modifiers
     void operator=(UUID<string> right) {
-        //LogTrace("Ultra::Component::Identifier: Overriding '{}' to '{}'!", (string)ID, (string)right);
+        LogTrace("Ultra::Component::Identifier: Overriding '{}' to '{}'!", (string)ID, (string)right);
         ID = right;
     }
 

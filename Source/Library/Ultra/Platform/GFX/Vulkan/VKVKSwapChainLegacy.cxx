@@ -2,6 +2,29 @@
 
 #include <vulkan/vulkan.hpp>
 
+///
+/// @brief Hack: This is an nasty fix for Microsoft's STL implementation
+/// The logger fails in multiple modules due to chrono template resolutions
+///
+/// @note
+/// type_traits(1344,53): error C2794: 'type': is not a member of any direct or indirect base class of 'std::common_type<_Rep1,_Rep2>'
+///     with
+///     [
+///         _Rep1 = __int64,
+///         _Rep2 = __int64
+///     ]
+/// __msvc_chrono.hpp(268,35): error C2938: 'std::common_type_t' : Failed to specialize alias template
+/// __msvc_chrono.hpp(268,56): error C2752: 'std::common_type<_Rep1,_Rep2>': more than one partial specialization matches the template argument list
+///     with
+///     [
+///         _Rep1 = __int64,
+///         _Rep2 = __int64
+///     ]
+/// __msvc_chrono.hpp(113,54): error C2955: 'std::chrono::duration': use of class template requires template argument list
+/// __msvc_chrono.hpp(118,54): error C2955: 'std::chrono::duration': use of class template requires template argument list
+///
+#include <chrono>
+
 module Ultra.Platform.GFX.VKSwapChainLegacy;
 
 import Ultra.Logger;
@@ -14,7 +37,7 @@ namespace Ultra {
 VKSwapChainLegacy::VKSwapChainLegacy(const Reference<VKDevice> &device, const vk::SurfaceKHR &surface): mDevice(device), mSurface(surface) {
     // Verify if the surface is supported by the selected physical device
     if (!mDevice->GetPhysicalDevice()->Call().getSurfaceSupportKHR(GraphicsQueueIndex, mSurface)) {
-        //LogFatal("The requested surface isn't supported on the selected physical device!");
+        LogFatal("The requested surface isn't supported on the selected physical device!");
     }
 
     ComputeQueueIndex = mDevice->GetPhysicalDevice()->GetQueueFamilyIndex(vk::QueueFlagBits::eCompute);
@@ -97,7 +120,7 @@ void VKSwapChainLegacy::Create(uint32_t width, uint32_t height, bool synchronize
     try {
         mSwapchain = mDevice->Call().createSwapchainKHR(createInfo);
     } catch (vk::SystemError exception) {
-        //LogFatal("{}", exception.what());
+        LogFatal("{}", exception.what());
     }
 
     // Destroy previous SwapChain and ImageViews
@@ -243,7 +266,7 @@ void VKSwapChainLegacy::Present() {
         mRebuildRequested = false;
         return;
     } else if (result == vk::Result::eErrorDeviceLost) {
-        //LogFatal("Device Lost");
+        LogFatal("Device Lost");
     }
 
     CurrentFrame = (CurrentFrame + 1) % mImageCount;

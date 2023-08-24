@@ -113,7 +113,7 @@ public:
         mListener->Emitter.on<MouseEventData>([&]( auto &data, const auto &emitter) { OnMouseEvent(data, emitter); });
         mListener->Emitter.on<WindowEventData>([&]( auto &data, const auto &emitter) { OnWindowEvent(data, emitter); });
 
-        LogDebug("{}: Created window '{}' with size '{}x{}'.", "Ultra::Application:", mProperties.Title, mProperties.Width, mProperties.Height);
+        LogDebug("Created window '{}' with size '{}x{}'.", mProperties.Title, mProperties.Width, mProperties.Height);
 
         Context::API = mProperties.GfxApi;
         mContext = Context::Create(mWindow->GetNativeWindow());

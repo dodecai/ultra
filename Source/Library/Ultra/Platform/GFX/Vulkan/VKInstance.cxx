@@ -23,6 +23,29 @@
 #undef __nullnullterminated
 #define __SPECSTRINGS_STRICT_LEVEL 0
 
+///
+/// @brief Hack: This is an nasty fix for Microsoft's STL implementation
+/// The logger fails in multiple modules due to chrono template resolutions
+///
+/// @note
+/// type_traits(1344,53): error C2794: 'type': is not a member of any direct or indirect base class of 'std::common_type<_Rep1,_Rep2>'
+///     with
+///     [
+///         _Rep1 = __int64,
+///         _Rep2 = __int64
+///     ]
+/// __msvc_chrono.hpp(268,35): error C2938: 'std::common_type_t' : Failed to specialize alias template
+/// __msvc_chrono.hpp(268,56): error C2752: 'std::common_type<_Rep1,_Rep2>': more than one partial specialization matches the template argument list
+///     with
+///     [
+///         _Rep1 = __int64,
+///         _Rep2 = __int64
+///     ]
+/// __msvc_chrono.hpp(113,54): error C2955: 'std::chrono::duration': use of class template requires template argument list
+/// __msvc_chrono.hpp(118,54): error C2955: 'std::chrono::duration': use of class template requires template argument list
+///
+#include <chrono>
+
 module Ultra.Platform.GFX.VKInstance;
 
 import Ultra.Logger;
@@ -38,22 +61,22 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugMessagerCallback(VkDebugUtilsMessageSeverity
     using Ultra::Log;
     using Ultra::LogLevel;
 
-    //switch ((vk::DebugUtilsMessageSeverityFlagBitsEXT)messageSeverity) {
-    //    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eError:      { logger << LogLevel::Error;    break; }
-    //    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo:       { logger << LogLevel::Info;     break; }
-    //    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose:    { logger << LogLevel::Trace;    break; }
-    //    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning:    { logger << LogLevel::Warn;     break; }
-    //}
+    switch ((vk::DebugUtilsMessageSeverityFlagBitsEXT)messageSeverity) {
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eError:      { logger << LogLevel::Error;    break; }
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo:       { logger << LogLevel::Info;     break; }
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose:    { logger << LogLevel::Trace;    break; }
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning:    { logger << LogLevel::Warn;     break; }
+    }
 
-    //logger << "GFX::Vulkan[";
+    logger << "GFX::Vulkan[";
 
-    //switch ((vk::DebugUtilsMessageTypeFlagBitsEXT)messageType) {
-    //    case vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral:        { logger << "General"; break; }
-    //    case vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance:    { logger << "Performance"; break; }
-    //    case vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation:     { logger << "Validation"; break; }
-    //}
+    switch ((vk::DebugUtilsMessageTypeFlagBitsEXT)messageType) {
+        case vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral:        { logger << "General"; break; }
+        case vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance:    { logger << "Performance"; break; }
+        case vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation:     { logger << "Validation"; break; }
+    }
 
-    //logger << "]: " << LogLevel::Default << callbackData->pMessage << "\n";
+    logger << "]: " << LogLevel::Default << callbackData->pMessage << "\n";
     return false;
 }
 
@@ -101,7 +124,7 @@ VKInstance::VKInstance() {
     try {
         mInstance = vk::createInstance(intanceCreateInfo);
     } catch (const std::exception& e) {
-        //logger << LogLevel::Fatal << ("[GFX::Instance] ", e.what());
+        logger << LogLevel::Fatal << ("[GFX::Instance] ", e.what());
     }
 
     // Debug
