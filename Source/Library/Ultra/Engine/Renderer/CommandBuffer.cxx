@@ -17,7 +17,7 @@ Scope<CommandBuffer> CommandBuffer::Create() {
         #if APP_MODE_DEBUG
             throw std::runtime_error("Renderer::CommandBuffer: RenderAPI not supported!");
         #else
-            LogFatal("Renderer::CommandBuffer: RenderAPI not supported!");
+            LogFatal("RenderAPI not supported!");
             return nullptr;
         #endif
         }

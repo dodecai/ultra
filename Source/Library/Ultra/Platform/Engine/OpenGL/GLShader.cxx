@@ -47,7 +47,7 @@ string GetGLShaderDataTypeName(ShaderDataType type) {
         case ShaderDataType::Texture3D:     { return "sampler3D"; break; }
         case ShaderDataType::TextureCube:   { return "samplerCube"; break; }
         default: {
-            AppAssert("Not implemented!");
+            AppAssert(true, "Not implemented!");
             return {};
         }
     }

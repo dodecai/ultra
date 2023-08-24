@@ -23,7 +23,7 @@ Scope<Shader> Shader::Create(const string &source, const string &entryPoint, con
         #if APP_MODE_DEBUG
             throw std::runtime_error("Renderer::Shader: RenderAPI not supported!");
         #else
-            LogFatal("Renderer::Shader: RenderAPI not supported!");
+            LogFatal("RenderAPI not supported!");
             return nullptr;
         #endif
         }
@@ -73,7 +73,7 @@ Shader::ShaderList Shader::Convert(string &source) {
     // ... otherwise, return the source as it is, but raise a warning, if the type wasn't specified
     if (shaders.empty()) {
         if (mType == ShaderType::Linked) {
-            LogWarning("Engine::Shader: The shader type couldn't be detected and wasn't specified!");
+            LogWarning("The shader type couldn't be detected and wasn't specified!");
         }
         shaders[(size_t)(mType)] = source;
     }

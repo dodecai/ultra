@@ -47,9 +47,9 @@ protected:
 
 private:
     SteadyObject(const SteadyObject &) = delete;
-    SteadyObject(SteadyObject &&) noexcept = default;
+    SteadyObject(SteadyObject &&) noexcept = delete;
     SteadyObject &operator=(const SteadyObject &) = delete;
-    SteadyObject &operator=(SteadyObject &&) noexcept = default;
+    SteadyObject &operator=(SteadyObject &&) noexcept = delete;
 };
 
 

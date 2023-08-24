@@ -171,7 +171,7 @@ string ShaderTypeToString(ShaderType type) {
         case ShaderType::TessEvaluation:    { return "evaluation"; }
         case ShaderType::Vertex:            { return "vertex"; }
         default: {
-            AppAssert("Not implemented!");
+            AppAssert(true, "Not implemented!");
             return {};
         }
     }

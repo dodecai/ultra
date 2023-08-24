@@ -33,19 +33,19 @@ static void GLMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GL
 
     switch (severity) {
         case GL_DEBUG_SEVERITY_HIGH:
-            LogError("Platform::OpenGL: {}\n  @{}", message, line);
+            //LogError("Platform::OpenGL: {}\n  @{}", message, line);
             break;
         case GL_DEBUG_SEVERITY_MEDIUM:
-            LogWarning("Platform::OpenGL: {}\n  @{}", message, line);
+            //LogWarning("Platform::OpenGL: {}\n  @{}", message, line);
             break;
         case GL_DEBUG_SEVERITY_LOW:
-            LogInfo("Platform::OpenGL: {}\n  @{}", message, line);
+            //LogInfo("Platform::OpenGL: {}\n  @{}", message, line);
             break;
         case GL_DEBUG_SEVERITY_NOTIFICATION:
-            LogTrace("Platform::OpenGL: {}\n  @{}", message, line);
+            //LogTrace("Platform::OpenGL: {}\n  @{}", message, line);
             break;
         case GL_DONT_CARE:
-            Log("Platform::OpenGL: {}\n  @{}", message, line);
+            //Log("Platform::OpenGL: {}\n  @{}", message, line);
             break;
     }
 }
@@ -135,7 +135,7 @@ void GLRenderDevice::SetPolygonMode(PolygonMode mode) {
         case PolygonMode::Solid:     { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); break; }
         case PolygonMode::Wireframe: { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break; }
         default: {
-            AppAssert(false, "The specified polygon mode isn't implemented yet!");
+            //AppAssert(false, "The specified polygon mode isn't implemented yet!");
             break;
         }
     }

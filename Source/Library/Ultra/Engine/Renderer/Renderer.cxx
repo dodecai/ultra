@@ -35,7 +35,7 @@ Scope<Renderer> Renderer::Create() {
         #if APP_MODE_DEBUG
             throw std::runtime_error("Renderer: RenderAPI not supported!");
         #else
-            LogFatal("Renderer: RenderAPI not supported!");
+            LogFatal("RenderAPI not supported!");
         #endif
         }
     }

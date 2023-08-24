@@ -44,7 +44,7 @@ struct Identifier {
 
     // Modifiers
     void operator=(UUID<string> right) {
-        LogTrace("Ultra::Component::Identifier: Overriding '{}' to '{}'!", (string)ID, (string)right);
+        //LogTrace("Ultra::Component::Identifier: Overriding '{}' to '{}'!", (string)ID, (string)right);
         ID = right;
     }
 

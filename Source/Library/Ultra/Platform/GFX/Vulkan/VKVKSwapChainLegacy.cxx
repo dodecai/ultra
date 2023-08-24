@@ -14,7 +14,7 @@ namespace Ultra {
 VKSwapChainLegacy::VKSwapChainLegacy(const Reference<VKDevice> &device, const vk::SurfaceKHR &surface): mDevice(device), mSurface(surface) {
     // Verify if the surface is supported by the selected physical device
     if (!mDevice->GetPhysicalDevice()->Call().getSurfaceSupportKHR(GraphicsQueueIndex, mSurface)) {
-        LogFatal("[GFX::Context::SwapChain] The requested surface isn't supported on the selected physical device!");
+        //LogFatal("The requested surface isn't supported on the selected physical device!");
     }
 
     ComputeQueueIndex = mDevice->GetPhysicalDevice()->GetQueueFamilyIndex(vk::QueueFlagBits::eCompute);
@@ -97,7 +97,7 @@ void VKSwapChainLegacy::Create(uint32_t width, uint32_t height, bool synchronize
     try {
         mSwapchain = mDevice->Call().createSwapchainKHR(createInfo);
     } catch (vk::SystemError exception) {
-        LogFatal(exception.what());
+        //LogFatal("{}", exception.what());
     }
 
     // Destroy previous SwapChain and ImageViews
@@ -243,7 +243,7 @@ void VKSwapChainLegacy::Present() {
         mRebuildRequested = false;
         return;
     } else if (result == vk::Result::eErrorDeviceLost) {
-        LogFatal("Device Lost");
+        //LogFatal("Device Lost");
     }
 
     CurrentFrame = (CurrentFrame + 1) % mImageCount;

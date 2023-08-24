@@ -29,7 +29,7 @@ public:
         try {
             mConfigData = YAML::LoadFile(mConfigFile);
         } catch (std::exception ex) {
-            LogError("[Config] Something went wrong while loading Config!");
+            //LogError("Something went wrong while loading Config!");
         }
 
         try {
@@ -58,11 +58,11 @@ public:
             try {
                 return mConfigData["Settings"][key][value].as<T>();
             } catch (std::exception ex) {
-                LogError("[Config]: Could not deduce the type of '", key, ":", value, "'!");
+                LogError("Could not deduce the type of '{}:{}'!", key, value);
                 return T {};
             }
         } else {
-            LogWarning("[Config]: The requested setting '", key, ":", value, "' doesn't exist!");
+            LogWarning("The requested setting '{}:{}' doesn't exist!", key, value);
         }
         return T {};
     }

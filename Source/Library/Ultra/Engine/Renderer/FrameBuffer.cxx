@@ -17,7 +17,7 @@ Scope<Framebuffer> Framebuffer::Create(uint32_t width, uint32_t height, TextureF
         #if APP_MODE_DEBUG
             throw std::runtime_error("Renderer::Framebuffer: RenderAPI not supported!");
         #else
-            LogFatal("Renderer::Framebuffer: RenderAPI not supported!");
+            LogFatal("RenderAPI not supported!");
             return nullptr;
         #endif
         }

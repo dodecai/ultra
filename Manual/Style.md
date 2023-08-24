@@ -1,109 +1,147 @@
-﻿# C/C++/C# Standards and Style Guide
-This guideline is based on the ["NASA C++ Coding Standards and Style Guide"](https://ntrs.nasa.gov/citations/20080039927). It contains rules for C, C++ and C# with some minor changes and extensions.
+﻿# Our Modern C/C++/C# Standards and Style Guide for Enthusiasts
+Welcome to the our Modern C/C++/C# Standards and Style Guide tailored for enthusiasts like you. This guideline is inspired by the "NASA C++ Coding Standards and Style Guide" but with a fresh and modern approach to meet the demands of today's development landscape.
 
 ## Introduction
->Note: If you prefer other Standards or Style Guides, feel free to use them in your extensions for the project. These rules only apply to the project itself. Anyways everything which is exposed to the end-user as "API" should have a similar look and feel.
+>Note: Feel free to adapt other Standards or Style Guides for your project's extensions. However, these rules apply exclusively to the project itself. Any exposed "API" should maintain a consistent look and feel.
 
-The purpose is to offer a standard for efficient, maintable, simple to read and understand and well organized project for developers and contributors. The guidelines for the standard library, standard template library and 3rd-Party libraries aren't effected! They have their own set of rules which should be respected. Anyways a wrapper API should be offered to the end-users.
+This guide aims to provide a framework for creating projects that are efficient, maintainable, easy to read, and well-organized. Note that these guidelines don't affect standard libraries, template libraries, or third-party libraries, which each have their own set of rules. Nonetheless, when offering an API to end-users, ensure a consistent style.
 
-###### Terms
+###### Terminology
+- [PascalCase](https://en.wikipedia.org/wiki/Camel_case)
 - [camelCase](https://en.wikipedia.org/wiki/Camel_case)
 - [lowercase](https://en.wikipedia.org/wiki/Letter_case)
-- [PascalCase](https://en.wikipedia.org/wiki/Camel_case)
 - [UPPERCASE](https://en.wikipedia.org/wiki/Letter_case)
+- [snake_case](https://en.wikipedia.org/wiki/Snake_case)
 
 ## Names
-Choose names that are meaningful and readable, instead of pasting a large comment block beforehead explaining its purpose.
+Prioritize meaningful and readable names, minimizing the need for extensive comment explanations.
 
-###### Overview
-| Description                          | Style       |
-| :-                                   | :-:         |
-| Classes <br> Structs <br> Types      | Pascal-Case |
-| Directories and Files                | Pascal-Case |
-| Extensions                           | Lower-Case  |
-| Enumeration Types <br> Enumerations  | Pascal-Case |
-| Functions, Methods                   | Pascal-Case |
-| Namespaces                           | Lower-Case  |
-| Arguments                            | Camel-Case  |
-| Constants                            | Pascal-Case |
-| Preprocessor Macros                  | Upper-Case  |
-| Variables (*special use with prefix) | Camel-Case  |
+### Overview
+| Description                          | Style      |
+| :-                                   | :-:        |
+| Classes <br> Structs <br> Types      | PascalCase |
+| Directories and Files                | PascalCase |
+| Extensions                           | lowercase  |
+| Enumeration Types <br> Enumerations  | PascalCase |
+| Functions, Methods                   | PascalCase |
+| Namespaces                           | PascalCase |
+| Arguments                            | camelCase  |
+| Constants                            | PascalCase |
+| Preprocessor Macros                  | UPPERCASE  |
+| Variables (*special prefix usage)    | camelCase  |
 
-### Rules
-#### Classes, Structs and Types
-###### Example
+## Rules
+
+### Comments
+Utilize ```//``` for comments and ```///``` for Doxygen comments.<br>
+Reserve ```/* */``` multi-line comments for code disabling, favoring ```#ifdef ... #endif``` preprocessor directives instead.
+
+##### Doxygen Tags
+
+###### General Tags
+
+- `@brief <text>`: Element's purpose.
+- `@details <text>`: Additional details.
+- `@remark <text>`: General remark.
+- `@todo <text>`: Pending work.
+- `@deprecated <text>`: Deprecated element.
+- `@attention <name> <text>`: Important message.
+- `@note <text>`: Note or special instruction.
+- `@warning <text>`: Warning message.
+- `@see <reference_name> <text>`: Cross-reference.
+
+###### Documenting Elements
+
+- `@namespace <namespace_name> <text>`: Description of namespace.
+- `@class <class_name> <text>`: Description of class.
+- `@struct <struct_name> <text>`: Description of struct.
+- `@enum <enum_name> <text>`: Description of enum.
+- `@example <text>`: Code example.
+- `@ingroup <group_name> <text>`: Assigns to group.
+- `@link <link_name> <text>`: Create link.
+
+###### Function and Parameter Tags
+
+- `@overload <function_name> <text>`: Overloaded function.
+- `@param[in] <param_name> <text>`: Input parameter.
+- `@param[out] <param_name> <text>`: Output parameter.
+- `@param <param_name> <text>`: Parameter description.
+- `@tparam <T> <text>`: Template parameter description.
+- `@return <text>`: Return value description.
+
+### Namespaces
+>Note: Due to C++ module use, namespaces should be divided within module files.
+
+##### Example
+```cpp
+// Private Interface
+namespace Project::Helpers {
+
+bool ShouldHelp() {
+    // ...
+}
+
+}
+
+// Public Interface
+export namespace Project::Helpers {
+
+class HelpMe {
+    //...
+};
+
+}
+```
+
+### Classes, Structs and Types
+##### Example
 ```cpp
 // Simple Type
 using StringVector = std::vector<std::string>;
 
 // Complex Type
-struct Planet {
-    // 1st Properties
-    // 2nd Constructors and Deconstructor
-    // 3rd Accessors, Mutators and Operators
-    // 4th Methods
+struct PlanetData {
+    // Properties
+    size_t Size {};
 }
 
 // Everything else...
 class Earth {
+private
     // 1st Friends and Usings
+    friend Satellite;
+    using Landscapes = std::unordered_map<std::string, std::string>;
+
 public:
     // 2nd Constructors and Deconstructor
-    ...
+    Earth(string_view name):
+        mName(name) {
+    }
+    virtual ~Earth() = default;
+    
     // 3rd Accessors, Mutators and Operators
-    ...
+    std::string GetName() const { return mName; }
+    void SetName(string_view name) { mName = name };
+
     // 4th Methods
+    void Rotate();
+
 protected:
+    // 5th Methods accessible by friends
+    void GetCurrentPosition();
+
 private:
-    ...
     // 5th Properties
+    std::string mName;
+    PlanetData mData {};
 }
 ```
 
-#### Namespaces
-###### Example
-```cpp
-namespace first.second {
+### Formatting
 
-class A {}
-
-namespace third {
-
-class B {}
-
-}
-
-}
-```
-
-## Formatting
-
-### Blocks
-
-### Comments
-Use ```//``` for all comments and ```///``` for doxygen comments.
-Multi-line comments are only allowed ```/* */``` only for disabling code, but here the way with pre-processor should be prefered.
-
-### Logging
-The timestamp and the log level are automatically delivered by the internal applog class. Everything beyond the pipe character should be filled like in the example. The timestamp should be logged always as UTC.
-###### Format
-```cpp
-Option A: $Message (no prefix of timestamp, log level and project module, useful for structuring)
-Option B: YYYY-MM-ddTHH:mm:ss.ns | $LogLevel | $Project.Module: $Message
-```
-###### Examples
-```cpp
-Application started.
-2020-01-01T17:00:00.000000 | Fatal | [App.Module]: Critical ... the application will be terminated immediatly.
-2020-01-01T17:00:00.000000 | Error | [App.Module]: Error ... the application will abort the current operation.
-2020-01-01T17:00:00.000000 | Warn  | [App.Module]: Warning ... something is odd, but we can still proceed.
-2020-01-01T17:00:00.000000 | Info  | [App.Module]: Information ... the application will do something/has done something.
-2020-01-01T17:00:00.000000 | Debug | [App.Module]: Debugging ... the module will do something/has done something.
-2020-01-01T17:00:00.000000 | Trace | [App.Module]: Verbose ... the function will do something/has done something.
-```
-
-### Structure
-If you need a more structured code use the predefiend symbols for seperation and specification (also used in log files).
+#### Blocks
+##### Structure
+For structured code, predefined symbols can be used for separation and specification.
 
 ###### Level Separation
 ```cpp
@@ -127,11 +165,36 @@ If you need a more structured code use the predefiend symbols for seperation and
 //▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 // ☲ Level B
 //▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+//‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 // ☷ Level C
 //‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 ```
 
 ## Examples
+
+### Module
+```cpp
+module;
+
+// Optional Includes
+#include <cool-lib>
+
+export module Module;
+
+// 1st: Additional Exports in this order: Default Libraries, 3rd-Party Libraries, Libraries
+import export Module.SubModule;
+// 2nd: Imports in this order: Default Libraries, 3rd-Party Libraries, Libraries
+import std;
+
+export namespace Namespace {
+
+void Log(std::string_view message) {
+    std::cout << message << std::endl;
+}
+
+}
+```
+
 ### Header
 ```cpp
 #pragma once
@@ -144,13 +207,13 @@ If you need a more structured code use the predefiend symbols for seperation and
 
 #include "Settings.h"   // 3rd: Libraries
 
-import Module;          // Same as Libraries
+import Module;          // 4th: Modules
 
 // Macros
 #define STYLE_GUIDE 1
 
 // Namespaces
-namespace app {
+namespace Namespace {
 
 // Enumerations and Types
 using String = std::string;
@@ -161,26 +224,23 @@ enum class Enum {
     Second  = 2,
 }
 
-// Pre-Declarations
+// Forward Declarations
 class OtherClass;
 
 // Declarations
 class Class {
     // Friends and Usings
     friend OtherClass;
-    
     using std::cout;
 
 public:
     // Constructors and Deconstructor
-    Class() = default
-    Class(Enum enum);
+    Class() = default;
     ~Class() = default;
 
     // Accessors, Mutators and Operators
     const Enum GetValue();
-
-    void SetValue(Enum enum);
+    void SetValue(Enum enumValue);
 
     operator Enum();
 
@@ -196,22 +256,6 @@ private:
     // Properties
     Enum mEnum;
 };
-
-}
-```
-
-### Module
-```cpp
-module;
-#include <iostream>
-
-export module Module;
-
-export namespace app {
-
-void log(const char *message) {
-    std::cout << message << std::endl;
-}
 
 }
 ```

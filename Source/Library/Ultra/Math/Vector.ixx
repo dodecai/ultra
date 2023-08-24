@@ -20,6 +20,8 @@ concept VectorNumerics =
 ///
 /// @brief Vector[2-4]D
 ///
+#pragma warning(push)
+#pragma warning(disable: 4201)
 template<VectorNumerics T, size_t N>
 struct Vector {
     // Compile-Time Checks
@@ -240,6 +242,7 @@ private:
         return SquaredLength() > tolerance * tolerance;
     }
 };
+#pragma warning(pop)
 
 template<VectorNumerics T>
 struct Vector2D: Vector<T, 2> {

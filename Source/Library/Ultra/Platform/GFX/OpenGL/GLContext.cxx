@@ -148,7 +148,7 @@ GLContext::GLContext(void *window) {
 		default:
 			properties.VersionMajor = 4;
 			properties.VersionMinor = 6;
-			logger << LogLevel::Error << "[Context::GL]: Unknown version specified, using default version!" << "\n";
+            LogError("[Context::GL]: Unknown version specified, using default version [v{}.{}]!", 4, 6);
 			break;
 	}
 
@@ -156,12 +156,12 @@ GLContext::GLContext(void *window) {
 	#if defined(APP_PLATFORM_WINDOWS)
         // This should be only triggered once during application lifecycle
         static bool once = true;
-		if(!GetExtensions() && once) { LogFatal("[Context::GL]: Could not load OpenGL extensions!"); return; }
+		if(!GetExtensions() && once) { LogFatal("Could not load OpenGL extensions!"); return; }
         once = false;
 
 		// Get Device Context
 		Data->hDeviceContext = GetDC(Data->hWindow);
-		if (!Data->hDeviceContext) { LogFatal("[Context::GL]: Error occured while acquiring device context!"); return; }
+		if (!Data->hDeviceContext) { LogFatal("Error occurred while acquiring device context!"); return; }
 		
 		/* Legacy Code (it took a lot of effort to get used to it, so I will leave it here forever) */
 		// Drawing Surface Pixel Format: https://docs.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-pixelformatdescriptor
@@ -219,9 +219,9 @@ GLContext::GLContext(void *window) {
 			0,
 		};
 		wglChoosePixelFormatARB(Data->hDeviceContext, pixelAttribIList, NULL, formatsMax, &pixelFormats, &formatsCount);
-		if (!formatsCount) { LogFatal("[Context::GL]: Error no suiteable pixel format found!"); return; }
+		if (!formatsCount) { LogFatal("Error no suitable pixel format found!"); return; }
 		DescribePixelFormat(Data->hDeviceContext, pixelFormats, sizeof(pfDescription), &pfDescription);
-		if (!SetPixelFormat(Data->hDeviceContext, pixelFormats, &pfDescription)) { LogFatal("[Context::GL]: Error setting pixel format failed {Code:", GetLastError(), "}!"); return; }
+		if (!SetPixelFormat(Data->hDeviceContext, pixelFormats, &pfDescription)) { LogFatal("Error setting pixel format failed [Code:{}]!", GetLastError()); return; }
 
 		// Create GL-Context
         int flags = WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
@@ -236,7 +236,7 @@ GLContext::GLContext(void *window) {
             0            
 		};
 		Data->hRenderingContext = wglCreateContextAttribsARB(Data->hDeviceContext, NULL, glContextAttributes);
-		if (!Data->hRenderingContext) { LogFatal("[Context::GL]: Error occured while creating GL-Context!"); return; }
+		if (!Data->hRenderingContext) { LogFatal("Error occurred while creating GL-Context!"); return; }
 	#endif
 }
 
@@ -251,7 +251,7 @@ GLContext::~GLContext() {
 
 void GLContext::Load() {
     if (!gladLoaderLoadGL()) {
-        LogFatal("[Context: Failed to load OpenGL!");
+        LogFatal("Failed to load OpenGL!");
         return;
     }
     #define APP_DEBUG_MODE // ToDo: Strange warning from compiler: unreferenced function with internal linkage has been removed, but it worked!? (maybe a bug due to modules...)
@@ -262,7 +262,7 @@ void GLContext::Load() {
         glDebugMessageCallback(GLMessageCallback, 0);
         //glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
     } else {
-        LogWarning("[Ultra::RendererAPI::GL]: ", "The feature 'DebugMessageCallback' isn't available!");
+        LogWarning("The feature 'DebugMessageCallback' isn't available!");
     }
     #endif
 }

@@ -2,9 +2,7 @@
 
 #include <glad/gl.h>
 
-#pragma warning(push)
-#pragma warning(disable:4242)
-#pragma warning(disable:4244)
+#pragma warning(push, 0)
 //https://github.com/nothings/stb/issues/334
 #ifndef STB_IMAGE_IMPLEMENTATION
     #define STB_IMAGE_IMPLEMENTATION
@@ -24,7 +22,7 @@ static GLenum  ConvertTextureDataType(TextureDataType type) {
         case TextureDataType::Byte: return GL_UNSIGNED_BYTE;
         case TextureDataType::Float: return GL_FLOAT;
         default: {
-            AppAssert("Not implemented!");
+            AppAssert(true, "Not implemented!");
             return {};
         }
     }
@@ -49,7 +47,7 @@ static GLenum ConvertTextureFormat(TextureFormat format) {
         case TextureFormat::Depth24: return GL_DEPTH_COMPONENT24;
         case TextureFormat::Depth32F: return GL_DEPTH_COMPONENT32F;
         default: {
-            LogFatal("[Ultra::Engine::GLTexture::ConvertTextureFormat]: ", "The specified texture format is currently not supported!");
+            LogFatal("The specified texture format is currently not supported!");
             return 0x0;
         }
     }

@@ -10,7 +10,8 @@ export namespace Ultra {
 /// @brief DateTime: Delivers current date/time/runtime/timestamp in ISO 8601 format.
 /// Simply use 'apptime' under the Ultra Namespace to retrieve the desired information.
 /// 
-class DateTime {
+class DateTime: public SteadyObject {
+private:
     // Types
     using SystemClock = std::chrono::system_clock;
     using Timespan = std::chrono::duration<double, std::micro>;
@@ -18,12 +19,10 @@ class DateTime {
 
     // Default
     DateTime(): mStartTime(SystemClock::now()) {}
-    DateTime(const DateTime &) = delete;
-    DateTime(DateTime &&) noexcept = delete;
     ~DateTime() = default;
 
 public:
-    /// Returns an instance to the global static object
+    // Returns an instance to the global static object
     static DateTime &Instance() {
         static DateTime instance;
         return instance;
@@ -31,17 +30,17 @@ public:
 
     // Accessors
     /// Retrieve current date in ISO 8601 format 'YYYY-mm-dd'
-    inline const string GetDate() { return GetTicks("{:%Y-%m-%d}"); }
+    inline string GetDate() const { return GetTicks("{:%Y-%m-%d}"); }
     /// Retrieve current time in ISO 8601 format 'HH:mm:ss.cccccc'
-    inline const string GetTime() { return GetTicks("{:%H:%M:%S}"); }
+    inline string GetTime() const { return GetTicks("{:%H:%M:%S}"); }
     /// Retrieve runtime in ISO 8601 format 'PddTHH:mm:ss'
-    inline const string GetRuntime() { return GetRuntimeTicks(); }
+    inline string GetRuntime() const { return GetRuntimeTicks(); }
     /// Retrieve timestamp in ISO 8601 format 'YYYY-mm-ddTHH:mm:ss.cccccc'
-    inline const string GetTimeStamp() { return GetTicks(); }
+    inline string GetTimeStamp() const { return GetTicks(); }
 
 private:
     // Methods
-    inline const std::string GetTicks(const string_view format = "{:%Y-%m-%dT%H:%M:%S}") {
+    inline string GetTicks (const string_view &format = "{:%Y-%m-%dT%H:%M:%S}") const {
         auto args = std::make_format_args(SystemClock::now());
         try {
             return std::vformat(format, args);
@@ -49,7 +48,7 @@ private:
             return ex.what();
         }
     }
-    inline const std::string GetRuntimeTicks(const string_view format = "P{:02d}DT{:02d}:{:02d}:{:02d}.{:06d}") {
+    inline string GetRuntimeTicks (const string_view &format = "P{:02d}DT{:02d}:{:02d}:{:02d}.{:06d}") const {
         //// Option A: "P{:%H:%M:%S}" (lacks support for years, months and days)
         //auto elapsed = SystemClock::now() - mStartTime;
         //auto args = std::make_format_args(elapsed);

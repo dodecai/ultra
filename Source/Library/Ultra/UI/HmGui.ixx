@@ -1136,7 +1136,6 @@ public:
                     eventButton->Callback = [&]() {
                         LogInfo("Button '-- OPT 1 --' clicked!");
                     };
-                    //eventButton->OnClick = [](){ logger << "Opt 1!" };
 
                     auto silentButton = group->CreateButton("-- OPT 2 --");
 

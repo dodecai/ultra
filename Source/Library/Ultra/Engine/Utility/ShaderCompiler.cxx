@@ -30,7 +30,7 @@ vector<uint32_t> Compile(const string &name, ShaderType type, const string &sour
     auto result = compiler.CompileGlslToSpv(source, GetNativeShaderKind(type), name.c_str(), options);
 
     if (result.GetCompilationStatus() != shaderc_compilation_status_success) {
-        LogError(result.GetErrorMessage());
+        LogError("{}", result.GetErrorMessage());
         return {};
     }
     return { result.cbegin(), result.cend() };
@@ -46,7 +46,7 @@ string CompileToAssembly(const string &name, ShaderType type, const string &sour
     auto result = compiler.CompileGlslToSpvAssembly(source, GetNativeShaderKind(type), name.c_str(), options);
 
     if (result.GetCompilationStatus() != shaderc_compilation_status_success) {
-        LogError(result.GetErrorMessage());
+        LogError("{}", result.GetErrorMessage());
         return {};
     }
     return { result.cbegin(), result.cend() };
@@ -60,7 +60,7 @@ string PreprocessShader(const string &name, ShaderType type, const string &sourc
     auto result = compiler.PreprocessGlsl(source, GetNativeShaderKind(type), name.c_str(), options);
 
     if (result.GetCompilationStatus() != shaderc_compilation_status_success) {
-        LogError(result.GetErrorMessage());
+        LogError("{}", result.GetErrorMessage());
         return "";
     }
 

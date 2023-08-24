@@ -9,7 +9,7 @@
     cppmodules "true"
     buildstlmodules "true"
     externalanglebrackets "on"
-    externalwarnings "Default"
+    externalwarnings "Off"
     nativewchar "on"
     scanformoduledependencies "on"
     staticruntime "on"

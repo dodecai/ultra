@@ -159,7 +159,7 @@ WinWindow::WinWindow(const WindowProperties &properties):
         .hIconSm = AppIcon,						// Load Icon Symbol (Default: LoadIcon(NULL, IDI_WINLOGO);)
     };
     if (!RegisterClassEx(&classProperties)) {
-        LogFatal("[Window]: ", "Failed to register the window class!");
+        //LogFatal("[Window]: ", "Failed to register the window class!");
         return;
     }
 
@@ -183,7 +183,7 @@ WinWindow::WinWindow(const WindowProperties &properties):
                 if (MessageBox(NULL, (LPCWSTR)L"The requested mode 'FullScreen' isn't supported by\nyour graphics card. Switch to windowed mode Instead?", (LPCWSTR)__FUNCTION__, MB_YESNO | MB_ICONEXCLAMATION) == IDYES) {
                     Properties.Style = WindowStyle::Default;
                 } else {
-                    LogFatal("[Window]: ", "Switching to Fullscreen mode failed!");
+                    //LogFatal("[Window]: ", "Switching to Fullscreen mode failed!");
                     return;
                 }
             }
@@ -244,8 +244,8 @@ WinWindow::WinWindow(const WindowProperties &properties):
         this						// Application Data
     );
     if (!WindowHandle) {
-        LogFatal("[Window]: ", "Failed to create the window!");
-        Log(GetLastErrorAsString());
+        //LogFatal("[Window]: ", "Failed to create the window!");
+        //Log(GetLastErrorAsString());
         //Destroy();
         return;
     }
@@ -306,8 +306,8 @@ WinWindow::~WinWindow() {
     // Ensure that the Window Class gets released
     if (ApplicationHandle) {
         if (!UnregisterClass(ConvertChar2WChar(Properties.ID).c_str(), ApplicationHandle)) {
-            LogError("Could not unregister window class.\n");
-            Log(GetLastErrorAsString());
+            //LogError("Could not unregister window class.\n");
+            //Log(GetLastErrorAsString());
         }
     }
 }
@@ -402,7 +402,7 @@ intptr_t WinWindow::Message(void *event) {
             if (DestroyWindow(WindowHandle)) {
                 WindowHandle = nullptr;
             } else {
-                LogError("Could not release handle to window.\n");
+                //LogError("Could not release handle to window.\n");
             }
 
             result = 0;
@@ -612,7 +612,7 @@ const bool WinWindow::GetState(WindowState state) const {
 		case WindowState::Minimized:	{ return Data.Minimized		? true : false; }
 		case WindowState::Visible:		{ return Data.Visible		? true : false; }
 		default: {
-			LogWarning("[WinAPI::Window]: The specified window state isn't supported!");
+			//LogWarning("[WinAPI::Window]: The specified window state isn't supported!");
 			return false;
 		}
 	}
@@ -639,14 +639,14 @@ void WinWindow::SetProperties(const WindowProperties &properties) {
 
 void WinWindow::SetCursorPosition(const int32_t x, const int32_t y) {
 	if (!SetCursorPos(x, y)) {
-		LogError("[WinAPI::Window]: Error occurred while setting cursor position!");
+		//LogError("[WinAPI::Window]: Error occurred while setting cursor position!");
 		return;
 	}
 }
 
 void WinWindow::SetDisplayPosition(const int32_t x, const int32_t y) {
 	if (!SetWindowPos(WindowHandle, 0, (int)x, (int)y, 0, 0, SWP_NOSIZE | SWP_NOZORDER)) {
-		LogError("[WinAPI::Window]: Error occurred while setting display position!");
+        //LogError("[WinAPI::Window]: Error occurred while setting display position!");
 		return;
 	}
 	Properties.Position.X = x;
@@ -665,7 +665,7 @@ void WinWindow::SetDisplaySize(const uint32_t width, const uint32_t height) {
 
 	AdjustWindowRectEx(&dimension, NULL, FALSE, NULL);
 	if (!SetWindowPos(WindowHandle, 0, dimension.left, dimension.top, dimension.right, dimension.bottom, SWP_NOREPOSITION | SWP_NOZORDER)) {
-		LogError("[WinAPI::Window]: Error occurred while setting display size!");
+        //LogError("[WinAPI::Window]: Error occurred while setting display size!");
 		return;
 	}
 	Properties.Size.Width = width;
@@ -681,7 +681,7 @@ void WinWindow::SetProgress(const float progress) {
 
 void WinWindow::SetTitle(const string_view title) {
 	if (!SetWindowText(WindowHandle, ConvertChar2WChar(title.data()).c_str())) {
-		LogError("[WinAPI::Window]: Error occurred while setting title!");
+        //LogError("[WinAPI::Window]: Error occurred while setting title!");
 		return;
 	}
 	Properties.Title = title;

@@ -38,22 +38,22 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugMessagerCallback(VkDebugUtilsMessageSeverity
     using Ultra::Log;
     using Ultra::LogLevel;
 
-    switch ((vk::DebugUtilsMessageSeverityFlagBitsEXT)messageSeverity) {
-        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eError:      { logger << LogLevel::Error;    break; }
-        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo:       { logger << LogLevel::Info;     break; }
-        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose:    { logger << LogLevel::Trace;    break; }
-        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning:    { logger << LogLevel::Warn;     break; }
-    }
+    //switch ((vk::DebugUtilsMessageSeverityFlagBitsEXT)messageSeverity) {
+    //    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eError:      { logger << LogLevel::Error;    break; }
+    //    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo:       { logger << LogLevel::Info;     break; }
+    //    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose:    { logger << LogLevel::Trace;    break; }
+    //    case vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning:    { logger << LogLevel::Warn;     break; }
+    //}
 
-    logger << "GFX::Vulkan[";
+    //logger << "GFX::Vulkan[";
 
-    switch ((vk::DebugUtilsMessageTypeFlagBitsEXT)messageType) {
-        case vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral:        { logger << "General"; break; }
-        case vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance:    { logger << "Performance"; break; }
-        case vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation:     { logger << "Validation"; break; }
-    }
+    //switch ((vk::DebugUtilsMessageTypeFlagBitsEXT)messageType) {
+    //    case vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral:        { logger << "General"; break; }
+    //    case vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance:    { logger << "Performance"; break; }
+    //    case vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation:     { logger << "Validation"; break; }
+    //}
 
-    logger << "]: " << LogLevel::Default << callbackData->pMessage << "\n";
+    //logger << "]: " << LogLevel::Default << callbackData->pMessage << "\n";
     return false;
 }
 
@@ -101,7 +101,7 @@ VKInstance::VKInstance() {
     try {
         mInstance = vk::createInstance(intanceCreateInfo);
     } catch (const std::exception& e) {
-        logger << LogLevel::Fatal << ("[GFX::Instance] ", e.what());
+        //logger << LogLevel::Fatal << ("[GFX::Instance] ", e.what());
     }
 
     // Debug

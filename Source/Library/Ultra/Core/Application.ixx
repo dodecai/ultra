@@ -80,6 +80,8 @@ public:
         pAppInstance = this;
         mProperties = properties;
         logger.SetLevel(mProperties.LogLevel);
+        logger.Attach(CreateScope<ConsoleLogger>());
+        logger.Attach(CreateScope<FileLogger>("Test.log"));
     };
     virtual ~Application() = default;
     static Application &Instance() { return *pAppInstance; }

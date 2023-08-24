@@ -17,7 +17,7 @@ Scope<RenderDevice> RenderDevice::Create() {
         #if APP_MODE_DEBUG
             throw std::runtime_error("Renderer::RenderDevice: RenderAPI not supported!");
         #else
-            LogFatal("Renderer::RenderDevice: RenderAPI not supported!");
+            LogFatal("RenderAPI not supported!");
             return nullptr;
         #endif
         }

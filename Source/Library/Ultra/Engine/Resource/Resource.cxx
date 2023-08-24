@@ -44,14 +44,14 @@ string Resource::GetPath(PhyResourceType type, const string &name) {
 vector<uint32_t> Resource::LoadBytes(PhyResourceType type, const string &name) {
     string path = Resolve(type, name);
     auto data = ReadFileBinary(path.c_str());
-    if (data.empty()) LogFatal("Resource_LoadBytes: Failed to load %s <%s> at <%s>", Resource::ToString(type), name, path);
+    if (data.empty()) LogFatal("Resource_LoadBytes: Failed to load {} <{}> at <{}>", Resource::ToString(type), name, path);
     return data;
 }
 
 string Resource::LoadCstr(PhyResourceType type, const string &name) {
     string path = Resolve(type, name);
     string data = ReadFile(path);
-    if (data.empty()) LogFatal("Resource_LoadCstr: Failed to load %s <%s> at <%s>", Resource::ToString(type), name, path);
+    if (data.empty()) LogFatal("Resource_LoadCstr: Failed to load {} <{}> at <{}>", Resource::ToString(type), name, path);
     return data;
 }
 

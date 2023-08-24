@@ -6,9 +6,9 @@ import Ultra.Engine.DesignerCamera;
 import Ultra.Utility.ThreadPool;
 
 // Switches
-#define ENGINE_TESTS
+//#define ENGINE_TESTS
 //#define LIBRARY_TESTS
-//#define MISCELLANEOUS_TESTS
+#define MISCELLANEOUS_TESTS
 
 namespace Ultra {
 
@@ -44,52 +44,52 @@ struct Tester {
     //}
 
     bool Event(string test) {
-        logger << __FUNCTION__ << ":" << test << "\n";
+        //logger << __FUNCTION__ << ":" << test << "\n";
         return false;
     }
 
     const bool ConstEvent(string test) {
-        logger << __FUNCTION__ << ":" << test << "\n";
+        //logger << __FUNCTION__ << ":" << test << "\n";
         return false;
     }
 
     static bool StaticEvent(string test) {
-        logger << __FUNCTION__ << ":" << test << "\n";
+        //logger << __FUNCTION__ << ":" << test << "\n";
         return true;
     }
 
     bool NoExceptEvent(string test) noexcept {
-        logger << __FUNCTION__ << ":" << test << "\n";
+        //logger << __FUNCTION__ << ":" << test << "\n";
         return false;
     }
 
     const bool NoExceptConstEvent(string test) noexcept {
-        logger << __FUNCTION__ << ":" << test << "\n";
+        //logger << __FUNCTION__ << ":" << test << "\n";
         return false;
     }
 
     static bool NoExceptStaticEvent(string test) noexcept {
-        logger << __FUNCTION__ << ":" << test << "\n";
+        //logger << __FUNCTION__ << ":" << test << "\n";
         return false;
     }
 
     volatile bool VolatileEvent(string test) {
-        logger << __FUNCTION__ << ":" << test << "\n";
+        //logger << __FUNCTION__ << ":" << test << "\n";
         return false;
     }
 
     const volatile bool VolatileConstEvent(string test) {
-        logger << __FUNCTION__ << ":" << test << "\n";
+        //logger << __FUNCTION__ << ":" << test << "\n";
         return false;
     }
 
     static volatile bool VolatileStaticEvent(string test) {
-        logger << __FUNCTION__ << ":" << test << "\n";
+        //logger << __FUNCTION__ << ":" << test << "\n";
         return false;
     }
 
     static const volatile bool VolatileStaticConstEvent(string test) {
-        logger << __FUNCTION__ << ":" << test << "\n";
+        //logger << __FUNCTION__ << ":" << test << "\n";
         return false;
     }
 };
@@ -201,11 +201,6 @@ public:
         ///
         logger << LogLevel::Caption << "Core Library" << "\n";
         // Logger
-        ilogger.Attach(CreateReference<ConsoleLogger>());
-        ilogger.Attach(CreateReference<FileLogger>("Test.log"));
-        ilogger.Test();
-        ilogger(LogLevel::Warn, "Test {}, if you can{}!\n", "me", 2);
-        ilogger(LogLevel::Error, "Test me, if you can{}!\n", 3);
 
         ///
         /// Utilities
@@ -379,6 +374,14 @@ public:
     /// @brief  Miscellaneous Tests
     ///
     void Test() {
+        logger.Test();
+        Log("Default");
+        LogFatal("Fatal");
+        LogError("Error");
+        LogWarning("Warn");
+        LogInfo("Info");
+        LogDebug("Debug");
+        LogTrace("Trace");
     }
 
     //virtual void OnKeyboardEvent(KeyboardEventData &data, const EventListener::EventEmitter &emitter) override {

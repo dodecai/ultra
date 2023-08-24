@@ -4,7 +4,6 @@ import Ultra.Core;
 import Ultra.Platform.GFX.Vulkan;
 import Ultra.Platform.GFX.VKInstance;
 
-
 export namespace Ultra {
 
 struct VKQueueFamilyIndices {
@@ -89,7 +88,7 @@ public:
     operator const vk::Device &() const;
 
     // Commands
-    const vk::CommandBuffer &GetCommandBuffer(bool start = false, vk::CommandBufferLevel level = vk::CommandBufferLevel::ePrimary) const;
+    vk::CommandBuffer GetCommandBuffer(bool start = false, vk::CommandBufferLevel level = vk::CommandBufferLevel::ePrimary) const;
     void FlushCommandBuffer(vk::CommandBuffer &buffer);
     void FlushCommandBuffer(vk::CommandBuffer &buffer, vk::SubmitInfo &submit);
 
