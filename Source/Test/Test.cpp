@@ -96,6 +96,29 @@ struct Tester {
 
 #pragma endregion
 
+#ifdef FUTURE_TEST
+
+static std::future<void> Future;
+static void logmillion() {
+    Ultra::applog << Ultra::Log::Info << "Started" << "\n";
+    for (size_t i = 0; i <= 1000000; ++i) {
+        Ultra::applog << "";
+    }
+    Ultra::applog << Ultra::Log::Info << "Finished " << "\n";
+}
+
+void Start() {
+    applog << "0: " << std::this_thread::get_id() << std::endl;
+    Future = std::async(std::launch::async, logmillion);
+    static std::thread MainThread1([&]() { Future = std::async(std::launch::async, logmillion); });
+    static std::thread MainThread2([&]() { Future = std::async(std::launch::async, logmillion); });
+    static std::thread MainThread3([&]() { Future = std::async(std::launch::async, logmillion); });
+    applog << "1: " << MainThread1.get_id() << std::endl;
+    applog << "2: " << MainThread2.get_id() << std::endl;
+    applog << "3: " << MainThread3.get_id() << std::endl;
+}
+#endif
+
 // Application
 class App: public Application {
     struct EventEmitter: Emitter<EventEmitter> {};
@@ -375,7 +398,7 @@ public:
     ///
     void Test() {
         logger.Test();
-        Log("Default");
+        Log("Default 水 öäü");
         LogFatal("Fatal");
         LogError("Error");
         LogWarning("Warn");
@@ -409,7 +432,7 @@ private:
 
 // Application Entry-Point
 Application *CreateApplication() {
-    return new App({ "Spectra", "1280x1024" });
+    return new App({ "Test", "1280x1024" });
 }
 
 }

@@ -329,6 +329,7 @@ public:
 
     template<typename... Args>
     void operator()(const LoggerType &type, const LogRecord &record, Args &&...args) {
+        if (record.Level <= mLogLevel) return;
         std::lock_guard<mutex> lock(mMutex);
         mCounter++;
         try {
@@ -343,6 +344,7 @@ public:
 
     template<typename... Args>
     void operator()(const LogRecord &record, Args &&...args) {
+        if (record.Level <= mLogLevel) return;
         std::lock_guard<mutex> lock(mMutex);
         mCounter++;
         try {
@@ -352,12 +354,6 @@ public:
             }
         } catch (std::exception ex) {
             //this->operator()("Ultra::Logger: {}", ex.what());
-        }
-    }
-
-    const Scope<ILogger> &operator[](string_view name) {
-        for (const auto &sink : mSinks) {
-            if (sink->GetName() == name) return sink;
         }
     }
 
@@ -457,9 +453,9 @@ public:
         );
 
         // Wide-String based Types
-        //wchar_t WChar_T[] = L"WChar_T *";
-        //const wchar_t *ConstWChar_T = L"ConstWChar_T *";
-        //std::wstring WString = L"WString";
+        wchar_t WChar_T[] = L"WChar_T *";
+        const wchar_t *ConstWChar_T = L"ConstWChar_T *";
+        std::wstring WString = L"WString";
 
         //logger("{}{} {}{} {}{}",
         //    Cli::Color::LightRed, WChar_T,
@@ -494,6 +490,8 @@ inline Logger &logger = Logger::Instance();
 ///
 
 template<typename ...Args> void Log(const LogRecord &record, Args &&...args)            { logger(LogLevel::Default, record, args...); logger << "\n"; }
+template<typename ...Args> void LogCaption(const LogRecord &record, Args &&...args)     { logger(LogLevel::Caption, record, args...); logger << "\n"; }
+template<typename ...Args> void LogDelimiter(const LogRecord &record, Args &&...args)   { logger(LogLevel::Delimiter, record, args...); logger << "\n"; }
 #ifdef APP_MODE_DEBUG
     template<typename T, typename ...Args> bool AppAssert(T *object, const LogRecord &record, Args &&...args) {
         if (!object) {

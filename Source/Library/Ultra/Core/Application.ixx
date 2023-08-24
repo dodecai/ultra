@@ -82,26 +82,17 @@ public:
         logger.SetLevel(mProperties.LogLevel);
         logger.Attach(CreateScope<ConsoleLogger>());
         logger.Attach(CreateScope<FileLogger>("Test.log"));
-    };
-    virtual ~Application() = default;
-    static Application &Instance() { return *pAppInstance; }
 
-    // With this method, everything begins.
-    void Run() {
-        if (mProperties.External) {
-            RunExternal();
-            return;
-        }
+        LogCaption("{}", AsciiLogo());
+        Log("{} started ...\n  on: '{}'\n  at: '{}'", mProperties.Title, apptime.GetDate(), apptime.GetTime());
 
         // Initialization
-        logger << LogLevel::Caption << AsciiLogo() << "\n";
-        //logger("{} started ...\n  on: '{}'\n  at: '{}'\n", mProperties.Title, apptime.GetDate(), apptime.GetTime());
-        logger << LogLevel::Caption << "Initialization" << "\n";
+        if (mProperties.External) return;
+        LogCaption("Initialization");
 
         // Load Configuration
         mConfig = CreateReference<Config>();
         mConfig->Load("Data/Config.yml");
-        //Log("Config: Engine-Resolution={}", mConfig->GetSetting<string>("Engine", "Resolution"));;
 
         // Load Window, Context and Events
         mDialog = Dialog::Create();
@@ -109,10 +100,9 @@ public:
         mWindow = Window::Create(WindowProperties(mProperties.Title, mProperties.Width, mProperties.Height));
         mListener = EventListener::Create();
         mWindow->mExternalInputEventListener = [&](auto value) -> bool { return mListener->Callback(value); };
-        mListener->Emitter.on<KeyboardEventData>([&]( auto &data, const auto &emitter) { OnKeyboardEvent(data, emitter); });
-        mListener->Emitter.on<MouseEventData>([&]( auto &data, const auto &emitter) { OnMouseEvent(data, emitter); });
-        mListener->Emitter.on<WindowEventData>([&]( auto &data, const auto &emitter) { OnWindowEvent(data, emitter); });
-
+        mListener->Emitter.on<KeyboardEventData>([&](auto &data, const auto &emitter) { OnKeyboardEvent(data, emitter); });
+        mListener->Emitter.on<MouseEventData>([&](auto &data, const auto &emitter) { OnMouseEvent(data, emitter); });
+        mListener->Emitter.on<WindowEventData>([&](auto &data, const auto &emitter) { OnWindowEvent(data, emitter); });
         LogDebug("Created window '{}' with size '{}x{}'.", mProperties.Title, mProperties.Width, mProperties.Height);
 
         Context::API = mProperties.GfxApi;
@@ -126,19 +116,31 @@ public:
         // Load Core Layer
         pCoreLayer = new GuiLayer();
         PushOverlay(pCoreLayer);
+    };
+    virtual ~Application() {
+        Log("{} finished ...\n  on: '{}'\n  at: '{}'\n", mProperties.Title, apptime.GetDate(), apptime.GetTime());
+    };
+    static Application &Instance() { return *pAppInstance; }
+
+    // With this method, everything begins.
+    void Run() {
+        if (mProperties.External) {
+            RunExternal();
+            return;
+        }
 
         // Runtime Properties
-        string title(64, ' ');
         Timer timer = {};
         double delay = {};
         double frames = {};
+        string title(64, ' ');
 
         // Creation
         Create();
         for (Layer *layer : mLayers) layer->Create();
 
         // Logic Loop
-        logger << LogLevel::Caption << "Main Loop" << "\n";
+        LogCaption("Main Loop");
         while (mRunning) {
             // Update events and check if application is paused
             if (mPaused) continue;
@@ -178,10 +180,9 @@ public:
         }
 
         // Termination
-        logger << LogLevel::Caption << "Termination" << "\n";
+        LogCaption("Termination");
         for (Layer *layer : mLayers) layer->Destroy();
         Destroy();
-        //logger("{} finished ...\n  on: '{}'\n  at: '{}'\n", mProperties.Title, apptime.GetDate(), apptime.GetTime());
     }
     void RunExternal() {
         // Runtime Properties
@@ -224,7 +225,7 @@ public:
     // Accessors
     static ApplicationProperties &GetProperties() { return Instance().mProperties; }
     virtual string AsciiLogo() { return mProperties.Title; };
-    //static Config &GetConfig() { return *Instance().mConfig; }
+    static Config &GetConfig() { return *Instance().mConfig; }
     static Context &GetContext() { return *Instance().mContext; }
     static Dialog &GetDialog() { return *Instance().mDialog; };
     static Statistics GetStatistics() { return Instance().mStatistics; }
@@ -248,13 +249,11 @@ public:
     // This method pushes a layer to the application.
     void PushLayer(Layer *layer) {
         mLayers.PushLayer(layer);
-        //layer->Attach();
     }
 
     // This method pushes an overlay on top of the application.
     void PushOverlay(Layer *overlay) {
         mLayers.PushOverlay(overlay);
-        //overlay->Attach();
     }
 
 protected:
@@ -288,7 +287,7 @@ protected:
     }
     
     virtual void OnKeyboardEvent(KeyboardEventData &data, const EventListener::EventEmitter &emitter) {
-        for (Layer *layer : mLayers) {
+        for (auto layer : mLayers) {
             if (data.Handled) break;
             layer->OnKeyboardEvent(data, emitter);
         }

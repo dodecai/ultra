@@ -82,20 +82,18 @@
             "Assets/Sounds/*.mp3",
             "Assets/Sounds/*.wav",
         },
-        ["Phoenix"] = {
-            "Assets/Phoenix/script/*.lua",
-        },
         ["Textures"] = {
             "Assets/Textures/*.png",
             "Assets/Textures/*.tga",
         },
+        ["Phoenix"] = {
+            "Assets/Phoenix/script/*.lua",
+        },
     },
     ["Build"] = {
+        "3rd-Party/Build/Modules.lua",
         "3rd-Party/3rd-Party.lua",
         "Source/Library/Library.lua",
-        "3rd-Party/Build/Modules.lua",
-        "Prepare.bat",
-        "Scripts/Prepare.ps1",
         "Source/Projects.lua",
         "Solution.lua",
     },
@@ -107,7 +105,7 @@
         "vcpkg.json",
     },
     ["Data"] = {
-        "Data/*.*",
+        "Data/*",
     },
     ["Manual"] = {
         ["3rd-Party"] = {
@@ -115,8 +113,15 @@
         },
         "Manual/*",
     },
-    "License",
+    ["Scripts"] = {
+        "Scripts/*",
+        "Prepare.bat",
+    },
+    ["User"] = {
+        "User/*",
+    },
     "Contributing.md",
+    "License",
     "ReadMe.md",
     "Security.md",
 }
@@ -137,4 +142,3 @@ include "Game/Game.lua"
 include "Library/Library.lua"
 include "Spectra/Spectra.lua"
 include "Test/Test.lua"
-

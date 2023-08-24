@@ -2,6 +2,7 @@
 #include <Ultra/EntryPoint.h>
 
 import Ultra;
+import Spectra.Designer;
 
 namespace Ultra {
 
@@ -16,6 +17,7 @@ public:
 
     // Methods
     void Create() {
+        PushLayer(new Designer());
         mRenderer = Renderer::Create();
         Resource::Instance();
     }

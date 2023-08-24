@@ -1,4 +1,4 @@
-::: Properties
+﻿::: Properties
     @echo off
     cls
     cd /d "%~dp0"
