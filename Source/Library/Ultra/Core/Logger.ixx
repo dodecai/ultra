@@ -135,7 +135,7 @@ inline ofstream &operator<<(ofstream &os, T level) {
 /// Contains the format, the location, the loglevel and timestamp.
 ///
 struct LogRecord {
-    LogRecord(const char *format, const LogLevel &level = LogLevel::Default, const string_view &timestamp = ""/*apptime.GetTimeStamp()*/, const SourceLocation &location = SourceLocation::Current()):
+    LogRecord(const char *format, const LogLevel &level = LogLevel::Default, const string_view &timestamp = apptime.GetTimeStamp(), const SourceLocation &location = SourceLocation::Current()):
         Format(format),
         Level(level),
         Location(location),
@@ -189,7 +189,6 @@ public:
         } else {
             format = "{}";
         }
-        auto message = std::vformat(format, arguments);
         //if constexpr (is_wstring_v<arguments>) mWStream << message;
         //else
         mStream << message;
