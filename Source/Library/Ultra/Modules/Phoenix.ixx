@@ -1,7 +1,7 @@
 ﻿export module Ultra.Module.Phoenix;
 
 ///
-/// @brief This module contains original source code from the Phoenix game engine.
+/// @brief This module contains original source code from the Phoenix game library.
 /// @note It's only used for testing purposes, not in production!
 /// @link https://github.com/JoshParnell/libphx/tree/master
 ///

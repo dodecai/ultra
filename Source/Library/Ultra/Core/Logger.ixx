@@ -96,6 +96,11 @@ inline auto &operator<<(wostream &os, const T &level) {
 /// faster then string_view, 'cause under the hood it created a temporary string_view.
 ///
 struct LogRecord {
+    const char *Format;
+    mutable LogLevel Level;
+    SourceLocation Location;
+    string Timestamp;
+
     LogRecord(const char *format, const LogLevel &level = LogLevel::Default, const string &timestamp = apptime.GetTimeStamp(), const SourceLocation &location = SourceLocation::Current()):
         Format(format),
         Level(level),
@@ -103,10 +108,15 @@ struct LogRecord {
         Timestamp(timestamp) {
     }
 
-    const char *Format;
-    mutable LogLevel Level;
-    SourceLocation Location;
-    string Timestamp;
+    bool operator==(const LogRecord &other) const {
+        return Level == other.Level && Timestamp == other.Timestamp;
+    }
+};
+
+struct LogRecordHasher {
+    size_t operator()(const LogRecord &record) const {
+        return std::hash<LogLevel>{}(record.Level) ^ std::hash<string>{}(record.Timestamp);
+    }
 };
 
 ///
@@ -116,6 +126,7 @@ struct LogRecord {
 enum class LoggerType {
     Console = 0x0,
     File    = 0x1,
+    Memory  = 0x2,
 };
 
 ///
@@ -153,28 +164,28 @@ public:
                 break;
             }
             case LogLevel::Caption: {
-                mStream << std::format("{}{}  {}{}{}{}",
+                mStream << std::format("{}{}  {}{}{}{}{}",
                     levelColor, record.Level,
                     Cli::Color::White, message,
                     levelColor, record.Level,
-                    Cli::Style::Reset
+                    Cli::Style::Reset, Cli::Color::Default
                 );
                 break;
             }
             case LogLevel::Delimiter: {
-                mStream << std::format("{}{}{}",
+                mStream << std::format("{}{}{}{}",
                     levelColor, record.Level,
-                    Cli::Style::Reset
+                    Cli::Style::Reset, Cli::Color::Default
                 );
                 break;
             }
             default: {
-                mStream << std::format("{}{}{}{}{}{}: {}{}{}",
+                mStream << std::format("{}{}{}{}{}<{}> {}{}{}{}",
                     Cli::Color::Gray, record.Timestamp,
                     levelColor, record.Level,
                     Cli::Color::LightGray, record.Location.Class,
                     Cli::Color::White, message,
-                    Cli::Style::Reset
+                    Cli::Style::Reset, Cli::Color::Default
                 );
                 break;
             }
@@ -246,7 +257,7 @@ public:
                 break;
             }
             default: {
-                mStream << std::format("{}{}{}: {}",
+                mStream << std::format("{}{}<{}> {}",
                     record.Timestamp,
                     record.Level,
                     record.Location.Class,
@@ -268,6 +279,40 @@ private:
 
     mutex mMutex;
     ofstream mStream;
+};
+
+///
+/// @brief Memory Sink
+///
+class MemoryLogger: public ILogger {
+private:
+    using Messages = unordered_map<LogRecord, string, LogRecordHasher>;
+
+public:
+    MemoryLogger(const string &name = "Memory"): mName(name) {}
+
+    void operator()(const LogRecord &record, std::format_args arguments) override {
+        std::lock_guard<mutex> lock(mMutex);
+        string buffer {};
+        std::format_to(std::back_inserter(buffer), "{}", std::vformat(record.Format, arguments));
+        mMessages.emplace(record, buffer);
+    }
+
+    const string &GetName() const override { return mName; }
+    LoggerType GetType() const override { return mType; }
+    const Messages &GetMessages() const { return mMessages; }
+
+    void Clear() {
+        std::lock_guard<mutex> lock(mMutex);
+        mMessages.clear();
+    }
+
+private:
+    string mName {};
+    LoggerType mType { LoggerType::Memory };
+
+    mutex mMutex;
+    Messages mMessages;
 };
 
 
@@ -490,8 +535,8 @@ inline Logger &logger = Logger::Instance();
 ///
 
 template<typename ...Args> void Log(const LogRecord &record, Args &&...args)            { logger(LogLevel::Default, record, args...); logger << "\n"; }
-template<typename ...Args> void LogCaption(const LogRecord &record, Args &&...args)     { logger(LogLevel::Caption, record, args...); logger << "\n"; }
-template<typename ...Args> void LogDelimiter(const LogRecord &record, Args &&...args)   { logger(LogLevel::Delimiter, record, args...); logger << "\n"; }
+template<typename ...Args> void LogCaption(const LogRecord &record, Args &&...args)     { logger(LogLevel::Caption, record, args...); logger; }
+template<typename ...Args> void LogDelimiter(const LogRecord &record, Args &&...args)   { logger(LogLevel::Delimiter, record, args...); logger; }
 #ifdef APP_MODE_DEBUG
     template<typename T, typename ...Args> bool AppAssert(T *object, const LogRecord &record, Args &&...args) {
         if (!object) {
@@ -534,7 +579,7 @@ template<typename ...Args> void LogFatal(const LogRecord &record, Args &&...args
 namespace std {
 
 template <>
-struct std::formatter<Ultra::LogLevel> {
+struct formatter<Ultra::LogLevel> {
     constexpr auto parse(format_parse_context &context) {
         return context.begin();
     }

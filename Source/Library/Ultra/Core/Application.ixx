@@ -82,6 +82,7 @@ public:
         logger.SetLevel(mProperties.LogLevel);
         logger.Attach(CreateScope<ConsoleLogger>());
         logger.Attach(CreateScope<FileLogger>("Test.log"));
+        logger.Attach(CreateScope<MemoryLogger>());
 
         LogCaption("{}", AsciiLogo());
         Log("{} started ...\n  on: '{}'\n  at: '{}'", mProperties.Title, apptime.GetDate(), apptime.GetTime());
@@ -224,7 +225,6 @@ public:
 
     // Accessors
     static ApplicationProperties &GetProperties() { return Instance().mProperties; }
-    virtual string AsciiLogo() { return mProperties.Title; };
     static Config &GetConfig() { return *Instance().mConfig; }
     static Context &GetContext() { return *Instance().mContext; }
     static Dialog &GetDialog() { return *Instance().mDialog; };
@@ -240,6 +240,8 @@ public:
     virtual void Destroy() {}
     // This method executes your main logic code.
     virtual void Update([[maybe_unused]] Timestamp deltaTime) {}
+    // Add an Ascii-Art Logo to logging headers.
+    virtual string AsciiLogo() { return mProperties.Title; };
 
     // With this method, everything ends.
     void Exit() {

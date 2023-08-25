@@ -31,7 +31,7 @@ public:
     }
 
     // Styles
-    string AsciiLogo() {
+    string AsciiLogo() override {
         return 1 + R"(
       ____ ___.__   __                     _________                    __                 
      |    |   \  |_/  |_____________      /   _____/_____   ____  _____/  |_____________   
