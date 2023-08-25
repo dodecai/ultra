@@ -159,7 +159,7 @@ private:
 
 export namespace Ultra::Debug {
 
-void StartProfiling(const string &name, const string &file = "results.json") {
+void StartProfiling(const string &name, const string &file = "ProfilerResults.json") {
     Instrumentor::Instance().BeginSession(name, file);
 }
 

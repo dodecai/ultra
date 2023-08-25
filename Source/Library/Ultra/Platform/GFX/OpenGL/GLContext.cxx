@@ -8,18 +8,11 @@
 #if defined(APP_PLATFORM_WINDOWS)
     #pragma comment(lib, "opengl32.lib")
 
-    // Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
-    #undef __nullnullterminated
-    #define __SPECSTRINGS_STRICT_LEVEL 0
-
     #undef APIENTRY
     #define NOMINMAX
     #define VC_EXTRALEAN
     #define WIN32_LEAN_AND_MEAN
 	#include <Windows.h>
-
-    // Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
-    #undef __nullnullterminated
 
 	#include <GL/glext.h>
     #include <GL/wglext.h>

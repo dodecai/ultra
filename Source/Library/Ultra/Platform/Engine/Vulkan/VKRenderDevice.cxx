@@ -12,7 +12,13 @@ VKRenderDevice::VKRenderDevice() {}
 VKRenderDevice::~VKRenderDevice() {}
 
 
-void VKRenderDevice::Load() {};
+void VKRenderDevice::Load() {
+    //sContext = reinterpret_cast<VKContext *>(&Application::GetContext());
+    //mDevice = sContext->GetDevice();
+
+    //PipelineProperties properties;
+    //mPipelineA = CreateReference<VKPipeline>(properties);
+};
 
 void VKRenderDevice::BeginFrame() {};
 
