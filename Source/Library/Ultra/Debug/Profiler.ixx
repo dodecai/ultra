@@ -1,242 +1,174 @@
-﻿module;
+﻿export module Ultra.Debug.Profiler;
 
-export module Ultra.Debug.Profiler;
-
-import <algorithm>;
-import <chrono>;
-import <fstream>;
-import <mutex>;
-import <iomanip>;
-import <string>;
-import <sstream>;
-import <thread>;
-
+import Ultra.Core;
 import Ultra.Logger;
 
 ///
-/// @brief: Profile your code and generate tracing data for chrome based browsers (URL: chrome://tracing/)
-///
-/// Example:
-/// PROFILE_SCOPE("Engine::Renderer::Prepare");
-/// PROFILE_SCOPE("Engine::Renderer::Draw");
-/// ...
-/// ProfileResults results;
-/// ImGui::Begin("Statistics");
-/// for (auto &result : ProfilerResults) {
-/// 	char label[64];
-/// 	strcpy(label, "%.3fms ");
-/// 	strcat(label, result.Name);
-/// 	ImGui::Text(label, result.Time);
-/// }
-/// ProfilerResults.clear();
+/// @brief: Profiles code and generates tracing data for chrome based browsers (URL: chrome://tracing/)
 ///
 
-export namespace Ultra {
+namespace Ultra::Debug {
 
-namespace Profiler {
-
-// Properties
+// Types
+using SteadyClock = std::chrono::steady_clock;
+using Duration = std::chrono::microseconds;
 using TimeStep = std::chrono::duration<double, std::micro>;
 
-struct Result {
-    std::string Name;
-    std::thread::id ThreadID;
+// ToDo: Hold all results in memory, later for the UI
+struct ProfilerResult {
+    string Name {};
+    std::thread::id ThreadID {};
+    double StartTime {};
+    double DeltaTime {};
+} static sProfilerResults {};
 
-    TimeStep StartTime;
-    std::chrono::microseconds DeltaTime;
+using ProfileResults = std::vector<ProfilerResult>;
+
+struct ProfilerSession {
+    string Name;
 };
 
-struct Session {
-    std::string Name;
-};
-
-
+///
+/// @brief: Instrumentor
+/// 
+/// @example
+/// ProfileScope("Application");
+///
 class Instrumentor {
-public:
-    Instrumentor(): m_CurrentSession(nullptr) {}
+private:
+    Instrumentor() = default;
+    ~Instrumentor() = default;
 
-    static Instrumentor &Get() {
+public:
+    static Instrumentor &Instance() {
         static Instrumentor instance;
         return instance;
     }
 
-    void BeginSession(const std::string &name, const std::string &filepath = "results.json") {
-        std::lock_guard lock(m_Mutex);
-        if (m_CurrentSession) { InternalEndSession(); }
-        m_OutputStream.open(filepath);
+    void BeginSession(const std::string &name, const std::string &file = "results.json") {
+        std::lock_guard lock(mMutex);
+        if (mCurrentSession) { EndSessionInternal(); }
+        mStream.open(file);
 
-        if (m_OutputStream.is_open()) {
-            m_CurrentSession = new Session({ name });
+        if (mStream.is_open()) {
+            mCurrentSession = CreateScope<ProfilerSession>(name);
             WriteHeader();
         } else {
-            Ultra::logger << "Instrumentor couldn't open target file!\n";
+            Ultra::LogError("Instrumentor couldn't open target file '{}'!\n", file);
         }
     }
+    void WriteProfile(const ProfilerResult &result) {
+        std::lock_guard lock(mMutex);
 
-    void EndSession() {
-        std::lock_guard lock(m_Mutex);
-        InternalEndSession();
-    }
-
-    void WriteProfile(const Result &result) {
-        std::lock_guard lock(m_Mutex);
-        std::stringstream json;
-
+        stringstream json;
         json << std::setprecision(3) << std::fixed;
-        json << ",\n    {";
-        json << R"("name": ")" << result.Name << R"(", )";
-        json << R"("cat": ")" << "function" << R"(", )";
-        json << R"("ph": ")" << "X" << R"(", )";
-        json << R"("ts": )" << result.StartTime.count() << R"(, )";
-        json << R"("dur": )" << (result.DeltaTime.count()) << R"(, )";
-        json << R"("pid": )" << 0 << R"(, )";
-        json << R"("tid": )" << result.ThreadID << R"(, )";
-        json << R"("args": )" << "{}" << R"( )";
-        json << "}";
+        json <<
+            ",\n"
+            << "    {"
+            << R"( "name": ")"   << result.Name         << R"(", )"
+            << R"( "cat": ")"    << "function"          << R"(", )"
+            << R"( "ph": ")"     << "X"                 << R"(", )"
+            << R"( "ts": )"      << result.StartTime    << R"(, )"
+            << R"( "dur": )"     << result.DeltaTime    << R"(, )"
+            << R"( "pid": )"     << 0                   << R"(, )"
+            << R"( "tid": )"     << result.ThreadID     << R"(, )"
+            << R"( "args": )"    << "{}"                << R"( )"
+            << " }";
 
-        if (m_CurrentSession) {
-            m_OutputStream << json.str();
-            m_OutputStream.flush();
+        if (mCurrentSession) {
+            mStream << json.str();
+            mStream.flush();
         }
+    }
+    void EndSession() {
+        std::lock_guard lock(mMutex);
+        EndSessionInternal();
     }
 
 private:
-    void WriteHeader() {
-        auto application = "Playground";
-        auto version = "v1.0.0";
-        m_OutputStream << "{\n";
-        m_OutputStream << R"(  "displayTimeUnit": ")" << "ms" << R"(",)" << "\n";
-        m_OutputStream << R"(  "otherData": {)" << "\n";
-        m_OutputStream << R"(    "application": ")" << application << R"(",)" << "\n";
-        m_OutputStream << R"(    "version": ")" << version << R"(")" << "\n";
-        m_OutputStream << R"(  },)" << "\n";
-        m_OutputStream << R"(  "traceEvents": [)" << "\n";
-        m_OutputStream << R"(    {})";
-        m_OutputStream.flush();
-    }
-
-    void WriteFooter() {
-        m_OutputStream << "\n  ]";
-        m_OutputStream << "\n}\n";
-        m_OutputStream.flush();
-    }
-
-    // Note: you must already own lock on m_Mutex before  calling InternalEndSession()
-    void InternalEndSession() {
-        if (m_CurrentSession) {
+    void EndSessionInternal() {
+        if (mCurrentSession) {
             WriteFooter();
-            m_OutputStream.close();
-            delete m_CurrentSession;
-            m_CurrentSession = nullptr;
+            mStream.close();
+            mCurrentSession.reset(nullptr);
         }
     }
 
-private:
-    std::mutex m_Mutex;
-    Session *m_CurrentSession;
-    std::ofstream m_OutputStream;
-};
-
-class Timer {
-public:
-    Timer(const char *name): m_Name(name), m_Stopped(false) {
-        mStartTimestamp = std::chrono::steady_clock::now();
+    void WriteHeader() {
+        auto application = "Ultra";
+        auto version = "v1.0.0";
+        mStream << "{\n"
+            << R"(  "displayTimeUnit": "ms",)"  << "\n"
+            << R"(  "otherData": {)"            << "\n"
+            << R"(    "application": ")"    << application  << R"(",)"  << "\n"
+            << R"(    "version": ")"        << version      << R"(")"   << "\n"
+            << R"(  },)"                    << "\n"
+            << R"(  "traceEvents": [)"      << "\n"
+            << R"(    {})";
+        mStream.flush();
     }
-
-    ~Timer() {
-        if (!m_Stopped) Stop();
-    }
-
-    void Stop() {
-        auto endTimepoint = std::chrono::steady_clock::now();
-        auto highResStart = TimeStep { mStartTimestamp.time_since_epoch() };
-        auto elapsedTime = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch() - std::chrono::time_point_cast<std::chrono::microseconds>(mStartTimestamp).time_since_epoch();
-
-        Instrumentor::Get().WriteProfile({ m_Name, std::this_thread::get_id(), highResStart, elapsedTime });
-
-        m_Stopped = true;
+    void WriteFooter() {
+        mStream
+            << "\n"
+            << "  ]\n"
+            << "}\n";
+        mStream.flush();
     }
 
 private:
-    const char *m_Name;
-    std::chrono::time_point<std::chrono::steady_clock> mStartTimestamp;
-    bool m_Stopped;
-
+    Scope<ProfilerSession> mCurrentSession {};
+    mutex mMutex {};
+    ofstream mStream {};
 };
-
-namespace Utilities {
-
-template <size_t N>
-struct ChangeResult {
-    char Data[N];
-};
-
-template <size_t N, size_t K>
-constexpr auto CleanupOutputString(const char(&expr)[N], const char(&remove)[K]) {
-    ChangeResult<N> result = {};
-
-    size_t srcIndex = 0;
-    size_t dstIndex = 0;
-    while (srcIndex < N) {
-        size_t matchIndex = 0;
-        while (matchIndex < K - 1 && srcIndex + matchIndex < N - 1 && expr[srcIndex + matchIndex] == remove[matchIndex])
-            matchIndex++;
-        if (matchIndex == K - 1)
-            srcIndex += matchIndex;
-        result.Data[dstIndex++] = expr[srcIndex] == '"' ? '\'' : expr[srcIndex];
-        srcIndex++;
-    }
-    return result;
-}
-
-}
-
-}
-
-}
 
 ///
 /// @brief: Internal scoped timer
 ///
-//#define PROFILE_SCOPE(name) ScopedTimer timer##__LINE__(name, [&](ProfileResult result) { ProfileResults.push_back(result); })
-
-export namespace Ultra {
-
-struct ProfilerResult {
-    const char *Name;
-    float Time;
-};
-
-std::vector<ProfilerResult> ProfileResults;
-
-template <typename L>
 class ScopedTimer {
 public:
-    ScopedTimer(const char *name, L &&function):
-        Name { name },
-        Stopped { false },
-        Function { function } {
-        StartTimePoint = std::chrono::high_resolution_clock::now();
+    ScopedTimer(const char *name, const function<void(const string &, double duration)> &function = nullptr):
+        mName(name),
+        mStopped(false),
+        mStartTime(SteadyClock::now()),
+        mCallback(function) {
     }
-    ~ScopedTimer() { if (!Stopped) { Stop(); } };
+    ~ScopedTimer() { if (!mStopped) { Stop(); } };
 
     void Stop() {
-        auto stopTimePoint = std::chrono::high_resolution_clock::now();
+        auto stopTime = std::chrono::time_point_cast<Duration>(SteadyClock::now()).time_since_epoch().count();
+        auto startTime = std::chrono::time_point_cast<Duration>(mStartTime).time_since_epoch().count();
+        auto duration = (stopTime - startTime) * 0.001f;
 
-        auto start = std::chrono::time_point_cast<std::chrono::microseconds>(StartTimePoint).time_since_epoch().count();
-        auto stop = std::chrono::time_point_cast<std::chrono::microseconds>(stopTimePoint).time_since_epoch().count();
-
-        Stopped = true;
-
-        auto duration = (stop - start) * 0.001f;
-        Function({ Name, duration });
+        mStopped = true;
+        if (mCallback) {
+            mCallback(mName, duration);
+        } else {
+            ProfilerResult result { mName, std::this_thread::get_id(), startTime, duration };
+            Instrumentor::Instance().WriteProfile(result);
+        }
     }
 
 private:
-    bool Stopped;
-    const char *Name;
-    std::chrono::time_point<std::chrono::steady_clock> StartTimePoint;
-    L Function;
+    const char *mName;
+    bool mStopped {};
+    std::chrono::time_point<SteadyClock> mStartTime;
+    function<void(const string&, double duration)> mCallback;
 };
+
+}
+
+export namespace Ultra::Debug {
+
+void StartProfiling(const string &name, const string &file = "results.json") {
+    Instrumentor::Instance().BeginSession(name, file);
+}
+
+ScopedTimer ProfileScope(const char *name, const function<void(const string &, double duration)> &function = nullptr, const SourceLocation &location = SourceLocation::Current()) {
+    return ScopedTimer(name, function);
+}
+
+void StopProfiling() {
+    Instrumentor::Instance().EndSession();
+}
 
 }

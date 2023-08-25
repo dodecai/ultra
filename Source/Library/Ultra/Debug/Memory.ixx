@@ -1,6 +1,4 @@
-﻿module;
-
-export module Ultra.Debug.Memory;
+﻿export module Ultra.Debug.Memory;
 
 ///
 /// @brief: This module serves something like a memory allocation/deallocation watcher.
@@ -8,21 +6,30 @@ export module Ultra.Debug.Memory;
 /// @note:  Currently this is only the barebone, there is still some work to be done.
 /// 
 
-import <memory>;
-
 import Ultra.Core;
 import Ultra.Logger;
 
-// Properties
+///
+/// @brief Properties
+///
+
 struct AllocationMetrics {
-    std::size_t TotalAllocated = 0;
-    std::size_t TotalFreed = 0;
+    size_t TotalAllocated {};
+    size_t TotalFreed {};
 
-    std::size_t CurrentUsage() { return TotalAllocated - TotalFreed; }
-} static sAllocationMetrics;
+    size_t CurrentUsage() { return TotalAllocated - TotalFreed; }
+} static sAllocationMetrics {};
 
-// Overrides
+///
+/// @brief Overrides
+///
+
 export void *operator new(size_t size) {
+    sAllocationMetrics.TotalAllocated += size;
+    return malloc(size);
+}
+
+export void *operator new[](size_t size) {
     sAllocationMetrics.TotalAllocated += size;
     return malloc(size);
 }
@@ -32,10 +39,34 @@ export void operator delete(void *memory, size_t const size) noexcept {
     free(memory);
 }
 
-// Verification
-export void VerifyMemoryUsage() {
-    Ultra::logger
-        << "Current Memory Usage: " << sAllocationMetrics.CurrentUsage() << " bytes\n"
-        << " - Total Allocated:   " << sAllocationMetrics.TotalAllocated << " bytes\n"
-        << " - Total Deallocated: " << sAllocationMetrics.TotalFreed     << " bytes\n";
+export void operator delete[](void *memory) noexcept {
+    free(memory);
+}
+
+export void operator delete[](void *memory, size_t size) noexcept {
+    sAllocationMetrics.TotalFreed += size;
+    free(memory);
+}
+///
+/// @brief Functions
+///
+
+export inline void VerifyMemoryUsage() {
+    Ultra::Log("Current Memory Usage: {} bytes\n - Total Allocated: {} bytes\n - Total Deallocated: {} bytes",
+        sAllocationMetrics.CurrentUsage(),
+        sAllocationMetrics.TotalAllocated,
+        sAllocationMetrics.TotalFreed
+    );
+}
+
+export inline void DetectMemoryLeaks() {
+    auto usage = sAllocationMetrics.CurrentUsage();
+    if (usage != 0) {
+        Ultra::LogWarning("Memory Leaks Detected [leaked '{}' bytes]!", usage);
+    } else if (sAllocationMetrics.TotalAllocated == 0 && sAllocationMetrics.TotalFreed == 0) {
+        Ultra::LogError("Memory Leak Detection failed!");
+    } else {
+        Ultra::LogInfo("No Memory Leaks Detected");
+    }
+    VerifyMemoryUsage();
 }

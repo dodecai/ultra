@@ -3,6 +3,8 @@
 // Library
 import Ultra.Core;
 import Ultra.Core.Application;
+import Ultra.Debug.Memory;
+import Ultra.Debug.Profiler;
 import "Ultra/Core/Platform.h";
 
 ///
@@ -20,13 +22,16 @@ int main(int argc, char **argv) {
 
 
     // Initialization
+    Ultra::Debug::StartProfiling("Application");
     auto app = Ultra::CreateApplication();
     app->SetArguments(Ultra::Arguments({ argv + 1, argv + argc }));
+    Ultra::Debug::StopProfiling();
 
     // Main
     app->Run();
 
     // Termination
     delete app;
+    DetectMemoryLeaks();
     return 0;
 }
