@@ -1,4 +1,4 @@
-﻿export module Spectra.Panel.Browser;
+﻿export module Ultra.Spectra.Panel.Browser;
 
 import Ultra;
 

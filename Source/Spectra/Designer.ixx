@@ -1,14 +1,14 @@
-﻿export module Spectra.Designer;
+﻿export module Ultra.Spectra.Designer;
 
 import Ultra;
 import Ultra.Core.Layer;
 
-import Spectra.Component.Menu;
-import Spectra.Panel.Browser;
-import Spectra.Panel.CodeEditor;
-import Spectra.Panel.Console;
-import Spectra.Panel.Properties;
-import Spectra.Panel.Viewport;
+import Ultra.Spectra.Component.Menu;
+import Ultra.Spectra.Panel.Browser;
+import Ultra.Spectra.Panel.CodeEditor;
+import Ultra.Spectra.Panel.Console;
+import Ultra.Spectra.Panel.Properties;
+import Ultra.Spectra.Panel.Viewport;
 
 export namespace Ultra {
 

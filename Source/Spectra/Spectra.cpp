@@ -2,7 +2,7 @@
 #include <Ultra/EntryPoint.h>
 
 import Ultra;
-import Spectra.Designer;
+import Ultra.Spectra.Designer;
 
 namespace Ultra {
 

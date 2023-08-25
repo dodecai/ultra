@@ -6,9 +6,9 @@ import Ultra.Engine.DesignerCamera;
 import Ultra.Utility.ThreadPool;
 
 // Switches
-//#define ENGINE_TESTS
+#define ENGINE_TESTS
 //#define LIBRARY_TESTS
-#define MISCELLANEOUS_TESTS
+//#define MISCELLANEOUS_TESTS
 
 namespace Ultra {
 
@@ -132,16 +132,16 @@ public:
     void Create() {
         #ifdef ENGINE_TESTS
             mRenderer = Renderer::Create();
-            auto swapchain = Swapchain::Create(nullptr, 1280, 720);
+            auto swapchain = Swapchain::Create(nullptr, 1280, 1024);
 
-            auto aspectRatio = 800.0f / 600.0f;
+            auto aspectRatio = 1280.0f / 1024.0f;
             mDesignerCamera = DesignerCamera(45.0f, aspectRatio, 0.1f, 1000.0f);
 
             auto commandBuffer = CommandBuffer::Create();
             mCheckerBoard = Texture::Create(TextureProperties(), "./Assets/Textures/CheckerBoard.png");
 
             // Load shaders, buffers, textures
-            auto linkedShaders = Shader::Create("Assets/Shaders/Test.glsl");
+            //auto linkedShaders = Shader::Create("Assets/Shaders/Test.glsl");
             //auto linkedShaders = Shader::Create("Assets/Shaders/Sample.glsl");
             //auto vertexBuffer = Buffer::Create(BufferType::VertexBuffer, vertices, vertexCount);
             //auto indexBuffer = Buffer::Create(BufferType::IndexBuffer, indices, indexCount);

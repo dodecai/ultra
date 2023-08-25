@@ -1,4 +1,4 @@
-﻿export module Spectra.Panel.Viewport;
+﻿export module Ultra.Spectra.Panel.Viewport;
 
 import Ultra;
 

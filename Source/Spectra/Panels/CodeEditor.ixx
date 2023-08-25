@@ -1,4 +1,4 @@
-﻿export module Spectra.Panel.CodeEditor;
+﻿export module Ultra.Spectra.Panel.CodeEditor;
 
 import Ultra;
 

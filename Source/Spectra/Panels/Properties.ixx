@@ -1,4 +1,4 @@
-﻿export module Spectra.Panel.Properties;
+﻿export module Ultra.Spectra.Panel.Properties;
 
 import Ultra;
 

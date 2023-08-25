@@ -1,4 +1,4 @@
-﻿export module Spectra.Panel.Console;
+﻿export module Ultra.Spectra.Panel.Console;
 
 import Ultra;
 
