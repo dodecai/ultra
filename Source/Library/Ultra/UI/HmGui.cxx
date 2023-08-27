@@ -1,14 +1,17 @@
 ﻿module Ultra.UI.HmGui;
 
-
 namespace Ultra::UI {
 
 ///
-/// @brief Switches
+/// Switches
 ///
 
 constexpr bool DrawLayoutFrames = false;
 constexpr bool EnableWindowDragging = true;
+
+///
+/// Containers
+///
 
 void Container::Draw() {
     if (Clip) UIRenderer::Clip(Position, Size);
@@ -17,18 +20,18 @@ void Container::Draw() {
             // Container
             case ComponentType::Window: {
                 if constexpr (EnableWindowDragging) {
-                    if (element->Active) {
+                    if (element->Focused) {
                         if (HmGui::sInputState.MouseClicked) {
-                            HmGui::GetRoot()->MoveToTop(element->GetID());
-                        } else if (HmGui::sInputState.MousePressed) {
+                            HmGui::GetRoot()->MoveToTop(element->ID);
+                        } else if (HmGui::sInputState.Dragging) {
                             element->Offset = HmGui::sInputState.DragCurrentPosition;
-                            element->As<Container>()->LayoutGroup();
+                            element->As<Container>()->ComputePosition();
 
-                        } else if (!HmGui::sInputState.MousePressed && element->Offset.X != 0 && element->Offset.Y != 0) {
+                        } else if (!HmGui::sInputState.Dragging && element->Offset.X != 0 && element->Offset.Y != 0) {
                             element->Position.X += element->Offset.X;
                             element->Position.Y += element->Offset.Y;
                             element->Offset = {};
-                            element->As<Container>()->LayoutGroup();
+                            element->As<Container>()->ComputePosition();
                         }
                     }
                 }
@@ -42,30 +45,30 @@ void Container::Draw() {
                 break;
             }
             case ComponentType::ScrollView: {
-                float offsetY {};
-                if (element->Active) {
+                //float maxScroll = std::max(0.0f, element->MinSize.Height - element->As<Container>()->Size.Height);
+                float maxScroll = std::max(0.0f, element->OriginalSize.Height - element->As<Container>()->Size.Height);
+                if (element->Focused) {
                     auto scrollDelta = Input::GetMouseWheelDelta();
-                    if (scrollDelta) offsetY = -12.0f * scrollDelta;
+                    if (scrollDelta)
+                        scrollDelta = 24.0f * scrollDelta;
+                    element->Offset.Y = std::clamp(element->Offset.Y + scrollDelta, -maxScroll, 0.0f);
+                    if (scrollDelta) Log("OffsetY: {}, Delta: {}", element->Offset.Y, scrollDelta);
+                    element->As<Container>()->ComputePosition();
                 }
-
-                float maxScroll = std::max(0.0f, element->MinSize.Height - element->Size.Height);
-
-
-                element->Offset.Y = std::clamp(element->Offset.Y + offsetY, 0.0f, maxScroll);
-                element->As<Container>()->LayoutGroup();
 
                 auto position = element->Position;
                 position.X += element->Size.Width;
                 if (maxScroll > 0) {
-                    float handleSize = element->Size.Height * (element->Size.Height / element->MinSize.Height);
+                    float handleSize = element->Size.Height * (element->Size.Height / element->OriginalSize.Height);
                     float handlePos = std::lerp(0.0f, element->Size.Height - handleSize, element->Offset.Y / maxScroll);
-                    UIRenderer::AddRectangle(position, { 6.0, handlePos }, {}, false);
-                    UIRenderer::AddRectangle(position, { 6.0, handleSize }, { 0.1f, 0.1f, 0.1f, 0.5f }, false);
+                    position.Y -= handlePos;
+                    //UIRenderer::AddRectangle(position, { 6.0, handlePos }, {}, false);
+                    UIRenderer::AddRectangle(position, { 6.0, handleSize }, HmGui::GetStyle().ColorFrame, false);
                 } else {
-                    UIRenderer::AddRectangle(position, { 6.0f, 16.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, false);
+                    UIRenderer::AddRectangle(position, { 6.0f, 16.0f }, {}, false);
                 }
                 if constexpr (DrawLayoutFrames) {
-                    UIRenderer::AddBorder(1.0f, element->Position, element->Size, { 1.0f, 1.0f, 1.0f, 1.0f });
+                    UIRenderer::AddBorder(1.0f, element->Position, element->Size, HmGui::GetStyle().ColorDebugBorder);
                 }
                 element->As<Container>()->Draw();
                 break;
@@ -74,7 +77,7 @@ void Container::Draw() {
             case ComponentType::Panel: [[fallthrough]];
             case ComponentType::Container: {
                 if constexpr (DrawLayoutFrames) {
-                    UIRenderer::AddBorder(1.0f, element->Position, element->Size, { 1.0f, 1.0f, 1.0f, 1.0f });
+                    UIRenderer::AddBorder(1.0f, element->Position, element->Size, HmGui::GetStyle().ColorDebugBorder);
                 }
                 element->As<Container>()->Draw();
                 break;
@@ -90,24 +93,25 @@ void Container::Draw() {
     if (Clip) UIRenderer::Unclip();
 }
 
-void Button::Draw() {
-    if (Active) {
-        // Execute Callbacks
-        if (HmGui::sInputState.MouseClicked) {
-            if (Click) Click();
-        }
+///
+/// Controls
+///
 
-        const auto color = HmGui::sInputState.MousePressed ?
-            Ultra::Color(0.2f, 0.7f, 1.0f, 1.0f) :
-            Ultra::Color(0.1f, 0.5f, 1.0f, 1.0f);
+void Button::Draw() {
+    if (Focused) {
+        if (HmGui::sInputState.MouseClicked) if (Click) Click();
+
+        auto &&color = HmGui::sInputState.MousePressed ?
+            HmGui::GetStyle().ColorFillPressed :
+            HmGui::GetStyle().ColorFillHovered;
         UIRenderer::AddPanel(Position, Size, color, 0.0f, 1.0f);
     } else {
-        const auto color = Ultra::Color(0.15f, 0.15f, 0.15f, 0.8f);
+        auto &&color = HmGui::GetStyle().ColorFillNone;
         UIRenderer::AddPanel(Position, Size, color, 0.0f, FrameOpacity);
     }
 
     if constexpr (DrawLayoutFrames) {
-        UIRenderer::AddBorder(1.0f, Position, Size, { 1.0f, 1.0f, 1.0f, 1.0f });
+        UIRenderer::AddBorder(1.0f, Position, Size, HmGui::GetStyle().ColorDebugBorder);
     }
 
     Ultra::Position position = {
@@ -118,15 +122,15 @@ void Button::Draw() {
 }
 
 void CheckBox::Draw() {
-    if (Active) {
+    if (Focused) {
         if (HmGui::sInputState.MouseClicked) Value = !Value;
 
-        auto color = Ultra::Color(0.3f, 0.3f, 0.3f, 0.5f);
+        auto &&color = HmGui::GetStyle().ColorFocusUnderline;
         UIRenderer::AddRectangle(Position, Size, color, true);
     }
 
     if constexpr (DrawLayoutFrames) {
-        UIRenderer::AddBorder(1.0f, Position, Size, { 1.0f, 1.0f, 1.0f, 1.0f });
+        UIRenderer::AddBorder(1.0f, Position, Size, HmGui::GetStyle().ColorDebugBorder);
     }
 
     // CheckBox Label
@@ -147,6 +151,64 @@ void CheckBox::Draw() {
         UIRenderer::AddRectangle(position, InnerSize, {}, false);
     }
 }
+
+void InputBox::Draw() {
+    auto &&bgColor = Focused ? Ultra::Color(0.2f, 0.2f, 0.2f, 1.0f) : HmGui::GetStyle().ColorFillNone;
+    UIRenderer::AddPanel(Position, Size, bgColor, 0.0f, FrameOpacity);
+
+    if constexpr (DrawLayoutFrames) {
+        UIRenderer::AddBorder(1.0f, Position, Size, HmGui::GetStyle().ColorDebugBorder);
+    }
+
+    Ultra::Position textPos = {
+        Position.X + 8.0f,
+        Position.Y + MinSize.Height / 2 + 4.0f,
+    };
+    UIRenderer::AddText(textPos, Text, Color, Font);
+}
+
+void Label::Draw() {
+    if constexpr (DrawLayoutFrames) {
+        UIRenderer::AddBorder(1.0f, Position, Size, HmGui::GetStyle().ColorDebugBorder);
+    }
+
+    Ultra::Position position = { Position.X, Position.Y + MinSize.Height };
+    UIRenderer::AddText(position, Text, Color, Font);
+}
+
+void Slider::Draw() {
+    // Track
+    const Ultra::Color trackColor = Ultra::Color(0.2f, 0.2f, 0.2f, 1.0f);
+    UIRenderer::AddRectangle(Position, Size, trackColor, true);
+
+    if constexpr (DrawLayoutFrames) {
+        UIRenderer::AddBorder(1.0f, Position, Size, HmGui::GetStyle().ColorDebugBorder);
+    }
+
+    const Ultra::Position handlePosition = {
+        Position.X + (Size.Width - HandleWidth) * Value,
+        Position.Y
+    };
+
+    // Handle
+    if (Focused && HmGui::sInputState.MousePressed) {
+        if (HmGui::sInputState.MousePressed) {
+            const float newHandleX = HmGui::sInputState.LastMousePosition.X - DragOffset;
+            Value = std::clamp((newHandleX - Position.X) / (Size.Width - HandleWidth), 0.0f, 1.0f);
+        }
+
+        auto &&color = HmGui::GetStyle().ColorPrimary;
+        UIRenderer::AddRectangle(handlePosition, { HandleWidth, Size.Height }, color, true);
+
+    } else {
+        auto &&color = HmGui::GetStyle().ColorFrame;
+        UIRenderer::AddRectangle(handlePosition, { HandleWidth, Size.Height }, color, true);
+    }
+}
+
+///
+/// ToDo
+///
 
 void ColorPicker::Draw() {
     // Implement the drawing of the color picker
@@ -178,26 +240,6 @@ void ColorPicker::Draw() {
     };
     Ultra::Color selectedColor(1.0f, 1.0f, 1.0f, 1.0f); // Simulated selected color
     UIRenderer::AddPanel(selectedColorPos, { 30.0f, 30.0f }, selectedColor, 0.0f, 1.0f);
-}
-
-void InputBox::Draw() {
-    const auto bgColor = Active ? Ultra::Color(0.2f, 0.2f, 0.2f, 1.0f) : Ultra::Color(0.15f, 0.15f, 0.15f, 0.8f);
-    UIRenderer::AddPanel(Position, Size, bgColor, 0.0f, FrameOpacity);
-
-    Ultra::Position textPos = {
-        Position.X + 8.0f,
-        Position.Y + MinSize.Height / 2 + 4.0f,
-    };
-    UIRenderer::AddText(textPos, Text, Color, Font);
-}
-
-void Label::Draw() {
-    if constexpr (DrawLayoutFrames) {
-        UIRenderer::AddBorder(1.0f, Position, Size, { 1.0f, 1.0f, 1.0f, 1.0f });
-    }
-
-    Ultra::Position position = { Position.X, Position.Y + MinSize.Height };
-    UIRenderer::AddText(position, Text, Color, Font);
 }
 
 void Image::Draw() {
@@ -257,41 +299,6 @@ void Selection::DrawDropdown() {
     //        ShowDropdown = false;
     //    }
     //}
-}
-
-void Slider::Draw() {
-    const bool hovered = Hovered(HmGui::sInputState.LastMousePosition);
-    const float handleWidth = 12.0f;
-    const Ultra::Position handlePosition = {
-        Position.X + (Size.Width - handleWidth) * Value,
-        Position.Y
-    };
-
-    // Draw slider track
-    const Ultra::Color trackColor = Ultra::Color(0.2f, 0.2f, 0.2f, 1.0f);
-    UIRenderer::AddRectangle(Position, Size, trackColor, true);
-
-    // Draw slider handle
-    if (hovered || Dragged) {
-        const Ultra::Color handleColor = Ultra::Color(0.4f, 0.4f, 0.4f, 1.0f);
-        UIRenderer::AddRectangle(handlePosition, { handleWidth, Size.Height }, handleColor, true);
-
-        if (HmGui::sInputState.MouseClicked) {
-            Dragged = true;
-            DragOffset = HmGui::sInputState.DragCurrentPosition.X - handlePosition.X;
-        }
-    } else {
-        const Ultra::Color handleColor = Ultra::Color(0.3f, 0.3f, 0.3f, 1.0f);
-        UIRenderer::AddRectangle(handlePosition, { handleWidth, Size.Height }, handleColor, true);
-    }
-
-    if (Dragged && HmGui::sInputState.MousePressed) {
-        const float newHandleX = HmGui::sInputState.LastMousePosition.X - DragOffset;
-        Value = std::clamp((newHandleX - Position.X) / (Size.Width - handleWidth), 0.0f, 1.0f);
-    } else {
-        Dragged = false;
-    }
-
 }
 
 void Table::DrawHeader() {

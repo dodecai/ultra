@@ -104,13 +104,10 @@ std::pair<float, float> WinInput::GetMousePositionDeltaPlatform() const {
 }
 
 float WinInput::GetMouseWheelDeltaPlatform() const {
-    static thread_local float delta {};
-    if (sMouseWheelDelta != delta) {
-        delta = sMouseWheelDelta;
-        return delta;
-    }
-
-    return {};
+    float delta {};
+    delta = sMouseWheelDelta;
+    sMouseWheelDelta = 0.0f;
+    return delta;
 }
 
 }

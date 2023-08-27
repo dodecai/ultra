@@ -277,10 +277,10 @@ public:
     // Methods
     static void AddBorder(float s, const Position &position, const Size &size, const Color &color) {
         glm::vec4 colorOld = { color.Red, color.Green, color.Blue, color.Alpha * 1.0f };
-        UIRenderer::Instance().DrawRectangle({ position.X, position.Y, 0 }, { size.Width, s });
-        UIRenderer::Instance().DrawRectangle({ position.X, position.Y + size.Height - s, 0 }, { size.Width, s });
-        UIRenderer::Instance().DrawRectangle({ position.X, position.Y + s, 0 }, { s, size.Height - 2 * s });
-        UIRenderer::Instance().DrawRectangle({ position.X + size.Width - s , position.Y + s, 0 }, { s, size.Height - 2 * s });
+        UIRenderer::Instance().DrawRectangle({ position.X, position.Y, 0 }, { size.Width, s }, colorOld);
+        UIRenderer::Instance().DrawRectangle({ position.X, position.Y + size.Height - s, 0 }, { size.Width, s }, colorOld);
+        UIRenderer::Instance().DrawRectangle({ position.X, position.Y + s, 0 }, { s, size.Height - 2 * s }, colorOld);
+        UIRenderer::Instance().DrawRectangle({ position.X + size.Width - s , position.Y + s, 0 }, { s, size.Height - 2 * s }, colorOld);
     }
     static void AddPanel(const Position &position, const Size &size, const Color &color, float bevel, float innerAlpha) {
         const float pad = 64.0f;
