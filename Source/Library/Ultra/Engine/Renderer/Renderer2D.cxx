@@ -285,7 +285,7 @@ void Renderer2D::Flush() {
         sData.CircleVertexBuffer->Bind();
         sData.CirclePipeline->Bind();
         sData.QIndexBuffer->Bind();
-        sCommandBuffer->DrawIndexed({ sData.QuadVertexBufferData.size() * 6 }, PrimitiveType::Circle, sData.DepthTest);
+        sCommandBuffer->DrawIndexed(sData.QuadVertexBufferData.size() * 6u, PrimitiveType::Circle, sData.DepthTest);
         sData.Stats.DrawCalls++;
     }
 
@@ -297,7 +297,7 @@ void Renderer2D::Flush() {
         sData.LineShader->Bind();
         sData.LinePipeline->Bind();
         sData.LineIndexBuffer->Bind();
-        sCommandBuffer->DrawIndexed({ sData.LineVertexBufferData.size() }, PrimitiveType::Line, sData.DepthTest);
+        sCommandBuffer->DrawIndexed(sData.LineVertexBufferData.size(), PrimitiveType::Line, sData.DepthTest);
         sData.Stats.DrawCalls++;
     }
 

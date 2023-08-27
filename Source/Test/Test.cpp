@@ -207,7 +207,7 @@ public:
 
         // Finish
         Renderer2D::FinishScene();
-        mRenderer->DrawGrid(mDesignerCamera);
+        //mRenderer->DrawGrid(mDesignerCamera);
         //Renderer::EndScene();
      
         //    commandBuffer->End();                             // End recording commands

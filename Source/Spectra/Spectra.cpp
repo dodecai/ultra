@@ -27,6 +27,7 @@ public:
     void Update([[maybe_unused]] Timestamp deltaTime) {
         HmGui::ShowDemo(deltaTime);
         mRenderer->RenderFrame();
+        HmGui::Update(deltaTime);
         HmGui::Draw();
     }
 

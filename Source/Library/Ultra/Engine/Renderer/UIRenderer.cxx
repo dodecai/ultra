@@ -5,58 +5,7 @@
 
 module Ultra.Engine.UIRenderer;
 
-import Ultra.Logger;
-import Ultra.Engine.Renderer.Buffer;
-import Ultra.Engine.Renderer.CommandBuffer;
-import Ultra.Engine.Renderer.PipelineState;
-import Ultra.Engine.Renderer.Shader;
-import Ultra.Engine.Renderer.Texture;
-
 namespace Ultra {
-
-// Helpers
-inline uint32_t DecodeUtf8(string_view::iterator &begin, string_view::iterator end) {
-    unsigned char byte = *begin;
-    uint32_t codepoint = 0;
-    int additionalBytes = 0;
-
-    // 1-Byte Character (ASCII)
-    if (byte <= 0x7F) {
-        codepoint = byte;
-    // 2-Byte Character
-    } else if ((byte & 0xE0) == 0xC0) {
-        codepoint = byte & 0x1F;
-        additionalBytes = 1;
-    // 3-Byte Character
-    } else if ((byte & 0xF0) == 0xE0) {
-        codepoint = byte & 0x0F;
-        additionalBytes = 2;
-    // 4-Byte Character
-    } else if ((byte & 0xF8) == 0xF0) {
-        codepoint = byte & 0x07;
-        additionalBytes = 3;
-    // Invalid UTF-8 start byte
-    } else {
-        begin++;
-        return 0xFFFD; // Unicode replacement character
-    }
-
-    begin++;
-
-    while (additionalBytes > 0) {
-        if (begin == end || (*begin & 0xC0) != 0x80) {
-            // Premature end or invalid UTF-8 continuation byte
-            return 0xFFFD; // Unicode replacement character
-        }
-
-        codepoint = (codepoint << 6) | (*begin & 0x3F);
-        begin++;
-        additionalBytes--;
-    }
-
-    return codepoint;
-}
-
 
 void ClipRect::Activate() {
     if (mCurrentIndex < 0) return;
@@ -165,51 +114,6 @@ bool ClipRect::Validate() {
 
 
 
-void Panel::Draw() const {
-    const float pad = 64.0f;
-    float x = mPosition.X - pad;
-    float y = mPosition.Y - pad;
-    float width = mSize.Width + 2.0f * pad;
-    float height = mSize.Height + 2.0f * pad;
-
-    UIRenderer::Instance().DrawPanel({ x, y, 0.0f }, { width, height }, { mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha }, mInnerAlpha, mBevel);
-}
-
-void Image::Draw() const {
-    UIRenderer::Instance().DrawRectangle({ mPosition.X, mPosition.Y, 0.0f }, { mSize.Width, mSize.Height }, mImage, { mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha });
-}
-
-void Rectangle::Draw() const {
-    UIRenderer::Instance().DrawRectangle({ mPosition.X, mPosition.Y, 0.0f }, { mSize.Width, mSize.Height }, { mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha });
-}
-
-void Text::Draw() const {
-    auto x = std::floor(mPosition.X);
-    auto y = std::floor(mPosition.Y);
-
-    string_view view = mText;
-    auto begin = view.begin();
-    auto end = view.end();
-    uint32_t lastGlyph = 0;
-    while (begin != end) {
-        uint32_t codepoint = DecodeUtf8(begin, end);
-        auto *glyph = mFont->GetGlyph(codepoint);
-        if (!glyph) {
-            lastGlyph = 0;
-            continue;
-        }
-
-        if (lastGlyph) x += mFont->GetKerning(lastGlyph, glyph->UniqueID);
-        lastGlyph = glyph->UniqueID;
-
-        UIRenderer::Instance().DrawRectangle({ x + glyph->X, y + glyph->Y, 0.0f }, { glyph->Width, glyph->Height }, glyph->Texture, { mColor.Red, mColor.Green, mColor.Blue, mColor.Alpha });
-
-        x += glyph->Advance;
-    }
-}
-
-
-
 void UIRenderer::DrawPanel(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color, float innerAlpha, float bevel) {
     if (SRenderData.PanelVertexBufferData.size() * 6 >= SRenderData.PanelMaxIndices) Reset();
 
@@ -294,10 +198,6 @@ void UIRenderer::DrawRectangle(const glm::vec3 &position, const glm::vec2 &size,
 }
 
 
-void UIRenderer::EndScene() {
-    Reset();
-}
-
 void UIRenderer::Reset() {
     Flush();
     SRenderData.PanelVertexBufferData.clear();
@@ -316,7 +216,7 @@ void UIRenderer::Flush() {
         SRenderData.PanelVertexBuffer->Bind();
         SRenderData.PanelPipeline->Bind();
         SRenderData.PanelIndexBuffer->Bind();
-        SCommandBuffer->DrawIndexed({ SRenderData.PanelVertexBufferData.size() * 6 }, PrimitiveType::Triangle, true);
+        SCommandBuffer->DrawIndexed(SRenderData.PanelVertexBufferData.size() * 6, PrimitiveType::Triangle, true);
         SRenderData.PanelPipeline->Unbind();
         SRenderData.PanelIndexBuffer->Unbind();
         SRenderData.PanelVertexBuffer->Unbind();
@@ -338,8 +238,11 @@ void UIRenderer::Flush() {
         SRenderData.ComponentVertexBuffer->Bind();
         SRenderData.ComponentPipeline->Bind();
         SRenderData.ComponentIndexBuffer->Bind();
-        //SCommandBuffer->DrawIndexed({ SRenderData.PanelVertexBufferData.size() * 6 }, PrimitiveType::Triangle, true);
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(SRenderData.ComponentVertexBufferData.size() * 6), GL_UNSIGNED_INT, nullptr);
+
+        auto dataSizeA = SRenderData.PanelVertexBufferData.size() * 6;
+        auto dataSizeB = static_cast<GLsizei>(SRenderData.ComponentVertexBufferData.size() * 6);
+
+        SCommandBuffer->DrawIndexed(static_cast<GLsizei>(SRenderData.ComponentVertexBufferData.size() * 6), PrimitiveType::Triangle, true);
 
         // ToDo: Implement Statistics
     }

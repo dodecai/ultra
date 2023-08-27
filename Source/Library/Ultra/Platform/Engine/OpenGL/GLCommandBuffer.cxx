@@ -61,7 +61,6 @@ void GLCommandBuffer::DrawIndexed(uint32_t indexCount, uint32_t instanceCount, u
 void GLCommandBuffer::DrawIndexed(size_t count, PrimitiveType primitive, bool depthTest) {
     if (!depthTest) { glDisable(GL_DEPTH_TEST); } else { glEnable(GL_DEPTH_TEST); };
 
-    GLenum mode = GL_TRIANGLES;
     GLenum type = GL_UNSIGNED_INT;
     //switch (properties.Type) {
     //    case IndexType::UINT8:  { type = GL_UNSIGNED_BYTE; break; }
@@ -69,6 +68,7 @@ void GLCommandBuffer::DrawIndexed(size_t count, PrimitiveType primitive, bool de
     //    case IndexType::UINT32: { type = GL_UNSIGNED_INT; break; }
     //}
 
+    GLenum mode = GL_TRIANGLES;
     switch (primitive) {
         case PrimitiveType::Circle:   { mode = GL_TRIANGLES; break; }
         case PrimitiveType::Line:     { mode = GL_LINES; break; }

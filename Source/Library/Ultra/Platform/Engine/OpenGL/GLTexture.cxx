@@ -173,7 +173,6 @@ GLTexture::GLTexture(const TextureProperties &properties, const void *data, size
         case TextureDimension::Texture2D: {
             glCreateTextures(GL_TEXTURE_2D, 1, &mTextureID);
             glTextureStorage2D(mTextureID, 1, ConvertTextureFormat(mProperties.Format), mProperties.Width, mProperties.Height);
-            // ToDo: Allow to setup data type (was GL_UNSIGNED_BYTE)
             glTextureSubImage2D(mTextureID, 0, 0, 0, mProperties.Width, mProperties.Height, Helpers::GLImageFormat(mProperties.Format), ConvertTextureDataType(properties.DataType), data);
             break;
         }
