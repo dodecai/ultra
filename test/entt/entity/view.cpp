@@ -572,6 +572,34 @@ TEST(SingleComponentView, SwapStorage) {
     ASSERT_TRUE(cview.empty());
 }
 
+TEST(SingleComponentView, StorageEntity) {
+    entt::registry registry;
+    auto view = registry.view<entt::entity>();
+
+    const auto entity = registry.create();
+    const auto other = registry.create();
+
+    registry.destroy(entity, entt::to_version(entity));
+
+    ASSERT_EQ(view.size(), 2u);
+    ASSERT_NE(view.begin(), view.end());
+
+    // returns all matching identifiers, both in-use and available ones
+    ASSERT_EQ(std::distance(view.begin(), view.end()), 2);
+    ASSERT_EQ(*view.begin(), entity);
+    ASSERT_EQ(*(++view.begin()), other);
+
+    // skips available identifiers automatically, only returns in-use elements
+    for(auto [entt]: view.each()) {
+        ASSERT_EQ(entt, other);
+    }
+
+    // skips available identifiers automatically, only returns in-use elements
+    view.each([other](auto entt) {
+        ASSERT_EQ(entt, other);
+    });
+}
+
 TEST(MultiComponentView, Functionalities) {
     entt::registry registry;
     auto view = registry.view<int, char>();
@@ -821,6 +849,36 @@ TEST(MultiComponentView, SizeHint) {
 
     ASSERT_EQ(view.size_hint(), 1u);
     ASSERT_EQ(view.begin(), view.end());
+}
+
+TEST(MultiComponentView, UseAndRefresh) {
+    entt::registry registry;
+    entt::entity entity[3]{registry.create(), registry.create(), registry.create()};
+
+    registry.emplace<int>(entity[0u]);
+    registry.emplace<int>(entity[1u]);
+
+    registry.emplace<char>(entity[1u]);
+    registry.emplace<char>(entity[0u]);
+    registry.emplace<char>(entity[2u]);
+
+    auto view = registry.view<int, char>(entt::exclude<double>);
+
+    view.use<int>();
+
+    ASSERT_EQ(view.handle()->type(), entt::type_id<int>());
+    ASSERT_EQ(view.front(), entity[1u]);
+    ASSERT_EQ(view.back(), entity[0u]);
+
+    view.use<char>();
+
+    ASSERT_EQ(view.handle()->type(), entt::type_id<char>());
+    ASSERT_EQ(view.front(), entity[0u]);
+    ASSERT_EQ(view.back(), entity[1u]);
+
+    view.refresh();
+
+    ASSERT_EQ(view.handle()->type(), entt::type_id<int>());
 }
 
 TEST(MultiComponentView, Each) {
@@ -1288,8 +1346,6 @@ TEST(MultiComponentView, StableTypeWithExcludedComponent) {
     entt::registry registry;
     auto view = registry.view<stable_type>(entt::exclude<int>);
 
-    view.use<stable_type>();
-
     const auto entity = registry.create();
     const auto other = registry.create();
 
@@ -1477,6 +1533,95 @@ TEST(MultiComponentView, SwapStorage) {
     view.storage(registry.storage<int>("empty"_hs));
 
     ASSERT_EQ(view.size_hint(), 0u);
+}
+
+TEST(MultiComponentView, StorageEntity) {
+    entt::registry registry;
+    auto view = registry.view<entt::entity, int>();
+
+    const auto entity = registry.create();
+    const auto other = registry.create();
+
+    registry.emplace<int>(entity);
+    registry.emplace<int>(other);
+
+    registry.destroy(entity, entt::to_version(entity));
+
+    ASSERT_EQ(view.size_hint(), 2u);
+    ASSERT_NE(view.begin(), view.end());
+
+    ASSERT_EQ(std::distance(view.begin(), view.end()), 1);
+    ASSERT_EQ(*view.begin(), other);
+
+    for(auto elem: view.each()) {
+        ASSERT_EQ(std::get<0>(elem), other);
+    }
+
+    view.each([other](auto entt, auto &&...) {
+        ASSERT_EQ(entt, other);
+    });
+}
+
+TEST(MultiComponentView, StorageEntityWithExcludedComponent) {
+    entt::registry registry;
+    auto view = registry.view<entt::entity, int>(entt::exclude<char>);
+
+    const auto entity = registry.create();
+    const auto other = registry.create();
+    const auto excluded = registry.create();
+
+    registry.emplace<int>(entity);
+    registry.emplace<int>(other);
+    registry.emplace<int>(excluded);
+
+    registry.emplace<char>(excluded);
+
+    registry.destroy(entity, entt::to_version(entity));
+
+    ASSERT_EQ(view.size_hint(), 3u);
+    ASSERT_NE(view.begin(), view.end());
+
+    ASSERT_EQ(std::distance(view.begin(), view.end()), 1);
+    ASSERT_EQ(*view.begin(), other);
+
+    for(auto elem: view.each()) {
+        ASSERT_EQ(std::get<0>(elem), other);
+    }
+
+    view.each([other](auto entt, auto &&...) {
+        ASSERT_EQ(entt, other);
+    });
+}
+
+TEST(MultiComponentView, StorageEntityExcludeOnly) {
+    entt::registry registry;
+    auto view = registry.view<entt::entity>(entt::exclude<int>);
+
+    const auto entity = registry.create();
+    const auto other = registry.create();
+    const auto excluded = registry.create();
+
+    registry.emplace<int>(excluded);
+
+    registry.destroy(entity, entt::to_version(entity));
+
+    ASSERT_EQ(view.size_hint(), 3u);
+    ASSERT_NE(view.begin(), view.end());
+
+    // returns all matching identifiers, both in-use and available ones
+    ASSERT_EQ(std::distance(view.begin(), view.end()), 2);
+    ASSERT_EQ(*view.begin(), entity);
+    ASSERT_EQ(*(++view.begin()), other);
+
+    // skips available identifiers automatically, only returns in-use elements
+    for(auto [entt]: view.each()) {
+        ASSERT_EQ(entt, other);
+    }
+
+    // skips available identifiers automatically, only returns in-use elements
+    view.each([other](auto entt) {
+        ASSERT_EQ(entt, other);
+    });
 }
 
 TEST(View, Pipe) {

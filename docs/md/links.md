@@ -39,6 +39,9 @@ I hope the following lists can grow much more in the future.
   * [Minecraft](https://minecraft.net/en-us/attribution/) by
     [Mojang](https://mojang.com/): of course, **that** Minecraft, see the
     open source attributions page for more details.
+  * [Minecraft Legends](https://www.minecraft.net/it-it/about-legends) by
+    [Mojang](https://mojang.com/): an action strategy game where users have to
+    fight to defend the Overworld.
   * [Minecraft Earth](https://www.minecraft.net/en-us/about-earth) by
     [Mojang](https://mojang.com/): an augmented reality game for mobile, that
     lets users bring Minecraft into the real world.
@@ -124,6 +127,10 @@ I hope the following lists can grow much more in the future.
     multi-player arcade shooter game prototype.
   * [Confetti Party](https://github.com/hexerei/entt-confetti): C++ sample
     application as a starting point using `EnTT` and `SDL2`.
+  * [Hellbound](https://buas.itch.io/hellbound): a top-down action rogue-like
+    where to fight colossal demons in procedurally generated levels of hell.
+  * [Saurian Sorcery](https://github.com/cajallen/spellbook): a tower defense
+    game where to assemble a tribe of lizards to defend against robot invaders.
 
 ## Engines and the like:
 

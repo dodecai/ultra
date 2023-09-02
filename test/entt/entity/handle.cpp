@@ -216,16 +216,16 @@ TEST(BasicHandle, Lifetime) {
     handle->emplace<int>();
 
     ASSERT_FALSE(registry.storage<int>().empty());
-    ASSERT_FALSE(registry.empty());
+    ASSERT_NE(registry.storage<entt::entity>().in_use(), 0u);
 
-    registry.each([handle](const auto e) {
-        ASSERT_EQ(handle->entity(), e);
-    });
+    for(auto [entt]: registry.storage<entt::entity>().each()) {
+        ASSERT_EQ(handle->entity(), entt);
+    }
 
     delete handle;
 
     ASSERT_FALSE(registry.storage<int>().empty());
-    ASSERT_FALSE(registry.empty());
+    ASSERT_NE(registry.storage<entt::entity>().in_use(), 0u);
 }
 
 TEST(BasicHandle, ImplicitConversions) {
