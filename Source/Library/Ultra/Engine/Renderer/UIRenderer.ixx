@@ -210,9 +210,6 @@ class UIRenderer: public SteadyObject {
             SRenderData.ComponentShader->Bind();
             SRenderData.ComponentShader->UpdateUniformBuffer("uTextures", (void *)samplers, SRenderData.MaxTextureSlots);
             SRenderData.TextureSlots[0] = SRenderData.WhiteTexture;
-
-
-            CheckerBoard = Texture::Create(TextureProperties(), "Assets/Textures/smiley.png");
         }
 
         SCommandBuffer = CommandBuffer::Create();
@@ -227,8 +224,6 @@ class UIRenderer: public SteadyObject {
         properties.BlendMode = BlendMode::Alpha;
         properties.DepthTest = true;
         mPipelineState = PipelineState::Create(properties);
-
-        //mBackground = Texture::Create(TextureProperties(), "Assets/Textures/Wallpaper.png");;
     }
     ~UIRenderer() = default;
 
@@ -241,6 +236,7 @@ public:
 
     static void Begin(const Scope<Viewport> &viewport) {
         static auto &initialize = UIRenderer::Instance();
+        initialize.Test();
 
         mViewport = viewport.get();
         auto properties = viewport->GetProperties();
@@ -264,14 +260,11 @@ public:
         renderer.SRenderData.TransformUniformBuffer->UpdateData(&renderer.SRenderData.Transform, sizeof(RenderData::TransformUniform));
         renderer.SRenderData.PanelPropertiesUniformBuffer->UpdateData(&renderer.SRenderData.PanelProperties, sizeof(RenderData::PanelPropertiesUniform));
 
-        renderer.Test();
         renderer.Reset();
     }
     static void Test() {
-        //Instance().DrawRectangle({ 0.0f, 0.0f, 0.3f }, { 1280.0f, 1204.0f }, mBackground);
         //Instance().DrawRectangle({ 500.0f, 200.0f, 0.0f }, { 200.0f, 200.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
         //Instance().DrawRectangle({ 650.0f, 300.0f, 0.2f }, { 200.0f, 200.0f }, { 1.0f, 0.0f, 1.0f, 0.8f });
-        //Instance().DrawRectangle({ 750.0f, 400.0f, 0.3f }, { 200.0f, 200.0f }, CheckerBoard);
     }
 
     // Methods
@@ -294,7 +287,7 @@ public:
     static void AddRectangle(const Position &position, const Size &size, const Color &color, bool outline) {
         UIRenderer::Instance().DrawRectangle({ position.X, position.Y, 0.0f }, { size.Width, size.Height }, { color.Red, color.Green, color.Blue, color.Alpha });
     }
-    static void AddImage(const Position &position, const Size &size, Reference<Texture>image) {
+    static void AddImage(const Position &position, const Size &size, const Reference<Texture> &image) {
         UIRenderer::Instance().DrawRectangle({ position.X, position.Y, 0.0f }, { size.Width, size.Height }, image, { 1.0f, 1.0f, 1.0f, 1.0f });
     }
     static void AddText(const Position &position, const string &text, const Color &color, Font *font) {
@@ -324,13 +317,13 @@ public:
         ClipRect::Pop();
         Instance().Reset();
     }
+    void Reset();
 
 private: // Internal Methods
     void DrawPanel(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color, float innerAlpha, float bevel);
     void DrawRectangle(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color = glm::vec4(1.0f));
     void DrawRectangle(const glm::vec3 &position, const glm::vec2 &size, const Reference<Texture> &texture, const glm::vec4 &color = glm::vec4(1.0f), float tiling = 1.0f);
     void Flush();
-    void Reset();
 
 private:
     inline static Scope<CommandBuffer> SCommandBuffer {};
@@ -386,10 +379,6 @@ private:
         Reference<Buffer> PanelPropertiesUniformBuffer;
 
     } SRenderData;
-
-    // Test
-    inline static Reference<Texture> mBackground = nullptr;
-    inline static Reference<Texture> CheckerBoard;
 };
 
 }

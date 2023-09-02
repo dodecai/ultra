@@ -17,10 +17,10 @@ module Ultra.Platform.Renderer.GLTexture;
 namespace Ultra {
 
 // Helpers
-static GLenum  ConvertTextureDataType(TextureDataType type) {
+static GLenum GLTextureDataType(TextureDataType type) {
     switch (type) {
-        case TextureDataType::Byte: return GL_UNSIGNED_BYTE;
-        case TextureDataType::Float: return GL_FLOAT;
+        case TextureDataType::Byte:     return GL_UNSIGNED_BYTE;
+        case TextureDataType::Float:    return GL_FLOAT;
         default: {
             AppAssert(true, "Not implemented!");
             return {};
@@ -28,33 +28,12 @@ static GLenum  ConvertTextureDataType(TextureDataType type) {
     }
 }
 
-static GLenum ConvertTextureFormat(TextureFormat format) {
+inline GLenum GLFormatDataType(TextureFormat format) {
     switch (format) {
-        case TextureFormat::R8: return GL_R8;
-        case TextureFormat::R16: return GL_R16;
-        case TextureFormat::R16F: return GL_R16F;
-        case TextureFormat::R32F: return GL_R32F;
-        case TextureFormat::RG8: return GL_RG8;
-        case TextureFormat::RG16: return GL_RG16;
-        case TextureFormat::RG16F: return GL_RG16F;
-        case TextureFormat::RG32F: return GL_RG32F;
-        case TextureFormat::RGB8: return GL_RGB8;
-        case TextureFormat::RGBA8: return GL_RGBA8;
-        case TextureFormat::RGBA16: return GL_RGBA16;
-        case TextureFormat::RGBA16F: return GL_RGBA16F;
-        case TextureFormat::RGBA32F: return GL_RGBA32F;
-        case TextureFormat::Depth16: return GL_DEPTH_COMPONENT16;
-        case TextureFormat::Depth24: return GL_DEPTH_COMPONENT24;
-        case TextureFormat::Depth32F: return GL_DEPTH_COMPONENT32F;
-        default: {
-            LogFatal("The specified texture format is currently not supported!");
-            return 0x0;
-        }
-    }
-}
-
-//GLint GetGLDataFormat(TextureDataFormat format) {
-//    switch (format) {
+        case TextureFormat::RGB8:
+        case TextureFormat::RGBA8:    return GL_UNSIGNED_BYTE;
+        case TextureFormat::RGBA16F:
+        case TextureFormat::RGBA32F:  return GL_FLOAT;
 //        case TextureDataFormat::U8: return GL_UNSIGNED_BYTE;
 //        case TextureDataFormat::I8: return GL_BYTE;
 //        case TextureDataFormat::U16: return GL_UNSIGNED_SHORT;
@@ -62,11 +41,30 @@ static GLenum ConvertTextureFormat(TextureFormat format) {
 //        case TextureDataFormat::U32: return GL_UNSIGNED_INT;
 //        case TextureDataFormat::I32: return GL_INT;
 //        case TextureDataFormat::Float: return GL_FLOAT;
-//    }
-//}
+    }
+    AppAssert(false, "Unknown image format");
+    return 0;
+}
 
-//GLint GetGLPixelFormat(PhxPixelFormat format) {
-//    switch (format) {
+static GLenum GLImageInternalFormat(TextureFormat format) {
+    switch (format) {
+        case TextureFormat::R8:             return GL_R8;
+        case TextureFormat::R16:            return GL_R16;
+        case TextureFormat::R16F:           return GL_R16F;
+        case TextureFormat::R32F:           return GL_R32F;
+        case TextureFormat::RG8:            return GL_RG8;
+        case TextureFormat::RG16:           return GL_RG16;
+        case TextureFormat::RG16F:          return GL_RG16F;
+        case TextureFormat::RG32F:          return GL_RG32F;
+        case TextureFormat::RGB8:           return GL_RGB8;
+        case TextureFormat::RGBA8:          return GL_RGBA8;
+        case TextureFormat::RGBA16:         return GL_RGBA16;
+        case TextureFormat::RGBA16F:        return GL_RGBA16F;
+        case TextureFormat::RGBA32F:        return GL_RGBA32F;
+        case TextureFormat::Depth16:        return GL_DEPTH_COMPONENT16;
+        case TextureFormat::Depth24:        return GL_DEPTH_COMPONENT24;
+        case TextureFormat::Dept24Stencil8: return GL_DEPTH24_STENCIL8;
+        case TextureFormat::Depth32F:       return GL_DEPTH_COMPONENT32F;
 //        case PhxPixelFormat::Red: return GL_RED;
 //        case PhxPixelFormat::RG: return GL_RG;
 //        case PhxPixelFormat::RGB: return GL_RGB;
@@ -74,10 +72,24 @@ static GLenum ConvertTextureFormat(TextureFormat format) {
 //        case PhxPixelFormat::RGBA: return GL_RGBA;
 //        case PhxPixelFormat::BGRA: return GL_BGRA;
 //        case PhxPixelFormat::DepthComponent: return GL_DEPTH_COMPONENT;
-//    }
-//}
+        default: {
+            LogFatal("The specified texture format is currently not supported!");
+            return 0x0;
+        }
+    }
+}
 
-namespace Helpers {
+inline GLenum GLImageFormat(TextureFormat format) {
+    switch (format) {
+        case TextureFormat::RGB8:    return GL_RGB;
+        case TextureFormat::RGBA8:
+        case TextureFormat::RGBA16F:
+        case TextureFormat::RGBA32F: return GL_RGBA;
+    }
+    AppAssert(false, "Unknown image format");
+    return 0;
+}
+
 
 void CreateSampler(TextureProperties properties) {
     //glCreateSamplers(1, &mTextureID);
@@ -86,49 +98,6 @@ void CreateSampler(TextureProperties properties) {
     //glSamplerParameteri(mTextureID, GL_TEXTURE_WRAP_R, GLSamplerWrap(properties.SamplerWrap));
     //glSamplerParameteri(mTextureID, GL_TEXTURE_WRAP_S, GLSamplerWrap(properties.SamplerWrap));
     //glSamplerParameteri(mTextureID, GL_TEXTURE_WRAP_T, GLSamplerWrap(properties.SamplerWrap));
-}
-
-inline GLenum GLTextureFormat(TextureFormat format) {
-    switch (format) {
-        case TextureFormat::RGB8:    return GL_RGB;
-        case TextureFormat::RGBA8:
-        case TextureFormat::RGBA16F:
-        case TextureFormat::RGBA32F: return GL_RGBA;
-    }
-    return 0;
-}
-
-inline GLenum GLImageInternalFormat(TextureFormat format) {
-    switch (format) {
-        case TextureFormat::RGB8:           return GL_RGB8;
-        case TextureFormat::RGBA8:          return GL_RGBA8;
-        case TextureFormat::RGBA16F:        return GL_RGBA16F;
-        case TextureFormat::RGBA32F:        return GL_RGBA32F;
-        case TextureFormat::Dept24Stencil8: return GL_DEPTH24_STENCIL8;
-        case TextureFormat::Depth32F:       return GL_DEPTH_COMPONENT32F;
-    }
-    AppAssert(false, "Unknown image format");
-    return 0;
-}
-
-inline GLenum GLImageFormat(TextureFormat format) {
-    switch (format) {
-        case TextureFormat::RGB8:            return GL_RGB;
-        case TextureFormat::RGBA8:           return GL_RGBA;
-    }
-    AppAssert(false, "Unknown image format");
-    return 0;
-}
-
-inline GLenum GLFormatDataType(TextureFormat format) {
-    switch (format) {
-        case TextureFormat::RGB8:
-        case TextureFormat::RGBA8:    return GL_UNSIGNED_BYTE;
-        case TextureFormat::RGBA16F:
-        case TextureFormat::RGBA32F: return GL_FLOAT;
-    }
-    AppAssert(false, "Unknown image format");
-    return 0;
 }
 
 inline GLenum GLSamplerWrap(TextureWrap wrap) {
@@ -157,7 +126,6 @@ inline GLenum GLSamplerFilter(TextureFilter filter, bool mipmap) {
     return 0;
 }
 
-}
 
 
 GLTexture::GLTexture(const TextureProperties &properties, const void *data, size_t size): Texture(properties, data, size) {
@@ -168,23 +136,24 @@ GLTexture::GLTexture(const TextureProperties &properties, const void *data, size
     switch (properties.Dimension) {
         case TextureDimension::Texture1D: {
             glCreateTextures(GL_TEXTURE_1D, 1, &mTextureID);
+            glTextureStorage1D(mTextureID, 1, GLImageInternalFormat(mProperties.Format), mProperties.Width);
             break;
         }
         case TextureDimension::Texture2D: {
             glCreateTextures(GL_TEXTURE_2D, 1, &mTextureID);
-            glTextureStorage2D(mTextureID, 1, ConvertTextureFormat(mProperties.Format), mProperties.Width, mProperties.Height);
-            glTextureSubImage2D(mTextureID, 0, 0, 0, mProperties.Width, mProperties.Height, Helpers::GLImageFormat(mProperties.Format), ConvertTextureDataType(properties.DataType), data);
+            glTextureStorage2D(mTextureID, 1, GLImageInternalFormat(mProperties.Format), mProperties.Width, mProperties.Height);
+            glTextureSubImage2D(mTextureID, 0, 0, 0, mProperties.Width, mProperties.Height, GLImageFormat(mProperties.Format), GLFormatDataType(properties.Format), data);
             break;
         }
         case TextureDimension::Texture3D: {
             glCreateTextures(GL_TEXTURE_3D, 1, &mTextureID);
-            glTextureStorage2D(mTextureID, 1, ConvertTextureFormat(mProperties.Format), mProperties.Width, mProperties.Height);
+            glTextureStorage2D(mTextureID, 1, GLImageInternalFormat(mProperties.Format), mProperties.Width, mProperties.Height);
             break;
 
         }
         case TextureDimension::TextureCube: {
             glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &mTextureID);
-            glTextureStorage2D(mTextureID, 1, ConvertTextureFormat(mProperties.Format), mProperties.Width, mProperties.Height);
+            glTextureStorage2D(mTextureID, 1, GLImageInternalFormat(mProperties.Format), mProperties.Width, mProperties.Height);
             break;
         }
     }
@@ -212,21 +181,35 @@ GLTexture::GLTexture(const TextureProperties &properties, const string &path): T
             data = (float *)stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
             mProperties.Format = TextureFormat::RGBA32F;
         } else {
-            data = (stbi_uc *)stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
-            if (channels == 4) {
-                mProperties.Format = TextureFormat::RGBA8;
-                renderFormat = GL_RGBA16;
-            } else if (channels == 3) {
-                mProperties.Format = TextureFormat::RGB8;
-                renderFormat = GL_RGB16;
-            } else if (channels == 1) {
-                renderFormat = GL_RGBA16;
+            if (stbi_info(path.c_str(), &width, &height, &channels)) {
+                switch (channels) {
+                    case 4: {
+                        data = (stbi_uc *)stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+                        mProperties.Format = TextureFormat::RGBA8;
+                        renderFormat = GL_RGBA8;
+                        break;
+                    }
+                    case 3: {
+                        data = (stbi_uc *)stbi_load(path.c_str(), &width, &height, &channels, 0);
+                        mProperties.Format = TextureFormat::RGB8;
+                        renderFormat = GL_RGB8;
+                        break;
+                    }
+                    case 1: {
+                        mProperties.Format = TextureFormat::R8;
+                        renderFormat = GL_R8;
+                    }
+                    default: {
+                        return;
+                    }
+                }
             }
         }
         mProperties.Height = height;
         mProperties.Width = width;
 
         if (data) {
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             glCreateTextures(GL_TEXTURE_2D, 1, &mTextureID);
             glTextureStorage2D(mTextureID, 1, renderFormat, width, height);
 
@@ -237,41 +220,19 @@ GLTexture::GLTexture(const TextureProperties &properties, const string &path): T
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-            glTextureSubImage2D(mTextureID, 0, 0, 0, width, height, Helpers::GLImageFormat(mProperties.Format), GL_UNSIGNED_BYTE, data);
+            // GLImageInternalFormat
+            glTextureSubImage2D(mTextureID, 0, 0, 0, width, height, GLImageFormat(mProperties.Format), GLFormatDataType(mProperties.Format), data);
             //glGenerateMipmap(GL_TEXTURE_2D);
 
             // Free image data
             stbi_image_free(data);
 
-            std::cout << "Texture loaded successfully: " << path << std::endl;
+            LogTrace("Texture loaded successfully: {}", path);
         } else {
-            std::cout << "Failed to load texture: " << path << std::endl;
+            LogError("Failed to load texture : {}", path);
         }
     } else {
-        data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-        if (channels == 4) {
-            mProperties.Format = TextureFormat::RGBA8;
-            renderFormat = GL_RGBA8;
-        } else if (channels == 3) {
-            mProperties.Format = TextureFormat::RGB8;
-            renderFormat = GL_RGB8;
-        }
-        mProperties.Height = height;
-        mProperties.Width = width;
-
-        if (data) {
-            glCreateTextures(GL_TEXTURE_2D, 1, &mTextureID);
-            glTextureStorage2D(mTextureID, 1, renderFormat, width, height);
-
-            // Set texture parameters
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-            glTextureSubImage2D(mTextureID, 0, 0, 0, width, height, ConvertTextureFormat(mProperties.Format), GL_UNSIGNED_BYTE, data);
-        }
+        LogError("Texture dimension not supported");
     }
 }
 
@@ -281,19 +242,12 @@ GLTexture::~GLTexture() {
 
 
 void GLTexture::Bind(uint32_t slot) const {
-    //glEnable(GL_TEXTURE_2D);
     glBindTextureUnit(slot, mTextureID);
-    //glActiveTexture(GL_TEXTURE0 + 0);
-    //glBindTexture(GL_TEXTURE_2D, mTextureID);
 }
 
 void GLTexture::Unbind(uint32_t slot) const {
     glBindTextureUnit(slot, 0);
-    //glBindTexture(GL_TEXTURE_2D, 0);
-    //glDisable(GL_TEXTURE_2D);
 }
-
-
 
 //void GLImage::Invalidate() {
 //    if (m_RendererID) Release();

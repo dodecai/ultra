@@ -168,7 +168,7 @@ Glyph *Font::GetGlyph(uint32_t codepoint) {
     }
 
     // Upload to texture
-    g->Texture = Texture::Create({ (uint32_t)g->Width, (uint32_t)g->Height, TextureFormat::RGBA8, TextureDataType::Float }, buffer.data(), sizeof(buffer.data()) * sizeof(float));
+    g->Texture = Texture::Create({ (uint32_t)g->Width, (uint32_t)g->Height, TextureFormat::RGBA16F }, buffer.data(), sizeof(buffer.data()) * sizeof(float));
 
     // Add to glyph cache
     auto result = g.get();

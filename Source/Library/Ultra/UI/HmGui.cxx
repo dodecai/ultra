@@ -21,13 +21,12 @@ void Container::Draw() {
             case ComponentType::Window: {
                 if constexpr (EnableWindowDragging) {
                     if (element->Focused) {
-                        if (HmGui::sInputState.MouseClicked) {
-                            HmGui::GetRoot()->MoveToTop(element->ID);
-                        } else if (HmGui::sInputState.Dragging) {
+                        if (HmGui::sInputState.MouseClicked) HmGui::GetRoot()->MoveToTop(element->ID);
+                        if (HmGui::sInputState.Dragging) {
                             element->Offset = HmGui::sInputState.DragCurrentPosition;
                             element->As<Container>()->ComputePosition();
 
-                        } else if (!HmGui::sInputState.Dragging && element->Offset.X != 0 && element->Offset.Y != 0) {
+                        } else if (!HmGui::sInputState.Dragging) {
                             element->Position.X += element->Offset.X;
                             element->Position.Y += element->Offset.Y;
                             element->Offset = {};
@@ -36,7 +35,7 @@ void Container::Draw() {
                     }
                 }
 
-                const auto color = Ultra::Color(0.1f, 0.12f, 0.13f, 1.0f);
+                auto color = Ultra::Color(0.1f, 0.12f, 0.13f, 1.0f);
                 auto position = element->Position;
                 position.X += element->Offset.X;
                 position.Y += element->Offset.Y;
@@ -52,7 +51,7 @@ void Container::Draw() {
                     if (scrollDelta)
                         scrollDelta = 24.0f * scrollDelta;
                     element->Offset.Y = std::clamp(element->Offset.Y + scrollDelta, -maxScroll, 0.0f);
-                    if (scrollDelta) Log("OffsetY: {}, Delta: {}", element->Offset.Y, scrollDelta);
+                    //if (scrollDelta) Log("OffsetY: {}, Delta: {}", element->Offset.Y, scrollDelta);
                     element->As<Container>()->ComputePosition();
                 }
 
@@ -153,6 +152,10 @@ void CheckBox::Draw() {
 }
 
 void InputBox::Draw() {
+    if (Focused) {
+        if (HmGui::sInputState.MouseClicked) Active = !Active;
+    }
+
     auto &&bgColor = Focused ? Ultra::Color(0.2f, 0.2f, 0.2f, 1.0f) : HmGui::GetStyle().ColorFillNone;
     UIRenderer::AddPanel(Position, Size, bgColor, 0.0f, FrameOpacity);
 
@@ -167,6 +170,10 @@ void InputBox::Draw() {
     UIRenderer::AddText(textPos, Text, Color, Font);
 }
 
+void Image::Draw() {
+    UIRenderer::AddImage(Position, Size, Data);
+}
+
 void Label::Draw() {
     if constexpr (DrawLayoutFrames) {
         UIRenderer::AddBorder(1.0f, Position, Size, HmGui::GetStyle().ColorDebugBorder);
@@ -174,6 +181,75 @@ void Label::Draw() {
 
     Ultra::Position position = { Position.X, Position.Y + MinSize.Height };
     UIRenderer::AddText(position, Text, Color, Font);
+}
+
+void Selection::Draw() {
+    // Draw the selection area
+    if (Focused) {
+        if (HmGui::sInputState.MouseClicked) if (Click) Click();
+
+        auto &&color = HmGui::sInputState.MousePressed ?
+            HmGui::GetStyle().ColorFillPressed :
+            HmGui::GetStyle().ColorFillHovered;
+        UIRenderer::AddPanel(Position, Size, color, 0.0f, 1.0f);
+    } else {
+        auto &&color = HmGui::GetStyle().ColorFillNone;
+        UIRenderer::AddPanel(Position, Size, color, 0.0f, FrameOpacity);
+    }
+    auto bgColor = Ultra::Color(0.15f, 0.15f, 0.15f, 1.0f);
+
+    // Draw the currently selected option
+    const Ultra::Position textPos = {
+        Position.X + 8.0f,
+        Position.Y + Size.Height / 2 + 4.0f,
+    };
+    UIRenderer::AddText(textPos, Text, Color, Font);
+    //UIRenderer::AddText(textPos, Options[SelectedIndex], Ultra::Color(1.0f, 1.0f, 1.0f, 1.0f), nullptr);
+
+    // Simulate dropdown functionality
+    auto buttonPosition = Ultra::Position(Size.Width, 0.0f);
+    auto positionX = Position.X + buttonPosition.X;
+    auto positionY = Position.Y + buttonPosition.Y;
+    UIRenderer::AddPanel({ positionX, positionY }, { 20.0f, Size.Height }, bgColor, 0.0f, FrameOpacity);
+    //, "▼"
+    /*if (U) {
+        ShowDropdown = !ShowDropdown;
+    }*/
+
+    // Draw dropdown options if open
+    if (ShowDropdown) {
+        DrawDropdown();
+    }
+}
+
+void Selection::DrawDropdown() {
+    // Draw the dropdown options
+    //const float optionHeight = 25.0f;
+    //for (size_t i = 0; i < Options.size(); ++i) {
+    //    const Ultra::Position optionPos = {
+    //        Position.X,
+    //        Position.Y + Size.Height + optionHeight * static_cast<float>(i),
+    //    };
+    //    const bool selected = (i == SelectedIndex);
+    //    //const bool clicked = UIRenderer::AddButton(optionPos, { Size.Width, optionHeight }, Options[i], selected);
+    //    if (clicked) {
+    //        SelectedIndex = i;
+    //        ShowDropdown = false;
+    //    }
+    //}
+}
+
+void Seperator::Draw() {
+    // ToDo: Check also line shader "vertex/ui" "fragment/ui/line"
+    // ToDo: Additive BlendMode
+    //const float padding = 64.0f;
+    //float minX = std::min(native->Start.X, native->Stop.X) - padding;
+    //float minY = std::min(native->Start.Y, native->Stop.Y) - padding;
+    //float maxX = std::max(native->Start.X, native->Stop.X) + padding;
+    //float maxY = std::max(native->Start.Y, native->Stop.Y) + padding;
+    //float width = maxX - minX;
+    //float height = maxY - minY;
+    // UIRenderer::Line(e->Start, e->Stop, e->Color);
 }
 
 void Slider::Draw() {
@@ -240,65 +316,6 @@ void ColorPicker::Draw() {
     };
     Ultra::Color selectedColor(1.0f, 1.0f, 1.0f, 1.0f); // Simulated selected color
     UIRenderer::AddPanel(selectedColorPos, { 30.0f, 30.0f }, selectedColor, 0.0f, 1.0f);
-}
-
-void Image::Draw() {
-    //UIRenderer::Image(Position, Size, CreateReference<Texture>(Data));
-}
-
-void Seperator::Draw() {
-    // ToDo: Check also line shader "vertex/ui" "fragment/ui/line"
-    // ToDo: Additive BlendMode
-    //const float padding = 64.0f;
-    //float minX = std::min(native->Start.X, native->Stop.X) - padding;
-    //float minY = std::min(native->Start.Y, native->Stop.Y) - padding;
-    //float maxX = std::max(native->Start.X, native->Stop.X) + padding;
-    //float maxY = std::max(native->Start.Y, native->Stop.Y) + padding;
-    //float width = maxX - minX;
-    //float height = maxY - minY;
-    // UIRenderer::Line(e->Start, e->Stop, e->Color);
-}
-
-void Selection::Draw() {
-    auto hovered = Hovered(HmGui::sInputState.LastMousePosition);
-
-    // Draw the selection area
-    const auto bgColor = Ultra::Color(0.15f, 0.15f, 0.15f, 1.0f);
-    UIRenderer::AddPanel(Position, Size, bgColor, 0.0f, FrameOpacity);
-
-    // Draw the currently selected option
-    const Ultra::Position textPos = {
-        Position.X + 10.0f,
-        Position.Y + Size.Height / 2,
-    };
-    UIRenderer::AddText(textPos, Options[SelectedIndex], Ultra::Color(1.0f, 1.0f, 1.0f, 1.0f), nullptr);
-
-    // Simulate dropdown functionality
-    //if (UIRenderer::AddButton(Position + Ultra::Position(Size.Width - 20.0f, 0.0f), { 20.0f, Size.Height }, "▼")) {
-    //    ShowDropdown = !ShowDropdown;
-    //}
-
-    // Draw dropdown options if open
-    if (ShowDropdown) {
-        DrawDropdown();
-    }
-}
-
-void Selection::DrawDropdown() {
-    // Draw the dropdown options
-    //const float optionHeight = 25.0f;
-    //for (size_t i = 0; i < Options.size(); ++i) {
-    //    const Ultra::Position optionPos = {
-    //        Position.X,
-    //        Position.Y + Size.Height + optionHeight * static_cast<float>(i),
-    //    };
-    //    const bool selected = (i == SelectedIndex);
-    //    //const bool clicked = UIRenderer::AddButton(optionPos, { Size.Width, optionHeight }, Options[i], selected);
-    //    if (clicked) {
-    //        SelectedIndex = i;
-    //        ShowDropdown = false;
-    //    }
-    //}
 }
 
 void Table::DrawHeader() {

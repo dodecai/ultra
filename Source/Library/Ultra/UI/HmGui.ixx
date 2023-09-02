@@ -412,6 +412,43 @@ public:
     Ultra::Size OutherSize {};
 };
 
+struct Image: public Control {
+public:
+    Image(const string &id):
+        Control(id, ComponentType::Image) {
+    }
+    virtual ~Image() = default;
+
+    void Draw() override;
+
+public:
+    Reference<Texture> Data {};
+};
+
+class InputBox: public Control {
+public:
+    InputBox(const string &id):
+        Control(id, ComponentType::Input) {
+    }
+    ~InputBox() = default;
+
+    void Draw() override;
+    void DebugPrint(size_t indent) const override {
+        Log("{}{}{} [ Text: '{}' | Position: 'x={}, y={}' | Size '{}x{}' ]",
+            indent == 0 ? "" : string(indent * 2, ' '),
+            indent == 0 ? "" : "◌ ",
+            ID,
+            Text,
+            Position.X, Position.Y,
+            Size.Width, Size.Height
+        );
+    }
+
+public:
+    Font *Font {};
+    string Text;
+};
+
 class Label: public Control {
 public:
     Label(const string &id, string_view text):
@@ -448,6 +485,61 @@ public:
 public:
     string Text {};
     Font *Font {};
+};
+
+class Selection: public Control {
+public:
+    Selection(const string &id, string_view text, const vector<string> &options):
+        Control(id, ComponentType::Selection),
+        Text(text),
+        Options(options) {
+        Padding = { 8.0f, 8.0f, 8.0f, 8.0f };
+        SelectedIndex = 0;
+    }
+    ~Selection() = default;
+
+    void Draw() override;
+    void Update() override {
+        if (Font) {
+            MinSize = Font->GetSize(Text);
+            MinSize.Width += Padding.Left + Padding.Right;
+            MinSize.Height += Padding.Top + Padding.Bottom;
+            Position.X -= Padding.Left + Offset.X;
+            Position.Y -= Padding.Top + Offset.Y;
+        }
+        if (Options.size() > 0) {
+            auto minSize = Ultra::Size{};
+            for (auto &&option : Options) {
+                auto size = Font->GetSize(option);
+                //minSize += size;
+            }
+            //minSize.Width += Padding.Left + Padding.Right;
+            //minSize.Height += Padding.Top + Padding.Bottom;
+        }
+    }
+
+private:
+    void DrawDropdown();
+
+public:
+    Font *Font {};
+    string Text {};
+    vector<string> Options;
+    std::function<void()> Click;
+
+private:
+    size_t SelectedIndex {};
+    bool ShowDropdown = false;
+};
+
+class Seperator: public Control {
+public:
+    Seperator(const string &id):
+        Control(id, ComponentType::Seperator) {
+    }
+    virtual ~Seperator() = default;
+
+    void Draw() override;
 };
 
 class Slider: public Control {
@@ -505,74 +597,6 @@ public:
     ~ColorPicker() = default;
 
     void Draw() override;
-};
-
-class InputBox: public Control {
-public:
-    InputBox(const string &id):
-        Control(id, ComponentType::Input) {
-    }
-    ~InputBox() = default;
-
-    void Draw() override;
-    void DebugPrint(size_t indent) const override {
-        Log("{}{}{} [ Text: '{}' | Position: 'x={}, y={}' | Size '{}x{}' ]",
-            indent == 0 ? "" : string(indent * 2, ' '),
-            indent == 0 ? "" : "◌ ",
-            ID,
-            Text,
-            Position.X, Position.Y,
-            Size.Width, Size.Height
-        );
-    }
-
-public:
-    Font *Font {};
-    string Text;
-};
-
-class Seperator: public Control {
-public:
-    Seperator(const string &id):
-        Control(id, ComponentType::Seperator) {
-    }
-    virtual ~Seperator() = default;
-
-    void Draw() override;
-};
-
-struct Image: public Control {
-public:
-    Image(const string &id):
-        Control(id, ComponentType::Image) {
-    }
-    virtual ~Image() = default;
-
-    void Draw() override;
-
-public:
-    Reference<Texture> Data {};
-};
-
-class Selection: public Control {
-public:
-    Selection(const string &id):
-        Control(id, ComponentType::Selection) {
-        Size = { 150.0f, 30.0f };
-        Options = { "Option 1", "Option 2", "Option 3" };
-        SelectedIndex = 0;
-    }
-    ~Selection() = default;
-
-    void Draw() override;
-
-private:
-    void DrawDropdown();
-
-private:
-    std::vector<string> Options;
-    size_t SelectedIndex {};
-    bool ShowDropdown = false;
 };
 
 class Table: public Control {
@@ -747,40 +771,6 @@ public:
         AddChild(std::move(checkbox));
         return result;
     }
-    Label *CreateLabel(string_view text, Font *font = nullptr, const string &uniqueId = "")  {
-        string id = uniqueId.empty() ? std::format("Label#{}", sLabelCounter++) : uniqueId;
-
-        auto *component = GetChild(id);
-        if (component) return component->As<Label>();
-
-        auto label = Control::Create<Label>(id, text);
-        label->Color = this->Style.ColorText;
-        if (font) {
-            label->Font = font;
-        } else {
-            label->Font = this->Style.Font.get();
-        }
-        label->Update();
-
-        auto result = label.get();
-        AddChild(std::move(label));
-        Parent = this;
-        return result;
-    }
-    Slider *CreateSlider(float value, float min = 0.0f, float max = 128.0f)  {
-        string id = std::format("Slider#{}", sSliderCounter++);
-
-        auto *component = GetChild(id);
-        if (component) return component->As<Slider>();
-
-        auto slider = Control::Create<Slider>(id);
-
-        auto result = slider.get();
-        AddChild(std::move(slider));
-        Parent = this;
-        return result;
-    }
-    // ToDo
     Image *CreateImage(string_view path) {
         string id = std::format("Image#{}", sImageCounter++);
 
@@ -789,7 +779,7 @@ public:
 
         auto image = Control::Create<Image>(id);
         image->Stretch = { 1.0f, 1.0f };
-        //image->Data = Texture::Create(TextureProperties(), path);
+        image->Data = Texture::Create({}, string(path));
 
         auto result = image.get();
         AddChild(std::move(image));
@@ -819,6 +809,42 @@ public:
         AddChild(std::move(input));
         return result;
     }
+    Label *CreateLabel(string_view text, Font *font = nullptr, const string &uniqueId = "")  {
+        string id = uniqueId.empty() ? std::format("Label#{}", sLabelCounter++) : uniqueId;
+
+        auto *component = GetChild(id);
+        if (component) return component->As<Label>();
+
+        auto label = Control::Create<Label>(id, text);
+        label->Color = this->Style.ColorText;
+        if (font) {
+            label->Font = font;
+        } else {
+            label->Font = this->Style.Font.get();
+        }
+        label->Update();
+
+        auto result = label.get();
+        AddChild(std::move(label));
+        Parent = this;
+        return result;
+    }
+    Selection *CreateSelection(string_view text, const vector<string> &options) {
+        string id = std::format("Selection#{}", sSelectionCounter++);
+
+        auto *component = GetChild(id)->As<Selection>();
+        if (component) return component;
+
+        auto selection = Control::Create<Selection>(id, text, options);
+        selection->Parent = this;
+        selection->Color = this->Style.ColorText;
+        selection->Font = this->Style.Font.get();
+        selection->Update();
+
+        auto result = selection.get();
+        AddChild(std::move(selection));
+        return result;
+    }
     Seperator *CreateSeperator() {
         // ToDo: Check also line shader "vertex/ui" "fragment/ui/line"
         // ToDo: Additive BlendMode
@@ -831,6 +857,19 @@ public:
         //float sy = yMax - yMin;
         // UIRenderer::Line(e->Start, e->Stop, e->Color);
         return {};
+    }
+    Slider *CreateSlider(float value, float min = 0.0f, float max = 128.0f)  {
+        string id = std::format("Slider#{}", sSliderCounter++);
+
+        auto *component = GetChild(id);
+        if (component) return component->As<Slider>();
+
+        auto slider = Control::Create<Slider>(id);
+
+        auto result = slider.get();
+        AddChild(std::move(slider));
+        Parent = this;
+        return result;
     }
 
     // Methods
@@ -845,7 +884,7 @@ public:
                 }
                 if (!child->Interactive) return false;
                 child->Focused = true;
-                //Log("{}", child->ID);
+                Log("{}", child->ID);
                 return true;
             }
         }
@@ -1001,6 +1040,8 @@ public:
         sInputBoxCounter = 0;
         sLabelCounter = 0;
         sScrollViewCounter = 0;
+        sSelectionCounter = 0;
+        sSeparatorCounter = 0;
         sSliderCounter = 0;
     }
 
@@ -1048,6 +1089,8 @@ private: // States
     inline static size_t sInputBoxCounter {};
     inline static size_t sLabelCounter {};
     inline static size_t sScrollViewCounter {};
+    inline static size_t sSelectionCounter {};
+    inline static size_t sSeparatorCounter {};
     inline static size_t sSliderCounter {};
 };
 
@@ -1124,6 +1167,7 @@ private:
     friend Label;
     friend Selection;
     friend Slider;
+    friend Seperator;
     friend Tree;
 
 private:
@@ -1204,6 +1248,7 @@ public:
 
     // Draws the GUI
     static void Draw() {
+        auto root = Instance().GetRoot();
         UIRenderer::Begin(Instance().mViewport);
         GetRoot()->Draw();
         UIRenderer::End();
@@ -1257,7 +1302,7 @@ public:
 
         // Check if component is active (hovered and on top)
         if (!sInputState.Dragging) {
-            GetLayoutManager()->GetRoot()->Focused(sInputState.LastMousePosition);
+            GetRoot()->Focused(sInputState.LastMousePosition);
         }
 
         sWindowCounter = 0;
@@ -1270,6 +1315,10 @@ public:
         ///
         /// @brief Here we test new API styles, until we find the best one...
         ///
+
+        // Background
+        auto image = HmGui::GetRoot()->CreateImage("Assets/Textures/Wallpaper.jpg");
+        image->Interactive = false;
 
         //
         // Simple Window Test
@@ -1439,7 +1488,6 @@ public:
             msf->Text = std::format("ms/Frame: {:.2f}", mMSPF);
         }
 
-
         // Under Construction Window
         {
             auto window = HmGui::CreateWindow("Under Construction");
@@ -1456,6 +1504,11 @@ public:
 
             //auto separator = container->CreateSeparator();
             //separator->Size = { 300.0f, 2.0f };
+            
+            auto selection = container->CreateSelection("Select a Option", {"A", "B", "C"});
+            selection->Click = [&](const string &option = "") {
+                Log("Selected option: {}", option);
+            };
         }
 
         #pragma warning(default: 4189)
