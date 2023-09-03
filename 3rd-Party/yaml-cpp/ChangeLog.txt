@@ -12,5 +12,6 @@ git rm -f "install.txt"
 git rm -f "SECURITY.md"
 git rm -f "WORKSPACE"
 
+git mv "./src" "./source"
 git mv "./LICENSE" License
 git mv "./README.md" "./ReadMe.md"
