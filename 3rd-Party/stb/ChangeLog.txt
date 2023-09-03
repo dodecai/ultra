@@ -1,3 +1,5 @@
+mkdir include/stb
+
 git rm -f -r ".github"
 git rm -f -r  "docs"
 git rm -f -r  "data"
@@ -6,8 +8,7 @@ git rm -f -r  "tests"
 git rm -f -r  "tools"
 git rm -f ".travis.yml"
 
-git mv ".\LICENSE" License
-git mv ".\README.md" ".\ReadMe.md"
+git mv "./LICENSE" License
+git mv "./README.md" "./ReadMe.md"
 
-mkdir include\stb
-gci ".\" -Filter "stb_*.h" | % { git mv "$_" ".\include\stb\" }
+gci ".\" -Filter "stb_*.h" | % { git mv "$_" "./include/stb" }
