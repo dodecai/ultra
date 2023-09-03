@@ -1,4 +1,4 @@
-
+﻿
 #include "Charset.h"
 
 namespace msdf_atlas {

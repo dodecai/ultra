@@ -9,11 +9,42 @@
     toolset "msc"
     warnings "Default"
 
+    defines {
+        "MSDFGEN_CORE_ONLY",
+        "MSDFGEN_DISABLE_SVG",
+		"MSDFGEN_USE_CPP11",
+	}
+
 	files {
 		"include/**",
-        "MSDFgen.lua"
+		"source/**.cpp",
+        "MSDFgen.lua",
 	}
 
     includedirs {
-		"include"
+		"include",
+	    "%{Headers.FreeType}",
     }
+    
+    links {
+		"freetype"
+	}
+    
+    filter { "configurations:Debug" }
+        defines { "_DEBUG" }
+		runtime "Debug"
+        symbols "On"
+
+    filter { "configurations:Release" }
+        defines { "NDEBUG" }
+		runtime "Release"
+        optimize "On"
+        symbols "Off"
+
+    filter { "configurations:Distribution" }
+        defines { "NDEBUG" }
+        optimize "On"
+        symbols "Off"
+        
+	filter "system:windows"
+		systemversion "latest"

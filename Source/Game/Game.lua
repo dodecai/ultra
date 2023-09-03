@@ -37,7 +37,7 @@
     links {
         "opengl32",
         "glew32",
-        "freetype",
+        --"freetype",
         "Ultra",
         "lua51",
         "SDL2",

@@ -1,4 +1,4 @@
-#include "BlendMode.h"
+﻿#include "BlendMode.h"
 #include "DataFormat.h"
 #include "Draw.h"
 #include "Font.h"
