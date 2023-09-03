@@ -1,3 +1,7 @@
+mkdir "include/imgui/backends"
+mkdir "source/backends"
+mkdir "natvis/imgui"
+
 git rm -f -r ".github"
 git rm -f -r "examples"
 git rm -f -r "misc/cpp"
@@ -8,12 +12,19 @@ git rm -f ".editorconfig"
 git rm -f ".gitattributes"
 git rm -f ".gitignore"
 
-git mv ".\docs\README.md" ".\ReadMe.md"
-git mv ".\docs\TODO.txt" ToDo.txt
-git mv ".\LICENSE.txt" License
+gci ".\" -Filter "*.h" | % { git mv "$_" "./include/imgui" }
+gci ".\" -Filter "*.cpp" | % { git mv "$_" "./source" }
+gci ".\" -Filter "./backends/*.h" | % { git mv "$_" "./include/imgui/backends" }
+gci ".\" -Filter "./backends/*.cpp" | % { git mv "$_" "./source/backends" }
+gci ".\" -Filter "./backends/*.mm" | % { git mv "$_" "./source/backends" }
+git mv "./backends/vulkan" "./source/backends"
 
-mkdir natvis\imgui
-git mv ".\misc\debuggers\imgui.natvis" ".\natvis\imgui\imgui.natvis"
+git mv "./docs/README.md" "./ReadMe.md"
+git mv "./docs/TODO.txt" "./ToDo.txt"
+git mv ".\LICENSE.txt" "License"
 
+git mv "./misc/debuggers/imgui.natvis" "./natvis/imgui/imgui.natvis"
+
+git rm -f -r "backends"
 git rm -f -r "docs"
 git rm -f -r "misc/debuggers"
