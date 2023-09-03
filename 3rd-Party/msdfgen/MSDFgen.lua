@@ -1,4 +1,4 @@
-﻿project "glm"
+﻿project "MSDFgen"
 	kind "StaticLib"
 	language "C++"
     characterset "Unicode"
@@ -11,9 +11,9 @@
 
 	files {
 		"include/**",
-        "glm.lua",
+        "MSDFgen.lua"
 	}
 
     includedirs {
-        "include",
+		"include"
     }

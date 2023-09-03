@@ -1,4 +1,4 @@
-﻿project "glm"
+﻿project "FreeType"
 	kind "StaticLib"
 	language "C++"
     characterset "Unicode"
@@ -10,8 +10,8 @@
     warnings "Default"
 
 	files {
+        "FreeType.lua",
 		"include/**",
-        "glm.lua",
 	}
 
     includedirs {

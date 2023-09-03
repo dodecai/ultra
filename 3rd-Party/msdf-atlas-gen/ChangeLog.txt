@@ -1,0 +1,21 @@
+mkdir "include"
+mkdir "source"
+
+git rm -f -r "artery-font-format"
+git rm -f -r "cmake"
+git rm -f -r "msdfgen"
+git rm -f ".gitattributes"
+git rm -f ".gitignore"
+git rm -f ".gitmodules"
+git rm -f "CHANGELOG.md"
+git rm -f "CMakeLists.txt"
+git rm -f "icon.ico"
+git rm -f "vcpkg.json"
+
+gci ".\" -Filter "msdf-atlas-gen/*.cpp" | % { git mv "$_" "./src" }
+git mv "./msdf-atlas-gen" "./include"
+git mv "./msdf-atlas-gen.rc" "./src"
+git mv "./resource.h" "./src"
+
+git mv "./README.md" "./ReadMe.md"
+git mv "./LICENSE.txt" License

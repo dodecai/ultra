@@ -15,8 +15,8 @@
     }
 
 	files {
-        "**.h",
-        "**.cpp",
+        "include/**",
+        "source/**",
         "yaml-cpp.lua",
 	}
     

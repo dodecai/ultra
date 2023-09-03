@@ -27,8 +27,11 @@
 	    "%{Headers.assimp}",
 	    "%{Headers.DearImGui}",
 	    "%{Headers.EnTT}",
+	    --"%{Headers.FreeType}",
 	    "%{Headers.glad}",
 	    "%{Headers.glm}",
+	    --"%{Headers.MSDF-Atlas-Gen}",
+	    --"%{Headers.MSDFgen}",
 	    "%{Headers.stb}",
         "%{Headers.yamlcpp}",
         

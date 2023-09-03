@@ -1,4 +1,4 @@
-// dear imgui: Renderer Backend for Vulkan
+﻿// dear imgui: Renderer Backend for Vulkan
 // This needs to be used along with a Platform Backend (e.g. GLFW, SDL, Win32, custom..)
 
 // Implemented features:
@@ -68,9 +68,9 @@
 //  2016-10-18: Vulkan: Add location decorators & change to use structs as in/out in glsl, update embedded spv (produced with glslangValidator -x). Null the released resources.
 //  2016-08-27: Vulkan: Fix Vulkan example for use when a depth buffer is active.
 
-#include "imgui.h"
+#include "imgui/imgui.h"
 #ifndef IMGUI_DISABLE
-#include "imgui_impl_vulkan.h"
+#include "imgui/backends/imgui_impl_vulkan.h"
 #include <stdio.h>
 
 // Visual Studio warnings

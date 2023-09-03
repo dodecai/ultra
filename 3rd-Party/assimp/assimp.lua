@@ -110,10 +110,6 @@
 	  "contrib/zlib/*.h",
   }
 
-  externalincludedirs {
-      "include"
-  }
-
   includedirs {
 	  "./",
 	  "code",

@@ -1,0 +1,21 @@
+mkdir "include/msdfgen"
+mkdir "source"
+
+git rm -f -r "cmake"
+git rm -f ".gitattributes"
+git rm -f ".gitignore"
+git rm -f "CHANGELOG.md"
+git rm -f "CMakeLists.txt"
+git rm -f "CMakePresets.json"
+git rm -f "icon.ico"
+git rm -f "vcpkg.json"
+
+git mv "./README.md" "./ReadMe.md"
+git mv "./LICENSE.txt" License
+git mv "./core" "./include/msdfgen"
+git mv "./ext" "./include/msdfgen"
+git mv "./msdfgen.h" "./include/msdfgen"
+git mv "./msdfgen-ext.h" "./include/msdfgen"
+git mv "./main.cpp" "./src"
+git mv "./msdfgen.rc" "./src"
+git mv "./resource.h" "./src"

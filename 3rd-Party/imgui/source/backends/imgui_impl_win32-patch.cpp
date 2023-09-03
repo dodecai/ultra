@@ -1,4 +1,4 @@
-// dear imgui: Platform Backend for Windows (standard windows API for 32-bits AND 64-bits applications)
+﻿// dear imgui: Platform Backend for Windows (standard windows API for 32-bits AND 64-bits applications)
 // This needs to be used along with a Renderer (e.g. DirectX11, OpenGL3, Vulkan..)
 
 // Implemented features:
@@ -14,8 +14,8 @@
 // If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
 // Read online: https://github.com/ocornut/imgui/tree/master/docs
 
-#include "imgui.h"
-#include "imgui_impl_win32-patch.h"
+#include "imgui/imgui.h"
+#include "imgui/backends/imgui_impl_win32-patch.h"
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif

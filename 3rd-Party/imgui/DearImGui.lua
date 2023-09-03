@@ -11,9 +11,13 @@
 
 	files {
         "DearImGui.lua",
-		"im*.h",
-		"im*.cpp",
+		"include/**",
+		"source/*",
 	}
+
+    includedirs {
+        "include/imgui"
+    }
 
     filter { "configurations:Debug" }
         defines { "_DEBUG" }

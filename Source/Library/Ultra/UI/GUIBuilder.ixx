@@ -14,12 +14,12 @@ import Ultra.Core;
 #pragma warning(push, 0)
 
 // Graphics Backends
-export import <backends/imgui_impl_opengl3.h>;
-export import <backends/imgui_impl_vulkan.h>;
+export import <imgui/backends/imgui_impl_opengl3.h>;
+export import <imgui/backends/imgui_impl_vulkan.h>;
 
 // System Backends
 #ifdef APP_PLATFORM_WINDOWS
-    export import <backends/imgui_impl_win32-patch.h>;
+    export import <imgui/backends/imgui_impl_win32-patch.h>;
 #endif
 
 #pragma warning(pop)

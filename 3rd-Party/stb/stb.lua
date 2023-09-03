@@ -8,6 +8,7 @@
     warnings "Default"
 
 	files {
+        "include/**",
+		"source/**",
         "stb.lua",
-		"stb*.h",
 	}

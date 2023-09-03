@@ -1,4 +1,4 @@
-﻿project "glm"
+﻿project "MSDF-Atlas-Gen"
 	kind "StaticLib"
 	language "C++"
     characterset "Unicode"
@@ -10,10 +10,10 @@
     warnings "Default"
 
 	files {
-		"include/**",
-        "glm.lua",
+        "include/**",
+        "MSDF-Atlas-Gen.lua"
 	}
 
     includedirs {
-        "include",
+        "include"
     }
