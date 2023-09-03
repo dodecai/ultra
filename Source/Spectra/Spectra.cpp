@@ -25,7 +25,7 @@ public:
     void Destroy() {}
 
     void Update([[maybe_unused]] Timestamp deltaTime) {
-        HmGui::ShowDemo(deltaTime);
+        HmGui::ShowDemo();
         mRenderer->RenderFrame();
         HmGui::Update(deltaTime);
         HmGui::Draw();

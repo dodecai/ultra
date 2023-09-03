@@ -202,7 +202,7 @@ const int32_t VKPhysicalDevice::GetQueueFamilyIndex(vk::QueueFlags flag) const {
 
 // Internal
 vk::PhysicalDevice VKPhysicalDevice::ChoosePhysicalDevice(const vector<vk::PhysicalDevice> &devices) {
-    std::multimap<uint32_t, vk::PhysicalDevice> candidates;
+    std::multimap<size_t, vk::PhysicalDevice> candidates;
     for (const auto &device : devices) {
         candidates.emplace(RankPhysicalDevice(device), device);
     }

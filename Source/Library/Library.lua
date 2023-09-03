@@ -48,12 +48,16 @@
     links {
         --"assimp",
         "DearImGui",
+        "FreeType",
         "Glad",
+        "MSDFgen",
+        "MSDF-Atlas-Gen",
         "yaml-cpp",
-        "LibPHX",
+
         "%{Library.ShaderC}",
 	    "%{Library.Vulkan}",
-	    --"%{Library.VulkanUtils}",
+
+        "LibPHX",
     }
 
     filter { "configurations:Debug" }

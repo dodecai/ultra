@@ -544,8 +544,9 @@ public:
 
 class Slider: public Control {
 public:
-    Slider(const string &id):
-        Control(id, ComponentType::Slider) {
+    Slider(const string &id, float value):
+        Control(id, ComponentType::Slider),
+        Value(value) {
         Alignment = { 0.5f, 0.5f };
         Color = { 0.5f, 0.5f, 0.5f, 1.0f };
         FocusStyle = FocusStyle::Scroll;
@@ -571,6 +572,8 @@ public:
 
 public:
     float Value {};
+    float MinValue {};
+    float MaxValue {};
     float HandleWidth { 6.0f };
     float DragOffset {};
 };
@@ -864,7 +867,9 @@ public:
         auto *component = GetChild(id);
         if (component) return component->As<Slider>();
 
-        auto slider = Control::Create<Slider>(id);
+        auto slider = Control::Create<Slider>(id, value);
+        slider->MinValue = min;
+        slider->MaxValue = max;
 
         auto result = slider.get();
         AddChild(std::move(slider));
@@ -1248,7 +1253,6 @@ public:
 
     // Draws the GUI
     static void Draw() {
-        auto root = Instance().GetRoot();
         UIRenderer::Begin(Instance().mViewport);
         GetRoot()->Draw();
         UIRenderer::End();
@@ -1310,7 +1314,7 @@ public:
     }
 
     // Shows some demo windows and is also used for tests
-    static void ShowDemo(Timestamp deltaTime) {
+    static void ShowDemo() {
         #pragma warning(disable: 4189)
         ///
         /// @brief Here we test new API styles, until we find the best one...

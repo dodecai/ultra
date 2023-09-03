@@ -239,9 +239,6 @@ void UIRenderer::Flush() {
         SRenderData.ComponentPipeline->Bind();
         SRenderData.ComponentIndexBuffer->Bind();
 
-        auto dataSizeA = SRenderData.PanelVertexBufferData.size() * 6;
-        auto dataSizeB = static_cast<GLsizei>(SRenderData.ComponentVertexBufferData.size() * 6);
-
         SCommandBuffer->DrawIndexed(static_cast<GLsizei>(SRenderData.ComponentVertexBufferData.size() * 6), PrimitiveType::Triangle, true);
 
         // ToDo: Implement Statistics

@@ -416,7 +416,7 @@ public:
     }
 
     // Output Stream Template Support (std::endl, ...)
-    Logger &operator<<(ostream &(*T)(ostream &)) {
+    Logger &operator<<([[maybe_unused]] ostream &(*T)(ostream &)) {
         if (mSkip) return *this;
 
         mStreamBuffer << '\n';
@@ -498,9 +498,9 @@ public:
         );
 
         // Wide-String based Types
-        wchar_t WChar_T[] = L"WChar_T *";
-        const wchar_t *ConstWChar_T = L"ConstWChar_T *";
-        std::wstring WString = L"WString";
+        //wchar_t WChar_T[] = L"WChar_T *";
+        //const wchar_t *ConstWChar_T = L"ConstWChar_T *";
+        //std::wstring WString = L"WString";
 
         //logger("{}{} {}{} {}{}",
         //    Cli::Color::LightRed, WChar_T,
