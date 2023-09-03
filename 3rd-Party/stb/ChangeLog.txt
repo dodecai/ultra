@@ -13,4 +13,4 @@ git mv "./stb_vorbis.c" "./source"
 git mv "./LICENSE" License
 git mv "./README.md" "./ReadMe.md"
 
-gci ".\" -Filter "stb_*.h" | % { git mv "$_" "./include/stb" }
+gci "./" -Filter "stb_*.h" | % { git mv "$_" "./include/stb" }
