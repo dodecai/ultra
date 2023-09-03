@@ -1,4 +1,5 @@
 mkdir include/stb
+mkdir source
 
 git rm -f -r ".github"
 git rm -f -r  "docs"
@@ -8,6 +9,7 @@ git rm -f -r  "tests"
 git rm -f -r  "tools"
 git rm -f ".travis.yml"
 
+git mv "./stb_vorbis.c" "./source"
 git mv "./LICENSE" License
 git mv "./README.md" "./ReadMe.md"
 

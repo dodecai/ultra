@@ -17,5 +17,5 @@ git rm -f "Dockerfile"
 git rm -f "INSTALL"
 git rm -f "SECURITY.md"
 
-git mv ".\LICENSE" "License"
-git mv ".\Readme.md" "ReadMe.md"
+git mv "./LICENSE" "License"
+git mv "./Readme.md" "ReadMe.md"

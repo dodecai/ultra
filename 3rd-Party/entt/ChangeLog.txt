@@ -16,9 +16,7 @@ git rm -f "WORKSPACE"
 git rm -f "conanfile.py"
 git rm -f "entt.imp"
 
-git mv ".\single_include" ".\include"
-git mv ".\LICENSE" License
-git mv ".\README.md" ReadMe.md
-git mv ".\TODO" ToDo
-
-git rm -f "single_include"
+git mv "./single_include" ".\include"
+git mv "./LICENSE" License
+git mv "./README.md" ReadMe.md
+git mv "./TODO" ToDo
