@@ -3,6 +3,11 @@
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
+#define MSDF_ATLAS_PUBLIC
+#include <msdfgen/msdfgen.h>
+#include <msdf-atlas-gen/FontGeometry.h>
+#include <msdf-atlas-gen/GlyphGeometry.h>
+
 export module Ultra.Engine.Font;
 
 import Ultra.Core;
@@ -40,11 +45,21 @@ struct FontData {
     unordered_map<uint32_t, Scope<Glyph>> Glyphs;
 };
 
+struct MSDFData {
+    msdf_atlas::FontGeometry FontGeometry {};
+    std::vector<msdf_atlas::GlyphGeometry> Glyphs {};
+};
+
+
 class Font {
 public:
     // Default
     Font(string_view name, uint32_t size);
     ~Font();
+
+    static Reference<Font> GetDefault();
+    Reference<Texture2D> GetTexture() const { return mAtlasTexture; }
+    const MSDFData *GetMSDFData() const { return mMSDFData; }
 
     // Accessors
     int GetLineHeight();
@@ -61,6 +76,9 @@ public:
     Glyph *GetGlyph(uint32_t codepoint);
     int32_t GetKerning(uint32_t leftGlyph, uint32_t rightGlyph);
 
+    // AtlasTextuer-Test
+    void Load(string_view path, uint32_t size);
+
 private:
     // Handles
     inline static FT_Library mLibrary = 0;
@@ -69,6 +87,28 @@ private:
     Scope<FontData> mData;
     inline static const float kGamma = 1.8f; // @Note : Gamma of 1.8 recommended by FreeType
     inline static const float kRcpGamma = 1.0f / kGamma;
+
+    // AtlasTextuer-Test
+    Reference<Texture2D> mAtlasTexture;
+    MSDFData *mMSDFData {};
+
+    struct CharsetRange {
+        uint32_t Begin;
+        uint32_t End;
+    };
+
+    inline static constexpr auto sExpensiveColoring = false;
+    inline static constexpr auto sLCGMultiplier = 6364136223846793005ull;
+    inline static constexpr auto sLCGIncrement = 1442695040888963407ull;
+    inline static constexpr auto sMaxCornerAngle = 3.0;
+
+public:
+    inline static constexpr auto sThreadCount = 4;
+
+private:
+    inline static constexpr CharsetRange sCharsetRanges[] = {
+        { 0x0020, 0x00ff }
+    };
 };
 
 }

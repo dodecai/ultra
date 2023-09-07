@@ -140,6 +140,15 @@ void UIRenderer::DrawPanel(const glm::vec3 &position, const glm::vec2 &size, con
     Reset();
 }
 
+void UIRenderer::DrawLine(const glm::vec3 &start, const glm::vec3 &end, const glm::vec4 &color) {
+    if (SRenderData.ComponentVertexBufferData.size() >= SRenderData.ComponentMaxIndices) Reset();
+
+    SRenderData.ComponentVertexBufferData.emplace_back(start, color);
+    SRenderData.ComponentVertexBufferData.emplace_back(end, color);
+    SRenderData.ComponentVertexBufferData.emplace_back(glm::vec3(), glm::vec4());
+    SRenderData.ComponentVertexBufferData.emplace_back(glm::vec3(), glm::vec4());
+}
+
 void UIRenderer::DrawRectangle(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color) {
     if (SRenderData.ComponentVertexBufferData.size() * 6 >= SRenderData.ComponentMaxIndices) Reset();
 
@@ -163,6 +172,41 @@ void UIRenderer::DrawRectangle(const glm::vec3 &position, const glm::vec2 &size,
 }
 
 void UIRenderer::DrawRectangle(const glm::vec3 &position, const glm::vec2 &size, const Reference<Texture> &texture, const glm::vec4 &color, float tiling) {
+    if (SRenderData.ComponentVertexBufferData.size() * 6 >= SRenderData.ComponentMaxIndices) Reset();
+
+    float textureIndex = 0.0f;
+    const glm::vec2 textureCoords[] = {
+        { 0.0f, 0.0f },
+        { 1.0f, 0.0f },
+        { 1.0f, 1.0f },
+        { 0.0f, 1.0f },
+    };
+    for (uint32_t i = 1; i < SRenderData.TextureSlotIndex; i++) {
+        if (*SRenderData.TextureSlots[i].get() == *texture.get()) {
+            textureIndex = (float)i;
+            break;
+        }
+    }
+    if (textureIndex == 0.0f) {
+        if (SRenderData.TextureSlotIndex >= SRenderData.MaxTextureSlots) Reset();
+
+        textureIndex = (float)SRenderData.TextureSlotIndex;
+        SRenderData.TextureSlots[SRenderData.TextureSlotIndex] = texture;
+        SRenderData.TextureSlotIndex++;
+    }
+
+    glm::vec2 center = position + glm::vec3(size.x, size.y, 0.0f) * 0.5f;
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(center, 0.0f)) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+    //glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+    for (size_t i = 0; i < SRenderData.ComponentVertexPositions.size(); i++) {
+        SRenderData.ComponentVertexBufferData.emplace_back((transform * SRenderData.ComponentVertexPositions[i]), color, textureCoords[i], textureIndex, tiling);
+    }
+
+    // ToDo: Implement Statistics
+    Reset();
+}
+
+void UIRenderer::DrawText(const glm::vec3 &position, const glm::vec2 &size, const Reference<Texture> &texture, const glm::vec4 &color, float tiling) {
     if (SRenderData.ComponentVertexBufferData.size() * 6 >= SRenderData.ComponentMaxIndices) Reset();
 
     float textureIndex = 0.0f;

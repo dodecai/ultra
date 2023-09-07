@@ -143,7 +143,7 @@ public:
         if (mCallback) {
             mCallback(mName, duration);
         } else {
-            ProfilerResult result { mName, std::this_thread::get_id(), startTime, duration };
+            ProfilerResult result { mName, std::this_thread::get_id(), static_cast<double>(startTime), duration };
             Instrumentor::Instance().WriteProfile(result);
         }
     }

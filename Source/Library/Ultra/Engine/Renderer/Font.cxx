@@ -1,19 +1,55 @@
 ﻿module;
 
+// Hack: Remove this QuickFix until the vc compiler can handle modules properly!
+#include <chrono>
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 #include FT_BITMAP_H
 
+#undef INFINITE
+#define MSDF_ATLAS_PUBLIC
+#include <msdf-atlas-gen/msdf-atlas-gen.h>
+#include <msdf-atlas-gen/FontGeometry.h>
+#include <msdf-atlas-gen/GlyphGeometry.h>
+
 module Ultra.Engine.Font;
 
 import Ultra.Engine.UIRenderer;
 import Ultra.Engine.Resource;
+import Ultra.System.FileSystem;
 
 // ToDo: Use Atlas instead of individual textures
 namespace Ultra {
 
 // Helpers
+template<typename T, typename S, int N, msdf_atlas::GeneratorFunction<S, N> GenFunc>
+static Reference<Texture2D> CreateAndCacheAtlas(
+    string_view name,
+    const vector<msdf_atlas::GlyphGeometry> &glyphs,
+    const msdf_atlas::FontGeometry &fontGeometry,
+    uint32_t width, uint32_t height) {
+
+    msdf_atlas::ImmediateAtlasGenerator<S, N, GenFunc, msdf_atlas::BitmapAtlasStorage<T, N>> generator(width, height);
+    msdf_atlas::GeneratorAttributes attributes;
+    attributes.config.overlapSupport = true;
+    attributes.scanlinePass = true;
+    generator.setAttributes(attributes);
+    generator.setThreadCount(Font::sThreadCount);
+    generator.generate(glyphs.data(), static_cast<int>(glyphs.size()));
+
+    msdfgen::BitmapConstRef<T, N> bitmap = (msdfgen::BitmapConstRef<T, N>)generator.atlasStorage();
+    msdfgen::saveBmp(bitmap, std::format("Data/Cache/Fonts/{}.bmp", name).c_str());
+
+    TextureProperties properties;
+    properties.Format = TextureFormat::RGB8;
+    properties.Width = bitmap.width;
+    properties.Height = bitmap.height;
+    Reference<Texture2D> texture = Texture2D::Create(properties, (void *)bitmap.pixels, bitmap.width * bitmap.height * 3);
+    return texture;
+}
+
 inline uint32_t DecodeUtf8(string_view::iterator &begin, string_view::iterator end) {
     unsigned char byte = *begin;
     uint32_t codepoint = 0;
@@ -57,7 +93,7 @@ inline uint32_t DecodeUtf8(string_view::iterator &begin, string_view::iterator e
 }
 
 
-Font::Font(string_view name, uint32_t size) {
+Font::Font(string_view name, uint32_t size): mMSDFData(new MSDFData()) {
     if (!mLibrary) FT_Init_FreeType(&mLibrary);
     auto path = Resource::GetPath(PhyResourceType::Font, name.data());
     mData = CreateScope<FontData>();
@@ -68,9 +104,12 @@ Font::Font(string_view name, uint32_t size) {
         return;
     }
     FT_Set_Pixel_Sizes(mData->Handle, 0, size);
+
+    Load(path, size);
 }
 
 Font::~Font() {
+    delete mMSDFData;
 }
 
 
@@ -185,5 +224,82 @@ int32_t Font::GetKerning(uint32_t leftGlyph, uint32_t rightGlyph) {
     FT_Get_Kerning(mData->Handle, leftGlyph, rightGlyph, FT_KERNING_DEFAULT, &kern);
     return kern.x >> 6;
 }
+
+
+void Font::Load(string_view path, uint32_t size) {
+    auto cache = std::format("Data/Cache/Fonts/{}.bmp", GetFileName(string(path)));
+    if (FileSystemObjectExists(cache)) {
+        TextureProperties properties;
+        properties.Format = TextureFormat::RGB8;
+        mAtlasTexture = Texture2D::Create(properties, cache);
+    } else {
+        auto *ft = msdfgen::initializeFreetype();
+        if (!ft) {
+            LogFatal("Failed to initialize FreeType!");
+            return;
+        }
+    
+        auto *font = msdfgen::loadFont(ft, path.data());
+        if (!font) {
+            LogFatal("Failed to load MSDF font data from {}!", path);
+            return;
+        }
+
+        mMSDFData->FontGeometry = msdf_atlas::FontGeometry(&mMSDFData->Glyphs);
+        msdf_atlas::Charset charset {};
+        for (auto &range : Font::sCharsetRanges) {
+            for (auto current = range.Begin; current <= range.End; current++) {
+                charset.add(current);
+            }
+        }
+        auto glyphs = mMSDFData->FontGeometry.loadCharset(font, 1.0, charset);
+
+        // ToDo: Add support for selection MSDF or MTSDF
+        auto coloringSeed = 0ull;
+        if constexpr (sExpensiveColoring) {
+            msdf_atlas::Workload([&glyphs = mMSDFData->Glyphs, &coloringSeed](int i, int threadNo) -> bool {
+                unsigned long long glyphSeed = (sLCGMultiplier * (coloringSeed ^ i) + sLCGIncrement) * !!coloringSeed;
+                glyphs[i].edgeColoring(msdfgen::edgeColoringInkTrap, sMaxCornerAngle, glyphSeed);
+                return true;
+            }, mMSDFData->Glyphs.size()).finish(sThreadCount);
+        } else {
+            unsigned long long glyphSeed = coloringSeed;
+            for (msdf_atlas::GlyphGeometry &glyph : mMSDFData->Glyphs) {
+                glyphSeed *= sLCGMultiplier;
+                glyph.edgeColoring(msdfgen::edgeColoringInkTrap, sMaxCornerAngle, glyphSeed);
+            }
+        }
+
+        size = 128.0;
+        msdf_atlas::TightAtlasPacker packer;
+        packer.setDimensionsConstraint(msdf_atlas::TightAtlasPacker::DimensionsConstraint::SQUARE);
+        packer.setMiterLimit(1.0);
+        packer.setPixelRange(2.0);
+        packer.setPadding(0);
+        packer.setScale(size);
+        packer.pack(mMSDFData->Glyphs.data(), static_cast<int>(mMSDFData->Glyphs.size()));
+
+        int width {};
+        int height {};
+        packer.getDimensions(width, height);
+
+        mAtlasTexture = CreateAndCacheAtlas<uint8_t, float, 3, msdf_atlas::msdfGenerator>(
+            GetFileName(string(path)),
+            mMSDFData->Glyphs,
+            mMSDFData->FontGeometry,
+            width,
+            height
+        );
+    
+        msdfgen::destroyFont(font);
+        msdfgen::deinitializeFreetype(ft);
+    }
+}
+
+Reference<Font> Font::GetDefault() {
+    static Reference<Font> defaultFont = CreateReference<Font>("Assets/Roboto/Roboto-Regular.ttf", 24);
+    return defaultFont;
+}
+
 
 }

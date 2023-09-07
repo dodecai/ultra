@@ -61,10 +61,10 @@ void Container::Draw() {
                     float handleSize = element->Size.Height * (element->Size.Height / element->OriginalSize.Height);
                     float handlePos = std::lerp(0.0f, element->Size.Height - handleSize, element->Offset.Y / maxScroll);
                     position.Y -= handlePos;
-                    //UIRenderer::AddRectangle(position, { 6.0, handlePos }, {}, false);
-                    UIRenderer::AddRectangle(position, { 6.0, handleSize }, HmGui::GetStyle().ColorFrame, false);
+                    //UIRenderer::AddRectangle(position, { 6.0, handlePos }, {});
+                    UIRenderer::AddRectangle(position, { 6.0, handleSize }, HmGui::GetStyle().ColorFrame);
                 } else {
-                    UIRenderer::AddRectangle(position, { 6.0f, 16.0f }, {}, false);
+                    UIRenderer::AddRectangle(position, { 6.0f, 16.0f }, {});
                 }
                 if constexpr (DrawLayoutFrames) {
                     UIRenderer::AddBorder(1.0f, element->Position, element->Size, HmGui::GetStyle().ColorDebugBorder);
@@ -125,7 +125,7 @@ void CheckBox::Draw() {
         if (HmGui::sInputState.MouseClicked) Value = !Value;
 
         auto &&color = HmGui::GetStyle().ColorFocusUnderline;
-        UIRenderer::AddRectangle(Position, Size, color, true);
+        UIRenderer::AddRectangle(Position, Size, color);
     }
 
     if constexpr (DrawLayoutFrames) {
@@ -139,15 +139,15 @@ void CheckBox::Draw() {
     // CheckBox Outer Rectangle
     position.X = Position.X + Size.Width - OutherSize.Width - 4.0f;
     position.Y -= 12.0f;
-    UIRenderer::AddRectangle(position, OutherSize, OutherColor, true);
+    UIRenderer::AddRectangle(position, OutherSize, OutherColor);
 
     // CheckBox Inner Rectangle
     position.X += 3.0f;
     position.Y += 3.0f;
     if (Value) {
-        UIRenderer::AddRectangle(position, InnerSize, InnerColor, false);
+        UIRenderer::AddRectangle(position, InnerSize, InnerColor);
     } else {
-        UIRenderer::AddRectangle(position, InnerSize, {}, false);
+        UIRenderer::AddRectangle(position, InnerSize, {});
     }
 }
 
@@ -156,8 +156,14 @@ void InputBox::Draw() {
         if (HmGui::sInputState.MouseClicked) Active = !Active;
     }
 
-    auto &&bgColor = Focused ? Ultra::Color(0.2f, 0.2f, 0.2f, 1.0f) : HmGui::GetStyle().ColorFillNone;
+    auto &&bgColor = Active ? Focused ? HmGui::GetStyle().ColorFocusUnderline : HmGui::GetStyle().ColorFocusUnderlineActive : HmGui::GetStyle().ColorFillNone;
     UIRenderer::AddPanel(Position, Size, bgColor, 0.0f, FrameOpacity);
+
+    static bool once = true;
+    if (Active && once) {
+        Text += "Yeah";
+        once = false;
+    }
 
     if constexpr (DrawLayoutFrames) {
         UIRenderer::AddBorder(1.0f, Position, Size, HmGui::GetStyle().ColorDebugBorder);
@@ -168,6 +174,11 @@ void InputBox::Draw() {
         Position.Y + MinSize.Height / 2 + 4.0f,
     };
     UIRenderer::AddText(textPos, Text, Color, Font);
+
+    if (Active) {
+        // TextWidth...
+        //UIRenderer::AddLine({ Position.X +textWidth, Position.Y }, { Position.X, Position.Y + Size.Height}, HmGui::GetStyle().ColorFillHovered);
+    }
 }
 
 void Image::Draw() {
@@ -255,7 +266,7 @@ void Seperator::Draw() {
 void Slider::Draw() {
     // Track
     const Ultra::Color trackColor = Ultra::Color(0.2f, 0.2f, 0.2f, 1.0f);
-    UIRenderer::AddRectangle(Position, Size, trackColor, true);
+    UIRenderer::AddRectangle(Position, Size, trackColor);
 
     if constexpr (DrawLayoutFrames) {
         UIRenderer::AddBorder(1.0f, Position, Size, HmGui::GetStyle().ColorDebugBorder);
@@ -274,11 +285,11 @@ void Slider::Draw() {
         }
 
         auto &&color = HmGui::GetStyle().ColorPrimary;
-        UIRenderer::AddRectangle(handlePosition, { HandleWidth, Size.Height }, color, true);
+        UIRenderer::AddRectangle(handlePosition, { HandleWidth, Size.Height }, color);
 
     } else {
         auto &&color = HmGui::GetStyle().ColorFrame;
-        UIRenderer::AddRectangle(handlePosition, { HandleWidth, Size.Height }, color, true);
+        UIRenderer::AddRectangle(handlePosition, { HandleWidth, Size.Height }, color);
     }
 }
 

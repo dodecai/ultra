@@ -15,7 +15,7 @@
     staticruntime "on"
     toolset "msc"
     warnings "Extra"
-    
+
     debugdir "%{wks.location}/Build/%{cfg.buildcfg}"
     files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx" }
     postbuildcommands {
@@ -32,6 +32,7 @@
 	    "%{Headers.glm}",
 	    "%{Headers.MSDFAtlasGen}",
 	    "%{Headers.MSDFgen}",
+	    "%{Headers.MSDFgen}/msdfgen",
 	    "%{Headers.stb}",
         "%{Headers.yamlcpp}",
         

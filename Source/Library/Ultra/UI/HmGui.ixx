@@ -197,7 +197,7 @@ struct Style {
     Color ColorFillNone             { 0.15f, 0.15f, 0.15f, 0.8f };  // Panel
     Color ColorFillPressed          { 0.2f, 0.7f, 1.0f, 1.0f };     // Panel
     Color ColorFillHovered          { 0.1f, 0.5f, 1.0f, 1.0f };     // Panel
-    Color ColorFocusUnderlineNone   { 0.3f, 0.3f, 0.3f, 1.0 };      // Rect + FrameOpacity
+    Color ColorFocusUnderlineActive { 0.4f, 0.5f, 0.5f, 1.0 };      // Rect + FrameOpacity
     Color ColorFocusUnderline       { 0.3f, 0.3f, 0.3f, 0.5 };      // Rect
 
 
@@ -1321,7 +1321,8 @@ public:
         ///
 
         // Background
-        auto image = HmGui::GetRoot()->CreateImage("Assets/Textures/Wallpaper.jpg");
+        //auto image = HmGui::GetRoot()->CreateImage("Assets/Textures/Wallpaper.jpg");
+        auto image = HmGui::GetRoot()->CreateImage("Data/Cache/Fonts/Rajdhani.bmp");
         image->Interactive = false;
 
         //
