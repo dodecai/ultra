@@ -12,7 +12,8 @@ using namespace Ultra::UI;
 class Spectra: public Application {
 public:
     // Constructors and Destructor
-    Spectra(const ApplicationProperties &properties): Application(properties) {}
+    Spectra(const ApplicationProperties &properties): Application(properties) {
+    }
     ~Spectra() = default;
 
     // Methods
@@ -22,9 +23,10 @@ public:
         Resource::Instance();
     }
 
-    void Destroy() {}
+    void Destroy() {
+    }
 
-    void Update([[maybe_unused]] Timestamp deltaTime) {
+    void Update(Timestamp deltaTime) {
         HmGui::ShowDemo();
         mRenderer->RenderFrame();
         HmGui::Update(deltaTime);

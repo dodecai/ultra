@@ -119,74 +119,82 @@ public:
         return value;
     }
 
-    static void Test() {
-        string string00 = "First Second and SeConD Third";
-        string string01 = "fiRst";
-        string string02 = "second";
-        string string03 = "ThIrD";
-        string string04 = "-Foruth";
-
-        string string11 = "-123,456.789a";
-        string string12 = "0123456789";
-        string string13 = "0123456789a";
-        string string14 = "0x123456789ABCDEF";
-        string string15 = "0x123456789ABCDEFG";
-        string string16 = "01234567";
-        string string17 = "012345678";
-        string string10 = "-123,456.789";
-
-        string string20 = "This is a very long sentence for a small string!";
-        string string21 = "What the ... should i do. Maybe it would be my 1st try to 3489032840921384092384902318490823149203945803294.";
-        std::wstring wstring20 = L"Dies ist ein sehr langer Satz für einen String, deshalb sollter er mit bedacht eingesetzt werden!";
-        std::wstring wstring21 = L"Ein paar Zeichen zum testen #+äü+ö€";
-
-        // Perform simple tests
-        //AppAssert(!String::StartsWith(string00, string01, true), "[Application::Utility::String]: '", string00, "' starts with '", string01, "' failed!");
-        //AppAssert(String::StartsWith(string00, string01), "[Application::Utility::String]: '", string00, "' starts with '", string01, "' failed!");
-        //AppAssert(!String::StartsWith(string00, string03), "[Application::Utility::String]: '", string00, "' starts with '", string03, "' failed!");
-
-        //AppAssert(!String::Contains(string00, string02, true), "[Application::Utility::String]: '", string00, "' contains '", string02, "' failed!");
-        //AppAssert(String::Contains(string00, string02), "[Application::Utility::String]: '", string00, "' contains '", string02, "' failed!");
-        //AppAssert(!String::Contains(string00, string04), "[Application::Utility::String]: '", string00, "' contains '", string04, "' failed!");
-
-        //AppAssert(!String::EndsWith(string00, string03, true), "[Application::Utility::String]: '", string00, "' ends with '", string03, "' failed!");
-        //AppAssert(String::EndsWith(string00, string03), "[Application::Utility::String]: '", string00, "' ends with '", string03, "' failed!");
-        //AppAssert(!String::EndsWith(string00, string01), "[Application::Utility::String]: '", string00, "' ends with '", string01, "' failed!");
-
-        //AppAssert(String::IsNumeric(string10), "[Application::Utility::String]: '", string10, "' is numeric failed!");
-        //AppAssert(!String::IsNumeric(string11), "[Application::Utility::String]: '", string11, "' is numeric failed!");
-
-        //AppAssert(String::IsDecimal(string12), "[Application::Utility::String]: '", string12, "' is decimal failed!");
-        //AppAssert(!String::IsDecimal(string13), "[Application::Utility::String]: '", string13, "' is decimal failed!");
-
-        //AppAssert(String::IsHexadecimal(string14), "[Application::Utility::String]: '", string14, "' is hexadecimal failed!");
-        //AppAssert(!String::IsHexadecimal(string15), "[Application::Utility::String]: '", string15, "' is hexadecimal failed!");
-
-        //AppAssert(String::IsOctal(string16), "[Application::Utility::String]: '", string16, "' is octal failed!");
-        //AppAssert(!String::IsOctal(string17), "[Application::Utility::String]: '", string17, "' is octal failed!");
-
-        // Perform advanced test
-        String::Replace(string00, "second", "sec", true);
-        String::Replace(string00, "second", "sec");
-        String::Replace(string11, "a", "b");
-
-        auto vector1 = String::Split(string00, ' ');
-        auto vector2 = String::Split(string10, ',');
-
-        //String::ToLower(string20);
-        //String::ToUpper(string20);
-        //String::ToLower(string21);
-        //String::ToUpper(string21);
-
-        //String::ToLower(wstring20);
-        //String::ToUpper(wstring20);
-        //String::ToLower(wstring21);
-        //String::ToUpper(wstring21);
-
-        const auto stringA0 = "a"_hash;
-        const auto stringA1 = "a"_hash;
-        if (stringA0 != stringA1) {}
-    }
+    static void Test();
 };
+
+}
+
+module: private;
+
+namespace Ultra {
+
+void String::Test() {
+    string string00 = "First Second and SeConD Third";
+    string string01 = "fiRst";
+    string string02 = "second";
+    string string03 = "ThIrD";
+    string string04 = "-Foruth";
+
+    string string11 = "-123,456.789a";
+    string string12 = "0123456789";
+    string string13 = "0123456789a";
+    string string14 = "0x123456789ABCDEF";
+    string string15 = "0x123456789ABCDEFG";
+    string string16 = "01234567";
+    string string17 = "012345678";
+    string string10 = "-123,456.789";
+
+    string string20 = "This is a very long sentence for a small string!";
+    string string21 = "What the ... should i do. Maybe it would be my 1st try to 3489032840921384092384902318490823149203945803294.";
+    std::wstring wstring20 = L"Dies ist ein sehr langer Satz für einen String, deshalb sollter er mit bedacht eingesetzt werden!";
+    std::wstring wstring21 = L"Ein paar Zeichen zum testen #+äü+ö€";
+
+    // Perform simple tests
+    //AppAssert(!String::StartsWith(string00, string01, true), "[Application::Utility::String]: '{}' starts with '{}' filed!", string00, string01);
+    //AppAssert(String::StartsWith(string00, string01), "[Application::Utility::String]: '", string00, "' starts with '", string01, "' failed!");
+    //AppAssert(!String::StartsWith(string00, string03), "[Application::Utility::String]: '", string00, "' starts with '", string03, "' failed!");
+
+    //AppAssert(!String::Contains(string00, string02, true), "[Application::Utility::String]: '", string00, "' contains '", string02, "' failed!");
+    //AppAssert(String::Contains(string00, string02), "[Application::Utility::String]: '", string00, "' contains '", string02, "' failed!");
+    //AppAssert(!String::Contains(string00, string04), "[Application::Utility::String]: '", string00, "' contains '", string04, "' failed!");
+
+    //AppAssert(!String::EndsWith(string00, string03, true), "[Application::Utility::String]: '", string00, "' ends with '", string03, "' failed!");
+    //AppAssert(String::EndsWith(string00, string03), "[Application::Utility::String]: '", string00, "' ends with '", string03, "' failed!");
+    //AppAssert(!String::EndsWith(string00, string01), "[Application::Utility::String]: '", string00, "' ends with '", string01, "' failed!");
+
+    //AppAssert(String::IsNumeric(string10), "[Application::Utility::String]: '", string10, "' is numeric failed!");
+    //AppAssert(!String::IsNumeric(string11), "[Application::Utility::String]: '", string11, "' is numeric failed!");
+
+    //AppAssert(String::IsDecimal(string12), "[Application::Utility::String]: '", string12, "' is decimal failed!");
+    //AppAssert(!String::IsDecimal(string13), "[Application::Utility::String]: '", string13, "' is decimal failed!");
+
+    //AppAssert(String::IsHexadecimal(string14), "[Application::Utility::String]: '", string14, "' is hexadecimal failed!");
+    //AppAssert(!String::IsHexadecimal(string15), "[Application::Utility::String]: '", string15, "' is hexadecimal failed!");
+
+    //AppAssert(String::IsOctal(string16), "[Application::Utility::String]: '", string16, "' is octal failed!");
+    //AppAssert(!String::IsOctal(string17), "[Application::Utility::String]: '", string17, "' is octal failed!");
+
+    // Perform advanced test
+    String::Replace(string00, "second", "sec", true);
+    String::Replace(string00, "second", "sec");
+    String::Replace(string11, "a", "b");
+
+    auto vector1 = String::Split(string00, ' ');
+    auto vector2 = String::Split(string10, ',');
+
+    //String::ToLower(string20);
+    //String::ToUpper(string20);
+    //String::ToLower(string21);
+    //String::ToUpper(string21);
+
+    //String::ToLower(wstring20);
+    //String::ToUpper(wstring20);
+    //String::ToLower(wstring21);
+    //String::ToUpper(wstring21);
+
+    const auto stringA0 = "a"_hash;
+    const auto stringA1 = "a"_hash;
+    if (stringA0 != stringA1) {}
+}
 
 }

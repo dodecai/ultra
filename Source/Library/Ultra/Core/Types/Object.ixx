@@ -19,7 +19,7 @@ protected:
     CopyableObject() = default;
     virtual ~CopyableObject() = default;
 
-private:
+public:
     CopyableObject(CopyableObject &&) noexcept = delete;
     CopyableObject &operator=(CopyableObject &&) noexcept = delete;
 };
@@ -32,7 +32,7 @@ protected:
     MoveableObject() = default;
     virtual ~MoveableObject() = default;
 
-private:
+public:
     MoveableObject(const MoveableObject &) = delete;
     MoveableObject &operator=(const MoveableObject &) = delete;
 };
@@ -45,7 +45,7 @@ protected:
     SteadyObject() = default;
     virtual ~SteadyObject() = default;
 
-private:
+public:
     SteadyObject(const SteadyObject &) = delete;
     SteadyObject(SteadyObject &&) noexcept = delete;
     SteadyObject &operator=(const SteadyObject &) = delete;

@@ -427,8 +427,9 @@ public:
 
 class InputBox: public Control {
 public:
-    InputBox(const string &id):
-        Control(id, ComponentType::Input) {
+    InputBox(const string &id, const string &text):
+        Control(id, ComponentType::Input),
+        Text(text) {
     }
     ~InputBox() = default;
 
@@ -442,6 +443,15 @@ public:
             Position.X, Position.Y,
             Size.Width, Size.Height
         );
+    }
+    void Update() override {
+        if (Font) {
+            MinSize = Font->GetSize(Text);
+            MinSize.Width += Padding.Left + Padding.Right;
+            MinSize.Height += Padding.Top + Padding.Bottom;
+            Position.X -= Padding.Left + Offset.X;
+            Position.Y -= Padding.Top + Offset.Y;
+        }
     }
 
 public:
@@ -540,13 +550,25 @@ public:
     virtual ~Seperator() = default;
 
     void Draw() override;
+    void Update() override {
+        const float pad = 64.0f;
+        //float xMin = std::min(e->p1.x, e->p2.x) - pad;
+        //float yMin = std::min(e->p1.y, e->p2.y) - pad;
+        //float xMax = std::max(e->p1.x, e->p2.x) + pad;
+        //float yMax = std::max(e->p1.y, e->p2.y) + pad;
+        //float sx = xMax - xMin;
+        //float sy = yMax - yMin;
+        // UIRenderer::Line(e->Start, e->Stop, e->Color);
+    }
 };
 
 class Slider: public Control {
 public:
-    Slider(const string &id, float value):
+    Slider(const string &id, float value, float min, float max):
         Control(id, ComponentType::Slider),
-        Value(value) {
+        Value(value),
+        MinValue(min), 
+        MaxValue(max) {
         Alignment = { 0.5f, 0.5f };
         Color = { 0.5f, 0.5f, 0.5f, 1.0f };
         FocusStyle = FocusStyle::Scroll;
@@ -649,8 +671,6 @@ private:
 /// @brief Containers
 ///
 
-class Window;
-
 class Container: public Component {
 public:
     Container(const string &id, const ComponentType &type = ComponentType::Container):
@@ -685,12 +705,6 @@ public:
     }
 
     // Factory Methods
-    
-    //Window *CreateWindow(string_view title, const string &uniqueId = "") {
-    //    string id = uniqueId.empty() ? std::format("Window#{}", sWindowCounter++) : uniqueId;
-    //    auto *component = GetChild(id);
-    //    if (component) return component->As<Window>();
-    //}
     Container *CreateContainer(const Ultra::UI::Layout &layout = Layout::None, const string &uniqueId = "", const ComponentType &type = ComponentType::Container)  {
         string id = uniqueId.empty() ? std::format("Container#{}", sContainerCounter++) : uniqueId;
 
@@ -742,6 +756,7 @@ public:
         sScrollViewCounter++;
         return scrollview;
     }
+    
     Button *CreateButton(string_view text)  {
         string id = std::format("Button#{}", sButtonCounter++);
         auto *component = GetChild(id)->As<Button>();
@@ -781,12 +796,12 @@ public:
         if (component) return component->As<Image>();
 
         auto image = Control::Create<Image>(id);
+        image->Parent = this;
         image->Stretch = { 1.0f, 1.0f };
         image->Data = Texture::Create({}, string(path));
 
         auto result = image.get();
         AddChild(std::move(image));
-        Parent = this;
         return result;
     }
     InputBox *CreateInputBox(string_view text) {
@@ -795,18 +810,11 @@ public:
         auto *component = GetChild(id)->As<InputBox>();
         if (component) return component;
 
-        auto input = Control::Create<InputBox>(id);
+        auto input = Control::Create<InputBox>(id, string(text));
         input->Parent = this;
         input->Color = this->Style.ColorText;
         input->Font = this->Style.Font.get();
-        input->Text = text;
-        if (input->Font) {
-            input->MinSize = input->Font->GetSize(text);
-            input->MinSize.Width += input->Padding.Left + input->Padding.Right;
-            input->MinSize.Height += input->Padding.Top + input->Padding.Bottom;
-            input->Position.X -= input->Padding.Left + input->Offset.X;
-            input->Position.Y -= input->Padding.Top + input->Offset.Y;
-        }
+        input->Update();
 
         auto result = input.get();
         AddChild(std::move(input));
@@ -819,6 +827,7 @@ public:
         if (component) return component->As<Label>();
 
         auto label = Control::Create<Label>(id, text);
+        label->Parent = this;
         label->Color = this->Style.ColorText;
         if (font) {
             label->Font = font;
@@ -829,7 +838,6 @@ public:
 
         auto result = label.get();
         AddChild(std::move(label));
-        Parent = this;
         return result;
     }
     Selection *CreateSelection(string_view text, const vector<string> &options) {
@@ -849,17 +857,19 @@ public:
         return result;
     }
     Seperator *CreateSeperator() {
+        string id = std::format("Seperator#{}", sSeperatorCounter++);
+        auto *component = GetChild(id)->As<Seperator>();
+        if (component) return component;
+
+        auto seperator = Control::Create<Seperator>(id);
+        seperator->Parent = this;
+        seperator->Update();
+
+        auto result = seperator.get();
+        AddChild(std::move(seperator));
+        return result;
         // ToDo: Check also line shader "vertex/ui" "fragment/ui/line"
         // ToDo: Additive BlendMode
-        //const float pad = 64.0f;
-        //float xMin = Min(e->p1.x, e->p2.x) - pad;
-        //float yMin = Min(e->p1.y, e->p2.y) - pad;
-        //float xMax = Max(e->p1.x, e->p2.x) + pad;
-        //float yMax = Max(e->p1.y, e->p2.y) + pad;
-        //float sx = xMax - xMin;
-        //float sy = yMax - yMin;
-        // UIRenderer::Line(e->Start, e->Stop, e->Color);
-        return {};
     }
     Slider *CreateSlider(float value, float min = 0.0f, float max = 128.0f)  {
         string id = std::format("Slider#{}", sSliderCounter++);
@@ -867,13 +877,11 @@ public:
         auto *component = GetChild(id);
         if (component) return component->As<Slider>();
 
-        auto slider = Control::Create<Slider>(id, value);
-        slider->MinValue = min;
-        slider->MaxValue = max;
+        auto slider = Control::Create<Slider>(id, value, min, max);
+        slider->Parent = this;
 
         auto result = slider.get();
         AddChild(std::move(slider));
-        Parent = this;
         return result;
     }
 
@@ -950,8 +958,8 @@ public:
         auto totalStretch = 0.0f;
 
         // Adjust the position and size for padding and offset
-        pos.X += Padding.Left + Offset.X;
-        pos.Y += Padding.Top + Offset.Y;
+        pos.X += Offset.X + Padding.Left;
+        pos.Y += Offset.Y + Padding.Top;
         size.Width -= Padding.Left + Padding.Right;
         size.Height -= Padding.Top + Padding.Bottom;
 
@@ -1046,7 +1054,7 @@ public:
         sLabelCounter = 0;
         sScrollViewCounter = 0;
         sSelectionCounter = 0;
-        sSeparatorCounter = 0;
+        sSeperatorCounter = 0;
         sSliderCounter = 0;
     }
 
@@ -1095,7 +1103,7 @@ private: // States
     inline static size_t sLabelCounter {};
     inline static size_t sScrollViewCounter {};
     inline static size_t sSelectionCounter {};
-    inline static size_t sSeparatorCounter {};
+    inline static size_t sSeperatorCounter {};
     inline static size_t sSliderCounter {};
 };
 
@@ -1131,6 +1139,11 @@ public:
     }
 
     // Methods
+    //Window *CreateWindow(string_view title, const string &uniqueId = "") {
+    //    string id = uniqueId.empty() ? std::format("Window#{}", sWindowCounter++) : uniqueId;
+    //    auto *component = GetChild(id);
+    //    if (component) return component->As<Window>();
+    //}
     void AddContainer(Scope<Container> id) {
         mRoot->AddChild(std::move(id));
     }
@@ -1321,8 +1334,8 @@ public:
         ///
 
         // Background
-        //auto image = HmGui::GetRoot()->CreateImage("Assets/Textures/Wallpaper.jpg");
-        auto image = HmGui::GetRoot()->CreateImage("Data/Cache/Fonts/Rajdhani.bmp");
+        auto image = HmGui::GetRoot()->CreateImage("Assets/Textures/Wallpaper.jpg");
+        //auto image = HmGui::GetRoot()->CreateImage("Data/Cache/Fonts/Rajdhani.bmp");
         image->Interactive = false;
 
         //
@@ -1507,8 +1520,8 @@ public:
             auto slider = container->CreateSlider(0.5f, 0.0f, 1.0f);
             slider->MinSize = { 200.0f, 20.0f };
 
-            //auto separator = container->CreateSeparator();
-            //separator->Size = { 300.0f, 2.0f };
+            auto seperator = container->CreateSeperator();
+            //seperator->Size = { 300.0f, 2.0f };
             
             auto selection = container->CreateSelection("Select a Option", {"A", "B", "C"});
             selection->Click = [&](const string &option = "") {

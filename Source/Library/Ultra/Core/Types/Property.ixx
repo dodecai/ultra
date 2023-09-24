@@ -23,6 +23,7 @@ public:
     Property(): mValue(T()), mSetter(nullptr) {}
     Property(T value, const Setter &setter = nullptr): mValue(value), mSetter(setter) {}
     
+    operator T () { return mValue; }
     operator T const &() const { return mValue; }
     Property<T> &operator=(const T &value) {
         mValue = mSetter ? mSetter(value) : value;

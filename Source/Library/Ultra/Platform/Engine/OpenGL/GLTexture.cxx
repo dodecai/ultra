@@ -30,6 +30,7 @@ static GLenum GLTextureDataType(TextureDataType type) {
 
 inline GLenum GLFormatDataType(TextureFormat format) {
     switch (format) {
+        case TextureFormat::R8:
         case TextureFormat::RGB8:
         case TextureFormat::RGBA8:    return GL_UNSIGNED_BYTE;
         case TextureFormat::RGBA16F:
@@ -81,6 +82,7 @@ static GLenum GLImageInternalFormat(TextureFormat format) {
 
 inline GLenum GLImageFormat(TextureFormat format) {
     switch (format) {
+        case TextureFormat::R8:      return GL_RED;
         case TextureFormat::RGB8:    return GL_RGB;
         case TextureFormat::RGBA8:
         case TextureFormat::RGBA16F:
@@ -196,8 +198,10 @@ GLTexture::GLTexture(const TextureProperties &properties, const string &path): T
                         break;
                     }
                     case 1: {
-                        mProperties.Format = TextureFormat::R8;
-                        renderFormat = GL_R8;
+                        data = (stbi_uc *)stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+                        mProperties.Format = TextureFormat::RGBA8;
+                        renderFormat = GL_RGBA8;
+                        break;
                     }
                     default: {
                         return;
@@ -209,20 +213,20 @@ GLTexture::GLTexture(const TextureProperties &properties, const string &path): T
         mProperties.Width = width;
 
         if (data) {
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             glCreateTextures(GL_TEXTURE_2D, 1, &mTextureID);
             glTextureStorage2D(mTextureID, 1, renderFormat, width, height);
 
             // Set texture parameters
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+            //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
             // GLImageInternalFormat
             glTextureSubImage2D(mTextureID, 0, 0, 0, width, height, GLImageFormat(mProperties.Format), GLFormatDataType(mProperties.Format), data);
-            //glGenerateMipmap(GL_TEXTURE_2D);
+          //glGenerateMipmap(GL_TEXTURE_2D);
 
             // Free image data
             stbi_image_free(data);

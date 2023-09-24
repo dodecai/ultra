@@ -207,7 +207,7 @@ void UIRenderer::DrawRectangle(const glm::vec3 &position, const glm::vec2 &size,
 }
 
 void UIRenderer::DrawText(const glm::vec3 &position, const glm::vec2 &size, const Reference<Texture> &texture, const glm::vec4 &color, float tiling) {
-    if (SRenderData.ComponentVertexBufferData.size() * 6 >= SRenderData.ComponentMaxIndices) Reset();
+    if (SRenderData.TextVertexBufferData.size() * 6 >= SRenderData.TextMaxIndices) Reset();
 
     float textureIndex = 0.0f;
     const glm::vec2 textureCoords[] = {
@@ -216,25 +216,25 @@ void UIRenderer::DrawText(const glm::vec3 &position, const glm::vec2 &size, cons
         { 1.0f, 1.0f },
         { 0.0f, 1.0f },
     };
-    for (uint32_t i = 1; i < SRenderData.TextureSlotIndex; i++) {
-        if (*SRenderData.TextureSlots[i].get() == *texture.get()) {
+    for (uint32_t i = 1; i < SRenderData.TextTextureSlotIndex; i++) {
+        if (*SRenderData.TextTextureSlots[i].get() == *texture.get()) {
             textureIndex = (float)i;
             break;
         }
     }
     if (textureIndex == 0.0f) {
-        if (SRenderData.TextureSlotIndex >= SRenderData.MaxTextureSlots) Reset();
+        if (SRenderData.TextTextureSlotIndex >= SRenderData.MaxTextureSlots) Reset();
 
-        textureIndex = (float)SRenderData.TextureSlotIndex;
-        SRenderData.TextureSlots[SRenderData.TextureSlotIndex] = texture;
-        SRenderData.TextureSlotIndex++;
+        textureIndex = (float)SRenderData.TextTextureSlotIndex;
+        SRenderData.TextTextureSlots[SRenderData.TextTextureSlotIndex] = texture;
+        SRenderData.TextTextureSlotIndex++;
     }
 
     glm::vec2 center = position + glm::vec3(size.x, size.y, 0.0f) * 0.5f;
     glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(center, 0.0f)) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
     //glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-    for (size_t i = 0; i < SRenderData.ComponentVertexPositions.size(); i++) {
-        SRenderData.ComponentVertexBufferData.emplace_back((transform * SRenderData.ComponentVertexPositions[i]), color, textureCoords[i], textureIndex, tiling);
+    for (size_t i = 0; i < SRenderData.TextVertexPositions.size(); i++) {
+        SRenderData.TextVertexBufferData.emplace_back((transform * SRenderData.TextVertexPositions[i]), color, textureCoords[i]);
     }
 
     // ToDo: Implement Statistics
@@ -247,15 +247,17 @@ void UIRenderer::Reset() {
     SRenderData.PanelVertexBufferData.clear();
     SRenderData.ComponentVertexBufferData.clear();
     SRenderData.TextureSlotIndex = 1;
+    SRenderData.TextVertexBufferData.clear();
+    SRenderData.TextTextureSlotIndex = 0;
 }
 
 void UIRenderer::Flush() {
+    // Panels
     if (SRenderData.PanelVertexBufferData.size()) {
         auto dataSize = sizeof_vector(SRenderData.PanelVertexBufferData);
         SRenderData.PanelVertexBuffer->UpdateData(SRenderData.PanelVertexBufferData.data(), dataSize);
 
         SRenderData.PanelShader->Bind();
-
 
         SRenderData.PanelVertexBuffer->Bind();
         SRenderData.PanelPipeline->Bind();
@@ -268,6 +270,7 @@ void UIRenderer::Flush() {
         //SRenderData.Stats.DrawCalls++;
     }
 
+    // Components
     if (SRenderData.ComponentVertexBufferData.size()) {
         auto dataSize = sizeof_vector(SRenderData.ComponentVertexBufferData);
         SRenderData.ComponentVertexBuffer->UpdateData(SRenderData.ComponentVertexBufferData.data(), dataSize);
@@ -284,6 +287,27 @@ void UIRenderer::Flush() {
         SRenderData.ComponentIndexBuffer->Bind();
 
         SCommandBuffer->DrawIndexed(static_cast<GLsizei>(SRenderData.ComponentVertexBufferData.size() * 6), PrimitiveType::Triangle, true);
+
+        // ToDo: Implement Statistics
+    }
+
+    // Text
+    if (SRenderData.TextVertexBufferData.size()) {
+        auto dataSize = sizeof_vector(SRenderData.TextVertexBufferData);
+        SRenderData.TextVertexBuffer->UpdateData(SRenderData.TextVertexBufferData.data(), dataSize);
+
+        SRenderData.TextShader->Bind();
+        //SRenderData.TextShader->UpdateUniform("uViewProjection", SRenderData.ViewProjectionMatrix);
+
+        for (uint32_t i = 0; i < SRenderData.TextTextureSlotIndex; i++) {
+            SRenderData.TextTextureSlots[i]->Bind(i);
+        }
+
+        SRenderData.TextVertexBuffer->Bind();
+        SRenderData.TextPipeline->Bind();
+        SRenderData.TextIndexBuffer->Bind();
+
+        SCommandBuffer->DrawIndexed(static_cast<GLsizei>(SRenderData.TextVertexBufferData.size() * 6), PrimitiveType::Triangle, true);
 
         // ToDo: Implement Statistics
     }

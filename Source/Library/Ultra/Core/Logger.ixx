@@ -367,14 +367,14 @@ public:
     // Format-Support
     template<typename... Args>
     void operator()(const LogLevel &level, const LogRecord &record, Args &&...args) {
-        if (record.Level <= mLogLevel) return;
+        if (record.Level < mLogLevel) return;
         record.Level = level;
         this->operator()(record, std::forward<Args>(args)...);
     }
 
     template<typename... Args>
     void operator()(const LoggerType &type, const LogRecord &record, Args &&...args) {
-        if (record.Level <= mLogLevel) return;
+        if (record.Level < mLogLevel) return;
         std::lock_guard<mutex> lock(mMutex);
         mCounter++;
         try {
@@ -389,7 +389,7 @@ public:
 
     template<typename... Args>
     void operator()(const LogRecord &record, Args &&...args) {
-        if (record.Level <= mLogLevel) return;
+        if (record.Level < mLogLevel) return;
         std::lock_guard<mutex> lock(mMutex);
         mCounter++;
         try {

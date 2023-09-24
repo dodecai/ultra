@@ -130,6 +130,12 @@ struct UIPanelComponent {
     glm::vec2 TextureCoordinate;
 };
 
+struct UITextComponent {
+    glm::vec3 Position;
+    glm::vec4 Color;
+    glm::vec2 TextureCoordinate;
+};
+
 struct TextParams {
     glm::vec4 Color { 1.0f };
     float Kerning = 0.0f;
@@ -215,7 +221,7 @@ class UIRenderer: public SteadyObject {
             SRenderData.ComponentIndexBuffer = Buffer::Create(BufferType::Index, indices, SRenderData.ComponentMaxVertices * sizeof(uint32_t));
             delete[] indices;
 
-            // Texture
+            // Textures
             uint32_t whiteTextureData = 0xffffffff;
             SRenderData.WhiteTexture = Texture::Create(TextureProperties(), &whiteTextureData, sizeof(uint32_t));
 
@@ -224,6 +230,49 @@ class UIRenderer: public SteadyObject {
             SRenderData.ComponentShader->Bind();
             SRenderData.ComponentShader->UpdateUniformBuffer("uTextures", (void *)samplers, SRenderData.MaxTextureSlots);
             SRenderData.TextureSlots[0] = SRenderData.WhiteTexture;
+        }
+
+        // Text
+        {
+            SRenderData.TextShader = Shader::Create("Assets/Shaders/UIText2.glsl");
+            PipelineProperties textProperties;
+            textProperties.BlendMode = BlendMode::Alpha;
+            textProperties.DepthTest = true;
+            textProperties.Layout = {
+                { ShaderDataType::Float3, "aPosition" },
+                { ShaderDataType::Float4, "aColor" },
+                { ShaderDataType::Float2, "aTextureCoordinate" },
+                { ShaderDataType::Float, "aTextureIndex" },
+                { ShaderDataType::Float, "aTilingFactor" },
+            };
+            SRenderData.TextPipeline = PipelineState::Create(textProperties);
+
+            SRenderData.TextVertexBufferData.reserve(SRenderData.TextMaxVertices);
+            SRenderData.TextVertexBuffer = Buffer::Create(BufferType::Vertex, nullptr, SRenderData.TextMaxVertices * sizeof(UIComponent));
+            SRenderData.TextVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
+            SRenderData.TextVertexPositions[1] = { 0.5f, -0.5f, 0.0f, 1.0f };
+            SRenderData.TextVertexPositions[2] = { 0.5f,  0.5f, 0.0f, 1.0f };
+            SRenderData.TextVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
+
+            uint32_t offset = 0;
+            uint32_t *indices = new uint32_t[SRenderData.TextMaxIndices];
+            for (uint32_t i = 0; i < SRenderData.TextMaxIndices; i += 6) {
+                indices[i + 0] = offset + 0;
+                indices[i + 1] = offset + 1;
+                indices[i + 2] = offset + 2;
+
+                indices[i + 3] = offset + 2;
+                indices[i + 4] = offset + 3;
+                indices[i + 5] = offset + 0;
+                offset += 4;
+            }
+            SRenderData.TextIndexBuffer = Buffer::Create(BufferType::Index, indices, SRenderData.TextMaxVertices * sizeof(uint32_t));
+            delete[] indices;
+
+            int32_t samplers[SRenderData.MaxTextureSlots];
+            for (uint32_t i = 0; i < SRenderData.MaxTextureSlots; i++) samplers[i] = i;
+            SRenderData.TextShader->Bind();
+            SRenderData.TextShader->UpdateUniformBuffer("uFontAtlas", (void *)samplers, SRenderData.MaxTextureSlots);
         }
 
         SCommandBuffer = CommandBuffer::Create();
@@ -312,10 +361,12 @@ public:
     #ifdef OLD_TEXT_RENDERING
         auto x = std::floor(position.X);
         auto y = std::floor(position.Y);
+
         string_view view = text;
         auto begin = view.begin();
         auto end = view.end();
         uint32_t lastGlyph = 0;
+        
         while (begin != end) {
             uint32_t codepoint = DecodeUtf8(begin, end);
             auto *glyph = font->GetGlyph(codepoint);
@@ -325,7 +376,8 @@ public:
             }
             if (lastGlyph) x += font->GetKerning(lastGlyph, glyph->UniqueID);
             lastGlyph = glyph->UniqueID;
-            UIRenderer::Instance().DrawText({ x + glyph->X, y + glyph->Y, 0.0f }, { glyph->Width, glyph->Height }, glyph->Texture, { color.Red, color.Green, color.Blue, color.Alpha });
+            UIRenderer::Instance().DrawRectangle({ x + glyph->X, y + glyph->Y, 0.0f }, { glyph->Width, glyph->Height }, glyph->Texture, { color.Red, color.Green, color.Blue, color.Alpha });
+            //UIRenderer::Instance().DrawText({ x + glyph->X, y + glyph->Y, 0.0f }, { glyph->Width, glyph->Height }, glyph->Texture, {color.Red, color.Green, color.Blue, color.Alpha});
             x += glyph->Advance;
         }
     #else
@@ -335,29 +387,29 @@ public:
         const auto &geometry = font->GetMSDFData()->FontGeometry;
         const auto &metrics = geometry.getMetrics();
         
-        double x = 0.0;
-        double y = 0.0;
+        double x = position.X;
+        double y = position.Y;
         double fsScale = 1.0 / (metrics.ascenderY - metrics.descenderY);
 
-        const float spaceGlyphAdvance = geometry.getGlyph(' ')->getAdvance();
+        //const float spaceGlyphAdvance = geometry.getGlyph(' ')->getAdvance();
+        float spaceGlyphAdvance = 2.0f;
 
         auto fontAtlas = font->GetTexture();
 
         float textureIndex = 0.0f;
-        for (uint32_t i = 1; i < Instance().SRenderData.TextureSlotIndex; i++) {
-            if (*Instance().SRenderData.TextureSlots[i].get() == *fontAtlas.get()) {
+        for (uint32_t i = 1; i < Instance().SRenderData.TextTextureSlotIndex; i++) {
+            if (*Instance().SRenderData.TextTextureSlots[i].get() == *fontAtlas.get()) {
                 textureIndex = (float)i;
                 break;
             }
         }
         if (textureIndex == 0.0f) {
-            if (Instance().SRenderData.TextureSlotIndex >= Instance().SRenderData.MaxTextureSlots) Instance().Reset();
+            if (Instance().SRenderData.TextTextureSlotIndex >= Instance().SRenderData.MaxTextureSlots) Instance().Reset();
 
-            textureIndex = (float)Instance().SRenderData.TextureSlotIndex;
-            Instance().SRenderData.TextureSlots[Instance().SRenderData.TextureSlotIndex] = fontAtlas;
-            Instance().SRenderData.TextureSlotIndex++;
+            textureIndex = (float)Instance().SRenderData.TextTextureSlotIndex;
+            Instance().SRenderData.TextTextureSlots[Instance().SRenderData.TextTextureSlotIndex] = fontAtlas;
+            Instance().SRenderData.TextTextureSlotIndex++;
         }
-
 
         for (size_t i = 0; i < text.size(); i++) {
             char character = text[i];
@@ -407,16 +459,17 @@ public:
             texCoordMin *= glm::vec2(texelWidth, texelHeight);
             texCoordMax *= glm::vec2(texelWidth, texelHeight);
 
-            glm::vec3 nativePosition = {position.X, position.Y, 0.0f};
-            glm::vec3 size {};
+
+            glm::vec3 size {texelWidth *24.0f, texelHeight*24.0f, 0.0f };
+            glm::vec3 nativePosition = { x, y, 0.0f };
             glm::vec2 center = nativePosition + glm::vec3(size.x, size.y, 0.0f) * 0.5f;
-            glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(center, 0.0f)) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+            glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(center, 0.0f)) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 0.0f });
             glm::vec4 nativeColor = { color.Red, color.Green, color.Blue, color.Alpha };
 
-            Instance().SRenderData.ComponentVertexBufferData.emplace_back((transform * glm::vec4(quadMin, 0.0f, 1.0f)), nativeColor, texCoordMin, 0, false);
-            Instance().SRenderData.ComponentVertexBufferData.emplace_back((transform * glm::vec4(quadMin.x, quadMax.y, 0.0f, 1.0f)), nativeColor, glm::vec2(texCoordMin.x, texCoordMax.y), false);
-            Instance().SRenderData.ComponentVertexBufferData.emplace_back((transform * glm::vec4(quadMax, 0.0f, 1.0f)), nativeColor, texCoordMax, 0, false);
-            Instance().SRenderData.ComponentVertexBufferData.emplace_back((transform * glm::vec4(quadMax.x, quadMin.y, 0.0f, 1.0f)), nativeColor, glm::vec2(texCoordMax.x, texCoordMin.y), false);
+            Instance().SRenderData.TextVertexBufferData.emplace_back((transform * glm::vec4(quadMin, 0.0f, 1.0f)), nativeColor, texCoordMin);
+            Instance().SRenderData.TextVertexBufferData.emplace_back((transform * glm::vec4(quadMin.x, quadMax.y, 0.0f, 1.0f)), nativeColor, glm::vec2(texCoordMin.x, texCoordMax.y));
+            Instance().SRenderData.TextVertexBufferData.emplace_back((transform * glm::vec4(quadMax, 0.0f, 1.0f)), nativeColor, texCoordMax);
+            Instance().SRenderData.TextVertexBufferData.emplace_back((transform * glm::vec4(quadMax.x, quadMin.y, 0.0f, 1.0f)), nativeColor, glm::vec2(texCoordMax.x, texCoordMin.y));
         }
 
 
@@ -450,6 +503,7 @@ private:
         // Limits
         const size_t MaxComponents = 4096;
         const size_t MaxPanels = 4096;
+        const size_t MaxTexts = 4096;
         static constexpr uint32_t MaxTextureSlots = 32; // ToDo: RenderDevice::GetCapabilities().MaxTextureUnits
 
         // UI Panel
@@ -479,6 +533,20 @@ private:
         array<Reference<Texture>, MaxTextureSlots> TextureSlots;
         Reference<Texture> WhiteTexture;
 
+        // Text
+        Reference<PipelineState> TextPipeline;
+        Reference<Shader> TextShader;
+        Reference<Buffer> TextVertexBuffer;
+        Reference<Buffer> TextIndexBuffer;
+
+        const size_t TextMaxIndices = MaxTexts * 6;
+        const size_t TextMaxVertices = MaxTexts * 4;
+        vector<UITextComponent> TextVertexBufferData;
+        array<glm::vec4, 4> TextVertexPositions;
+
+        uint32_t TextTextureSlotIndex = 0;
+        array<Reference<Texture>, MaxTextureSlots> TextTextureSlots;
+
         // Transformation
         struct TransformUniform {
             glm::mat4 ProjectionMatrix {};
@@ -488,7 +556,6 @@ private:
         struct PanelPropertiesUniform {
             float Padding { 64.0f };
         } PanelProperties;
-
 
         Reference<Buffer> TransformUniformBuffer;
         Reference<Buffer> PanelPropertiesUniformBuffer;

@@ -228,7 +228,7 @@ int32_t Font::GetKerning(uint32_t leftGlyph, uint32_t rightGlyph) {
 
 void Font::Load(string_view path, uint32_t size) {
     auto cache = std::format("Data/Cache/Fonts/{}.bmp", GetFileName(string(path)));
-    if (FileSystemObjectExists(cache)) {
+    if (false && FileSystemObjectExists(cache)) {
         TextureProperties properties;
         properties.Format = TextureFormat::RGB8;
         mAtlasTexture = Texture2D::Create(properties, cache);
@@ -270,7 +270,7 @@ void Font::Load(string_view path, uint32_t size) {
             }
         }
 
-        size = 128.0;
+        size = 24.0;
         msdf_atlas::TightAtlasPacker packer;
         packer.setDimensionsConstraint(msdf_atlas::TightAtlasPacker::DimensionsConstraint::SQUARE);
         packer.setMiterLimit(1.0);

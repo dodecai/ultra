@@ -6,8 +6,8 @@ import Ultra.Engine.DesignerCamera;
 import Ultra.Utility.ThreadPool;
 
 // Switches
-#define ENGINE_TESTS
-//#define LIBRARY_TESTS
+//#define ENGINE_TESTS
+#define LIBRARY_TESTS
 //#define MISCELLANEOUS_TESTS
 
 namespace Ultra {
@@ -222,175 +222,200 @@ public:
         ///
         /// Core
         ///
-        logger << LogLevel::Caption << "Core Library" << "\n";
+        LogCaption("Core");
+        // Property
+        Log("Property");
+        LogDelimiter("");
+        LogTrace("PropertySize before: {}", static_cast<size_t>(PropertySize));
+        PropertySize = 1001;
+        LogTrace("PropertySize after setting: {}", static_cast<size_t>(PropertySize));
+        LogDelimiter("");
+        // UUID
+        Log("UUID");
+        LogDelimiter("");
+        LogInfo("UUID [uint16]: {}", static_cast<uint16_t>(UUID<uint16_t>()));
+        LogInfo("UUID [uint32]: {}", static_cast<uint32_t>(UUID<uint32_t>()));
+        LogInfo("UUID [uint64]: {}", static_cast<uint64_t>(UUID<uint64_t>()));
+        LogInfo("UUID [string]: {}", static_cast<string>(UUID()));
+        LogDelimiter("");
         // Logger
+        Log("Logger");
+        LogDelimiter("");
+        logger << LogLevel::Trace << "Hello World! 🦄" << "\n";
+        LogTrace("{}: {} {:.2}", "Hello", "World! 🦄", 1.234567f);
+        Logger::Test();
+        LogDelimiter("");
 
+        ///
+        /// Math
+        ///
+        LogCaption("Math");
+        // Matrix
+        // Quaternion
+        // Vector
+        Log("Vector");
+        LogDelimiter("");
+        Test::VectorTests();
+        LogDelimiter("");
+
+        ///
+        /// System
+        ///
+        LogCaption("System");
+        // CLI
+        Log("CLI");
+        LogDelimiter("");
+        Cli::Test();
+        LogDelimiter("");
+        
         ///
         /// Utilities
         ///
-        logger << LogLevel::Caption << "Utilities" << "\n";
+        LogCaption("Utilities");
         // DateTime
-        logger << "DateTime" << "\n";
-        logger << LogLevel::Delimiter;
+        Log("DateTime");
+        LogDelimiter("");
         logger(" - CurrentDate:      {}\n", apptime.GetDate());
         logger(" - CurrentTime:      {}\n", apptime.GetTime());
         logger(" - CurrentTimestamp: {}\n", apptime.GetTimeStamp());
         logger(" - CurrentRuntime:   {}\n", apptime.GetRuntime());
-        logger << LogLevel::Delimiter;
+        LogDelimiter("");
 
-        // Logger
-        logger << LogLevel::Trace << "Hello World! 🦄" << "\n";
-        LogTrace("{}: {} {:.2}", "Hello", "World!", 1.234567f);
+        // Delegate, Dispatcher, Emitter and Signal
+        Log("Delegate, Dispatcher, Emitter and Signal");
+        LogDelimiter("");
+        //Dispatcher<bool(string)> TestA;
+        auto timerE = Timer();
+        {
+            Tester *tester = new Tester();
 
-        // Property
-        //LogTrace("PropertySize before: ", PropertySize);
-        PropertySize = 1001;
-        //LogTrace("PropertySize after setting: ", PropertySize);
+            // Delegates
+            Delegate<bool(string)> delegateA {};
+            Delegate<bool(string)> delegateB {};
 
+            delegateB.connect<&Tester::StaticEvent>();
+            delegateA.connect<&Tester::Event>(tester);
+
+            auto resultB = delegateB("DelegateA");
+            auto resultA = delegateA("DelegateB");
+
+            // Signals
+            Signal<bool(string)> signalA;
+            Sink sinkA { signalA };
+
+            sinkA.connect<&Tester::VolatileStaticEvent>();
+            sinkA.connect<&Tester::VolatileStaticConstEvent>();
+
+            signalA.publish("Signal");
+
+            // Dispatcher
+            Dispatcher dispatcherA {};
+
+            EventListenerTest listener;
+            dispatcherA.sink<KeyboardEvent>().connect<&EventListenerTest::OnKeyboardEvent>(listener);
+            dispatcherA.sink<MouseEvent>().connect<&EventListenerTest::OnMouseEvent>(listener);
+
+            dispatcherA.trigger(KeyboardEvent { 60 });
+            dispatcherA.enqueue<KeyboardEvent>(65);
+            dispatcherA.enqueue<KeyboardEvent>(67);
+            dispatcherA.update<KeyboardEvent>();
+            dispatcherA.trigger(MouseEvent { -1 });
+
+            // Emitter
+            EventEmitter emitterA {};
+            emitterA.on<KeyboardEvent>([](const KeyboardEvent &data, EventEmitter &emitter) {
+                logger << __FUNCTION__ << ": Emitter " << data.KeyCode << "\n";
+            });
+            emitterA.publish(KeyboardEvent { 42 });
+            emitterA.publish(KeyboardEvent { 43 });
+
+            //auto test = DelegateMember(*tester, &Tester::Event);
+            //test("1");
+
+
+            //auto test2 = DelegateMember(*tester, &Tester::ConstEvent);
+            //test2("2");
+
+            //auto test3 = Delegate(&Tester::StaticEvent);
+            //test3("3");
+
+            //auto same = test == test2;
+            delete tester;
+
+            // Lambda
+            //TestA += [&](string test) -> bool {
+            //    logger << __FUNCTION__ << ":" << test << "\n";
+            //    return false;
+            //};
+            //TestA += [&](string test) -> bool {
+            //    logger << __FUNCTION__ << ":" << test << "\n";
+            //    return true;
+            //};
+
+            // Members
+            //TestA += DelegateMember(*tester, &Tester::Event);
+            //TestA += DelegateMember(*tester, &Tester::Event);
+            //TestA += DelegateMember(*tester, &Tester::ConstEvent);
+            //TestA += DelegateMember(*tester, &Tester::ConstEvent);
+            //TestA += DelegateMember(*tester, &Tester::NoExceptEvent);
+            //TestA += DelegateMember(*tester, &Tester::NoExceptEvent);
+            //TestA += DelegateMember(*tester, &Tester::NoExceptConstEvent);
+            //TestA += DelegateMember(*tester, &Tester::NoExceptConstEvent);
+            //TestA += DelegateMember(*tester, &Tester::VolatileEvent);
+            //TestA += DelegateMember(*tester, &Tester::VolatileEvent);
+            //TestA += DelegateMember(*tester, &Tester::VolatileConstEvent);
+            //TestA += DelegateMember(*tester, &Tester::VolatileConstEvent);
+
+            // Functions
+            //TestA += &Tester::StaticEvent;
+            //TestA += &Tester::StaticEvent;
+            //TestA += &Tester::NoExceptStaticEvent;
+            //TestA += &Tester::NoExceptStaticEvent;
+            //TestA += &Tester::VolatileStaticEvent;
+            //TestA += &Tester::VolatileStaticEvent;
+            //TestA += &Tester::VolatileStaticConstEvent;
+            //TestA += &Tester::VolatileStaticConstEvent;
+            //VerifyMemoryUsage();
+            Log("Duration: {}", timerE.GetDeltaTime());
+        }
+        //TestA("Test A");
+        Log("Duration: {}", timerE.GetDeltaTime());
         // String
+        Log("String");
+        LogDelimiter("");
         String::Test();
-
+        LogDelimiter("");
         // ThreadPool
+        Log("ThreadPool");
+        LogDelimiter("");
         ThreadPool pool;
-        // Create eight tasks in the queue
         for (int i = 0; i < 8; ++i) {
+            // Create eight tasks in the queue
             pool.Enqueue([i] {
-                logger << "TaskStart " << i << std::endl;
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                logger << "TaskEnd " << i << std::endl;
+                auto timer = Timer();
+                {
+                    Log("TaskStart {}\n", i);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+                    Log("TaskEnd {}\n", i);
+                }
+                Log("TaskDuration {}\n", timer.GetDeltaTime());
             });
         }
-
-        // Timer
-        //logger << "Timer" << "\n";
-        //Timer timer {};
-        //logger << "Now: " << timer.Now() << "\n";
-        //logger << "Now: " << timer.Now() << "\n";
-        //logger << "Duration: " << timer.GetDeltaTime() << "\n";
-        //logger << "Now: " << timer.Now() << "\n";
-        //logger << "Now: " << timer.Now() << "\n";
-        //logger << "Duration(ns): " << timer.GetDeltaTimeAs(TimerUnit::Nanoseconds) << "\n";;
-        //logger << "Now: " << timer.Now() << "\n";
-        //logger << "Now: " << timer.Now() << "\n";
-        //logger << "Duration(µs): " << timer.GetDeltaTimeAs(TimerUnit::Microseconds) << "\n";;
-        //logger << "Now: " << timer.Now() << "\n";
-        //logger << "Now: " << timer.Now() << "\n";
-        //logger << "Duration(ms): " << timer.GetDeltaTimeAs(TimerUnit::Milliseconds) << "\n";;
-        //logger << "Now: " << timer.Now() << "\n";
-        //logger << "Now: " << timer.Now() << "\n";
-        //logger << "Duration(s): " << timer.GetDeltaTimeAs(TimerUnit::Seconds) << "\n";;
-
-        // UUID
-        //logger << "UUID" << "\n";
-        //logger << UUID<uint16_t>() << "\n";
-        //logger << UUID<uint32_t>() << "\n";
-        //logger << UUID<uint64_t>() << "\n";
-        //logger << UUID() << "\n";
-
-        return;
-
-
-        //auto a = "Test";
-        ////Cli::Test();
-        ////Logger::Test();
-
-        //// Events
-        ////Dispatcher<bool(string)> TestA;
-        //auto timer = Timer();
-        //{
-        //    Tester *tester = new Tester();
-        //    
-        //    // Delegates
-        //    Delegate<bool(string)> delegateA {};
-        //    Delegate<bool(string)> delegateB {};
-
-        //    delegateB.connect<&Tester::StaticEvent>();
-        //    delegateA.connect<&Tester::Event>(tester);
-
-        //    auto resultB = delegateB("DelegateA");
-        //    auto resultA = delegateA("DelegateB");
-
-        //    // Signals
-        //    Signal<bool(string)> signalA;
-        //    Sink sinkA { signalA };
-
-        //    sinkA.connect<&Tester::VolatileStaticEvent>();
-        //    sinkA.connect<&Tester::VolatileStaticConstEvent>();
-
-        //    signalA.publish("Signal");
-
-        //    // Dispatcher
-        //    Dispatcher dispatcherA {};
-
-        //    EventListenerTest listener;
-        //    dispatcherA.sink<KeyboardEvent>().connect<&EventListenerTest::OnKeyboardEvent>(listener);
-        //    dispatcherA.sink<MouseEvent>().connect<&EventListenerTest::OnMouseEvent>(listener);
-
-        //    dispatcherA.trigger(KeyboardEvent { 60 });
-        //    dispatcherA.enqueue<KeyboardEvent>(65);
-        //    dispatcherA.enqueue<KeyboardEvent>(67);
-        //    dispatcherA.update<KeyboardEvent>();
-        //    dispatcherA.trigger(MouseEvent { -1 });
-
-        //    // Emitter
-        //    EventEmitter emitterA {};
-        //    emitterA.on<KeyboardEvent>([](const KeyboardEvent &data, EventEmitter &emitter) {
-        //        logger << __FUNCTION__ << ": Emitter " << data.KeyCode << "\n";
-        //    });
-        //    emitterA.publish(KeyboardEvent { 42 });
-        //    emitterA.publish(KeyboardEvent { 43 });
-
-        //    //auto test = DelegateMember(*tester, &Tester::Event);
-        //    //test("1");
-
-
-        //    //auto test2 = DelegateMember(*tester, &Tester::ConstEvent);
-        //    //test2("2");
-
-        //    //auto test3 = Delegate(&Tester::StaticEvent);
-        //    //test3("3");
-
-        //    //auto same = test == test2;
-        //    delete tester;
-
-        //    // Lambda
-        //    //TestA += [&](string test) -> bool {
-        //    //    logger << __FUNCTION__ << ":" << test << "\n";
-        //    //    return false;
-        //    //};
-        //    //TestA += [&](string test) -> bool {
-        //    //    logger << __FUNCTION__ << ":" << test << "\n";
-        //    //    return true;
-        //    //};
-
-        //    // Members
-        //    //TestA += DelegateMember(*tester, &Tester::Event);
-        //    //TestA += DelegateMember(*tester, &Tester::Event);
-        //    //TestA += DelegateMember(*tester, &Tester::ConstEvent);
-        //    //TestA += DelegateMember(*tester, &Tester::ConstEvent);
-        //    //TestA += DelegateMember(*tester, &Tester::NoExceptEvent);
-        //    //TestA += DelegateMember(*tester, &Tester::NoExceptEvent);
-        //    //TestA += DelegateMember(*tester, &Tester::NoExceptConstEvent);
-        //    //TestA += DelegateMember(*tester, &Tester::NoExceptConstEvent);
-        //    //TestA += DelegateMember(*tester, &Tester::VolatileEvent);
-        //    //TestA += DelegateMember(*tester, &Tester::VolatileEvent);
-        //    //TestA += DelegateMember(*tester, &Tester::VolatileConstEvent);
-        //    //TestA += DelegateMember(*tester, &Tester::VolatileConstEvent);
-
-        //    // Functions
-        //    //TestA += &Tester::StaticEvent;
-        //    //TestA += &Tester::StaticEvent;
-        //    //TestA += &Tester::NoExceptStaticEvent;
-        //    //TestA += &Tester::NoExceptStaticEvent;
-        //    //TestA += &Tester::VolatileStaticEvent;
-        //    //TestA += &Tester::VolatileStaticEvent;
-        //    //TestA += &Tester::VolatileStaticConstEvent;
-        //    //TestA += &Tester::VolatileStaticConstEvent;
-        //    //VerifyMemoryUsage();
-        //    logger << "Duration: " << timer.GetDeltaTime() << "\n";
-        //}
-        ////TestA("Test A");
-        //logger << "Duration: " << timer.GetDeltaTime() << "\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(32));
+        LogDelimiter("");
+         // Timer
+        {
+            Log("Timer");
+            LogDelimiter("");
+            Timer timer {};
+            Log("Now:          {}", timer.Now());
+            Log("Duration:     {}", timer.GetDeltaTime());
+            Log("Duration(ns): {}", timer.GetDeltaTimeAs(TimerUnit::Nanoseconds));
+            Log("Duration(µs): {}", timer.GetDeltaTimeAs(TimerUnit::Microseconds));
+            Log("Duration(ms): {}", timer.GetDeltaTimeAs(TimerUnit::Milliseconds));
+            Log("Duration(s):  {}", timer.GetDeltaTimeAs(TimerUnit::Seconds));
+            LogDelimiter("");
+        }
     }
 
     ///
