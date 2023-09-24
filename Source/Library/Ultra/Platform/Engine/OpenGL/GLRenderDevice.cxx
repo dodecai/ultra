@@ -122,6 +122,10 @@ void GLRenderDevice::Load() {
     capabilities.Version = (const char *)glGetString(GL_VERSION);
     capabilities.SLVersion = (const char *)glGetString(GL_SHADING_LANGUAGE_VERSION);
 
+    // ToDo: Crawl for more information
+    int nrAttributes {};
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+
     int extensionCount = 0;
     glGetIntegerv(GL_NUM_EXTENSIONS, &extensionCount);
     capabilities.Extensions.reserve(extensionCount);

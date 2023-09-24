@@ -21,14 +21,14 @@ enum class TextureDimension {
 };
  
 enum class TextureFilter {
-    Linear,
-    LinearMipPoint,
-    LinearMipLinear,
-    Nearest,
-    Cubic,
-    Point,
-    PointMipPoint,
-    PointMipLinear,
+    Linear,             // (Bi)Linear Filtering
+    LinearMipPoint,     // (Bi)Linear Filtering + MipMapping
+    LinearMipLinear,    // (Bi)Linear Filtering + Trilinear Filtering
+    Nearest,            // Nearest Neighbor Filtering
+    Cubic,              // Cubic Filtering
+    Point,              // Point Filtering
+    PointMipPoint,      // Point Filtering + MipMapping
+    PointMipLinear, 
 };
 
 enum class TextureFormat {
@@ -65,8 +65,8 @@ enum class TextureUsage {
 };
 
 enum class TextureWrap {
-    Clamp,
-    MirrorClamp,
+    Clamp,          // Clamp To Border
+    MirrorClamp,    // Clamp To Edge
     MirrorRepeat,
     Repeat,
 };

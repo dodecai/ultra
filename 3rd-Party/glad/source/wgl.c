@@ -1,3 +1,6 @@
+/**
+ * SPDX-License-Identifier: (WTFPL OR CC0-1.0) AND Apache-2.0
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -564,6 +567,8 @@ int gladLoadWGLUserPtr(HDC hdc, GLADuserptrloadfunc load, void *userptr) {
     glad_wgl_load_WGL_NV_video_output(load, userptr);
     glad_wgl_load_WGL_OML_sync_control(load, userptr);
 
+    glad_wgl_resolve_aliases();
+
     return version;
 }
 
@@ -575,7 +580,7 @@ int gladLoadWGL(HDC hdc, GLADloadfunc load) {
 #ifdef GLAD_WGL
 
 static GLADapiproc glad_wgl_get_proc(void *vuserptr, const char* name) {
-    (void) vuserptr;
+    GLAD_UNUSED(vuserptr);
     return GLAD_GNUC_EXTENSION (GLADapiproc) wglGetProcAddress(name);
 }
 

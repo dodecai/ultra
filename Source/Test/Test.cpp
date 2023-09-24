@@ -6,8 +6,8 @@ import Ultra.Engine.DesignerCamera;
 import Ultra.Utility.ThreadPool;
 
 // Switches
-//#define ENGINE_TESTS
-#define LIBRARY_TESTS
+#define ENGINE_TESTS
+//#define LIBRARY_TESTS
 //#define MISCELLANEOUS_TESTS
 
 namespace Ultra {
@@ -139,16 +139,6 @@ public:
 
             auto commandBuffer = CommandBuffer::Create();
             mCheckerBoard = Texture::Create(TextureProperties(), "./Assets/Textures/CheckerBoard.png");
-
-            // Load shaders, buffers, textures
-            //auto linkedShaders = Shader::Create("Assets/Shaders/Test.glsl");
-            //auto linkedShaders = Shader::Create("Assets/Shaders/Sample.glsl");
-            //auto vertexBuffer = Buffer::Create(BufferType::VertexBuffer, vertices, vertexCount);
-            //auto indexBuffer = Buffer::Create(BufferType::IndexBuffer, indices, indexCount);
-            //auto texture = Texture::Create(TextureType::Texture2D, "path/to/texture.png");
-
-            //// Create render states
-            //auto renderState = RenderState::Create();
         #endif
         #ifdef LIBRARY_TESTS
             LibraryTest();
@@ -168,24 +158,10 @@ public:
     /// @brief Engine Tests
     ///
     void EngineTest(Timestamp deltaTime) {
-        // Begin recording commands
-        //commandBuffer->Begin();
-        //commandBuffer->Clear(0.2f, 0.3f, 0.3f, 1.0f);     // Clear the framebuffer
-        //commandBuffer->BindRenderState(renderState);      // Set up the render state
-
         mRenderer->RenderFrame();
         mDesignerCamera.Update(deltaTime);
         Renderer2D::StartScene(mDesignerCamera);
 
-        // Bind shaders, buffers, textures
-        //    commandBuffer->BindShader(vertexShader);
-        //    commandBuffer->BindShader(fragmentShader);
-        //    commandBuffer->BindVertexBuffer(vertexBuffer);
-        //    commandBuffer->BindIndexBuffer(indexBuffer);
-        //    commandBuffer->BindTexture(0, texture);
-        //    commandBuffer->DrawIndexed(indexCount);           // Draw the mesh
-         
-        
         // 3D Renderer: Primitives
         //mRenderer->Test();
 
@@ -207,12 +183,8 @@ public:
 
         // Finish
         Renderer2D::FinishScene();
+        mRenderer->Test();
         //mRenderer->DrawGrid(mDesignerCamera);
-        //Renderer::EndScene();
-     
-        //    commandBuffer->End();                             // End recording commands
-        //    commandBuffer->Execute();                         // Execute the command buffer
-        //    swapchain->Present();                             // Present the rendered image to the screen
     }
 
     ///
