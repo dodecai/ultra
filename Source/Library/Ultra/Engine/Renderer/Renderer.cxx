@@ -26,6 +26,7 @@ import Ultra.Platform.Renderer.GLRenderDevice;
 import Ultra.Platform.Renderer.VKRenderDevice;
 
 import Ultra.Engine.Renderer.Buffer;
+import Ultra.Engine.Renderer.PipelineState;
 import Ultra.Engine.Renderer.Texture;
 
 namespace Ultra {
@@ -127,10 +128,63 @@ void Renderer::DrawGrid(const DesignerCamera &camera) {
 
 #pragma region Test
 
-#define TEST_ABSTRACT_RENDER_CALLS 0
+#define TEST_ABSTRACT_RENDER_CALLS 1
 
 // Components
 struct Components {
+    float CubeVertices[324] = {
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+                                  
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+    };
+    unsigned int CubeIndices[36] = {
+         0,  1,  2,  0,  2,  3, // Front
+         4,  5,  6,  4,  6,  4, // Back
+         8,  9, 10,  8, 10, 11, // Top
+        12, 13, 14, 12, 14, 15, // Bottom
+        16, 17, 18, 16, 18, 19, // Left
+        20, 21, 22, 20, 22, 23, // Right
+    };
+    int CubeComponents = 18;
+
     float TriangleVertices[27] = {
         // Positions            // Colors                   // Texture Coords
         -0.5f, -0.5f, 0.0f,     0.0f, 0.0f, 1.0f, 1.0f,     0.0f, 0.0f,         // Left
@@ -173,6 +227,14 @@ struct Components {
         1.0f, 0.0f,  // Lower-Right corner
         0.5f, 1.0f   // Top-Center corner
     };
+
+    struct UTranslation {
+        glm::mat4 Transform = glm::mat4(1.0f);
+    } Translation;
+
+    struct UProperties {
+        glm::vec4 Color = glm::vec4(1.0f);
+    } Properties;
 } static sComponents;
 
 
@@ -184,7 +246,11 @@ static void TestGL();
 ///
 static void TestGLRaw();
 
+static inline CommandBuffer *sCommandBuffer = nullptr;
+
 void Renderer::Test() {
+    sCommandBuffer = mCommandBuffer.get();
+
 #if TEST_ABSTRACT_RENDER_CALLS
     TestGL();
 #else
@@ -193,35 +259,91 @@ void Renderer::Test() {
 }
 
 void TestGL() {
-    // Load shaders, buffers, textures
+    // Specify Pipeline and Shader
+    static PipelineProperties pipelineProperties;
+    pipelineProperties.DepthTest = true;
+    pipelineProperties.Wireframe = false;
+    pipelineProperties.Layout = {
+        { ShaderDataType::Float3, "aPosition" },
+        { ShaderDataType::Float4, "aColor" },
+        { ShaderDataType::Float2, "aTexCoord" },
+    };
     static auto linkedShaders = Shader::Create("Assets/Shaders/Test.glsl");
-    //static auto vertexBuffer = Buffer::Create(BufferType::VertexBuffer, vertices, vertexCount);
-    //static auto indexBuffer = Buffer::Create(BufferType::IndexBuffer, indices, indexCount);
-    //auto linkedShaders = Shader::Create("Assets/Shaders/Sample.glsl");
-    //auto texture = Texture::Create(TextureType::Texture2D, "path/to/texture.png");
+    static auto pipeline = PipelineState::Create(pipelineProperties);
+
+    // Specify Buffers and Textures
+    static auto vertexBuffer = Buffer::Create(BufferType::Vertex, (void *)sComponents.CubeVertices, sizeof(sComponents.CubeVertices));
+    static auto indexBuffer = Buffer::Create(BufferType::Index, (void *)sComponents.CubeIndices, sizeof(sComponents.CubeIndices));
+    static auto texture = Texture::Create({}, "Assets/Textures/Wallpaper2.png");
+
+    // Specify Uniforms
+    linkedShaders->Bind();
+    static auto translationUnfiorm = Buffer::Create(BufferType::Uniform, nullptr, sizeof(sComponents.Translation));
+    static auto colorUniform = Buffer::Create(BufferType::Uniform, nullptr, sizeof(sComponents.Properties));
+
+    // Update Buffers
+    vertexBuffer->UpdateData((void *)sComponents.CubeVertices, sizeof(sComponents.CubeIndices));
+
+    // Color
+    static auto timeValue = 0.1f;
+    timeValue += 0.0001f;
+    float value = (sin(timeValue) / 2.0f) + 0.5f;
+    sComponents.Properties.Color = glm::vec4(0.1f, 1.0f - value, value, 1.0f);
+    colorUniform->Bind(0);
+    colorUniform->UpdateData(&sComponents.Properties, sizeof(sComponents.Properties));
+
+    // Scale, Rotation and Transformation
+    static float speed = 0.0f;
+    speed += 0.0005f;
+    if (speed > 360.0f) speed = 0.0f;
+    glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+    //glm::mat4 trans = glm::mat4(1.0f);
+    //trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+    //trans = glm::rotate(trans, glm::radians(speed), glm::vec3(0.0f, 0.0f, 1.0f));
+    //trans = glm::scale(trans, glm::vec3(0.52f, 0.52f, 0.52f));
+
+    auto model = glm::mat4(1.0f);
+    auto view = glm::mat4(1.0f);
+
+    model = glm::rotate(model, speed * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    auto projection = glm::perspective(glm::radians(45.0f), 1280.0f / 1024.0f, 0.1f, 100.0f);
+
+    auto result = projection * view * model;
+    sComponents.Translation.Transform = result;
+    translationUnfiorm->Bind(0);
+    translationUnfiorm->UpdateData(&sComponents.Translation, sizeof(sComponents.Translation));
+
+    // Draw
+    linkedShaders->Bind();
+    vertexBuffer->Bind();
+    colorUniform->Bind(0);
+    translationUnfiorm->Bind(0);
+    texture->Bind(1);
+    pipeline->Bind();
+    indexBuffer->Bind();
+    //sCommandBuffer->DrawIndexed(sComponents.CubeComponents, PrimitiveType::Triangle, false);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
     //// Create render states
     //auto renderState = RenderState::Create();
-    
-
     // Begin recording commands
     //commandBuffer->Begin();
     //commandBuffer->Clear(0.2f, 0.3f, 0.3f, 1.0f);     // Clear the framebuffer
     //commandBuffer->BindRenderState(renderState);      // Set up the render state
 
     // Bind shaders, buffers, textures
-    //    commandBuffer->BindShader(vertexShader);
-    //    commandBuffer->BindShader(fragmentShader);
-    //    commandBuffer->BindVertexBuffer(vertexBuffer);
-    //    commandBuffer->BindIndexBuffer(indexBuffer);
-    //    commandBuffer->BindTexture(0, texture);
-    //    commandBuffer->DrawIndexed(indexCount);           // Draw the mesh
+    //commandBuffer->BindShader(vertexShader);
+    //commandBuffer->BindShader(fragmentShader);
+    //commandBuffer->BindVertexBuffer(vertexBuffer);
+    //commandBuffer->BindIndexBuffer(indexBuffer);
+    //commandBuffer->BindTexture(0, texture);
+    //commandBuffer->DrawIndexed(indexCount);           // Draw the mesh
 
-        //Renderer::EndScene();
-
-    //    commandBuffer->End();                             // End recording commands
-    //    commandBuffer->Execute();                         // Execute the command buffer
-    //    swapchain->Present();                             // Present the rendered image to the screen
+    //Renderer::EndScene();
+    //commandBuffer->End();                             // End recording commands
+    //commandBuffer->Execute();                         // Execute the command buffer
+    //swapchain->Present();                             // Present the rendered image to the screen
 
 }
 
@@ -229,39 +351,38 @@ void TestGLRaw() {
     // Shader Source Code
     #pragma region Shader Source Code
     static auto vertexShaderSource = R"(
-        #version 330 core
+        #version 450
 
-        layout (location = 0) in vec3 aPos;
+        layout (location = 0) in vec3 aPosition;
         layout (location = 1) in vec4 aColor;
         layout (location = 2) in vec2 aTexCoord;
 
-        out vec4 oColor;
-        out vec2 oTexCoord;
+        layout (location = 0) out vec4 vColor;
+        layout (location = 1) out vec2 vTexCoord;
 
-        uniform mat4 transform;
+        uniform mat4 uTransform;
 
         void main() {
-            oColor = aColor;
-            oTexCoord = aTexCoord;
+            vColor = aColor;
+            vTexCoord = aTexCoord;
 
-            gl_Position = transform * vec4(aPos.x, aPos.y, aPos.z, 1.0);
+            gl_Position = uTransform * vec4(aPosition.x, aPosition.y, aPosition.z, 1.0);
         }
     )";
 
     static auto fragmentShaderSource = R"(
-        #version 330 core
+        #version 450
 
-        in vec4 oColor;
-        in vec2 oTexCoord;
+        layout (location = 0) in vec4 vColor;
+        layout (location = 1) in vec2 vTexCoord;
         
-        uniform vec4 ourColor;
-        uniform sampler2D ourTexture;
+        layout (location = 0) out vec4 oFragColor;
 
-        out vec4 FragColor;
+        uniform vec4 uColor;
+        uniform sampler2D uTexture;
 
         void main() {
-            // mix(a, b, percent from a)
-            FragColor = texture(ourTexture, oTexCoord) * ourColor;// * oColor;
+            oFragColor = texture(uTexture, vTexCoord) * uColor;// * vColor;
         } 
     )";
     #pragma endregion
@@ -331,7 +452,8 @@ void TestGLRaw() {
         // Copy our vertices array in a buffer for OpenGL to use
         glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
         //glBufferData(GL_ARRAY_BUFFER, sizeof(sComponents.TriangleVertices), (void *)sComponents.TriangleVertices, GL_STATIC_DRAW);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(sComponents.RectangleVertices), (void *)sComponents.RectangleVertices, GL_STATIC_DRAW);
+        //glBufferData(GL_ARRAY_BUFFER, sizeof(sComponents.RectangleVertices), (void *)sComponents.RectangleVertices, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(sComponents.CubeVertices), (void *)sComponents.CubeVertices, GL_STATIC_DRAW);
 
         // Position
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void *)0);
@@ -354,7 +476,8 @@ void TestGLRaw() {
         // Copy our indices array in a element buffer for OpenGL to use
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
         //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(sComponents.TriangleIndices), (void *)sComponents.TriangleIndices, GL_STATIC_DRAW);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(sComponents.RectangleIndices), (void *)sComponents.RectangleIndices, GL_STATIC_DRAW);
+        //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(sComponents.RectangleIndices), (void *)sComponents.RectangleIndices, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(sComponents.CubeIndices), (void *)sComponents.CubeIndices, GL_STATIC_DRAW);
     }
 
     // Create and Bind Texture
@@ -385,8 +508,8 @@ void TestGLRaw() {
     // Update Unfiorms;
     glUseProgram(shaderProgram);
 
-    static int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-    static int vertexTextureLocation = glGetUniformLocation(shaderProgram, "ourTexture");
+    static int vertexColorLocation = glGetUniformLocation(shaderProgram, "uColor");
+    static int vertexTextureLocation = glGetUniformLocation(shaderProgram, "uTexture");
 
     static auto timeValue = 0.1f;
     timeValue += 0.0001f;
@@ -395,16 +518,29 @@ void TestGLRaw() {
 
     // Scale, Rotation and Transformation
     static float speed = 0.0f;
-    speed += 0.01f;
+    speed += 0.0005f;
     if (speed > 360.0f) speed = 0.0f;
-    static unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
-    glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-    glm::mat4 trans = glm::mat4(1.0f);
-    trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-    trans = glm::rotate(trans, glm::radians(speed), glm::vec3(0.0f, 0.0f, 1.0f));
-    trans = glm::scale(trans, glm::vec3(0.52f, 0.52f, 0.52f));
+    static unsigned int transformLoc = glGetUniformLocation(shaderProgram, "uTransform");
+    //glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+    //glm::mat4 trans = glm::mat4(1.0f);
+    //trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+    //trans = glm::rotate(trans, glm::radians(speed), glm::vec3(0.0f, 0.0f, 1.0f));
+    //trans = glm::scale(trans, glm::vec3(0.52f, 0.52f, 0.52f));
 
-    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+    // Left - Right, Top - Bottom, Near - Far
+    //view = glm::scale(model, glm::vec3(1.0f, 1.0f, -1.0f)); // Flip Z-Axis (OpenGL is a right-handed system)
+    auto orthographic = glm::ortho(0.0f, 1280.0f, 0.0f, 1024.0f, 0.1f, 100.0f);
+
+    auto model = glm::mat4(1.0f);
+    auto view = glm::mat4(1.0f);
+
+    model = glm::rotate(model, speed * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    auto projection = glm::perspective(glm::radians(45.0f), 1280.0f / 1024.0f, 0.1f, 100.0f);
+
+    auto result = projection * view * model;
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(result));
+
 
 
     // Draw the triangle
@@ -413,10 +549,13 @@ void TestGLRaw() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glBindVertexArray(vertexArrayObject);
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe: On
+    glEnable(GL_DEPTH_TEST);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe: On
     //glDrawElements(GL_TRIANGLES, sComponents.TriangleComponents, GL_UNSIGNED_INT, 0);
-    glDrawElements(GL_TRIANGLES, sComponents.RectangleComponents, GL_UNSIGNED_INT, 0);
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Wireframe: Off
+    //glDrawElements(GL_TRIANGLES, sComponents.RectangleComponents, GL_UNSIGNED_INT, 0);
+    //glDrawElements(GL_TRIANGLES, sComponents.CubeComponents, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Wireframe: Off
     glBindVertexArray(0);
 
     // Optional: De-allocate all resources once they've outlived their purpose...

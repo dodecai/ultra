@@ -1,32 +1,41 @@
-﻿#type vertex
-#version 450
+﻿// Basic Shader
+#type vertex
+#version 450 core
 
-layout(location = 0) out vec3 fragColor;
+layout (location = 0) in vec3 aPosition;
+layout (location = 1) in vec4 aColor;
+layout (location = 2) in vec2 aTexCoord;
 
-vec2 positions[3] = vec2[](
-    vec2(0.0, -0.5),
-    vec2(0.5, 0.5),
-    vec2(-0.5, 0.5)
-);
+layout (location = 0) out vec4 vColor;
+layout (location = 1) out vec2 vTexCoord;
 
-vec3 colors[3] = vec3[](
-    vec3(1.0, 0.0, 0.0),
-    vec3(0.0, 1.0, 0.0),
-    vec3(0.0, 0.0, 1.0)
-);
+layout(std140, binding = 0) uniform Translation {
+    mat4 uTransform;
+};
+
 
 void main() {
-    gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);
-    fragColor = colors[gl_VertexIndex];
+    vColor = aColor;
+    vTexCoord = aTexCoord;
+
+    gl_Position = uTransform * vec4(aPosition.x, aPosition.y, aPosition.z, 1.0);
 }
 
 #type fragment
-#version 450
+#version 450 core
 
-layout(location = 0) in vec3 fragColor;
+layout (location = 0) in vec4 vColor;
+layout (location = 1) in vec2 vTexCoord;
+        
+layout (location = 0) out vec4 oFragColor;
 
-layout(location = 0) out vec4 outColor;
+layout(std140, binding = 0) uniform Properties {
+    vec4 uColor;
+};
+
+layout(binding = 1) uniform sampler2D uTexture;
 
 void main() {
-    outColor = vec4(fragColor, 1.0);
+    // mix(a, b, percent from a)
+    oFragColor = texture(uTexture, vTexCoord) * uColor;// * vColor;
 }

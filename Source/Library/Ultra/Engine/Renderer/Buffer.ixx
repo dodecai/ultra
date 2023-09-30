@@ -118,7 +118,7 @@ private:
 /// 
 /// @brief Agnostic Buffer
 ///
-/// @example  auto vertexBuffer = Buffer::Create(BufferType::Vertex, vertices), sizeof(vertices);
+/// @example  auto vertexBuffer = Buffer::Create(BufferType::Vertex, vertices, sizeof(vertices);
 /// @example  auto indexBuffer = Buffer::Create(BufferType::Index, indices, sizeof(indices));
 /// @example  auto uniformBuffer = Buffer::Create(BufferType::Uniform, data, sizeof(data));
 ///

@@ -236,6 +236,7 @@ void Renderer2D::StartScene(const Camera &camera) {
     sData.DepthTest = true;
 
     sData.CameraBuffer.ViewProjectionMatrix = camera.GetProjection();
+    sData.CameraUniformBuffer->Bind(0);
     sData.CameraUniformBuffer->UpdateData(&sData.CameraBuffer, sizeof(RendererData::CameraData));
 
     NextBatch();
@@ -245,6 +246,7 @@ void Renderer2D::StartScene(const DesignerCamera &camera) {
     sData.DepthTest = true;
 
     sData.CameraBuffer.ViewProjectionMatrix = camera.GetViewProjection();
+    sData.CameraUniformBuffer->Bind(0);
     sData.CameraUniformBuffer->UpdateData(&sData.CameraBuffer, sizeof(RendererData::CameraData));
 
     NextBatch();
@@ -254,6 +256,7 @@ void Renderer2D::StartScene(const PerspectiveCamera &camera) {
     sData.DepthTest = true;
 
     sData.CameraBuffer.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+    sData.CameraUniformBuffer->Bind(0);
     sData.CameraUniformBuffer->UpdateData(&sData.CameraBuffer, sizeof(RendererData::CameraData));
 
     NextBatch();
@@ -263,6 +266,7 @@ void Renderer2D::StartScene(const OrthographicCamera &camera) {
     sData.DepthTest = true;
 
     sData.CameraBuffer.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+    sData.CameraUniformBuffer->Bind(0);
     sData.CameraUniformBuffer->UpdateData(&sData.CameraBuffer, sizeof(RendererData::CameraData));
 
     NextBatch();

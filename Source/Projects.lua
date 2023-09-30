@@ -140,5 +140,6 @@ filter {}
 include "App/App.lua"
 include "Game/Game.lua"
 include "Library/Library.lua"
+include "Modules/Modules.lua"
 include "Spectra/Spectra.lua"
 include "Test/Test.lua"
