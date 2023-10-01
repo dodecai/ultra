@@ -9,7 +9,15 @@ layout (location = 2) in vec2 aTexCoord;
 layout (location = 0) out vec4 vColor;
 layout (location = 1) out vec2 vTexCoord;
 
-layout(std140, binding = 0) uniform Translation {
+layout(std140, binding = 0) uniform Camera {
+    mat4 uViewProjection;
+    mat4 uView;
+    mat4 uProjection;
+    float uNearClip;
+    float uFarClip;
+};
+
+layout(std140, binding = 1) uniform Translation {
     mat4 uTransform;
 };
 

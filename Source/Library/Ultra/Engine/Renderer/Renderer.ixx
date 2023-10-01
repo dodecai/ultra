@@ -39,7 +39,7 @@ public:
     void Load();
     void RenderFrame();
     void Dispose();
-    void Test();
+    void Test(const DesignerCamera &camera);
 
     void DrawGrid(const DesignerCamera &camera);
 

@@ -28,6 +28,7 @@ import Ultra.Platform.Renderer.VKRenderDevice;
 import Ultra.Engine.Renderer.Buffer;
 import Ultra.Engine.Renderer.PipelineState;
 import Ultra.Engine.Renderer.Texture;
+import Ultra.System.Input;
 
 namespace Ultra {
 
@@ -228,6 +229,15 @@ struct Components {
         0.5f, 1.0f   // Top-Center corner
     };
 
+    struct CameraData {
+        glm::mat4 ViewProjectionMatrix = {};
+        glm::mat4 Projection = {};
+        glm::mat4 View = {};
+        float NearClip = {};
+        float FarClip = {};
+    } Camera;
+    Reference<Buffer> CameraUniformBuffer;
+
     struct UTranslation {
         glm::mat4 Transform = glm::mat4(1.0f);
     } Translation;
@@ -238,27 +248,32 @@ struct Components {
 } static sComponents;
 
 
-static void TestGL();
+static void TestGL(const DesignerCamera &camera);
 
 ///
 /// @brief Test function for OpenGL raw usage.
 /// This function is a quick start guide for OpenGL usage without any abstraction.
 ///
-static void TestGLRaw();
+static void TestGLRaw(const DesignerCamera &camera);
 
 static inline CommandBuffer *sCommandBuffer = nullptr;
 
-void Renderer::Test() {
+void Renderer::Test(const DesignerCamera &camera) {
+    if (static bool once = true; once) {
+        once = false;
+        sComponents.CameraUniformBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(CameraData));
+        sComponents.CameraUniformBuffer->Bind(0);
+    }
     sCommandBuffer = mCommandBuffer.get();
 
 #if TEST_ABSTRACT_RENDER_CALLS
-    TestGL();
+    TestGL(camera);
 #else
-    TestGLRaw();
+    TestGLRaw(camera);
 #endif
 }
 
-void TestGL() {
+void TestGL(const DesignerCamera &camera) {
     // Specify Pipeline and Shader
     static PipelineProperties pipelineProperties;
     pipelineProperties.DepthTest = true;
@@ -284,7 +299,12 @@ void TestGL() {
     // Update Buffers
     vertexBuffer->UpdateData((void *)sComponents.CubeVertices, sizeof(sComponents.CubeIndices));
 
-    // Color
+    // Camera
+    sComponents.Camera.ViewProjectionMatrix = camera.GetProjection();
+    sComponents.CameraUniformBuffer->Bind(0);
+    sComponents.CameraUniformBuffer->UpdateData(&sComponents.Camera, sizeof(Components::CameraData));
+
+    // Update Color
     static auto timeValue = 0.1f;
     timeValue += 0.0001f;
     float value = (sin(timeValue) / 2.0f) + 0.5f;
@@ -292,33 +312,22 @@ void TestGL() {
     colorUniform->Bind(0);
     colorUniform->UpdateData(&sComponents.Properties, sizeof(sComponents.Properties));
 
-    // Scale, Rotation and Transformation
-    static float speed = 0.0f;
-    speed += 0.0005f;
-    if (speed > 360.0f) speed = 0.0f;
-    glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-    //glm::mat4 trans = glm::mat4(1.0f);
-    //trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-    //trans = glm::rotate(trans, glm::radians(speed), glm::vec3(0.0f, 0.0f, 1.0f));
-    //trans = glm::scale(trans, glm::vec3(0.52f, 0.52f, 0.52f));
-
+    // Update Translation
     auto model = glm::mat4(1.0f);
-    auto view = glm::mat4(1.0f);
-
-    model = glm::rotate(model, speed * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    auto view = glm::lookAt(camera.GetPosition(), camera.GetPosition() + camera.GetForwardDirection(), camera.GetUpDirection());
     auto projection = glm::perspective(glm::radians(45.0f), 1280.0f / 1024.0f, 0.1f, 100.0f);
 
-    auto result = projection * view * model;
-    sComponents.Translation.Transform = result;
-    translationUnfiorm->Bind(0);
+    auto translation = projection * view * model;
+    sComponents.Translation.Transform = translation;
+    translationUnfiorm->Bind(1);
     translationUnfiorm->UpdateData(&sComponents.Translation, sizeof(sComponents.Translation));
 
     // Draw
     linkedShaders->Bind();
     vertexBuffer->Bind();
+    sComponents.CameraUniformBuffer->Bind(0);
     colorUniform->Bind(0);
-    translationUnfiorm->Bind(0);
+    translationUnfiorm->Bind(1);
     texture->Bind(1);
     pipeline->Bind();
     indexBuffer->Bind();
@@ -347,7 +356,7 @@ void TestGL() {
 
 }
 
-void TestGLRaw() {
+void TestGLRaw(const DesignerCamera &camera) {
     // Shader Source Code
     #pragma region Shader Source Code
     static auto vertexShaderSource = R"(
@@ -505,43 +514,58 @@ void TestGLRaw() {
         stbi_image_free(data);
     }
 
-    // Update Unfiorms;
-    glUseProgram(shaderProgram);
-
+    // Get Uniforms
     static int vertexColorLocation = glGetUniformLocation(shaderProgram, "uColor");
     static int vertexTextureLocation = glGetUniformLocation(shaderProgram, "uTexture");
+    static unsigned int transformLoc = glGetUniformLocation(shaderProgram, "uTransform");
 
-    static auto timeValue = 0.1f;
-    timeValue += 0.0001f;
-    float value = (sin(timeValue) / 2.0f) + 0.5f;
-    glUniform4f(vertexColorLocation, 0.1f, 1.0f - value, value, 1.0f);
+    // Create Camera
+    static FlyCamera flyCamera = FlyCamera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-    // Scale, Rotation and Transformation
+    // Random Data
+    static float cameraSpeed = 0.0005f;
     static float speed = 0.0f;
     speed += 0.0005f;
     if (speed > 360.0f) speed = 0.0f;
-    static unsigned int transformLoc = glGetUniformLocation(shaderProgram, "uTransform");
-    //glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-    //glm::mat4 trans = glm::mat4(1.0f);
-    //trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-    //trans = glm::rotate(trans, glm::radians(speed), glm::vec3(0.0f, 0.0f, 1.0f));
-    //trans = glm::scale(trans, glm::vec3(0.52f, 0.52f, 0.52f));
+    static auto timeValue = 0.1f;
+    timeValue += 0.0001f;
+    float value = (sin(timeValue) / 2.0f) + 0.5f;
 
-    // Left - Right, Top - Bottom, Near - Far
-    //view = glm::scale(model, glm::vec3(1.0f, 1.0f, -1.0f)); // Flip Z-Axis (OpenGL is a right-handed system)
-    auto orthographic = glm::ortho(0.0f, 1280.0f, 0.0f, 1024.0f, 0.1f, 100.0f);
+    // Update Camera
+    if (Input::GetKeyState(KeyCode::LAlt)) {
+        auto [x, y] = Input::GetMousePositionDelta();
+        auto wheelDelta = Input::GetMouseWheelDelta();
+        flyCamera.ProcessMouseMovement(x * 2.5f, y * 2.5f);
+        flyCamera.ProcessMouseScroll(wheelDelta * 2.5f);
+    }
+    if (Input::GetKeyState(KeyCode::KeyW)) flyCamera.ProcessKeyboard(Camera_Movement::FORWARD, cameraSpeed);
+    if (Input::GetKeyState(KeyCode::KeyS)) flyCamera.ProcessKeyboard(Camera_Movement::BACKWARD, cameraSpeed);
+    if (Input::GetKeyState(KeyCode::KeyA)) flyCamera.ProcessKeyboard(Camera_Movement::LEFT, cameraSpeed);
+    if (Input::GetKeyState(KeyCode::KeyD)) flyCamera.ProcessKeyboard(Camera_Movement::RIGHT, cameraSpeed);
 
+    // Model, View, Projection
+    //auto orthographic = glm::ortho(0.0f, 1280.0f, 0.0f, 1024.0f, 0.1f, 100.0f);
     auto model = glm::mat4(1.0f);
     auto view = glm::mat4(1.0f);
+    auto projection = glm::perspective(glm::radians(flyCamera.Zoom), 1280.0f / 1024.0f, 0.1f, 100.0f);
+    view = flyCamera.GetViewMatrix();
+    //view = glm::translate(view, glm::vec3(-1.0f, 1.0f, -5.0f));
+    //view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    //view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+    //view = glm::lookAt(camera.GetPosition(), camera.GetPosition() + camera.GetForwardDirection(), camera.GetUpDirection());
 
-    model = glm::rotate(model, speed * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-    auto projection = glm::perspective(glm::radians(45.0f), 1280.0f / 1024.0f, 0.1f, 100.0f);
+    // Scale, Rotation and Transformation
+    auto translation = projection * view * model;
+    //glm::mat4 translation = glm::mat4(1.0f);
+    //translation = glm::translate(translation, glm::vec3(0.5f, -0.5f, 0.0f));
+    //translation = glm::rotate(translation, glm::radians(speed), glm::vec3(0.0f, 0.0f, 1.0f));
+    //translation = glm::scale(translation, glm::vec3(0.52f, 0.52f, 0.52f));
+    //view = glm::scale(model, glm::vec3(1.0f, 1.0f, -1.0f)); // Flip Z-Axis (OpenGL is a right-handed system)
 
-    auto result = projection * view * model;
-    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(result));
-
-
+    // Update Uniforms;
+    glUseProgram(shaderProgram);
+    glUniform4f(vertexColorLocation, 0.1f, 1.0f - value, value, 1.0f);
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(translation));
 
     // Draw the triangle
     //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -550,12 +574,12 @@ void TestGLRaw() {
     glBindTexture(GL_TEXTURE_2D, texture);
     glBindVertexArray(vertexArrayObject);
     glEnable(GL_DEPTH_TEST);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe: On
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe: On
     //glDrawElements(GL_TRIANGLES, sComponents.TriangleComponents, GL_UNSIGNED_INT, 0);
     //glDrawElements(GL_TRIANGLES, sComponents.RectangleComponents, GL_UNSIGNED_INT, 0);
     //glDrawElements(GL_TRIANGLES, sComponents.CubeComponents, GL_UNSIGNED_INT, 0);
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Wireframe: Off
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Wireframe: Off
     glBindVertexArray(0);
 
     // Optional: De-allocate all resources once they've outlived their purpose...
