@@ -23,6 +23,7 @@ Headers["MSDFAtlasGen"] = "%{wks.location}/3rd-Party/msdf-atlas-gen/include"
 Headers["MSDFgen"] = "%{wks.location}/3rd-Party/msdfgen/include"
 Headers["stb"] = "%{wks.location}/3rd-Party/stb/include"
 Headers["yamlcpp"] = "%{wks.location}/3rd-Party/yaml-cpp/include"
+Headers["zlib"] = "%{wks.location}/3rd-Party/assimp/contrib/zlib"
 
 -- Built-In Headers, Libraries and Packages
 Headers["ShaderC"] = "%{wks.location}/3rd-Party/shaderC/include"

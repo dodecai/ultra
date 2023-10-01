@@ -10,17 +10,16 @@
   warnings "Default"
 
   defines {
+      -- "ASSIMP_BUILD_ZLIB",
       -- "BUILD_SHARED_LIBS",
       "ASSIMP_BUILD_NO_OWN_ZLIB",
 
-      "ASSIMP_BUILD_NO_3DS_EXPORTER",
-      "ASSIMP_BUILD_NO_GLTF_EXPORTER",
       "ASSIMP_BUILD_NO_X_IMPORTER",
       "ASSIMP_BUILD_NO_3DS_IMPORTER",
       "ASSIMP_BUILD_NO_MD3_IMPORTER",
       "ASSIMP_BUILD_NO_MDL_IMPORTER",
       "ASSIMP_BUILD_NO_MD2_IMPORTER",
-      -- "ASSIMP_BUILD_NO_PLY_IMPORTER",
+      "ASSIMP_BUILD_NO_PLY_IMPORTER",
       "ASSIMP_BUILD_NO_ASE_IMPORTER",
       -- "ASSIMP_BUILD_NO_OBJ_IMPORTER",
       "ASSIMP_BUILD_NO_AMF_IMPORTER",
@@ -40,7 +39,7 @@
       "ASSIMP_BUILD_NO_IRR_IMPORTER",
       "ASSIMP_BUILD_NO_Q3D_IMPORTER",
       "ASSIMP_BUILD_NO_B3D_IMPORTER",
-      -- "ASSIMP_BUILD_NO_COLLADA_IMPORTER",
+      "ASSIMP_BUILD_NO_COLLADA_IMPORTER",
       "ASSIMP_BUILD_NO_TERRAGEN_IMPORTER",
       "ASSIMP_BUILD_NO_CSM_IMPORTER",
       "ASSIMP_BUILD_NO_3D_IMPORTER",
@@ -61,6 +60,8 @@
       "ASSIMP_BUILD_NO_3MF_IMPORTER",
       "ASSIMP_BUILD_NO_X3D_IMPORTER",
       "ASSIMP_BUILD_NO_MMD_IMPORTER",
+      "ASSIMP_BUILD_NO_IQM_IMPORTER",
+      "ASSIMP_BUILD_NO_M3D_IMPORTER",
       
       "ASSIMP_BUILD_NO_STEP_EXPORTER",
       "ASSIMP_BUILD_NO_SIB_IMPORTER",
@@ -97,38 +98,89 @@
 
   files {
       "assimp.lua",
-      "revision.h",
       "include/**",
-	  "code/AssetLib/**",
-	  "code/Common/**",
-	  "code/Material/**",
-	  "contrib/rabidjson/**.c",
-	  "contrib/rabidjson/**.h",
-	  "contrib/pugixml/**.c",
-	  "contrib/pugixml/**.h",
-	  "contrib/zlib/*.c",
-	  "contrib/zlib/*.h",
+      "revision.h",
+      "code/AssetLib/Collada/ColladaLoader.cpp",
+      "code/AssetLib/Collada/ColladaParser.cpp",
+      "code/AssetLib/Ply/PlyParser.cpp",
+      "code/AssetLib/Ply/PlyLoader.cpp",
+      "code/AssetLib/Obj/ObjFileImporter.cpp",
+      "code/AssetLib/Obj/ObjFileMtlImporter.cpp",
+      "code/AssetLib/Obj/ObjFileParser.cpp",
+      "code/AssetLib/glTF/glTFImporter.cpp",
+      "code/AssetLib/glTF2/glTF2Importer.cpp",
+
+      "code/CAPI/CInterfaceIOWrapper.cpp",
+
+      "code/Common/Assimp.cpp",
+      "code/Common/AssertHandler.cpp",
+      "code/Common/BaseImporter.cpp",
+      "code/Common/BaseProcess.cpp",
+      "code/Common/CreateAnimMesh.cpp",
+      "code/Common/DefaultIOStream.cpp",
+      "code/Common/DefaultIOSystem.cpp",
+      "code/Common/DefaultLogger.cpp",
+      "code/Common/Exceptional.cpp",
+      "code/Common/Importer.cpp",
+      "code/Common/ImporterRegistry.cpp",
+      "code/Common/IOSystem.cpp",
+      "code/Common/material.cpp",
+      "code/Common/PostStepRegistry.cpp",
+      "code/Common/scene.cpp",
+      "code/Common/ScenePreprocessor.cpp",
+      "code/Common/SGSpatialSort.cpp",
+      "code/Common/SkeletonMeshBuilder.cpp",
+      "code/Common/SpatialSort.cpp",
+      "code/Common/Version.cpp",
+      "code/Common/VertexTriangleAdjacency.cpp",
+
+      "code/Material/MaterialSystem.cpp",
+      
+      
+      "code/PostProcessing/ArmaturePopulate.cpp",
+      "code/PostProcessing/GenBoundingBoxesProcess.cpp",
+      "code/PostProcessing/GenVertexNormalsProcess.cpp",
+      "code/PostProcessing/EmbedTexturesProcess.cpp",
+      "code/PostProcessing/ConvertToLHProcess.cpp",
+      
+      "code/PostProcessing/ProcessHelper.cpp",
+      "code/PostProcessing/MakeVerboseFormat.cpp",
+      "code/PostProcessing/CalcTangentsProcess.cpp",
+      "code/PostProcessing/ScaleProcess.cpp",
+      "code/PostProcessing/ScaleProcess.cpp",
+      "code/PostProcessing/EmbedTexturesProcess.cpp",
+      "code/PostProcessing/TriangulateProcess.cpp",
+      "code/PostProcessing/ValidateDataStructure.cpp",
+	  -- "contrib/rabidjson/**.c",
+	  -- "contrib/rabidjson/**.h",
+	  -- "contrib/pugixml/**.c",
+	  -- "contrib/pugixml/**.h",
+	  -- "contrib/zlib/*.c",
+	  -- "contrib/zlib/*.h",
+      "contrib/irrXML/*",
   }
 
   includedirs {
 	  "./",
-	  "code",
       "include",
+      "code",
       "contrib",
-      "contrib/rapidjson/include",
-      "contrib/pugixml/src",
-      "contrib/unzip",
-      "contrib/utf8cpp",
+      -- "contrib/rapidjson/include",
+      -- "contrib/pugixml/src",
+      -- "contrib/unzip",
+      -- "contrib/utf8cpp",
+      "contrib/irrXML",
       "contrib/zlib",
   }
-
+  
   filter  "configurations:Debug"
-      runtime "Debug"
-      symbols "on"
+    runtime "Debug"
+    optimize "on"
+    symbols "off"
 
   filter  "configurations:Release"
-      runtime "Release"
-      optimize "on"
+    runtime "Release"
+    optimize "on"
       
   filter "system:windows"
-     systemversion "latest"
+    systemversion "latest"

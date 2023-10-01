@@ -112,7 +112,7 @@ public:
     virtual ~Texture() = default;
 
     static Scope<Texture> Create(const TextureProperties &properties, const void *data, size_t size);
-    static Scope<Texture> Create(const TextureProperties &properties, const string &path);
+    static Reference<Texture> Create(const TextureProperties &properties, const string &path);
 
     virtual void Bind(uint32_t slot = 0) const = 0;
     virtual void Unbind(uint32_t slot = 0) const = 0;

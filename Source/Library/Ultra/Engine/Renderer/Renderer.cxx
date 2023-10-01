@@ -25,6 +25,7 @@ import Ultra.Platform.Renderer.DXRenderDevice;
 import Ultra.Platform.Renderer.GLRenderDevice;
 import Ultra.Platform.Renderer.VKRenderDevice;
 
+import Ultra.Engine.Model;
 import Ultra.Engine.Renderer.Buffer;
 import Ultra.Engine.Renderer.PipelineState;
 import Ultra.Engine.Renderer.Texture;
@@ -129,9 +130,10 @@ void Renderer::DrawGrid(const DesignerCamera &camera) {
 
 #pragma region Test
 
-#define TEST_ABSTRACT_RENDER_CALLS 1
+#define TEST_ABSTRACT_RENDER_CALLS 0
 
-// Components
+static inline CommandBuffer *sCommandBuffer = nullptr;
+
 struct Components {
     float CubeVertices[324] = {
         -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
@@ -238,6 +240,13 @@ struct Components {
     } Camera;
     Reference<Buffer> CameraUniformBuffer;
 
+    struct CameraData2 {
+        glm::mat4 Model = {};
+        glm::mat4 View = {};
+        glm::mat4 Projection = {};
+    } Camera2;
+    Reference<Buffer> CameraUniformBuffer2;
+
     struct UTranslation {
         glm::mat4 Transform = glm::mat4(1.0f);
     } Translation;
@@ -247,93 +256,28 @@ struct Components {
     } Properties;
 } static sComponents;
 
+static void TestAgnostic(const DesignerCamera &camera);
 
 static void TestGL(const DesignerCamera &camera);
 
-///
-/// @brief Test function for OpenGL raw usage.
-/// This function is a quick start guide for OpenGL usage without any abstraction.
-///
-static void TestGLRaw(const DesignerCamera &camera);
-
-static inline CommandBuffer *sCommandBuffer = nullptr;
 
 void Renderer::Test(const DesignerCamera &camera) {
     if (static bool once = true; once) {
         once = false;
-        sComponents.CameraUniformBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(CameraData));
+        sComponents.CameraUniformBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::CameraData));
         sComponents.CameraUniformBuffer->Bind(0);
+        sComponents.CameraUniformBuffer2 = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::CameraData2));
     }
     sCommandBuffer = mCommandBuffer.get();
 
 #if TEST_ABSTRACT_RENDER_CALLS
-    TestGL(camera);
+    TestAgnostic(camera);
 #else
-    TestGLRaw(camera);
+    TestGL(camera);
 #endif
 }
 
-void TestGL(const DesignerCamera &camera) {
-    // Specify Pipeline and Shader
-    static PipelineProperties pipelineProperties;
-    pipelineProperties.DepthTest = true;
-    pipelineProperties.Wireframe = false;
-    pipelineProperties.Layout = {
-        { ShaderDataType::Float3, "aPosition" },
-        { ShaderDataType::Float4, "aColor" },
-        { ShaderDataType::Float2, "aTexCoord" },
-    };
-    static auto linkedShaders = Shader::Create("Assets/Shaders/Test.glsl");
-    static auto pipeline = PipelineState::Create(pipelineProperties);
-
-    // Specify Buffers and Textures
-    static auto vertexBuffer = Buffer::Create(BufferType::Vertex, (void *)sComponents.CubeVertices, sizeof(sComponents.CubeVertices));
-    static auto indexBuffer = Buffer::Create(BufferType::Index, (void *)sComponents.CubeIndices, sizeof(sComponents.CubeIndices));
-    static auto texture = Texture::Create({}, "Assets/Textures/Wallpaper2.png");
-
-    // Specify Uniforms
-    linkedShaders->Bind();
-    static auto translationUnfiorm = Buffer::Create(BufferType::Uniform, nullptr, sizeof(sComponents.Translation));
-    static auto colorUniform = Buffer::Create(BufferType::Uniform, nullptr, sizeof(sComponents.Properties));
-
-    // Update Buffers
-    vertexBuffer->UpdateData((void *)sComponents.CubeVertices, sizeof(sComponents.CubeIndices));
-
-    // Camera
-    sComponents.Camera.ViewProjectionMatrix = camera.GetProjection();
-    sComponents.CameraUniformBuffer->Bind(0);
-    sComponents.CameraUniformBuffer->UpdateData(&sComponents.Camera, sizeof(Components::CameraData));
-
-    // Update Color
-    static auto timeValue = 0.1f;
-    timeValue += 0.0001f;
-    float value = (sin(timeValue) / 2.0f) + 0.5f;
-    sComponents.Properties.Color = glm::vec4(0.1f, 1.0f - value, value, 1.0f);
-    colorUniform->Bind(0);
-    colorUniform->UpdateData(&sComponents.Properties, sizeof(sComponents.Properties));
-
-    // Update Translation
-    auto model = glm::mat4(1.0f);
-    auto view = glm::lookAt(camera.GetPosition(), camera.GetPosition() + camera.GetForwardDirection(), camera.GetUpDirection());
-    auto projection = glm::perspective(glm::radians(45.0f), 1280.0f / 1024.0f, 0.1f, 100.0f);
-
-    auto translation = projection * view * model;
-    sComponents.Translation.Transform = translation;
-    translationUnfiorm->Bind(1);
-    translationUnfiorm->UpdateData(&sComponents.Translation, sizeof(sComponents.Translation));
-
-    // Draw
-    linkedShaders->Bind();
-    vertexBuffer->Bind();
-    sComponents.CameraUniformBuffer->Bind(0);
-    colorUniform->Bind(0);
-    translationUnfiorm->Bind(1);
-    texture->Bind(1);
-    pipeline->Bind();
-    indexBuffer->Bind();
-    //sCommandBuffer->DrawIndexed(sComponents.CubeComponents, PrimitiveType::Triangle, false);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-
+void TestAgnostic(const DesignerCamera &camera) {
     //// Create render states
     //auto renderState = RenderState::Create();
     // Begin recording commands
@@ -341,22 +285,97 @@ void TestGL(const DesignerCamera &camera) {
     //commandBuffer->Clear(0.2f, 0.3f, 0.3f, 1.0f);     // Clear the framebuffer
     //commandBuffer->BindRenderState(renderState);      // Set up the render state
 
-    // Bind shaders, buffers, textures
-    //commandBuffer->BindShader(vertexShader);
-    //commandBuffer->BindShader(fragmentShader);
-    //commandBuffer->BindVertexBuffer(vertexBuffer);
-    //commandBuffer->BindIndexBuffer(indexBuffer);
-    //commandBuffer->BindTexture(0, texture);
+    // Models
+    static auto modelShader = Shader::Create("Assets/Shaders/Model.glsl");
+    static Model cone("Assets/Models/Cone/Cone.obj");
+    static Model cube("Assets/Models/Cube/Cube.obj");
+    static Model cylinder("Assets/Models/Cylinder/Cylinder.obj");
+    static Model level("Assets/Models/Level/Level.obj");
+    static Model monkey("Assets/Models/Monkey/Monkey.obj");
+    static Model plane("Assets/Models/Plane/Plane.obj");
+    static Model sphere("Assets/Models/Sphere/SphereUV.obj");
+    static Model torus("Assets/Models/Torus/Torus.obj");
+
+    // Specify Pipeline and Shader
+    //static PipelineProperties properties;
+    //properties.DepthTest = true;
+    //properties.Wireframe = false;
+    //properties.Layout = {
+    //    { ShaderDataType::Float3, "aPosition" },
+    //    { ShaderDataType::Float4, "aColor" },
+    //    { ShaderDataType::Float2, "aTexCoord" },
+    //};
+    //static auto pipeline = PipelineState::Create(properties);
+    //static auto shader = Shader::Create("Assets/Shaders/Test.glsl");
+
+    // Specify Buffers and Textures
+    //static auto vertexBuffer = Buffer::Create(BufferType::Vertex, (void *)sComponents.CubeVertices, sizeof(sComponents.CubeVertices));
+    //static auto indexBuffer = Buffer::Create(BufferType::Index, (void *)sComponents.CubeIndices, sizeof(sComponents.CubeIndices));
+    //static auto texture = Texture::Create({}, "Assets/Textures/Wallpaper2.png");
+
+    // Specify Uniforms
+    //shader->Bind();
+    //static auto translationUnfiorm = Buffer::Create(BufferType::Uniform, nullptr, sizeof(sComponents.Translation));
+    //static auto colorUniform = Buffer::Create(BufferType::Uniform, nullptr, sizeof(sComponents.Properties));
+
+    // Update Buffers
+    //vertexBuffer->UpdateData((void *)sComponents.CubeVertices, sizeof(sComponents.CubeIndices));
+
+    // Camera
+    //sComponents.Camera.ViewProjectionMatrix = camera.GetProjection();
+    //sComponents.CameraUniformBuffer->Bind(0);
+    //sComponents.CameraUniformBuffer->UpdateData(&sComponents.Camera, sizeof(Components::CameraData));
+
+    // Update Color
+    //static auto timeValue = 0.1f;
+    //timeValue += 0.0001f;
+    //float value = (sin(timeValue) / 2.0f) + 0.5f;
+    //sComponents.Properties.Color = glm::vec4(0.1f, 1.0f - value, value, 1.0f);
+    //colorUniform->Bind(0);
+    //colorUniform->UpdateData(&sComponents.Properties, sizeof(sComponents.Properties));
+
+    // Update Translation
+    auto model = glm::mat4(1.0f);
+    auto view = glm::lookAt(camera.GetPosition(), camera.GetPosition() + camera.GetForwardDirection(), camera.GetUpDirection());
+    auto projection = glm::perspective(glm::radians(45.0f), 1280.0f / 1024.0f, 0.1f, 100.0f);
+
+    //auto translation = projection * view * model;
+    //sComponents.Translation.Transform = translation;
+    //translationUnfiorm->Bind(1);
+    //translationUnfiorm->UpdateData(&sComponents.Translation, sizeof(sComponents.Translation));
+
+    // Draw
+    //pipeline->Bind();
+    //shader->Bind();
+    //vertexBuffer->Bind();
+    //indexBuffer->Bind();
+    //sComponents.CameraUniformBuffer->Bind(0);
+    //colorUniform->Bind(0);
+    //translationUnfiorm->Bind(1);
+    //texture->Bind(1);
     //commandBuffer->DrawIndexed(indexCount);           // Draw the mesh
+    //sCommandBuffer->DrawIndexed(sComponents.CubeComponents, PrimitiveType::Triangle, false);
+    //glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+    model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+
+    modelShader->Bind();
+    sComponents.Camera2.Model = model;
+    sComponents.Camera2.View = view;
+    sComponents.Camera2.Projection = projection;
+    sComponents.CameraUniformBuffer2->Bind(0);
+
+    sComponents.CameraUniformBuffer2->UpdateData(&sComponents.Camera2, sizeof(Components::CameraData2));
+    monkey.Draw(sCommandBuffer);
 
     //Renderer::EndScene();
     //commandBuffer->End();                             // End recording commands
     //commandBuffer->Execute();                         // Execute the command buffer
     //swapchain->Present();                             // Present the rendered image to the screen
-
 }
 
-void TestGLRaw(const DesignerCamera &camera) {
+void TestGL(const DesignerCamera &camera) {
     // Shader Source Code
     #pragma region Shader Source Code
     static auto vertexShaderSource = R"(

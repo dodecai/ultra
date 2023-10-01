@@ -24,11 +24,11 @@ Scope<Texture> Texture::Create(const TextureProperties &properties, const void *
     }
 }
 
-Scope<Texture> Texture::Create(const TextureProperties &properties, const string &path) {
+Reference<Texture> Texture::Create(const TextureProperties &properties, const string &path) {
     switch (Context::API) {
-        case GraphicsAPI::DirectX:  { return CreateScope<DXTexture>(properties, path); }
-        case GraphicsAPI::OpenGL:   { return CreateScope<GLTexture>(properties, path); }
-        case GraphicsAPI::Vulkan:   { return CreateScope<VKTexture>(properties, path); }
+        case GraphicsAPI::DirectX:  { return CreateReference<DXTexture>(properties, path); }
+        case GraphicsAPI::OpenGL:   { return CreateReference<GLTexture>(properties, path); }
+        case GraphicsAPI::Vulkan:   { return CreateReference<VKTexture>(properties, path); }
 
         default: {
         #if APP_MODE_DEBUG

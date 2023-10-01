@@ -52,7 +52,7 @@
             "Assets/Images/*.png",
             "Assets/Images/*.svg",
         },
-        ["Meshes"] = {
+        ["Models"] = {
             ["Cone"] = {
                 "Assets/Meshes/Cone/*",
             },

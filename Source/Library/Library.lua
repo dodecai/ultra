@@ -35,6 +35,7 @@
 	    "%{Headers.MSDFgen}/msdfgen",
 	    "%{Headers.stb}",
         "%{Headers.yamlcpp}",
+	    "%{Headers.zlib}",
         
         "%{Headers.ShaderC}",
         "%{Headers.Vulkan}",
@@ -47,7 +48,7 @@
 	    "%{Headers.Library}",
     }
     links {
-        --"assimp",
+        "assimp",
         "DearImGui",
         "FreeType",
         "Glad",

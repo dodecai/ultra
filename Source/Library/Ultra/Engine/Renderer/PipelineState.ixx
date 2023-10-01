@@ -12,6 +12,7 @@ enum class CullMode {
     None,
     Back,
     Front,
+    CCW,
 };
 
 enum class BlendMode {
