@@ -1,5 +1,6 @@
 ﻿module;
 
+#include <assimp/DefaultLogger.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -57,6 +58,10 @@ public:
 
 private:
     void Load(const string &path) {
+        Assimp::DefaultLogger::create("", Assimp::Logger::VERBOSE);
+        Assimp::LogStream *stderrStream = Assimp::LogStream::createDefaultStream(aiDefaultLogStream_STDERR);
+        Assimp::DefaultLogger::get()->attachStream(stderrStream, Assimp::Logger::NORMAL | Assimp::Logger::DEBUGGING | Assimp::Logger::VERBOSE);
+
         Assimp::Importer importer;
         const auto *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
@@ -65,6 +70,9 @@ private:
         }
         mDirectory = GetFilePath(path);
         ProcessNode(scene->mRootNode, scene);
+
+
+        Assimp::DefaultLogger::kill();
     }
 
     void ProcessNode(aiNode *node, const aiScene *scene) {
@@ -78,9 +86,9 @@ private:
     }
 
     Mesh ProcessMesh(aiMesh *mesh, const aiScene *scene) {
-        vector<Vertex> vertices {};
-        vector<uint32_t> indices {};
-        vector<Reference<Texture>> textures {};
+        Vertices vertices {};
+        Indices indices {};
+        Textures textures {};
         vector<TextureData> info {};
 
         // Vertices
@@ -116,12 +124,12 @@ private:
                 vector.z = mesh->mBitangents[i].z;
                 vertex.Bitangent = vector;
             } else {
-                vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+                vertex.TexCoords = { 0.0f, 0.0f };
             }
 
             vertices.push_back(vertex);
         }
-        
+
         // Indices
         for (size_t i = 0; i < mesh->mNumFaces; i++) {
             auto face = mesh->mFaces[i];
@@ -131,23 +139,29 @@ private:
         }
 
         // Materials
-        aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
+        if (mesh->mMaterialIndex >= 0) {
+            auto *material = scene->mMaterials[mesh->mMaterialIndex];
 
-        auto [diffuseMaps, diffuseInfo] = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-        textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-        info.insert(info.end(), diffuseInfo.begin(), diffuseInfo.end());
-        
-        auto [specularMaps, specularInfo] = LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-        info.insert(info.end(), specularInfo.begin(), specularInfo.end());
-        
-        auto [normalMaps, normalInfo] = LoadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-        textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-        info.insert(info.end(), normalInfo.begin(), normalInfo.end());
-        
-        auto [heightMaps, heightInfo] = LoadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-        textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-        info.insert(info.end(), heightInfo.begin(), heightInfo.end());
+            auto [diffuseMaps, diffuseInfo] = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "Diffuse");
+            textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+            info.insert(info.end(), diffuseInfo.begin(), diffuseInfo.end());
+
+            auto [normalMaps, normalInfo] = LoadMaterialTextures(material, aiTextureType_HEIGHT, "Normal");
+            textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+            info.insert(info.end(), normalInfo.begin(), normalInfo.end());
+
+            auto [specularMaps, specularInfo] = LoadMaterialTextures(material, aiTextureType_SPECULAR, "Specular");
+            textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+            info.insert(info.end(), specularInfo.begin(), specularInfo.end());
+
+            auto [heightMaps, heightInfo] = LoadMaterialTextures(material, aiTextureType_HEIGHT, "Height");
+            textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+            info.insert(info.end(), heightInfo.begin(), heightInfo.end());
+
+            auto [ambientMaps, ambientInfo] = LoadMaterialTextures(material, aiTextureType_AMBIENT, "Ambient");
+            textures.insert(textures.end(), ambientMaps.begin(), ambientMaps.end());
+            info.insert(info.end(), ambientInfo.begin(), ambientInfo.end());
+        }
 
         return Mesh(vertices, indices, textures, info);
     }

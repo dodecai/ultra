@@ -76,8 +76,18 @@ void Renderer::Load() {
 }
 
 void Renderer::RenderFrame() {
-    mCommandBuffer->Clear(0.1f, 0.1f, 0.1f, 1.0f);
+    // Create render states
+    //auto renderState = RenderState::Create();
+    // Begin recording commands
+    //commandBuffer->Begin();
+    mCommandBuffer->Clear(0.1f, 0.1f, 0.1f, 1.0f);;     // Clear the framebuffer
+    //commandBuffer->BindRenderState(renderState);      // Set up the render state
     Renderer2D::ResetStatistics();
+
+    //Renderer::EndScene();
+    //commandBuffer->End();                             // End recording commands
+    //commandBuffer->Execute();                         // Execute the command buffer
+    //swapchain->Present();                             // Present the rendered image to the screen
 }
 
 void Renderer::Dispose() {
@@ -130,7 +140,7 @@ void Renderer::DrawGrid(const DesignerCamera &camera) {
 
 #pragma region Test
 
-#define TEST_ABSTRACT_RENDER_CALLS 0
+#define TEST_ABSTRACT_RENDER_CALLS 1
 
 static inline CommandBuffer *sCommandBuffer = nullptr;
 
@@ -254,6 +264,27 @@ struct Components {
     struct UProperties {
         glm::vec4 Color = glm::vec4(1.0f);
     } Properties;
+
+    struct UMaterial {
+        float Shininess;
+    } Material;
+    Reference<Buffer> MaterialBuffer;
+
+    struct ULight {
+        glm::vec3 LightPosition;
+        glm::vec3 Ambient;
+        glm::vec3 Diffuse;
+        glm::vec3 Specular;
+        bool AmbientEnabled;
+        bool DiffuseEnabled;
+        bool SpecularEnabled;
+    } Light;
+    Reference<Buffer> LightBuffer;
+
+    struct UView {
+        glm::vec3 Position;
+    } View;
+    Reference<Buffer> ViewBuffer;
 } static sComponents;
 
 static void TestAgnostic(const DesignerCamera &camera);
@@ -265,8 +296,11 @@ void Renderer::Test(const DesignerCamera &camera) {
     if (static bool once = true; once) {
         once = false;
         sComponents.CameraUniformBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::CameraData));
-        sComponents.CameraUniformBuffer->Bind(0);
         sComponents.CameraUniformBuffer2 = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::CameraData2));
+
+        sComponents.MaterialBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::UMaterial));
+        sComponents.LightBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::ULight));
+        sComponents.ViewBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::UView));
     }
     sCommandBuffer = mCommandBuffer.get();
 
@@ -278,14 +312,7 @@ void Renderer::Test(const DesignerCamera &camera) {
 }
 
 void TestAgnostic(const DesignerCamera &camera) {
-    //// Create render states
-    //auto renderState = RenderState::Create();
-    // Begin recording commands
-    //commandBuffer->Begin();
-    //commandBuffer->Clear(0.2f, 0.3f, 0.3f, 1.0f);     // Clear the framebuffer
-    //commandBuffer->BindRenderState(renderState);      // Set up the render state
-
-    // Models
+    // Load Models and their Shaders
     static auto modelShader = Shader::Create("Assets/Shaders/Model.glsl");
     static Model cone("Assets/Models/Cone/Cone.obj");
     static Model cube("Assets/Models/Cube/Cube.obj");
@@ -311,7 +338,7 @@ void TestAgnostic(const DesignerCamera &camera) {
     // Specify Buffers and Textures
     //static auto vertexBuffer = Buffer::Create(BufferType::Vertex, (void *)sComponents.CubeVertices, sizeof(sComponents.CubeVertices));
     //static auto indexBuffer = Buffer::Create(BufferType::Index, (void *)sComponents.CubeIndices, sizeof(sComponents.CubeIndices));
-    //static auto texture = Texture::Create({}, "Assets/Textures/Wallpaper2.png");
+    static auto texture = Texture::Create({}, "Assets/Textures/Wallpaper.jpg");
 
     // Specify Uniforms
     //shader->Bind();
@@ -335,9 +362,15 @@ void TestAgnostic(const DesignerCamera &camera) {
     //colorUniform->UpdateData(&sComponents.Properties, sizeof(sComponents.Properties));
 
     // Update Translation
+    auto projection = camera.GetProjectionMatrix();
+    auto view = camera.GetViewMatrix();
     auto model = glm::mat4(1.0f);
-    auto view = glm::lookAt(camera.GetPosition(), camera.GetPosition() + camera.GetForwardDirection(), camera.GetUpDirection());
-    auto projection = glm::perspective(glm::radians(45.0f), 1280.0f / 1024.0f, 0.1f, 100.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+    // ...
+    sComponents.Camera2.Projection = projection;
+    sComponents.Camera2.View = view;
+    sComponents.Camera2.Model = model;
 
     //auto translation = projection * view * model;
     //sComponents.Translation.Transform = translation;
@@ -353,26 +386,34 @@ void TestAgnostic(const DesignerCamera &camera) {
     //colorUniform->Bind(0);
     //translationUnfiorm->Bind(1);
     //texture->Bind(1);
-    //commandBuffer->DrawIndexed(indexCount);           // Draw the mesh
+    //commandBuffer->DrawIndexed(indexCount);
     //sCommandBuffer->DrawIndexed(sComponents.CubeComponents, PrimitiveType::Triangle, false);
     //glDrawArrays(GL_TRIANGLES, 0, 36);
 
-    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-    model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-
     modelShader->Bind();
-    sComponents.Camera2.Model = model;
-    sComponents.Camera2.View = view;
-    sComponents.Camera2.Projection = projection;
+
+    
+    sComponents.Material.Shininess = 16.0f;
+    sComponents.Light.LightPosition = camera.GetPosition() + glm::vec3(0.0f, 24.0f, 0.0f);
+    sComponents.Light.Ambient = glm::vec3(0.2f, 0.2f, 0.2f);
+    sComponents.Light.Diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+    sComponents.Light.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
+    sComponents.Light.AmbientEnabled = false;
+    sComponents.Light.DiffuseEnabled = false;
+    sComponents.Light.SpecularEnabled = false;
+    sComponents.View.Position = camera.GetPosition();
+
     sComponents.CameraUniformBuffer2->Bind(0);
-
+    texture->Bind(0);
+    sComponents.MaterialBuffer->Bind(4);
+    sComponents.LightBuffer->Bind(5);
+    sComponents.ViewBuffer->Bind(6);
     sComponents.CameraUniformBuffer2->UpdateData(&sComponents.Camera2, sizeof(Components::CameraData2));
-    monkey.Draw(sCommandBuffer);
-
-    //Renderer::EndScene();
-    //commandBuffer->End();                             // End recording commands
-    //commandBuffer->Execute();                         // Execute the command buffer
-    //swapchain->Present();                             // Present the rendered image to the screen
+    sComponents.MaterialBuffer->UpdateData(&sComponents.Material, sizeof(Components::UMaterial));
+    sComponents.LightBuffer->UpdateData(&sComponents.Light, sizeof(Components::ULight));
+    sComponents.ViewBuffer->UpdateData(&sComponents.View, sizeof(Components::UView));
+    
+    level.Draw(sCommandBuffer);
 }
 
 void TestGL(const DesignerCamera &camera) {

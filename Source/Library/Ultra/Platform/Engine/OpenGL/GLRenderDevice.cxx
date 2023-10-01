@@ -106,6 +106,7 @@ void GLRenderDevice::Load() {
 
     // Color-Mixing and Transparency-Support
     glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Pixel Byte Pack/Unpack-Alignment
@@ -137,6 +138,11 @@ void GLRenderDevice::Load() {
     glGetIntegerv(GL_MAX_SAMPLES, &capabilities.MaxSamples);
     glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &capabilities.MaxAnisotropy);
     glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &capabilities.MaxTextureUnits);
+
+    // Uniform Block Size
+    GLint maxUniformBlockSize;
+    glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUniformBlockSize);
+    printf("Max uniform block size: %d\n", maxUniformBlockSize);
 
     glBindVertexArray(0);
     capabilities.Log();

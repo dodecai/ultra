@@ -98,7 +98,7 @@ void GLPipelineState::UpdateProperties() {
     }
 
     switch (mProperties.CullMode) {
-        case CullMode::Back:    { glEnable(GL_CULL_FACE); glCullFace(GL_BACK); break; }
+        case CullMode::Back:    { glEnable(GL_CULL_FACE); glCullFace(GL_BACK); glFrontFace(GL_CCW); break; }
         case CullMode::Front:   { glEnable(GL_CULL_FACE); glCullFace(GL_FRONT); break; }
         case CullMode::CCW:     { glEnable(GL_CULL_FACE); glCullFace(GL_CCW); break; }
         case CullMode::None:    { glDisable(GL_CULL_FACE);  break; }

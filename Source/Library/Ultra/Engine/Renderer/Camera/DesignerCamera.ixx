@@ -67,6 +67,7 @@ public:
 
     inline void SetViewportSize(float width, float height) { mViewportWidth = width; mViewportHeight = height; UpdateProjection(); }
     const glm::mat4 &GetViewMatrix() const { return mViewMatrix; }
+    const glm::mat4 &GetProjectionMatrix() const { return mProjection; }
     glm::mat4 GetViewProjection() const { return mProjection * mViewMatrix; }
 
     glm::vec3 GetUpDirection() const {

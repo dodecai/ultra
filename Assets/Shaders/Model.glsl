@@ -36,36 +36,54 @@ layout (location = 2) in vec3 vFragPos;
 
 layout (location = 0) out vec4 oFragColor;
 
-layout(binding = 0) uniform sampler2D uTextureDiffuse1;
-layout(binding = 1) uniform sampler2D uTextureNormal1;
-layout(binding = 2) uniform sampler2D uTextureSpecular1;
-layout(binding = 3) uniform sampler2D uTextureHeight1;
+layout(binding = 0) uniform sampler2D uTextureDiffuse;
+layout(binding = 1) uniform sampler2D uTextureNormal;
+layout(binding = 2) uniform sampler2D uTextureSpecular;
+layout(binding = 3) uniform sampler2D uTextureHeight;
+
+layout(std140, binding = 4) uniform Material {
+    float uShininess;
+};
+
+layout(std140, binding = 5) uniform Light {
+    vec3 uLightPosition;
+    vec3 uAmbient;
+    vec3 uDiffuse;
+    vec3 uSpecular;
+    bool uAmbientEnabled;
+    bool uDiffuseEnabled;
+    bool uSpecularEnabled;
+};
+
+layout(std140, binding = 6) uniform View {
+    vec3 uViewPosition;
+};
 
 void main() {
-    //vec4 textureColor = texture(uTextureDiffuse1, vTexCoords);
-    //vec4 textureColor = vec4(1.0, 1.0, 1.0, 1.0);
-    //vec4 ambientColor = vec4(0.5, 0.5, 0.5, 1.0);
-    //oFragColor = ambientColor * textureColor;
-    // Fixed lighting until I have time to implement it
-    vec3 u_LightPosition = vec3(12.0, 24.0, 12.0);  
-    vec3 u_LightColor = vec3(1.0, 1.0, 1.0);     
-    vec3 u_ViewPosition = vec3(0.0, 0.0, 5.0);   
+    // Preparation
+    vec3 result = vec3(0.0f);
+    vec3 direction = normalize(uLightPosition - vFragPos);
+    vec3 normal = normalize(vNormal);
+    vec3 viewDirection = normalize(uViewPosition  - vFragPos);
+    vec3 reflectDirection = reflect(-direction, normal);
+
+    // Ambient lighting
+    if (uAmbientEnabled) {
+    }
+        result += uAmbient * texture(uTextureDiffuse, vTexCoords).rgb;
     
-    // Ambient Beleuchtung
-    vec3 ambient = vec3(0.5, 0.5, 0.5);  
+    // Diffuse lighting
+    if (uDiffuseEnabled) {
+    }
+        float diff = max(dot(normal, direction), 0.0f);
+        result += diff * uDiffuse * texture(uTextureDiffuse, vTexCoords).rgb;
 
-    // Diffuse Beleuchtung
-    vec3 norm = normalize(vNormal);
-    vec3 lightDir = normalize(u_LightPosition - vFragPos);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * u_LightColor;
+    // Specular lighting
+    if (uSpecularEnabled) {
+    }
+    float spec = pow(max(dot(viewDirection, reflectDirection), 0.0),uShininess);
+    result += spec * uSpecular * texture(uTextureSpecular, vTexCoords).rgb;
 
-    // Specular Beleuchtung
-    vec3 viewDir = normalize(u_ViewPosition - vFragPos);
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16.0);
-    vec3 specular = spec * u_LightColor;
-
-    vec3 result = (ambient + diffuse + specular);
     oFragColor = vec4(result, 1.0);
+    oFragColor.a = 1.0f;
 }
