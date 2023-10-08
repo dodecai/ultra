@@ -25,6 +25,7 @@ import Ultra.Platform.Renderer.DXRenderDevice;
 import Ultra.Platform.Renderer.GLRenderDevice;
 import Ultra.Platform.Renderer.VKRenderDevice;
 
+import Ultra.Engine.Asset;
 import Ultra.Engine.Model;
 import Ultra.Engine.Renderer.Buffer;
 import Ultra.Engine.Renderer.PipelineState;
@@ -145,58 +146,25 @@ void Renderer::DrawGrid(const DesignerCamera &camera) {
 static inline CommandBuffer *sCommandBuffer = nullptr;
 
 struct Components {
-    float CubeVertices[324] = {
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
-
-        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
-
-        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
-
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-                                  
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+    float CubeVertices[24] = {
+        -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
     };
     unsigned int CubeIndices[36] = {
-         0,  1,  2,  0,  2,  3, // Front
-         4,  5,  6,  4,  6,  4, // Back
-         8,  9, 10,  8, 10, 11, // Top
-        12, 13, 14, 12, 14, 15, // Bottom
-        16, 17, 18, 16, 18, 19, // Left
-        20, 21, 22, 20, 22, 23, // Right
+         0,  1,  2,  2,  3,  0, // Front
+         4,  5,  6,  6,  7,  4, // Back
+         3,  2,  6,  6,  7,  3, // Top
+         0,  1,  5,  5,  4,  0, // Bottom
+         0,  3,  7,  7,  4,  0, // Left
+         1,  2,  6,  6,  5,  1, // Right
     };
-    int CubeComponents = 18;
+    int CubeComponents = 36;
 
     float TriangleVertices[27] = {
         // Positions            // Colors                   // Texture Coords
@@ -266,18 +234,19 @@ struct Components {
     } Properties;
 
     struct UMaterial {
+        glm::vec3 uDiffuseColor {};
+        glm::vec3 uSpecularColor {};
+        glm::vec3 uAmbientColor {};
         float Shininess;
     } Material;
     Reference<Buffer> MaterialBuffer;
 
     struct ULight {
-        glm::vec3 LightPosition;
-        glm::vec3 Ambient;
-        glm::vec3 Diffuse;
-        glm::vec3 Specular;
-        bool AmbientEnabled;
-        bool DiffuseEnabled;
-        bool SpecularEnabled;
+        alignas(16) glm::vec3 LightColor {};
+        alignas(16) glm::vec3 LightPosition {};
+        alignas(16) glm::vec3 Ambient {};
+        alignas(16) glm::vec3 Diffuse {};
+        alignas(16) glm::vec3 Specular {};
     } Light;
     Reference<Buffer> LightBuffer;
 
@@ -312,8 +281,68 @@ void Renderer::Test(const DesignerCamera &camera) {
 }
 
 void TestAgnostic(const DesignerCamera &camera) {
-    // Load Models and their Shaders
+    // Prepare Translation
+    auto projection = camera.GetProjectionMatrix();
+    auto view = camera.GetViewMatrix();
+    auto model = glm::mat4(1.0f);
+
+    // Load Shaders
+    static auto lightShader = Shader::Create("Assets/Shaders/Light.glsl");
     static auto modelShader = Shader::Create("Assets/Shaders/Model.glsl");
+    
+    // ToDo: Create Light Component
+    static auto timeValue = 0.1f;
+    timeValue += 0.0001f;
+    static auto lightPos = glm::vec3(-3.0f, 3.0f, 5.0f);
+    //float radius = 1.5f;
+    //float angle = timeValue * 2.0f;
+    //lightPos.x = 1.0f + radius * std::cos(angle);
+    //lightPos.z = 3.0f + radius * std::sin(angle);
+
+    // Specify Pipeline and Shader
+    static PipelineProperties properties;
+    properties.DepthTest = true;
+    properties.Wireframe = false;
+    properties.Layout = {
+        { ShaderDataType::Float3, "aPosition" }
+    };
+    static auto pipeline = PipelineState::Create(properties);
+
+    // Specify Buffers and Textures
+    static auto vertexBuffer = Buffer::Create(BufferType::Vertex, &sComponents.CubeVertices, sizeof(sComponents.CubeVertices));
+    static auto indexBuffer = Buffer::Create(BufferType::Index, &sComponents.CubeIndices, sizeof(sComponents.CubeIndices));
+    static auto propertiesUniform = Buffer::Create(BufferType::Uniform, &sComponents.Properties, sizeof(sComponents.Properties));
+    static auto translationUnfiorm = Buffer::Create(BufferType::Uniform, &sComponents.Translation, sizeof(sComponents.Translation));
+
+    // Update Vertices and Indices
+    vertexBuffer->UpdateData(&sComponents.CubeVertices, sizeof(sComponents.CubeVertices));
+    indexBuffer->UpdateData(&sComponents.CubeIndices, sizeof(sComponents.CubeIndices));
+
+    // Update Properties
+    float value = (sin(timeValue) / 2.0f) + 0.5f;
+    sComponents.Properties.Color = glm::vec4(1.0f, 1.0f - value, value, 1.0f);
+    propertiesUniform->UpdateData(&sComponents.Properties, sizeof(sComponents.Properties));
+
+    // Update Translation
+    auto lightModel = glm::translate(glm::mat4(1.0f), lightPos);
+    lightModel = glm::scale(lightModel, glm::vec3(0.2f, 0.2f, 0.2f));
+
+    auto lightTransform = projection * view * lightModel;
+    sComponents.Translation.Transform = lightTransform;
+    translationUnfiorm->UpdateData(&sComponents.Translation, sizeof(sComponents.Translation));
+
+    // Draw
+    vertexBuffer->Bind();
+    pipeline->Bind();
+    indexBuffer->Bind();
+
+    lightShader->Bind();
+    propertiesUniform->Bind(0);
+    translationUnfiorm->Bind(1);
+    //glDrawArrays(GL_TRIANGLES, 0, 36);
+    sCommandBuffer->DrawIndexed(sComponents.CubeComponents, PrimitiveType::Triangle, true);
+
+    // Load Models
     static Model cone("Assets/Models/Cone/Cone.obj");
     static Model cube("Assets/Models/Cube/Cube.obj");
     static Model cylinder("Assets/Models/Cylinder/Cylinder.obj");
@@ -323,97 +352,36 @@ void TestAgnostic(const DesignerCamera &camera) {
     static Model sphere("Assets/Models/Sphere/SphereUV.obj");
     static Model torus("Assets/Models/Torus/Torus.obj");
 
-    // Specify Pipeline and Shader
-    //static PipelineProperties properties;
-    //properties.DepthTest = true;
-    //properties.Wireframe = false;
-    //properties.Layout = {
-    //    { ShaderDataType::Float3, "aPosition" },
-    //    { ShaderDataType::Float4, "aColor" },
-    //    { ShaderDataType::Float2, "aTexCoord" },
-    //};
-    //static auto pipeline = PipelineState::Create(properties);
-    //static auto shader = Shader::Create("Assets/Shaders/Test.glsl");
+    // Translate Cube Model
+    auto cubeModel = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+    cubeModel = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 
-    // Specify Buffers and Textures
-    //static auto vertexBuffer = Buffer::Create(BufferType::Vertex, (void *)sComponents.CubeVertices, sizeof(sComponents.CubeVertices));
-    //static auto indexBuffer = Buffer::Create(BufferType::Index, (void *)sComponents.CubeIndices, sizeof(sComponents.CubeIndices));
-    static auto texture = Texture::Create({}, "Assets/Textures/Wallpaper.jpg");
-
-    // Specify Uniforms
-    //shader->Bind();
-    //static auto translationUnfiorm = Buffer::Create(BufferType::Uniform, nullptr, sizeof(sComponents.Translation));
-    //static auto colorUniform = Buffer::Create(BufferType::Uniform, nullptr, sizeof(sComponents.Properties));
-
-    // Update Buffers
-    //vertexBuffer->UpdateData((void *)sComponents.CubeVertices, sizeof(sComponents.CubeIndices));
-
-    // Camera
-    //sComponents.Camera.ViewProjectionMatrix = camera.GetProjection();
-    //sComponents.CameraUniformBuffer->Bind(0);
-    //sComponents.CameraUniformBuffer->UpdateData(&sComponents.Camera, sizeof(Components::CameraData));
-
-    // Update Color
-    //static auto timeValue = 0.1f;
-    //timeValue += 0.0001f;
-    //float value = (sin(timeValue) / 2.0f) + 0.5f;
-    //sComponents.Properties.Color = glm::vec4(0.1f, 1.0f - value, value, 1.0f);
-    //colorUniform->Bind(0);
-    //colorUniform->UpdateData(&sComponents.Properties, sizeof(sComponents.Properties));
-
-    // Update Translation
-    auto projection = camera.GetProjectionMatrix();
-    auto view = camera.GetViewMatrix();
-    auto model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-    // ...
+    // Update Camera, Light and View
+    modelShader->Bind();
     sComponents.Camera2.Projection = projection;
     sComponents.Camera2.View = view;
-    sComponents.Camera2.Model = model;
+    sComponents.Camera2.Model = cubeModel;
 
-    //auto translation = projection * view * model;
-    //sComponents.Translation.Transform = translation;
-    //translationUnfiorm->Bind(1);
-    //translationUnfiorm->UpdateData(&sComponents.Translation, sizeof(sComponents.Translation));
-
-    // Draw
-    //pipeline->Bind();
-    //shader->Bind();
-    //vertexBuffer->Bind();
-    //indexBuffer->Bind();
-    //sComponents.CameraUniformBuffer->Bind(0);
-    //colorUniform->Bind(0);
-    //translationUnfiorm->Bind(1);
-    //texture->Bind(1);
-    //commandBuffer->DrawIndexed(indexCount);
-    //sCommandBuffer->DrawIndexed(sComponents.CubeComponents, PrimitiveType::Triangle, false);
-    //glDrawArrays(GL_TRIANGLES, 0, 36);
-
-    modelShader->Bind();
-
-    
     sComponents.Material.Shininess = 16.0f;
-    sComponents.Light.LightPosition = camera.GetPosition() + glm::vec3(0.0f, 24.0f, 0.0f);
-    sComponents.Light.Ambient = glm::vec3(0.2f, 0.2f, 0.2f);
-    sComponents.Light.Diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-    sComponents.Light.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
-    sComponents.Light.AmbientEnabled = false;
-    sComponents.Light.DiffuseEnabled = false;
-    sComponents.Light.SpecularEnabled = false;
+    sComponents.Light.LightColor = { 1.0f, 1.0f, 1.0f };  //sComponents.Properties.Color; // 
+    sComponents.Light.LightPosition = lightPos;
+    sComponents.Light.Ambient = { 0.1f, 0.1f, 0.1f };
+    sComponents.Light.Diffuse = { 0.5f, 0.5f, 0.5f };
+    sComponents.Light.Specular = { 1.0f, 1.0f, 1.0f };
     sComponents.View.Position = camera.GetPosition();
 
+    int location = modelShader->FindUniformLocation("Light");
+
     sComponents.CameraUniformBuffer2->Bind(0);
-    texture->Bind(0);
-    sComponents.MaterialBuffer->Bind(4);
+    //sComponents.MaterialBuffer->Bind(4);
     sComponents.LightBuffer->Bind(5);
     sComponents.ViewBuffer->Bind(6);
     sComponents.CameraUniformBuffer2->UpdateData(&sComponents.Camera2, sizeof(Components::CameraData2));
-    sComponents.MaterialBuffer->UpdateData(&sComponents.Material, sizeof(Components::UMaterial));
+    //sComponents.MaterialBuffer->UpdateData(&sComponents.Material, sizeof(Components::UMaterial));
     sComponents.LightBuffer->UpdateData(&sComponents.Light, sizeof(Components::ULight));
     sComponents.ViewBuffer->UpdateData(&sComponents.View, sizeof(Components::UView));
-    
-    level.Draw(sCommandBuffer);
+
+    cube.Draw(sCommandBuffer);
 }
 
 void TestGL(const DesignerCamera &camera) {

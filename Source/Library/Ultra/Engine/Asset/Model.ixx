@@ -90,6 +90,7 @@ private:
         Indices indices {};
         Textures textures {};
         vector<TextureData> info {};
+        MaterialData material {};
 
         // Vertices
         for (size_t i = 0; i < mesh->mNumVertices; i++) {
@@ -162,8 +163,34 @@ private:
             textures.insert(textures.end(), ambientMaps.begin(), ambientMaps.end());
             info.insert(info.end(), ambientInfo.begin(), ambientInfo.end());
         }
+        if (textures.empty() && mesh->mMaterialIndex >= 0) {
+            material = LoadMaterial(scene->mMaterials[mesh->mMaterialIndex]);
+        }
 
-        return Mesh(vertices, indices, textures, info);
+        return Mesh(vertices, indices, textures, info, material);
+    }
+
+    MaterialData LoadMaterial(aiMaterial *material) {
+        MaterialData result;
+        aiColor3D color(0.0f, 0.0f, 0.0f);
+        float shininess;
+
+        material->Get(AI_MATKEY_COLOR_AMBIENT, color);
+        result.Ambient = glm::vec3(color.r, color.g, color.b);
+
+        material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+        result.Diffuse = glm::vec3(color.r, color.g, color.b);
+
+        material->Get(AI_MATKEY_COLOR_SPECULAR, color);
+        result.Specular = glm::vec3(color.r, color.g, color.b);
+
+        material->Get(AI_MATKEY_SHININESS, shininess);
+        if (shininess < 0.0f) {
+            shininess = 32.0f;
+        }
+        result.Shininess = shininess;
+
+        return result;
     }
 
     std::tuple<Textures, TextureInfo> LoadMaterialTextures(aiMaterial *material, aiTextureType type, string typeName) {

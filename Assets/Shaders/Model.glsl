@@ -22,19 +22,21 @@ layout(std140, binding = 0) uniform Camera {
 
 void main() {
     vTexCoords = aTexCoords;
-    vNormal = mat3(uModel) * aNormal;
+    vNormal = mat3(transpose(inverse(uModel))) * aNormal;
     vFragPos = vec3(uModel * vec4(aPosition, 1.0));
+
     gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);
 }
 
 #type fragment
 #version 450 core
+#extension GL_EXT_scalar_block_layout : require
+
+layout (location = 0) out vec4 oFragColor;
 
 layout (location = 0) in vec2 vTexCoords;
 layout (location = 1) in vec3 vNormal;
 layout (location = 2) in vec3 vFragPos;
-
-layout (location = 0) out vec4 oFragColor;
 
 layout(binding = 0) uniform sampler2D uTextureDiffuse;
 layout(binding = 1) uniform sampler2D uTextureNormal;
@@ -42,17 +44,18 @@ layout(binding = 2) uniform sampler2D uTextureSpecular;
 layout(binding = 3) uniform sampler2D uTextureHeight;
 
 layout(std140, binding = 4) uniform Material {
+    vec3 uAmbientColor;
+    vec3 uDiffuseColor;
+    vec3 uSpecularColor;
     float uShininess;
 };
 
 layout(std140, binding = 5) uniform Light {
+    vec3 uLightColor;
     vec3 uLightPosition;
     vec3 uAmbient;
     vec3 uDiffuse;
     vec3 uSpecular;
-    bool uAmbientEnabled;
-    bool uDiffuseEnabled;
-    bool uSpecularEnabled;
 };
 
 layout(std140, binding = 6) uniform View {
@@ -61,29 +64,38 @@ layout(std140, binding = 6) uniform View {
 
 void main() {
     // Preparation
-    vec3 result = vec3(0.0f);
-    vec3 direction = normalize(uLightPosition - vFragPos);
+    //vec3 color = vec3(1.0f, 0.5f, 0.31f);
     vec3 normal = normalize(vNormal);
+    vec3 direction = normalize(uLightPosition - vFragPos);
     vec3 viewDirection = normalize(uViewPosition  - vFragPos);
     vec3 reflectDirection = reflect(-direction, normal);
+    vec3 result = vec3(0.0f);
 
     // Ambient lighting
-    if (uAmbientEnabled) {
-    }
+    bool ambientColorActive = !all(equal(uAmbientColor, vec3(0.0f)));
+    if (ambientColorActive) {
+        result += uDiffuseColor * uAmbient * uAmbientColor;
+    } else {
         result += uAmbient * texture(uTextureDiffuse, vTexCoords).rgb;
+    }
     
     // Diffuse lighting
-    if (uDiffuseEnabled) {
+    float diff = max(dot(normal, direction), 0.0f);
+    bool diffuseColorActive = !all(equal(uDiffuseColor, vec3(0.0f)));
+    if (diffuseColorActive) {
+       result += uDiffuseColor * diff * uDiffuseColor;
+    } else {
+        result += uDiffuse * diff * texture(uTextureDiffuse, vTexCoords).rgb;
     }
-        float diff = max(dot(normal, direction), 0.0f);
-        result += diff * uDiffuse * texture(uTextureDiffuse, vTexCoords).rgb;
 
     // Specular lighting
-    if (uSpecularEnabled) {
+    float spec = pow(max(dot(viewDirection, reflectDirection), 0.0f), 256.0f + uShininess);
+    bool specularColorActive = !all(equal(uSpecularColor, vec3(0.0f)));
+    if (specularColorActive) {
+        result += uSpecularColor * spec * uSpecular * uSpecularColor;
+    } else {
+        result += uSpecular * spec * texture(uTextureSpecular, vTexCoords).rgb;
     }
-    float spec = pow(max(dot(viewDirection, reflectDirection), 0.0),uShininess);
-    result += spec * uSpecular * texture(uTextureSpecular, vTexCoords).rgb;
-
-    oFragColor = vec4(result, 1.0);
-    oFragColor.a = 1.0f;
+    //result *= color;
+    oFragColor = vec4(result, 1.0f);
 }

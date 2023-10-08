@@ -1,4 +1,8 @@
-﻿// Module
+﻿module;
+
+#include <chrono>
+
+// Module
 export module Ultra.Utility.DateTime;
 
 // Library

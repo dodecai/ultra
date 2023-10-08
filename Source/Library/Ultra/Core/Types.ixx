@@ -39,17 +39,6 @@ export import <unordered_set>;
 export import <vector>;
 export import <utility>;
 
-// Custom Library
-export import Ultra.Core.Arguments;
-export import Ultra.Core.Concepts;
-export import Ultra.Core.Literals;
-export import Ultra.Core.Object;
-export import Ultra.Core.Property;
-export import Ultra.Core.SmartPointer;
-export import Ultra.Core.SourceLocation;
-export import Ultra.Core.Timestamp;
-export import Ultra.Core.UUID;
-
 ///
 /// @brief The following containers, literals and types are used quite often, therefore they are exposed under the root namespace.
 ///
@@ -105,10 +94,5 @@ using std::uint16_t;
 using std::uint32_t;
 using std::uint64_t;
 using std::uintptr_t;
-
-// Literals
-using namespace std::literals::chrono_literals;
-using namespace std::literals::string_literals;
-using namespace std::literals::string_view_literals;
 
 }

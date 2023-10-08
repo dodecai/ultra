@@ -7,6 +7,7 @@ export module Ultra.Engine.Mesh;
 
 import Ultra.Core;
 import Ultra.Logger;
+export import Ultra.Engine.Asset.Material;
 export import Ultra.Engine.Renderer.CommandBuffer;
 export import Ultra.Engine.Renderer.PipelineState;
 export import Ultra.Engine.Renderer.Texture;
@@ -21,7 +22,6 @@ struct Vertex {
     glm::vec2 TexCoords {};
     glm::vec3 Tangent {};
     glm::vec3 Bitangent {};
-
     //int BoneIDs[MaxBoneInfluences] = { 0, 0, 0, 0 };
     //float Weights[MaxBoneInfluences] = { 0.0f, 0.0f, 0.0f, 0.0f };
 };
@@ -39,17 +39,20 @@ using TextureInfo = vector<TextureData>;
 
 class Mesh {
 public:
-    Mesh(Vertices vertices, Indices indices, Textures textures, TextureInfo info):
+    Mesh(Vertices vertices, Indices indices, Textures textures, TextureInfo info, MaterialData material = {}):
         mVertices(vertices),
         mIndices(indices),
         mTextures(textures),
-        mTextureData(info) {
+        mTextureData(info),
+        mMaterialData(material) {
         SetupMesh();
     }
     ~Mesh() = default;
 
     void Draw(CommandBuffer *commandBuffer);
     uint32_t GetIndices() const { return mIndices.size(); }
+
+    MaterialData GetMaterial() const { return mMaterialData; }
 
 private:
     void SetupMesh() {
@@ -70,6 +73,7 @@ private:
 
         mVertexBuffer = Buffer::Create(BufferType::Vertex, mVertices.data(), sizeof_vector(mVertices));
         mIndexBuffer = Buffer::Create(BufferType::Index, mIndices.data(), sizeof_vector(mIndices));
+        mMaterialBuffer = Buffer::Create(BufferType::Uniform, &mMaterialData, sizeof(MaterialData));
     }
 
 private:
@@ -79,9 +83,11 @@ private:
     Textures mTextures;
 
     TextureInfo mTextureData;
+    MaterialData mMaterialData;
 
     Reference<Buffer> mVertexBuffer;
     Reference<Buffer> mIndexBuffer;
+    Reference<Buffer> mMaterialBuffer;
 };
 
 }
@@ -98,6 +104,10 @@ void Mesh::Draw(CommandBuffer *commandBuffer) {
     for (size_t i = 0; i < mTextures.size(); i++) {
         if (i >= 3) break;
         mTextures[i]->Bind(i);
+    }
+    if (!mTextures.size()) {
+        mMaterialBuffer->Bind(4);
+        mMaterialBuffer->UpdateData(&mMaterialData, sizeof(MaterialData));
     }
     commandBuffer->DrawIndexed(mIndices.size(), PrimitiveType::Triangle, true);
     mPipeline->Unbind();
