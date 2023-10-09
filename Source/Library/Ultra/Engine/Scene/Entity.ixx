@@ -1,10 +1,11 @@
 ﻿export module Ultra.Engine.Entity;
 
-import <entt/entt.hpp>;
 import Ultra.Core;
 import Ultra.Logger;
 import Ultra.Engine.Scene;
 import Ultra.Utility.Timer;
+
+import <entt/entt.hpp>;
 
 export namespace Ultra {
 

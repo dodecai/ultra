@@ -10,7 +10,6 @@ module Ultra.UI.GUILayer;
 import Ultra.Core.Application;
 import Ultra.Logger;
 import Ultra.UI.GUIBuilder;
-import Ultra.Utility.Timer;
 
 import Ultra.Platform.GFX.VKContext;
 

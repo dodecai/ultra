@@ -1,12 +1,9 @@
 ﻿module;
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/matrix_decompose.hpp>
-
-#define GLM_ENABLE_EXPERIMENTAL
-
 export module Ultra.Math;
 
+import <glm/gtx/matrix_decompose.hpp>;
 export import <glm/glm.hpp>;
 export import <glm/gtc/type_ptr.hpp>;
 //export import <glm/gtx/quaternion.hpp>;

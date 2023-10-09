@@ -1,7 +1,6 @@
 ﻿module;
 
 //#define ENTT_ASSERT(condition)
-#include <entt/entt.hpp>
 
 export module Ultra.Engine.Scene;
 
@@ -12,6 +11,8 @@ import Ultra.Engine.Components;
 import Ultra.Engine.SceneCamera;
 import Ultra.Engine.Renderer2D;
 import Ultra.Engine.Renderer.Framebuffer;
+
+import <entt/entt.hpp>;
 
 export namespace Ultra {
 

@@ -1,9 +1,6 @@
 ﻿module;
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
-#include <glm/gtx/compatibility.hpp>
 
 export module Ultra.Engine.ParticleSystem;
 
@@ -13,6 +10,10 @@ import Ultra.Engine.Camera;
 import Ultra.Engine.PerspectiveCamera;
 import Ultra.Utility.Random;
 import Ultra.Utility.Timer;
+
+import <glm/glm.hpp>;
+import <glm/gtc/constants.hpp>;
+import <glm/gtx/compatibility.hpp>;
 
 export namespace Ultra {
 

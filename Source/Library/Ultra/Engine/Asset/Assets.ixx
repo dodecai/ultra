@@ -1,6 +1,6 @@
 ﻿export module Ultra.Engine.Asset;
 
-import Ultra.CoreNew;
+import Ultra.Core;
 import Ultra.Math.Vector;
 
 import <glm/glm.hpp>;

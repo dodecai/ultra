@@ -354,7 +354,7 @@ public:
         // String
         Log("String");
         LogDelimiter("");
-        String::Test();
+        //String::Test();
         LogDelimiter("");
         // ThreadPool
         Log("ThreadPool");

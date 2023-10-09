@@ -1,6 +1,6 @@
 ﻿export module Ultra.Engine.AssetManager;
 
-import Ultra.CoreNew;
+import Ultra.Core;
 import Ultra.Engine.Asset;
 
 export namespace Ultra {

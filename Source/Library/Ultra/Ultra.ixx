@@ -51,16 +51,16 @@ export import Ultra.Logger;
 
 // Utility Extensions
 #ifdef LIB_EXTENSION_UTILITIES
-    export import Ultra.Utility.DateTime;
+    //export import Ultra.Utility.DateTime;
     export import Ultra.Utility.Delegate;
     export import Ultra.Utility.Dispatcher;
     export import Ultra.Utility.Emitter;
     export import Ultra.Utility.Future;
     export import Ultra.Utility.Random;
     export import Ultra.Utility.Signal;
-    export import Ultra.Utility.String;
+    //export import Ultra.Utility.String;
     export import Ultra.Utility.ThreadPool;
-    export import Ultra.Utility.Timer;
+    //export import Ultra.Utility.Timer;
 #endif
 
 export namespace Ultra {

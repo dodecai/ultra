@@ -2,7 +2,7 @@
 
 import Ultra.Core;
 import Ultra.Core.Layer;
-import Ultra.Config;
+//import Ultra.Config;
 import Ultra.Logger;
 import Ultra.GFX.Context;
 import Ultra.System.Event;
@@ -92,8 +92,8 @@ public:
         LogCaption("Initialization");
 
         // Load Configuration
-        mConfig = CreateReference<Config>();
-        mConfig->Load("Data/Config.yml");
+        //mConfig = CreateReference<Config>();
+        //mConfig->Load("Data/Config.yml");
 
         // Load Window, Context and Events
         mDialog = Dialog::Create();
@@ -225,7 +225,7 @@ public:
 
     // Accessors
     static ApplicationProperties &GetProperties() { return Instance().mProperties; }
-    static Config &GetConfig() { return *Instance().mConfig; }
+    //static Config &GetConfig() { return *Instance().mConfig; }
     static Context &GetContext() { return *Instance().mContext; }
     static Dialog &GetDialog() { return *Instance().mDialog; };
     static Statistics GetStatistics() { return Instance().mStatistics; }
@@ -360,7 +360,7 @@ private:
     // Objects
     GuiLayer *pCoreLayer;
     LayerStack mLayers;
-    Reference<Config> mConfig;
+    //Reference<Config> mConfig;
     Reference<Context> mContext;
     Reference<Dialog> mDialog;
     Scope<EventListener> mListener;

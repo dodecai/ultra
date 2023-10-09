@@ -1,8 +1,5 @@
 ﻿export module Ultra.Core;
 
-// Default Library
-//export import std;
-
 // Custom Library
 export import "Core.h";
 export import "Platform.h";
