@@ -1,4 +1,4 @@
-﻿export module Ultra.Utility.Future;
+﻿export module Ultra.Core.Future;
 
 import Ultra.Core;
 

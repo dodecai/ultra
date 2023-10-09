@@ -16,6 +16,16 @@ export import Ultra.Logger;
 #ifdef LIB_EXTENSION_CORE
     export import Ultra.Core.Application;
     export import Ultra.Core.Layer;
+    //export import Ultra.Core.DateTime;
+    export import Ultra.Core.Delegate;
+    export import Ultra.Core.Dispatcher;
+    export import Ultra.Core.Emitter;
+    export import Ultra.Core.Future;
+    export import Ultra.Core.Random;
+    export import Ultra.Core.Signal;
+    //export import Ultra.Core.String;
+    export import Ultra.Core.ThreadPool;
+    //export import Ultra.Core.Timer;
 #endif
 
 // Debug Extensions
@@ -24,11 +34,16 @@ export import Ultra.Logger;
     //export import Ultra.Debug.Profiler;
 #endif
 
-// GFX Extensions
-#ifdef LIB_EXTENSION_GFX
-    export import Ultra.GFX.Context;
-    export import Ultra.Engine;
+// Engine Extensions
+#ifdef LIB_EXTENSION_ENGINE
+    export import Ultra.Asset;
+    export import Ultra.Animation;
     export import Ultra.Math;
+    export import Ultra.Media;
+    export import Ultra.Physics;
+    export import Ultra.Renderer;
+    export import Ultra.Scene;
+    export import Ultra.Scripting;
 #endif
 
 // System Extensions
@@ -41,26 +56,8 @@ export import Ultra.Logger;
 
 // UI Extensions
 #ifdef LIB_EXTENSION_UI
-    export import Ultra.UI.GUILayer;
-    export import Ultra.Math;
-    export import Ultra.Engine.Resource;
-    export import Ultra.Engine.Renderer.Viewport;
-    export import Ultra.Engine.UIRenderer;
     export import Ultra.UI.HmGui;
-#endif
-
-// Utility Extensions
-#ifdef LIB_EXTENSION_UTILITIES
-    //export import Ultra.Utility.DateTime;
-    export import Ultra.Utility.Delegate;
-    export import Ultra.Utility.Dispatcher;
-    export import Ultra.Utility.Emitter;
-    export import Ultra.Utility.Future;
-    export import Ultra.Utility.Random;
-    export import Ultra.Utility.Signal;
-    //export import Ultra.Utility.String;
-    export import Ultra.Utility.ThreadPool;
-    //export import Ultra.Utility.Timer;
+    export import Ultra.UI.GUILayer;
 #endif
 
 export namespace Ultra {
@@ -73,13 +70,11 @@ void ShowLibraryInfo() {
         << " - Version:     " << LibVersion     << "\n";
 
     logger << "Library Features\n" << std::boolalpha
-        << " - Prime:   " << Features::LibPrimeExtensions   << "\n"
         << " - Core:    " << Features::LibCoreExtensions    << "\n"
         << " - Debug:   " << Features::LibDebugExtensions   << "\n"
-        << " - GFX:     " << Features::LibGfxExtensions     << "\n"
+        << " - Engine:  " << Features::LibEngineExtensions  << "\n"
         << " - System:  " << Features::LibSystemExtensions  << "\n"
         << " - UI:      " << Features::LibUiExtensions      << "\n"
-        << " - Utility: " << Features::LibUtilityExtensions << "\n"
         << std::noboolalpha;
 
     logger << "\n";

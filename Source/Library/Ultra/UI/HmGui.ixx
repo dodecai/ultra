@@ -1,15 +1,15 @@
 ﻿export module Ultra.UI.HmGui;
 
-export import Ultra.Engine.Font;
+export import Ultra.Renderer.Font;
 
 import Ultra.Core;
-import Ultra.Engine.Renderer.Texture;
-import Ultra.Engine.Renderer.Viewport;
-import Ultra.Engine.UIRenderer;
+import Ultra.Core.Timer;
+import Ultra.Core.String;
+import Ultra.Renderer.Texture;
+import Ultra.Renderer.Viewport;
+import Ultra.UI.Renderer;
 import Ultra.Math;
 import Ultra.System.Input;
-import Ultra.Utility.Timer;
-import Ultra.Utility.String;
 
 ///
 /// @brief Enumeration and Types

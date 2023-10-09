@@ -2,9 +2,9 @@
 
 // Library
 import Ultra.Core;
+import Ultra.Core.DateTime;
+import Ultra.Core.String;
 import Ultra.System.Cli;
-import Ultra.Utility.DateTime;
-import Ultra.Utility.String;
 
 ///
 /// @brief This logger fulfils all your basic needs, and accepts nearly everything you throw at it.

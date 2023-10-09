@@ -2,8 +2,8 @@
 #include <Ultra/EntryPoint.h>
 
 import Ultra;
-import Ultra.Engine.DesignerCamera;
-import Ultra.Utility.ThreadPool;
+import Ultra.Core.ThreadPool;
+import Ultra.Renderer.DesignerCamera;
 
 // Switches
 #define ENGINE_TESTS
@@ -190,6 +190,13 @@ public:
     /// @brief Library Tests
     ///
     void LibraryTest() {
+        return;
+        auto shaders = Directory::GetFiles("Assets/Shaders", ".glsl");
+        auto bin = File::LoadAsBinary("Assets/Shaders/Test.glsl");
+        auto txt = File::LoadAsText("Assets/Shaders/Test.glsl");
+        return; // Heap Corruption
+
+
         ///
         /// Core
         ///

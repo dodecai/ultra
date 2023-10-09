@@ -1,16 +1,16 @@
 ﻿export module Ultra.Core.Application;
 
 import Ultra.Core;
+import Ultra.Core.DateTime;
 import Ultra.Core.Layer;
 //import Ultra.Config;
 import Ultra.Logger;
-import Ultra.GFX.Context;
+import Ultra.Core.Timer;
+import Ultra.Graphics.Context;
 import Ultra.System.Event;
 import Ultra.UI.Dialog;
 import Ultra.UI.GUILayer;
 import Ultra.UI.Window;
-import Ultra.Utility.DateTime;
-import Ultra.Utility.Timer;
 
 int main(int, char **);
 

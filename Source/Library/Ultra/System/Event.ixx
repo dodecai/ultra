@@ -1,7 +1,7 @@
 ﻿export module Ultra.System.Event;
 
 import Ultra.Core;
-import Ultra.Utility.Emitter;
+import Ultra.Core.Emitter;
 
 export import Ultra.Core.Event.Data;
 

@@ -7,20 +7,19 @@
 ///
 
 // Switches to enable or disable Features
-#define LIB_EXTENSION_PRIME     // Logging Extensions (Attention: cannot be disabled, cause they are used everywhere else)
-#define LIB_EXTENSION_CORE      // Applicaiton Configuration, Layout, Workflow Extensions
+//#define LIB_EXTENSION_PRIME   // Prime Extensions like Types (cannot be disabled)
+#define LIB_EXTENSION_CORE      // Application Configuration, Layout, Workflow and Utility Extensions
 #define LIB_EXTENSION_DEBUG     // Debugging and Profiling Extension
-#define LIB_EXTENSION_GFX       // Graphics API selection and Context Binding Extensions
-#define LIB_EXTENSION_SYSTEM    // System Extensions like color output in cli or input capturing
+#define LIB_EXTENSION_ENGINE    // Graphics API selection and Context Binding Extensions (implies ui extensions)
+#define LIB_EXTENSION_SYSTEM    // System Extensions like color output in cli, event system, file system, input system, library loading
 #define LIB_EXTENSION_UI        // UI extensions like window creation and event system
-#define LIB_EXTENSION_UTILITIES // Usefull utilities like date and time, properties and timer helpers, etc.
 
 namespace Ultra {
 
 // Information
 constexpr auto LibCaption       = "Ultra Library";
 constexpr auto LibDescription   = "Game Engine Framework";
-constexpr auto LibRelease       = "2023-07-02";
+constexpr auto LibRelease       = "2025-07-02";
 constexpr auto LibVersion       = "0.0.0";
 constexpr auto LibVersionMajor  = 0u;
 constexpr auto LibVersionMinor  = 0u;
@@ -29,7 +28,6 @@ constexpr auto LibVersionPatch  = 0u;
 // Features
 namespace Features {
 
-constexpr bool LibPrimeExtensions = true;
 #ifdef LIB_EXTENSION_CORE
     constexpr bool LibCoreExtensions = true;
 #else
@@ -40,10 +38,10 @@ constexpr bool LibPrimeExtensions = true;
 #else
     constexpr bool LibDebugExtensions = false;
 #endif
-#ifdef LIB_EXTENSION_GFX
-    constexpr bool LibGfxExtensions = true;
+#ifdef LIB_EXTENSION_ENGINE
+    constexpr bool LibEngineExtensions = true;
 #else
-    constexpr bool LibGfxExtensions = false;
+    constexpr bool LibEngineExtensions = false;
 #endif
 #ifdef LIB_EXTENSION_SYSTEM
     constexpr bool LibSystemExtensions = true;
@@ -54,11 +52,6 @@ constexpr bool LibPrimeExtensions = true;
     constexpr bool LibUiExtensions = true;
 #else
     constexpr bool LibUiExtensions = false;
-#endif
-#ifdef LIB_EXTENSION_UTILITIES
-    constexpr bool LibUtilityExtensions = true;
-#else
-    constexpr bool LibUtilityExtensions = false;
 #endif
 
 }
