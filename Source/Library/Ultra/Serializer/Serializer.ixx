@@ -1,4 +1,4 @@
-﻿export module Ultra.Core.Serializer;
+﻿export module Ultra.Serializer;
 
 import Ultra.Core;
 import Ultra.Scene;

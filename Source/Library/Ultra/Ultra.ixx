@@ -16,6 +16,8 @@ export import Ultra.Logger;
 #ifdef LIB_EXTENSION_CORE
     export import Ultra.Core.Application;
     export import Ultra.Core.Layer;
+
+    // Utilities
     //export import Ultra.Core.DateTime;
     export import Ultra.Core.Delegate;
     export import Ultra.Core.Dispatcher;
@@ -36,14 +38,15 @@ export import Ultra.Logger;
 
 // Engine Extensions
 #ifdef LIB_EXTENSION_ENGINE
-    export import Ultra.Asset;
     export import Ultra.Animation;
+    export import Ultra.Asset;
     export import Ultra.Math;
     export import Ultra.Media;
     export import Ultra.Physics;
     export import Ultra.Renderer;
     export import Ultra.Scene;
     export import Ultra.Scripting;
+    export import Ultra.Serializer;
 #endif
 
 // System Extensions
