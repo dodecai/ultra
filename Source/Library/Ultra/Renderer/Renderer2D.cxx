@@ -1,8 +1,8 @@
 ﻿module;
 
-#include <glm/gtc/matrix_transform.hpp>
-
 module Ultra.Renderer2D;
+
+import <glm/gtc/matrix_transform.hpp>;
 
 import Ultra.Renderer.Buffer;
 import Ultra.Renderer.PipelineState;

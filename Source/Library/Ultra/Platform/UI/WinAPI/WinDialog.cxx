@@ -1,16 +1,9 @@
 ﻿module;
 
-// Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
-#undef __nullnullterminated
-#define __SPECSTRINGS_STRICT_LEVEL 0
-
 #undef APIENTRY
 #define NOMINMAX
 #define VC_EXTRALEAN
 #include <Windows.h>
-
-// Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
-#undef __nullnullterminated
 
 module Ultra.Platform.UI.WinAPI.Dialog;
 

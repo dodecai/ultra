@@ -4,7 +4,6 @@
 ///
 export module Ultra.Core.Dispatcher;
 
-import Ultra.Core;
 import Ultra.Core.Signal;
 
 import <entt/entt.hpp>;

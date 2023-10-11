@@ -3,19 +3,12 @@
 #include <codecvt>
 #include <locale>
 
-// Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
-#undef __nullnullterminated
-#define __SPECSTRINGS_STRICT_LEVEL 0
-
 #pragma comment(lib, "dwmapi.lib")
 #pragma comment(lib, "uxtheme.lib")
 
 #include <DwmApi.h>
 #include <ShObjIdl.h>
 #include <WindowsX.h>
-
-// Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
-#undef __nullnullterminated
 
 ///
 /// @brief Hack: This is an nasty fix for Microsoft's STL implementation

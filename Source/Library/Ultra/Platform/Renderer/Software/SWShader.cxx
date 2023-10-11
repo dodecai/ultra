@@ -1,11 +1,9 @@
-﻿module;
-
-#include <glm/glm.hpp>
-
-module Ultra.Platform.Renderer.SWShader;
+﻿module Ultra.Platform.Renderer.SWShader;
 
 #pragma warning(push)
 #pragma warning(disable: 4100)
+
+import <glm/glm.hpp>;
 
 namespace Ultra {
 

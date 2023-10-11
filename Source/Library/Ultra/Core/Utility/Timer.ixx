@@ -1,8 +1,6 @@
-﻿module;
+﻿export module Ultra.Core.Timer;
 
-#include <chrono>
-
-export module Ultra.Core.Timer;
+import <chrono>;
 
 export namespace Ultra {
 

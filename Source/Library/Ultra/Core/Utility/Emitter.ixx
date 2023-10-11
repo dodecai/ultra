@@ -4,8 +4,6 @@
 ///
 export module Ultra.Core.Emitter;
 
-import Ultra.Core;
-
 import <entt/entt.hpp>;
 
 export namespace Ultra {

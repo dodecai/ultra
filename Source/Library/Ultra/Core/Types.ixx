@@ -15,7 +15,6 @@ export import <functional>;
 export import <future>;
 export import <filesystem>;
 export import <fstream>;
-export import <iterator>;
 export import <iomanip>;
 export import <iostream>;
 export import <limits>;

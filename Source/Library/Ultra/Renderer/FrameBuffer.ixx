@@ -1,8 +1,6 @@
-﻿module;
+﻿export module Ultra.Renderer.Framebuffer;
 
-#include <glm/glm.hpp>
-
-export module Ultra.Renderer.Framebuffer;
+import <glm/glm.hpp>;
 
 export import Ultra.Core;
 export import Ultra.Logger;

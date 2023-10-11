@@ -1,11 +1,9 @@
-﻿module;
-
-#include <glm/glm.hpp>
-
-module Ultra.Platform.Renderer.DXShader;
+﻿module Ultra.Platform.Renderer.DXShader;
 
 #pragma warning(push)
 #pragma warning(disable: 4100)
+
+import <glm/glm.hpp>;
 
 namespace Ultra {
 

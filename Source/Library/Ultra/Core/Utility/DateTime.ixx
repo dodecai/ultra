@@ -1,9 +1,7 @@
-﻿module;
-
-#include <chrono>
-
-// Module
+﻿// Module
 export module Ultra.Core.DateTime;
+
+import <chrono>;
 
 // Library
 import Ultra.Core;

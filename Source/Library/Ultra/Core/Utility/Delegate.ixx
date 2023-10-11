@@ -4,8 +4,6 @@
 ///
 export module Ultra.Core.Delegate;
 
-import Ultra.Core;
-
 import <entt/entt.hpp>;
 
 namespace {

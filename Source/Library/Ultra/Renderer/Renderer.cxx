@@ -1,10 +1,5 @@
 ﻿module;
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glad/gl.h>
-
 #pragma warning(push, 0)
 //https://github.com/nothings/stb/issues/334
 #ifndef STB_IMAGE_IMPLEMENTATION
@@ -16,6 +11,11 @@
 #pragma warning(pop)
 
 module Ultra.Renderer;
+
+import <glad/gl.h>;
+import <glm/glm.hpp>;
+import <glm/gtc/matrix_transform.hpp>;
+import <glm/gtc/type_ptr.hpp>;
 
 import Ultra.Graphics.Context;
 import Ultra.Platform.DXRenderer;

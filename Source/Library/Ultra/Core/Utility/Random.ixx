@@ -1,6 +1,5 @@
 ﻿export module Ultra.Core.Random;
 
-import <random>;
 import Ultra.Core;
 
 export namespace Ultra {

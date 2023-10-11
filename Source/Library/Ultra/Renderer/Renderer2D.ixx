@@ -1,8 +1,6 @@
-﻿module;
+﻿export module Ultra.Renderer2D;
 
-#include <glm/glm.hpp>
-
-export module Ultra.Renderer2D;
+import <glm/glm.hpp>;
 
 import Ultra.Core;
 import Ultra.Logger;

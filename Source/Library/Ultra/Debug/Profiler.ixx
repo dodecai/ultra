@@ -1,7 +1,10 @@
 ﻿export module Ultra.Debug.Profiler;
 
+import <chrono>;
+
 import Ultra.Core;
 import Ultra.Logger;
+
 
 ///
 /// @brief: Profiles code and generates tracing data for chrome based browsers (URL: chrome://tracing/)

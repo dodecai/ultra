@@ -18,7 +18,7 @@ export import Ultra.Logger;
     export import Ultra.Core.Layer;
 
     // Utilities
-    //export import Ultra.Core.DateTime;
+    export import Ultra.Core.DateTime;
     export import Ultra.Core.Delegate;
     export import Ultra.Core.Dispatcher;
     export import Ultra.Core.Emitter;
@@ -27,7 +27,7 @@ export import Ultra.Logger;
     export import Ultra.Core.Signal;
     //export import Ultra.Core.String;
     export import Ultra.Core.ThreadPool;
-    //export import Ultra.Core.Timer;
+    export import Ultra.Core.Timer;
 #endif
 
 // Debug Extensions

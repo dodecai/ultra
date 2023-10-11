@@ -1,8 +1,6 @@
-﻿module;
+﻿export module Ultra.Platform.Renderer.SWShader;
 
-#include <glm/glm.hpp>
-
-export module Ultra.Platform.Renderer.SWShader;
+import <glm/glm.hpp>;
 
 import Ultra.Renderer.Shader;
 

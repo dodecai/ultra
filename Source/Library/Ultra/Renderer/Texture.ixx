@@ -1,8 +1,6 @@
-﻿module;
+﻿export module Ultra.Renderer.Texture;
 
-#include <glm/glm.hpp>
-
-export module Ultra.Renderer.Texture;
+import <glm/glm.hpp>;
 
 export import Ultra.Core;
 export import Ultra.Logger;

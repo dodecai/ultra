@@ -1,9 +1,7 @@
-﻿module;
+﻿module Ultra.UI.Renderer;
 
-#include <glad/gl.h>
-#include <glm/gtc/matrix_transform.hpp>
-
-module Ultra.UI.Renderer;
+import <glad/gl.h>;
+import <glm/gtc/matrix_transform.hpp>;
 
 namespace Ultra {
 

@@ -1,8 +1,6 @@
-﻿module;
+﻿export module Ultra.Platform.Renderer.DXShader;
 
-#include <glm/glm.hpp>
-
-export module Ultra.Platform.Renderer.DXShader;
+import <glm/glm.hpp>;
 
 import Ultra.Renderer.Shader;
 

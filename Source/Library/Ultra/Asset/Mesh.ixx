@@ -1,9 +1,7 @@
-﻿module;
+﻿export module Ultra.Asset.Mesh;
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
-export module Ultra.Asset.Mesh;
+import <glm/glm.hpp>;
+import <glm/gtc/matrix_transform.hpp>;
 
 import Ultra.Core;
 import Ultra.Logger;
