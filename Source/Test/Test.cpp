@@ -3,6 +3,7 @@
 
 import Ultra;
 import Ultra.Core.ThreadPool;
+import Ultra.Asset.Manager;
 import Ultra.Renderer.DesignerCamera;
 
 // Switches
@@ -125,7 +126,9 @@ class App: public Application {
 
 public:
     // Constructors and Destructor
-    App(const ApplicationProperties &properties): Application(properties) {}
+    App(const ApplicationProperties &properties): Application(properties) {
+        AssetManager::Instance().Load();
+    }
     ~App() = default;
 
     // Methods
@@ -278,13 +281,13 @@ public:
             auto resultA = delegateA("DelegateB");
 
             // Signals
-            Signal<bool(string)> signalA;
-            Sink sinkA { signalA };
+            //Signal<bool(string)> signalA;
+            //Sink sinkA { signalA };
 
-            sinkA.connect<&Tester::VolatileStaticEvent>();
-            sinkA.connect<&Tester::VolatileStaticConstEvent>();
+            //sinkA.connect<&Tester::VolatileStaticEvent>();
+            //sinkA.connect<&Tester::VolatileStaticConstEvent>();
 
-            signalA.publish("Signal");
+            //signalA.publish("Signal");
 
             // Dispatcher
             Dispatcher dispatcherA {};

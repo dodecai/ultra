@@ -12,25 +12,32 @@ import <glm/gtc/type_ptr.hpp>;
 export namespace Ultra {
 
 enum class AssetType {
+    Font,
     Image,
+    Model,
+    Script,
     Shader,
+    Sound,
+    Unknown,
 };
 
-class Asset {
-public:
-    virtual void Load(string_view path) = 0;
-};
+string to_string(const AssetType &type) {
+    switch (type) {
+        case AssetType::Font:       return "Font";
+        case AssetType::Image:      return "Image";
+        case AssetType::Model:      return "Model";
+        case AssetType::Script:     return "Script";
+        case AssetType::Shader:     return "Shader";
+        case AssetType::Sound:      return "Sound";
+        case AssetType::Unknown:    return "Unknown";
+        default:                    return "Invalid";
+    }
+}
 
-class ImageAsset: public Asset {
-public:
-    void Load(string_view path) override;
+struct Asset {
+    string Path {};
+    AssetType Type { AssetType::Unknown };
 };
-
-class ShaderAsset: public Asset {
-public:
-    void Load(string_view path) override;
-};
-
 
 
 //enum class TextureType {
@@ -79,19 +86,5 @@ struct Light {
     glm::vec3 Position;
     float Intensity;
 };
-
-}
-
-module: private;
-
-import Ultra.System.FileSystem;
-
-namespace Ultra {
-
-void ImageAsset::Load(string_view path) {
-}
-
-void ShaderAsset::Load(string_view path) {
-}
 
 }

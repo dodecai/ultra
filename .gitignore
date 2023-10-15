@@ -1,4 +1,8 @@
-﻿
+﻿# 3rd-Party
+/3rd-Party/**/Assets
+/Assets/Models/Backpack
+/Assets/Models/Nanosuit
+
 # Build
 /[Bb]uild/
 /[Cc]ache/
@@ -6,7 +10,6 @@
 # Directories
 .vs/
 .vscode/
-/Assets/Phoenix/
 
 # Files
 *.log
@@ -14,4 +17,3 @@
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
-

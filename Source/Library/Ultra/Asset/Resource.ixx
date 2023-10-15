@@ -21,7 +21,6 @@ enum class PhyResourceType {
 };
 
 class Resource {
-
 public:
     Resource();
     ~Resource();

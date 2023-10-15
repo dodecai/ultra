@@ -74,6 +74,16 @@ public:
             return (c >= '0' && c <= '7');
         });
     }
+    static string Join(const vector<string> &values, char separator) {
+        std::string result;
+        for (auto it = values.begin(); it != values.end(); ++it) {
+            result += *it;
+            if (it + 1 != values.end()) {
+                result += separator;
+            }
+        }
+        return result;
+    }
 
     static string &Replace(string &value, string_view token, string_view to, bool caseSensitive = false) noexcept {
         if (value.empty() || token.empty() || value.length() < token.length()) return value;

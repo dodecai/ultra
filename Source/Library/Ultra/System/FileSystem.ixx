@@ -17,15 +17,23 @@ public:
     }
 
     // Retrieve files from a given directory.
-    inline static vector<string> GetFiles(string_view object, string_view token) {
-        auto directory = std::filesystem::path(object.data());
+    inline static vector<string> GetFiles(string_view root, string_view token) {
+        auto directory = std::filesystem::path(root.data());
 
-        if (!Exists(directory.string())) { LogError("The specified directory '{}' doesn't exist!", object.data()); return {}; };
+        if (!Exists(directory.string())) { LogError("The specified directory '{}' doesn't exist!", root.data()); return {}; };
 
-        vector<string> result;
+        vector<string> result {};
+        auto tokens = String::Split(token.data(), '|');
+
         for (auto &current : std::filesystem::recursive_directory_iterator(directory, std::filesystem::directory_options::skip_permission_denied)) {
-            if (current.is_regular_file() && Ultra::String::Contains(current.path().filename().string(), token)) {
-                result.push_back(current.path().filename().string());
+            if (current.is_regular_file()) {
+                auto object = current.path().generic_string();
+                for (auto &filter : tokens) {
+                    if (String::Contains(object, filter)) {
+                        result.push_back(current.path().generic_string());
+                        break;
+                    }
+                }
             }
         }
         return result;

@@ -426,7 +426,8 @@ void TestGL(const DesignerCamera &camera) {
 
     // Build and Compile Shaders
     auto checkProgramState = [](unsigned int id) -> bool {
-        vector<char> message(1024);
+        vector<char> message;
+        message.resize(1024);
         int result {};
         glGetProgramiv(id, GL_LINK_STATUS, &result);
         if (!result) {
