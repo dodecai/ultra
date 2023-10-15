@@ -1,7 +1,6 @@
 ﻿export module Ultra.Core.Concepts;
 
-import <string>;
-import <type_traits>;
+import Ultra.Core.Types;
 
 ///
 /// @brief Concepts

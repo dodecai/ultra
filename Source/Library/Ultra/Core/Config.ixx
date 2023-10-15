@@ -7,7 +7,7 @@ export module Ultra.Config;
 import Ultra.Core;
 import Ultra.Logger;
 
-export import <yaml-cpp/yaml.h>;
+import <yaml-cpp/yaml.h>;
 
 export namespace Ultra {
 

@@ -1,6 +1,5 @@
 ﻿module;
 
-// Hack: The included header unit in the Core module doesn't work here.
 #include "Ultra/Core/Core.h"
 
 #if defined(APP_PLATFORM_WINDOWS)
@@ -12,6 +11,7 @@
 module Ultra.Platform.Graphics.VKContext;
 
 import Ultra.Logger;
+//import Ultra.Platform.Graphics.Vulkan;
 import Ultra.Renderer.ShaderCompiler;
 import Ultra.System.FileSystem;
 import Ultra.UI.Window;

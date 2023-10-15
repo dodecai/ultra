@@ -1,9 +1,8 @@
 ﻿export module Ultra.Renderer.Texture;
 
-import <glm/glm.hpp>;
-
 export import Ultra.Core;
 export import Ultra.Logger;
+import Ultra.Math;
 export import Ultra.Renderer.Data;
 
 export namespace Ultra {
@@ -55,6 +54,19 @@ enum class TextureType {
     Diffuse,
     Normal,
     Specular,
+
+    Height,
+    Ambient,
+    Emissive,
+    Opacity,
+    Shininess,
+    Displacement,
+    Lightmap,
+    Reflection,
+    Roughness,
+    Metallic,
+    Occlusion,
+    Unknown,
 };
 
 enum class TextureUsage {
@@ -210,6 +222,5 @@ inline bool IsDepthFormat(TextureFormat format) {
 }
 
 }
-
 
 }

@@ -1,7 +1,6 @@
 ﻿export module Ultra.Platform.Renderer.GLShader;
 
-import <glm/glm.hpp>;
-
+import Ultra.Math;
 import Ultra.Renderer.Shader;
 
 export namespace Ultra {

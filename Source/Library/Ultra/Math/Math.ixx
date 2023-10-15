@@ -1,16 +1,22 @@
-﻿module;
+﻿export module Ultra.Math;
+
+#pragma warning(push)
+#pragma warning(disable: 4201)
 
 #define GLM_ENABLE_EXPERIMENTAL
-export module Ultra.Math;
 
-import <glm/gtx/matrix_decompose.hpp>;
 export import <glm/glm.hpp>;
+export import <glm/gtc/constants.hpp>;
+export import <glm/gtc/matrix_transform.hpp>;
 export import <glm/gtc/type_ptr.hpp>;
-//export import <glm/gtx/quaternion.hpp>;
+export import <glm/gtx/compatibility.hpp>;
+export import <glm/gtx/matrix_decompose.hpp>;
+export import <glm/gtx/quaternion.hpp>;
 export import <glm/gtx/string_cast.hpp>;
 
-import Ultra.Core;
+#pragma warning(pop)
 
+import Ultra.Core;
 export import Ultra.Math.Matrix;
 export import Ultra.Math.Quaternion;
 export import Ultra.Math.Vector;

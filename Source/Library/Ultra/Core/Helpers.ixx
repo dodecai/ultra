@@ -1,7 +1,6 @@
 ﻿export module Ultra.Core.Helpers;
 
-import <string_view>;
-import <vector>;
+import Ultra.Core.Types;
 
 ///
 /// @brief These little helpers can be very useful in some cases.

@@ -1,13 +1,7 @@
 ﻿export module Ultra.Asset;
 
-export import Ultra.Asset.Resource;
-
 import Ultra.Core;
-import Ultra.Math.Vector;
-
-import <glm/glm.hpp>;
-import <glm/gtc/matrix_transform.hpp>;
-import <glm/gtc/type_ptr.hpp>;
+import Ultra.Math;
 
 export namespace Ultra {
 
@@ -35,29 +29,9 @@ string to_string(const AssetType &type) {
 }
 
 struct Asset {
-    string Path {};
     AssetType Type { AssetType::Unknown };
+    string Path {};
 };
-
-
-//enum class TextureType {
-//    Diffuse,
-//    Specular,
-//    Normal,
-//    Height,
-//    Ambient,
-//    Emissive,
-//    Opacity,
-//    Shininess,
-//    Displacement,
-//    Lightmap,
-//    Reflection,
-//    Roughness,
-//    Metallic,
-//    Occlusion,
-//    Unknown,
-//};
-
 
 namespace Colors {
     // ToDo: Switch to Vector class

@@ -1,8 +1,6 @@
-﻿module;
+﻿module Ultra.Platform.Renderer.GLViewport;
 
-#include <glad/GL.h>
-
-module Ultra.Platform.Renderer.GLViewport;
+import <glad/gl.h>;
 
 namespace Ultra {
 

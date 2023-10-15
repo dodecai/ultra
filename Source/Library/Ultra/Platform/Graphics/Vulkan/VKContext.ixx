@@ -1,17 +1,12 @@
 ﻿module;
 
-// Hack: The included header unit in the Core module doesn't work here.
 #include "Ultra/Core/Core.h"
 
-#if defined(APP_PLATFORM_WINDOWS)
-    #define VC_EXTRALEAN
-    #define WIN32_LEAN_AND_MEAN
-    #define NOMINMAX
-    #undef APIENTRY
-    #include <Windows.h>
-#endif
-
 export module Ultra.Platform.Graphics.VKContext;
+
+#if defined(APP_PLATFORM_WINDOWS)
+    import <Windows.h>;
+#endif
 
 import Ultra.Graphics.Context;
 

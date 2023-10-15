@@ -1,8 +1,6 @@
-﻿module;
+﻿export module Ultra.Platform.Renderer.GLBuffer;
 
-#include <glad/gl.h>
-
-export module Ultra.Platform.Renderer.GLBuffer;
+import <glad/gl.h>;
 
 import Ultra.Renderer.Buffer;
 

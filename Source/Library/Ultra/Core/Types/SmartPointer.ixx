@@ -1,6 +1,6 @@
 ﻿export module Ultra.Core.SmartPointer;
 
-import <memory>;
+import Ultra.Core.Types;
 
 ///
 /// @brief The following definitions serve as replacement possibilities for standard smart pointers.

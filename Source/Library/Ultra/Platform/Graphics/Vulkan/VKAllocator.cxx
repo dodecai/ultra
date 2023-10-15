@@ -1,6 +1,6 @@
 ﻿module Ultra.Platform.Graphics.VKAllocator;
 
-import Ultra.Platform.Graphics.Vulkan;
+import <vulkan/vulkan.hpp>;
 
 namespace Ultra {
 

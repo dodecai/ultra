@@ -1,6 +1,6 @@
 ﻿export module Ultra.Core.Literals;
 
-import <string_view>;
+import Ultra.Core.Types;
 
 ///
 /// @brief Literals

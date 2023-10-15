@@ -1,9 +1,6 @@
-﻿module;
-
-module Ultra.Renderer.ShaderCompiler;
+﻿module Ultra.Renderer.ShaderCompiler;
 
 import <shaderc/shaderc.hpp>;
-import <utility>;
 
 import Ultra.Logger;
 

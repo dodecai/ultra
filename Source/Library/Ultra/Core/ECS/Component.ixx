@@ -1,17 +1,11 @@
-﻿module;
-
-#define GLM_ENABLE_EXPERIMENTAL
-
-export module Ultra.Core.Components;
+﻿export module Ultra.Core.Components;
 
 import Ultra.Core;
 import Ultra.Logger;
+import Ultra.Math;
 import Ultra.Scene.Camera;
 
 import <entt/entt.hpp>;
-import <glm/glm.hpp>;
-import <glm/gtc/matrix_transform.hpp>;
-import <glm/gtx/quaternion.hpp>;
 
 export namespace Ultra {
 

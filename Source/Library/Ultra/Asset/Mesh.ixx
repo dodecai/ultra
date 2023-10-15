@@ -1,10 +1,8 @@
 ﻿export module Ultra.Asset.Mesh;
 
-import <glm/glm.hpp>;
-import <glm/gtc/matrix_transform.hpp>;
-
 import Ultra.Core;
 import Ultra.Logger;
+import Ultra.Math;
 export import Ultra.Asset.Material;
 export import Ultra.Renderer.CommandBuffer;
 export import Ultra.Renderer.PipelineState;
@@ -48,7 +46,7 @@ public:
     ~Mesh() = default;
 
     void Draw(CommandBuffer *commandBuffer);
-    uint32_t GetIndices() const { return mIndices.size(); }
+    uint32_t GetIndices() const { return static_cast<uint32_t>(mIndices.size()); }
 
     MaterialData GetMaterial() const { return mMaterialData; }
 
@@ -101,7 +99,7 @@ void Mesh::Draw(CommandBuffer *commandBuffer) {
 
     for (size_t i = 0; i < mTextures.size(); i++) {
         if (i >= 3) break;
-        mTextures[i]->Bind(i);
+        mTextures[i]->Bind(static_cast<uint32_t>(i));
     }
     if (!mTextures.size()) {
         mMaterialBuffer->Bind(4);

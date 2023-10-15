@@ -1,17 +1,15 @@
-﻿module;
+﻿export module Ultra.Media.Audio;
 
 //#pragma warning(push, 0)
-//    #include <AL/al.h>
-//    #include <AL/alext.h>
-//    //#include <alc/alcmain.h>
-//    #include <AL/examples/common/alhelpers2.h>
-//    #include <AL/examples/common/alhelpers2.cpp>
+//import <AL/al.h>;
+//import <AL/alext.h>;
+////import <alc/alcmain.h>;
+//import <AL/examples/common/alhelpers2.h>;
+//import <AL/examples/common/alhelpers2.cpp>;
 //
-//    #include "vorbis/codec.h"
-//    #include "vorbis/vorbisfile.h"
+//import "vorbis/codec.h";
+//import "vorbis/vorbisfile.h";
 //#pragma warning(pop)
-
-export module Ultra.Media.Audio;
 
 import Ultra.Core;
 import Ultra.System.FileSystem;

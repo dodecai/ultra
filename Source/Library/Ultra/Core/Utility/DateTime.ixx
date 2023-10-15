@@ -1,10 +1,9 @@
 ﻿// Module
 export module Ultra.Core.DateTime;
 
-import <chrono>;
-
 // Library
-import Ultra.Core;
+import Ultra.Core.Object;
+import Ultra.Core.Types;
 
 export namespace Ultra {
 

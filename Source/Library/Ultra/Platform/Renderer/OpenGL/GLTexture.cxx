@@ -1,6 +1,6 @@
-﻿module;
+﻿module Ultra.Platform.Renderer.GLTexture;
 
-#include <glad/gl.h>
+import <glad/gl.h>;
 
 #pragma warning(push, 0)
 //https://github.com/nothings/stb/issues/334
@@ -8,16 +8,14 @@
     #define STB_IMAGE_IMPLEMENTATION
 #endif
 #define STB_IMAGE_STATIC
-#include <stb/stb_image.h>
+import <stb/stb_image.h>;
 //#define STB_IMAGE_WRITE_IMPLEMENTATION
 #pragma warning(pop)
-
-module Ultra.Platform.Renderer.GLTexture;
 
 namespace Ultra {
 
 // Helpers
-static GLenum GLTextureDataType(TextureDataType type) {
+[[maybe_unused]] static GLenum GLTextureDataType(TextureDataType type) {
     switch (type) {
         case TextureDataType::Byte:     return GL_UNSIGNED_BYTE;
         case TextureDataType::Float:    return GL_FLOAT;

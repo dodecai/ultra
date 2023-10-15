@@ -4,24 +4,10 @@
 #include "Ultra/Core/Core.h"
 
 #if defined(APP_PLATFORM_WINDOWS)
-    // Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
-    #undef __nullnullterminated
-    #define __SPECSTRINGS_STRICT_LEVEL 0
-
     #define VK_USE_PLATFORM_WIN32_KHR
-
-    #undef APIENTRY
-    #define NOMINMAX
-    #define VC_EXTRALEAN
-    #define WIN32_LEAN_AND_MEAN
-    #include <Windows.h>
 #endif
 
 #include <vulkan/vulkan.hpp>
-
-// Hack: Workaround for problems with 'Windows.h' in combination with C++ modules (VS2022 > v17.5)!
-#undef __nullnullterminated
-#define __SPECSTRINGS_STRICT_LEVEL 0
 
 ///
 /// @brief Hack: This is an nasty fix for Microsoft's STL implementation
@@ -47,6 +33,10 @@
 #include <chrono>
 
 module Ultra.Platform.Graphics.VKInstance;
+
+#if defined(APP_PLATFORM_WINDOWS)
+    import <Windows.h>;
+#endif
 
 import Ultra.Logger;
 

@@ -2,6 +2,7 @@
 
 import Ultra.Core;
 import Ultra.Logger;
+import Ultra.Math;
 import Ultra.Asset.Mesh;
 import Ultra.Renderer.Texture;
 import Ultra.System.FileSystem;
@@ -10,8 +11,6 @@ import <assimp/DefaultLogger.hpp>;
 import <assimp/Importer.hpp>;
 import <assimp/postprocess.h>;
 import <assimp/scene.h>;
-import <glm/glm.hpp>;
-import <glm/gtc/matrix_transform.hpp>;
 
 export namespace Ultra {
 
@@ -71,32 +70,32 @@ private:
             Vertex vertex;
             glm::vec3 vector;
 
-            vector.x = mesh->mVertices[i].x;
-            vector.y = mesh->mVertices[i].y;
-            vector.z = mesh->mVertices[i].z;
+            vector.x = static_cast<float>(mesh->mVertices[i].x);
+            vector.y = static_cast<float>(mesh->mVertices[i].y);
+            vector.z = static_cast<float>(mesh->mVertices[i].z);
             vertex.Position = vector;
 
             if (mesh->mNormals) {
-                vector.x = mesh->mNormals[i].x;
-                vector.y = mesh->mNormals[i].y;
-                vector.z = mesh->mNormals[i].z;
+                vector.x = static_cast<float>(mesh->mNormals[i].x);
+                vector.y = static_cast<float>(mesh->mNormals[i].y);
+                vector.z = static_cast<float>(mesh->mNormals[i].z);
                 vertex.Normal = vector;
             }
 
             if (mesh->mTextureCoords[0]) {
                 glm::vec2 vec;
-                vec.x = mesh->mTextureCoords[0][i].x;
-                vec.y = mesh->mTextureCoords[0][i].y;
+                vec.x = static_cast<float>(mesh->mTextureCoords[0][i].x);
+                vec.y = static_cast<float>(mesh->mTextureCoords[0][i].y);
                 vertex.TexCoords = vec;
 
-                vector.x = mesh->mTangents[i].x;
-                vector.y = mesh->mTangents[i].y;
-                vector.z = mesh->mTangents[i].z;
+                vector.x = static_cast<float>(mesh->mTangents[i].x);
+                vector.y = static_cast<float>(mesh->mTangents[i].y);
+                vector.z = static_cast<float>(mesh->mTangents[i].z);
                 vertex.Tangent = vector;
 
-                vector.x = mesh->mBitangents[i].x;
-                vector.y = mesh->mBitangents[i].y;
-                vector.z = mesh->mBitangents[i].z;
+                vector.x = static_cast<float>(mesh->mBitangents[i].x);
+                vector.y = static_cast<float>(mesh->mBitangents[i].y);
+                vector.z = static_cast<float>(mesh->mBitangents[i].z);
                 vertex.Bitangent = vector;
             } else {
                 vertex.TexCoords = { 0.0f, 0.0f };
@@ -107,7 +106,7 @@ private:
 
         // Indices
         for (size_t i = 0; i < mesh->mNumFaces; i++) {
-            auto face = mesh->mFaces[i];
+            auto &face = mesh->mFaces[i];
             for (size_t j = 0; j < face.mNumIndices; j++) {
                 indices.push_back(face.mIndices[j]);
             }
@@ -115,25 +114,25 @@ private:
 
         // Materials
         if (mesh->mMaterialIndex >= 0) {
-            auto *material = scene->mMaterials[mesh->mMaterialIndex];
+            auto *current = scene->mMaterials[mesh->mMaterialIndex];
 
-            auto [diffuseMaps, diffuseInfo] = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "Diffuse");
+            auto [diffuseMaps, diffuseInfo] = LoadMaterialTextures(current, aiTextureType_DIFFUSE, "Diffuse");
             textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
             info.insert(info.end(), diffuseInfo.begin(), diffuseInfo.end());
 
-            auto [normalMaps, normalInfo] = LoadMaterialTextures(material, aiTextureType_HEIGHT, "Normal");
+            auto [normalMaps, normalInfo] = LoadMaterialTextures(current, aiTextureType_HEIGHT, "Normal");
             textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
             info.insert(info.end(), normalInfo.begin(), normalInfo.end());
 
-            auto [specularMaps, specularInfo] = LoadMaterialTextures(material, aiTextureType_SPECULAR, "Specular");
+            auto [specularMaps, specularInfo] = LoadMaterialTextures(current, aiTextureType_SPECULAR, "Specular");
             textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
             info.insert(info.end(), specularInfo.begin(), specularInfo.end());
 
-            auto [heightMaps, heightInfo] = LoadMaterialTextures(material, aiTextureType_HEIGHT, "Height");
+            auto [heightMaps, heightInfo] = LoadMaterialTextures(current, aiTextureType_HEIGHT, "Height");
             textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
             info.insert(info.end(), heightInfo.begin(), heightInfo.end());
 
-            auto [ambientMaps, ambientInfo] = LoadMaterialTextures(material, aiTextureType_AMBIENT, "Ambient");
+            auto [ambientMaps, ambientInfo] = LoadMaterialTextures(current, aiTextureType_AMBIENT, "Ambient");
             textures.insert(textures.end(), ambientMaps.begin(), ambientMaps.end());
             info.insert(info.end(), ambientInfo.begin(), ambientInfo.end());
         }
@@ -173,7 +172,7 @@ private:
 
         for (size_t i = 0; i < material->GetTextureCount(type); i++) {
             aiString str;
-            material->GetTexture(type, i, &str);
+            material->GetTexture(type, static_cast<unsigned int>(i), &str);
             bool skip = false;
             for (size_t j = 0; j < mTexturesLoaded.size(); j++) {
                 if (strcmp(mTexturesLoaded[j].Path.data(), str.C_Str()) == 0) {

@@ -3,8 +3,6 @@
 #pragma warning(push)
 #pragma warning(disable: 4100)
 
-import <glm/glm.hpp>;
-
 namespace Ultra {
 
 DXShader::DXShader(const string &source, const string &entryPoint, const ShaderType type): Shader(source, entryPoint, type) {}

@@ -7,13 +7,10 @@ export module Ultra.Physics.ParticleSystem;
 import Ultra.Core;
 import Ultra.Core.Random;
 import Ultra.Core.Timer;
+import Ultra.Math;
 import Ultra.Renderer2D;
 import Ultra.Renderer.Camera;
 import Ultra.Renderer.PerspectiveCamera;
-
-import <glm/glm.hpp>;
-import <glm/gtc/constants.hpp>;
-import <glm/gtx/compatibility.hpp>;
 
 export namespace Ultra {
 

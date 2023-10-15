@@ -1,4 +1,8 @@
-﻿export module Ultra.Platform.Graphics.VKInstance;
+﻿module;
+
+#include <vulkan/vulkan.hpp>
+
+export module Ultra.Platform.Graphics.VKInstance;
 
 import Ultra.Core;
 import Ultra.Platform.Graphics.Vulkan;

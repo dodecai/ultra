@@ -1,6 +1,5 @@
 ﻿export module Ultra.Math.Vector;
 
-import <numbers>;
 import Ultra.Core;
 import Ultra.Logger;
 

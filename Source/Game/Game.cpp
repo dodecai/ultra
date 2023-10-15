@@ -1,6 +1,5 @@
-﻿#include <Settings.h>
-#include <Ultra/EntryPoint.h>
-
+﻿import <Settings.h>;
+import <Ultra/EntryPoint.h>;
 import Ultra;
 import Ultra.Module.Phoenix;
 
@@ -21,7 +20,7 @@ public:
         char const *entryPoint = "./Script/Main.lua";
 
         if (!File_Exists(entryPoint)) {
-            Directory_Change("../../Assets/Phoenix/");
+            Directory_Change("../../3rd-Party/LibPHX/assets/");
             if (!File_Exists(entryPoint))
                 Fatal("can't find script entrypoint <%s>", entryPoint);
         }
@@ -29,7 +28,7 @@ public:
         Lua_SetBool(mLua, "__debug__", false); //DEBUG > 0
         Lua_SetBool(mLua, "__embedded__", true);
         Lua_SetNumber(mLua, "__checklevel__", 0); // CHECK_LEVEL [=0]
-        Lua_SetStr(mLua, "__app__", "TestHmGui");
+        Lua_SetStr(mLua, "__app__", "LTheory");
         Lua_DoFile(mLua, "./Script/Main.lua");
     }
 

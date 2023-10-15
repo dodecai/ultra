@@ -1,12 +1,6 @@
-﻿module;
+﻿export module Ultra.Platform.UI.WinAPI.Window;
 
-#undef APIENTRY
-#define NOMINMAX
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
-export module Ultra.Platform.UI.WinAPI.Window;
+import <Windows.h>;
 
 import Ultra.Core;
 import Ultra.UI.Window;

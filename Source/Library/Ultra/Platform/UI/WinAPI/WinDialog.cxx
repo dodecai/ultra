@@ -1,12 +1,6 @@
-﻿module;
+﻿module Ultra.Platform.UI.WinAPI.Dialog;
 
-#undef APIENTRY
-#define NOMINMAX
-#define VC_EXTRALEAN
-#include <Windows.h>
-
-module Ultra.Platform.UI.WinAPI.Dialog;
-
+import <Windows.h>;
 import Ultra.Core.Application;
 
 namespace Ultra {

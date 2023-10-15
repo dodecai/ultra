@@ -3,11 +3,11 @@
 #pragma warning(push, 0)
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
-
-#include <glad/gl.h>
 #pragma warning(pop)
 
 export module Ultra.UI.GUILayer;
+
+import <glad/gl.h>;
 
 import Ultra.Core;
 import Ultra.Core.Layer;

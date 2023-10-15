@@ -1,7 +1,5 @@
 ﻿export module Ultra.Debug.Profiler;
 
-import <chrono>;
-
 import Ultra.Core;
 import Ultra.Logger;
 
@@ -166,7 +164,7 @@ void StartProfiling(const string &name, const string &file = "ProfilerResults.js
     Instrumentor::Instance().BeginSession(name, file);
 }
 
-ScopedTimer ProfileScope(const char *name, const function<void(const string &, double duration)> &function = nullptr, const SourceLocation &location = SourceLocation::Current()) {
+ScopedTimer ProfileScope(const char *name, const function<void(const string &, double duration)> &function = nullptr, [[maybe_unused]] const SourceLocation &location = SourceLocation::Current()) {
     return ScopedTimer(name, function);
 }
 

@@ -24,20 +24,7 @@
 export module Ultra.Core.UUID;
 
 // Library
-import <array>;
-import <cstdint>;
-import <string>;
-import <random>;
-import <iostream>;
-import <iomanip>;
-import <sstream>;
-
-using std::array;
-using std::uint8_t;
-using std::uint32_t;
-using std::uint64_t;
-using std::string;
-using std::ostream;
+import Ultra.Core.Types;
 
 export namespace Ultra {
 

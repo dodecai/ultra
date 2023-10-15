@@ -1,6 +1,5 @@
-﻿#include <Settings.h>
-#include <Ultra/EntryPoint.h>
-
+﻿import <Settings.h>;
+import <Ultra/EntryPoint.h>;
 import Ultra;
 
 namespace Ultra {

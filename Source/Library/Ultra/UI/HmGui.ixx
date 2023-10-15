@@ -551,7 +551,7 @@ public:
 
     void Draw() override;
     void Update() override {
-        const float pad = 64.0f;
+        //const float pad = 64.0f;
         //float xMin = std::min(e->p1.x, e->p2.x) - pad;
         //float yMin = std::min(e->p1.y, e->p2.y) - pad;
         //float xMax = std::max(e->p1.x, e->p2.x) + pad;
@@ -1198,13 +1198,13 @@ private:
         root->Clip = true;
         root->Position = { 0.0f, 0.0f };
         root->Size = { 1280.0f, 1024.0f };
-        root->Style.Font = CreateReference<Font>("Rajdhani", 14);
+        root->Style.Font = CreateReference<Font>("Rajdhani-Regular", 14);
 
         mViewport = Viewport::Create({ 0, 0, 1280, 1024, true });
 
-        mFontExo2Bold = CreateScope<Font>("Exo2Bold", 30);
+        mFontExo2Bold = CreateScope<Font>("Exo2-Bold", 30);
         mFontFiraMono = CreateScope<Font>("FiraMono", 10);
-        mFontRajdhani = CreateScope<Font>("Rajdhani", 18);
+        mFontRajdhani = CreateScope<Font>("Rajdhani-Regular", 18);
     };
     HmGui(const HmGui &hmgui) = delete;
     HmGui(HmGui &&hmgui) = delete;

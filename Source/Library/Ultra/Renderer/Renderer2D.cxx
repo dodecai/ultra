@@ -2,8 +2,6 @@
 
 module Ultra.Renderer2D;
 
-import <glm/gtc/matrix_transform.hpp>;
-
 import Ultra.Renderer.Buffer;
 import Ultra.Renderer.PipelineState;
 import Ultra.Renderer.Shader;

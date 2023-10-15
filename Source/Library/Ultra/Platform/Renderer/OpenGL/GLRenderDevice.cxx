@@ -1,15 +1,11 @@
-﻿module;
-
-#include <glad/gl.h>
-
-module Ultra.Platform.Renderer.GLRenderDevice;
+﻿module Ultra.Platform.Renderer.GLRenderDevice;
 
 import Ultra.Renderer;
 
 #pragma warning(push)
 #pragma warning(disable: 4100)
 
-import <stacktrace>;
+import <glad/gl.h>;
 
 namespace Ultra {
 

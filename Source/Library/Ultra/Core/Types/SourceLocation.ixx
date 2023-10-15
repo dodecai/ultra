@@ -1,8 +1,7 @@
 ﻿export module Ultra.Core.SourceLocation;
 
-import <cstdint>;
-import <string_view>;
 import Ultra.Core.Helpers;
+import Ultra.Core.Types;
 
 // Helpers
 namespace Ultra {

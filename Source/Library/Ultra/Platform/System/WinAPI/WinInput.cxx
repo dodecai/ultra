@@ -1,12 +1,6 @@
-﻿module;
+﻿module Ultra.Platform.System.WinAPI.Input;
 
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#undef APIENTRY
-#include <Windows.h>
-
-module Ultra.Platform.System.WinAPI.Input;
+import <Windows.h>;
 
 namespace Ultra {
 

@@ -1,8 +1,6 @@
-﻿module;
+﻿module Ultra.Platform.Renderer.GLSwapchain;
 
-#include <glad/gl.h>
-
-module Ultra.Platform.Renderer.GLSwapchain;
+import <glad/gl.h>;
 
 #pragma warning(push)
 #pragma warning(disable: 4100)

@@ -12,6 +12,7 @@
     linkoptions { "/ignore:4006" }
     
 	files {
+        "assets/**",
         "*.lua",
 		"**.h",
 		"**.cpp",
@@ -64,7 +65,7 @@
 	filter "system:windows"
 		systemversion "latest"
 
-project "libphx64"
+project "LibPHX64"
     kind "None"
     --kind "SharedLib"
 	language "C++"

@@ -1,7 +1,6 @@
 ﻿export module Ultra.Core.Object;
 
-import <exception>;
-import <mutex>;
+import Ultra.Core.Types;
 
 ///
 /// @brief Contains classes for managing object behavior and immutability.

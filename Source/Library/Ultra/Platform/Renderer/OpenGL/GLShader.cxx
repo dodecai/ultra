@@ -1,11 +1,6 @@
-﻿module;
+﻿module Ultra.Platform.Renderer.GLShader;
 
-#include <glad/gl.h>
-
-module Ultra.Platform.Renderer.GLShader;
-
-import <glm/glm.hpp>;
-import <glm/gtc/type_ptr.hpp>;
+import <glad/gl.h>;
 
 import Ultra.Renderer.ShaderCompiler;
 import Ultra.System.FileSystem;

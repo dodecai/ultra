@@ -50,7 +50,13 @@ public:
         mAssets.clear();
     }
     string Resolve(AssetType type, string_view path) {
-        
+        auto &resources = mAssets[type];
+
+        for (auto &resource : resources) {
+            if (String::Contains(resource, path)) {
+                return resource;
+            }
+        }
 
         //auto entries = sPaths[type];
         //if (!entries.empty()) {
@@ -73,30 +79,16 @@ public:
         return {};
     }
 
-    bool Exists(string_view name) {
-        //return mAssets.find(name.data()) != mAssets.end();
-    }
     vector<uint32_t> GetAsByteArray(AssetType type, string_view name) {
-        //string path = Resolve(type, name);
-        //auto data = File::LoadAsBinary(path.c_str());
-        //if (data.empty()) LogFatal("Resource_LoadBytes: Failed to load {} <{}> at <{}>", Resource::ToString(type), name, path);
-        //return data;
-
-        return {};
+        if (AssetType::Unknown == type) return {};
+        auto data = File::LoadAsBinary(name);
+        return data;
     }
     string GetAsString(AssetType type, string_view name) {
-        //string path = Resolve(type, name);
-        //string data = File::LoadAsString(path);
-        //if (data.empty()) LogFatal("Resource_LoadCstr: Failed to load {} <{}> at <{}>", Resource::ToString(type), name, path);
-        //return data;
-
-        return {};
+        if (AssetType::Unknown == type) return {};
+        string data = File::LoadAsString(name);
+        return data;
     }
-
-private:
-    static void AddPath(PhyResourceType, const string &format);
-    static string Resolve(PhyResourceType type, const string &name);
-    static string ToString(PhyResourceType);
 
 private:
     // Properties

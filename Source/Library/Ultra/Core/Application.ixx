@@ -97,7 +97,6 @@ public:
 
         // Load Window, Context and Events
         mDialog = Dialog::Create();
-        // ToDo: Cannot be called outside this library, which doesn't make sense yet at all...
         mWindow = Window::Create(WindowProperties(mProperties.Title, mProperties.Width, mProperties.Height));
         mListener = EventListener::Create();
         mWindow->mExternalInputEventListener = [&](auto value) -> bool { return mListener->Callback(value); };

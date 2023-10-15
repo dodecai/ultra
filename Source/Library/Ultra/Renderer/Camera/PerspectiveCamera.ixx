@@ -1,8 +1,5 @@
 ﻿export module Ultra.Renderer.PerspectiveCamera;
 
-#define GLM_ENABLE_EXPERIMENTAL
-import <glm/gtx/quaternion.hpp>;
-
 import Ultra.Core;
 import Ultra.Logger;
 import Ultra.Math;

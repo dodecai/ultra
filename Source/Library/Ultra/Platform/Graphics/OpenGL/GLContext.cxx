@@ -1,34 +1,17 @@
 ﻿module;
 
-// Hack: The included header unit in the Core module doesn't work here.
 #include "Ultra/Core/Core.h"
 
 #include <glad/gl.h>
 
 #if defined(APP_PLATFORM_WINDOWS)
     #pragma comment(lib, "opengl32.lib")
-
-    #undef APIENTRY
-    #define NOMINMAX
-    #define VC_EXTRALEAN
-    #define WIN32_LEAN_AND_MEAN
-	#include <Windows.h>
-
-	#include <GL/glext.h>
     #include <GL/wglext.h>
 #endif
 
-#if !defined(GL_SR8_EXT)
-	#define GL_SR8_EXT 0x8FBD
-#endif
-#if !defined(GL_SRG8_EXT)
-	#define GL_SRG8_EXT 0x8FBE
-#endif
-#if !defined(EGL_OPENGL_ES3_BIT)
-	#define EGL_OPENGL_ES3_BIT 0x0040
-#endif
-
 module Ultra.Platform.Graphics.GLContext;
+
+import <Windows.h>;
 
 import Ultra.Logger;
 

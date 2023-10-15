@@ -1,8 +1,6 @@
-﻿module;
+﻿module Ultra.Platform.Renderer.GLPipelineState;
 
-#include <glad/gl.h>
-
-module Ultra.Platform.Renderer.GLPipelineState;
+import <glad/gl.h>;
 
 namespace Ultra {
 

@@ -1,7 +1,8 @@
 ﻿module Ultra.UI.Renderer;
 
 import <glad/gl.h>;
-import <glm/gtc/matrix_transform.hpp>;
+
+import Ultra.Math;
 
 namespace Ultra {
 
@@ -10,7 +11,7 @@ void ClipRect::Activate() {
     auto &current = mRectangle[mCurrentIndex];
 
     if (current.Enabled) {
-        auto properties = mViewport->GetProperties();
+        auto &properties = mViewport->GetProperties();
 
         auto x = current.Position.X;
         auto y = current.Position.Y;
@@ -204,7 +205,7 @@ void UIRenderer::DrawRectangle(const glm::vec3 &position, const glm::vec2 &size,
     Reset();
 }
 
-void UIRenderer::DrawText(const glm::vec3 &position, const glm::vec2 &size, const Reference<Texture> &texture, const glm::vec4 &color, float tiling) {
+void UIRenderer::DrawText(const glm::vec3 &position, const glm::vec2 &size, const Reference<Texture> &texture, const glm::vec4 &color, [[maybe_unused]] float tiling) {
     if (SRenderData.TextVertexBufferData.size() * 6 >= SRenderData.TextMaxIndices) Reset();
 
     float textureIndex = 0.0f;

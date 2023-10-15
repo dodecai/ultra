@@ -1,7 +1,6 @@
 ﻿export module Ultra.Core.Arguments;
 
-import <string>;
-import <vector>;
+import Ultra.Core.Types;
 
 export namespace Ultra {
 

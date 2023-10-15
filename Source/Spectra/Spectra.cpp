@@ -1,7 +1,7 @@
-﻿#include <Settings.h>
-#include <Ultra/EntryPoint.h>
-
+﻿import <Settings.h>;
+import <Ultra/EntryPoint.h>;
 import Ultra;
+import Ultra.Asset.Manager;
 import Ultra.Spectra.Designer;
 
 namespace Ultra {
@@ -20,7 +20,7 @@ public:
     void Create() {
         PushLayer(new Designer());
         mRenderer = Renderer::Create();
-        Resource::Instance();
+        AssetManager::Instance().Load();
     }
 
     void Destroy() {

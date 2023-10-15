@@ -370,7 +370,8 @@ void Tree::Draw() {
     DrawTreeNode({ Position.X + 40.0f, Position.Y + 140.0f }, "Node 2.2");
 }
 
-void Tree::DrawTreeNode(const Ultra::Position &position, const string_view &text) {
+void Tree::DrawTreeNode([[maybe_unused]] const Ultra::Position &position, const string_view &text) {
+    if (text.empty()) return;
     //// Draw a tree node with expand/collapse functionality
     //auto hovered = Hovered(HmGui::sLastMousePosition);
     //const float nodeWidth = 20.0f;

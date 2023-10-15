@@ -1,11 +1,7 @@
-﻿module;
+﻿module Ultra.Platform.System.WinAPI.Event;
 
-#undef APIENTRY
-#define NOMINMAX
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <WindowsX.h>
+import <Windows.h>;
+import <WindowsX.h>;
 
 #ifndef HID_USAGE_PAGE_GENERIC
     #define HID_USAGE_PAGE_GENERIC         ((USHORT) 0x01)
@@ -13,8 +9,6 @@
 #ifndef HID_USAGE_GENERIC_MOUSE
     #define HID_USAGE_GENERIC_MOUSE        ((USHORT) 0x02)
 #endif
-
-module Ultra.Platform.System.WinAPI.Event;
 
 import Ultra.Platform.UI.WinAPI.Window;
 import Ultra.Core.Event.Data;

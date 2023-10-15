@@ -1,8 +1,6 @@
-﻿module;
+﻿module Ultra.Platform.Renderer.GLBuffer;
 
-#include <glad/gl.h>
-
-module Ultra.Platform.Renderer.GLBuffer;
+import <glad/gl.h>;
 
 namespace Ultra {
 

@@ -1,6 +1,5 @@
 ﻿export module Ultra.Math.Matrix;
 
-import <numbers>;
 import Ultra.Core;
 
 export namespace Ultra {

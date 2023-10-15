@@ -16,7 +16,7 @@
 
 module Ultra.Renderer.Font;
 
-import Ultra.Asset.Resource;
+import Ultra.Asset.Manager;
 import Ultra.System.FileSystem;
 import Ultra.UI.Renderer;
 
@@ -28,7 +28,7 @@ template<typename T, typename S, int N, msdf_atlas::GeneratorFunction<S, N> GenF
 static Reference<Texture2D> CreateAndCacheAtlas(
     string_view name,
     const vector<msdf_atlas::GlyphGeometry> &glyphs,
-    const msdf_atlas::FontGeometry &fontGeometry,
+    [[maybe_unused]] const msdf_atlas::FontGeometry &fontGeometry,
     uint32_t width, uint32_t height) {
 
     msdf_atlas::ImmediateAtlasGenerator<S, N, GenFunc, msdf_atlas::BitmapAtlasStorage<T, N>> generator(width, height);
@@ -95,7 +95,7 @@ inline uint32_t DecodeUtf8(string_view::iterator &begin, string_view::iterator e
 
 Font::Font(string_view name, uint32_t size): mMSDFData(new MSDFData()) {
     if (!mLibrary) FT_Init_FreeType(&mLibrary);
-    auto path = Resource::GetPath(PhyResourceType::Font, name.data());
+    auto path = AssetManager::Instance().Resolve(AssetType::Font, name.data());
     mData = CreateScope<FontData>();
 
     if (FT_New_Face(mLibrary, path.c_str(), 0, &mData->Handle)) {
@@ -228,7 +228,9 @@ int32_t Font::GetKerning(uint32_t leftGlyph, uint32_t rightGlyph) {
 
 void Font::Load(string_view path, uint32_t size) {
     auto cache = std::format("Data/Cache/Fonts/{}.bmp", File::GetName(string(path)));
-    if (false && File::Exists(cache)) {
+    // ToDo: Finish atlas support
+    auto test = false;
+    if (test && File::Exists(cache)) {
         TextureProperties properties;
         properties.Format = TextureFormat::RGB8;
         mAtlasTexture = Texture2D::Create(properties, cache);
@@ -252,16 +254,16 @@ void Font::Load(string_view path, uint32_t size) {
                 charset.add(current);
             }
         }
-        auto glyphs = mMSDFData->FontGeometry.loadCharset(font, 1.0, charset);
+        [[maybe_unused]] auto glyphs = mMSDFData->FontGeometry.loadCharset(font, 1.0, charset);
 
         // ToDo: Add support for selection MSDF or MTSDF
         auto coloringSeed = 0ull;
         if constexpr (sExpensiveColoring) {
-            msdf_atlas::Workload([&glyphs = mMSDFData->Glyphs, &coloringSeed](int i, int threadNo) -> bool {
+            msdf_atlas::Workload([&glyphs = mMSDFData->Glyphs, &coloringSeed](int i, [[maybe_unused]] int threadNo) -> bool {
                 unsigned long long glyphSeed = (sLCGMultiplier * (coloringSeed ^ i) + sLCGIncrement) * !!coloringSeed;
                 glyphs[i].edgeColoring(msdfgen::edgeColoringInkTrap, sMaxCornerAngle, glyphSeed);
                 return true;
-            }, mMSDFData->Glyphs.size()).finish(sThreadCount);
+            }, static_cast<int>(mMSDFData->Glyphs.size())).finish(sThreadCount);
         } else {
             unsigned long long glyphSeed = coloringSeed;
             for (msdf_atlas::GlyphGeometry &glyph : mMSDFData->Glyphs) {
@@ -270,7 +272,7 @@ void Font::Load(string_view path, uint32_t size) {
             }
         }
 
-        size = 24.0;
+        size = 24;
         msdf_atlas::TightAtlasPacker packer;
         packer.setDimensionsConstraint(msdf_atlas::TightAtlasPacker::DimensionsConstraint::SQUARE);
         packer.setMiterLimit(1.0);

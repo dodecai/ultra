@@ -13,10 +13,8 @@
 module Ultra.Renderer;
 
 import <glad/gl.h>;
-import <glm/glm.hpp>;
-import <glm/gtc/matrix_transform.hpp>;
-import <glm/gtc/type_ptr.hpp>;
 
+import Ultra.Math;
 import Ultra.Graphics.Context;
 import Ultra.Platform.DXRenderer;
 import Ultra.Platform.GLRenderer;
@@ -242,11 +240,11 @@ struct Components {
     Reference<Buffer> MaterialBuffer;
 
     struct ULight {
-        alignas(16) glm::vec3 LightColor {};
-        alignas(16) glm::vec3 LightPosition {};
-        alignas(16) glm::vec3 Ambient {};
-        alignas(16) glm::vec3 Diffuse {};
-        alignas(16) glm::vec3 Specular {};
+        alignas(16) glm::vec3 LightColor {};        float pad0 {};
+        alignas(16) glm::vec3 LightPosition {};     float pad1 {};
+        alignas(16) glm::vec3 Ambient {};           float pad2 {};
+        alignas(16) glm::vec3 Diffuse {};           float pad3 {};
+        alignas(16) glm::vec3 Specular {};          float pad4 {};
     } Light;
     Reference<Buffer> LightBuffer;
 
@@ -256,9 +254,9 @@ struct Components {
     Reference<Buffer> ViewBuffer;
 } static sComponents;
 
-static void TestAgnostic(const DesignerCamera &camera);
+[[maybe_unused]] static void TestAgnostic(const DesignerCamera &camera);
 
-static void TestGL(const DesignerCamera &camera);
+[[maybe_unused]] static void TestGL(const DesignerCamera &camera);
 
 
 void Renderer::Test(const DesignerCamera &camera) {
@@ -282,8 +280,8 @@ void Renderer::Test(const DesignerCamera &camera) {
 
 void TestAgnostic(const DesignerCamera &camera) {
     // Prepare Translation
-    auto projection = camera.GetProjectionMatrix();
-    auto view = camera.GetViewMatrix();
+    auto &projection = camera.GetProjectionMatrix();
+    auto &view = camera.GetViewMatrix();
     auto model = glm::mat4(1.0f);
 
     // Load Shaders
@@ -371,6 +369,7 @@ void TestAgnostic(const DesignerCamera &camera) {
     sComponents.View.Position = camera.GetPosition();
 
     int location = modelShader->FindUniformLocation("Light");
+    if (location == 0) return;
 
     sComponents.CameraUniformBuffer2->Bind(0);
     //sComponents.MaterialBuffer->Bind(4);
@@ -384,7 +383,7 @@ void TestAgnostic(const DesignerCamera &camera) {
     cube.Draw(sCommandBuffer);
 }
 
-void TestGL(const DesignerCamera &camera) {
+void TestGL([[maybe_unused]] const DesignerCamera &camera) {
     // Shader Source Code
     #pragma region Shader Source Code
     static auto vertexShaderSource = R"(

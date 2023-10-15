@@ -1,9 +1,5 @@
 ﻿export module Ultra.Renderer.ShaderCompiler;
 
-import <exception>;
-import <iterator>;
-import <stdexcept>;
-
 import Ultra.Core;
 import Ultra.Renderer.Shader;
 

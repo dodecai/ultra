@@ -1,10 +1,8 @@
 ﻿export module Ultra.Renderer.DesignerCamera;
 
-#define GLM_ENABLE_EXPERIMENTAL
-import <glm/gtx/quaternion.hpp>;
-
 import Ultra.Core;
 import Ultra.Core.Timer;
+import Ultra.Math;
 import Ultra.Logger;
 import Ultra.Renderer.Camera;
 import Ultra.System.Input;
@@ -26,26 +24,26 @@ public:
 
     void Update([[maybe_unused]] Timestamp delta) {
         
-        const float cameraSpeed = 0.05f;
+        const float cameraSpeed = 0.003f;
         if (Input::GetMouseButtonState(MouseButton::Wheel)) {
         }
         if (Input::GetKeyState(KeyCode::Left)) {
-            Pan(glm::vec2(1.0, 0.0f) * 0.003f);
+            Pan(glm::vec2(1.0, 0.0f) * cameraSpeed);
         }
         if (Input::GetKeyState(KeyCode::Up)) {
-            Pan(glm::vec2(0.0, 1.0f) *0.003f);
+            Pan(glm::vec2(0.0, 1.0f) * cameraSpeed);
         }
         if (Input::GetKeyState(KeyCode::Right)) {
-            Pan(glm::vec2(-1.0, 0.0f) *0.003f);
+            Pan(glm::vec2(-1.0, 0.0f) * cameraSpeed);
         }
         if (Input::GetKeyState(KeyCode::Down)) {
-            Pan(glm::vec2(0.0, -1.0f) *0.003f);
+            Pan(glm::vec2(0.0, -1.0f) * cameraSpeed);
         }
 
         if (Input::GetKeyState(KeyCode::LAlt)) {
             auto [x, y] = Input::GetMousePosition();
             const glm::vec2 &mouse { x, y };
-            glm::vec2 mouseDelta = (mouse - mInitialMousePosition) * 0.003f;
+            glm::vec2 mouseDelta = (mouse - mInitialMousePosition) * cameraSpeed;
             mInitialMousePosition = mouse;
 
             if (Input::GetMouseButtonState(MouseButton::Middle)) Pan(mouseDelta);

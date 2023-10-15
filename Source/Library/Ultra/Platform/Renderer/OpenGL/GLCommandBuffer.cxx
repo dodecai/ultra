@@ -1,8 +1,6 @@
-﻿module;
+﻿module Ultra.Platform.Renderer.GLCommandBuffer;
 
-#include <glad/gl.h>
-
-module Ultra.Platform.Renderer.GLCommandBuffer;
+import <glad/gl.h>;
 
 #pragma warning(push)
 #pragma warning(disable: 4100)
