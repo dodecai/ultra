@@ -7,6 +7,9 @@ import Ultra.Logger;
 import Ultra.Renderer.Camera;
 import Ultra.System.Input;
 
+#pragma warning(push)
+#pragma warning(disable: 4201)
+
 export namespace Ultra {
 
 class DesignerCamera: public Camera {
@@ -277,3 +280,5 @@ private:
 #endif
 
 }
+
+#pragma warning(pop)

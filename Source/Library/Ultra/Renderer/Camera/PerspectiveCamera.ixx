@@ -4,6 +4,9 @@ import Ultra.Core;
 import Ultra.Logger;
 import Ultra.Math;
 
+#pragma warning(push)
+#pragma warning(disable: 4201)
+
 export namespace Ultra {
 
 enum class CameraDirection {
@@ -109,3 +112,5 @@ private:
 };
 
 }
+
+#pragma warning(pop)

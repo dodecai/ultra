@@ -7,6 +7,9 @@ import Ultra.Scene.Camera;
 
 import <entt/entt.hpp>;
 
+#pragma warning(push)
+#pragma warning(disable: 4201)
+
 export namespace Ultra {
 
 class ScriptableEntity;
@@ -202,3 +205,5 @@ struct Sprite {
 }
 
 }
+
+#pragma warning(pop)
