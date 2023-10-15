@@ -1,4 +1,8 @@
-﻿export module Ultra.Logger;
+﻿module;
+
+#include <Ultra/Core/Core.h>
+
+export module Ultra.Logger;
 
 // Library
 import Ultra.Core;
@@ -541,6 +545,7 @@ template<typename ...Args> void LogDelimiter(const LogRecord &record, Args &&...
     template<typename T, typename ...Args> bool AppAssert(T *object, const LogRecord &record, Args &&...args) {
         if (!object) {
             logger(LogLevel::Fatal, record, args...); logger << "\n";
+            //APP_DEBUGBREAK();
             return true;
         }
         return false;
@@ -548,6 +553,7 @@ template<typename ...Args> void LogDelimiter(const LogRecord &record, Args &&...
     template<typename T, typename ...Args> bool AppAssert(T object, const LogRecord &record, Args &&...args) {
         if (!object) {
             logger(LogLevel::Fatal, record, args...); logger << "\n";
+            //APP_DEBUGBREAK();
             return true;
         }
         return false;
@@ -609,6 +615,3 @@ struct formatter<Ultra::LogLevel> {
 };
 
 }
-
-// Preprocessor Macro Extensions
-export import "Logger.h";

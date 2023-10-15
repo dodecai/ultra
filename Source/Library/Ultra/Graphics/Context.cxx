@@ -1,6 +1,5 @@
 ﻿module;
 
-// Hack: The included header unit in the Core module doesn't work here.
 #include "Ultra/Core/Core.h"
 
 module Ultra.Graphics.Context;
@@ -35,7 +34,7 @@ Reference<Context> Context::Create(void *window) {
         }
     }
 #else
-    AppAssert(false, "This platform is currently not supported!");
+    AppAssert(false, "The selected platform is currently not supported!");
     return nullptr;
 #endif
 }

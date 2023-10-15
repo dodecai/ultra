@@ -1,6 +1,5 @@
 ﻿module;
 
-// Hack: The included header unit in the Core module doesn't work here.
 #include "Ultra/Core/Core.h"
 
 module Ultra.System.Input;
@@ -17,11 +16,11 @@ namespace Ultra {
 Scope<Input> Input::Instance = Input::Create();
 
 Scope<Input> Input::Create() {
-    #if defined(APP_PLATFORM_WINDOWS)
-        return CreateScope<WinInput>();
-    #else
-        return nullptr;
-    #endif
+#if defined(APP_PLATFORM_WINDOWS)
+    return CreateScope<WinInput>();
+#else
+    return nullptr;
+#endif
 }
 
 bool Input::GetKeyState(KeyCode code) {

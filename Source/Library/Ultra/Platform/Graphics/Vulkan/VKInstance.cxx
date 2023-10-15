@@ -1,6 +1,5 @@
 ﻿module;
 
-// Hack: The included header unit in the Core module doesn't work here.
 #include "Ultra/Core/Core.h"
 
 #if defined(APP_PLATFORM_WINDOWS)

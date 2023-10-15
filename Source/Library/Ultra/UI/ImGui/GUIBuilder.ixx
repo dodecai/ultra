@@ -1,6 +1,4 @@
 ﻿module;
-
-// Hack: The included header unit in the Core module doesn't work here.
 #include "Ultra/Core/Core.h"
 
 ///

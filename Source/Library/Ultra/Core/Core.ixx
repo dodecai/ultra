@@ -1,8 +1,6 @@
 ﻿export module Ultra.Core;
 
 // Custom Library
-export import "Core.h";
-export import "Platform.h";
 export import Ultra.Core.Helpers;
 export import Ultra.Core.Types;
 

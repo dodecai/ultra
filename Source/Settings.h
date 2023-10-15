@@ -5,7 +5,7 @@
 ///
 
 // Application Information (the solution name will be replaced by preprocessor!)
-namespace SOLUTION_NAME {
+export namespace SOLUTION_NAME {
 
 // Information
 constexpr auto AppCaption        = "Ultra Spectra";
