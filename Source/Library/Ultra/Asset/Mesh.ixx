@@ -102,7 +102,7 @@ void Mesh::Draw(CommandBuffer *commandBuffer) {
         mTextures[i]->Bind(static_cast<uint32_t>(i));
     }
     if (!mTextures.size()) {
-        mMaterialBuffer->Bind(4);
+        mMaterialBuffer->Bind(5);
         mMaterialBuffer->UpdateData(&mMaterialData, sizeof(MaterialData));
     }
     commandBuffer->DrawIndexed(mIndices.size(), PrimitiveType::Triangle, true);

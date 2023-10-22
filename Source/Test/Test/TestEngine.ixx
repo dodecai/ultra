@@ -33,6 +33,13 @@ struct CameraData {
     float FarClip = {};
 };
 
+enum class LightType: uint32_t {
+    Directional = 0,
+    Point       = 1,
+    Spot        = 2,
+    Flash       = 3,
+};
+
 struct Components {
     float CubeVertices[24] = {
         -0.5f, -0.5f, -0.5f,
@@ -130,6 +137,7 @@ struct Components {
     Reference<Buffer> MaterialBuffer;
 
     struct ULight {
+        alignas(16) LightType Type = LightType::Directional;
         alignas(16) glm::vec3 LightColor {};
         alignas(16) glm::vec3 LightPosition {};
         alignas(16) glm::vec3 LightDirection {};
@@ -144,7 +152,11 @@ struct Components {
 
         // Spot Light
         float CutOffAngle;
-    } Light;
+    };
+    struct ULights {
+        ULight Light[5] {};
+        alignas(16) uint32_t Count = 1;
+    } Lights;
     Reference<Buffer> LightBuffer;
 
     struct UView {
@@ -249,7 +261,7 @@ public:
             sComponents.CameraUniformBuffer2 = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::CameraData2));
 
             sComponents.MaterialBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::UMaterial));
-            sComponents.LightBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::ULight));
+            sComponents.LightBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::ULights));
             sComponents.ViewBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::UView));
         }
 
@@ -274,10 +286,10 @@ public:
         static float timeValue = 0.1f;
         timeValue += 0.0001f;
         glm::vec3 lightPos = glm::vec3(-3.0f, 3.0f, 5.0f);
-        //float radius = 1.5f;
-        //float angle = timeValue * 2.0f;
-        //lightPos.x = 1.0f + radius * std::cos(angle);
-        //lightPos.z = 3.0f + radius * std::sin(angle);
+        float radius = 5.0f;
+        float angle = timeValue * 2.0f;
+        lightPos.x = 1.0f + radius * std::cos(angle);
+        lightPos.z = 3.0f + radius * std::sin(angle);
 
         // Specify Pipeline and Shader
         static PipelineProperties properties;
@@ -341,26 +353,50 @@ public:
         sComponents.Camera2.Projection = projection;
         sComponents.Camera2.View = view;
         sComponents.Camera2.Model = cubeModel;
+        sComponents.View.Position = camera.GetPosition();
 
         sComponents.Material.Shininess = 16.0f;
-        sComponents.Light.LightColor = sComponents.Properties.Color; // { 1.0f, 1.0f, 1.0f };  
-        sComponents.Light.LightPosition = lightPos; // Point Light
-        sComponents.Light.LightDirection = { -0.2f, -1.0f, -0.3f }; // Directional Light
-        //sComponents.Light.LightPosition = camera.GetPosition(); // Spot Light
-        //sComponents.Light.LightDirection = camera.GetForwardDirection(); // Spot Light
 
-        sComponents.Light.Ambient = { 0.1f, 0.1f, 0.1f };
-        sComponents.Light.Diffuse = { 0.5f, 0.5f, 0.5f };
-        sComponents.Light.Specular = { 1.0f, 1.0f, 1.0f };
+        // Directional Light
+        sComponents.Lights.Light[1].Type = LightType::Directional;
+        sComponents.Lights.Light[0].LightColor = { 1.0f, 1.0f, 1.0f };  
+        sComponents.Lights.Light[0].LightDirection = { 0.0f, -128.0f, -64.0f };
 
-        sComponents.Light.Constant = 1.0f;      // Point Light
-        sComponents.Light.Linear = 0.14f;       // Point Light
-        sComponents.Light.Quadratic = 0.07f;   // Point Light
+        sComponents.Lights.Light[0].Ambient = { 0.1f, 0.1f, 0.1f };
+        sComponents.Lights.Light[0].Diffuse = { 0.5f, 0.5f, 0.5f };
+        sComponents.Lights.Light[0].Specular = { 1.0f, 1.0f, 1.0f };
 
-        sComponents.Light.CutOffAngle = glm::cos(glm::radians(12.5f)); // Spot Light
+        // Point Light
+        sComponents.Lights.Light[1].Type = LightType::Point;
+        sComponents.Lights.Light[1].LightColor = sComponents.Properties.Color;
+        sComponents.Lights.Light[1].LightPosition = lightPos;
 
+        sComponents.Lights.Light[1].Ambient = { 0.1f, 0.1f, 0.1f };
+        sComponents.Lights.Light[1].Diffuse = { 0.5f, 0.5f, 0.5f };
+        sComponents.Lights.Light[1].Specular = { 1.0f, 1.0f, 1.0f };
 
-        sComponents.View.Position = camera.GetPosition();
+        sComponents.Lights.Light[1].Constant = 1.0f;  
+        sComponents.Lights.Light[1].Linear = 0.14f;   
+        sComponents.Lights.Light[1].Quadratic = 0.07f;
+
+        // Spot Light
+        sComponents.Lights.Light[2].Type = LightType::Spot;
+        sComponents.Lights.Light[2].LightColor = { 1.0f, 1.0f, 1.0f };  
+        sComponents.Lights.Light[2].LightPosition = camera.GetPosition();
+        sComponents.Lights.Light[2].LightDirection = camera.GetForwardDirection();
+
+        sComponents.Lights.Light[2].Ambient = { 0.1f, 0.1f, 0.1f };
+        sComponents.Lights.Light[2].Diffuse = { 0.5f, 0.5f, 0.5f };
+        sComponents.Lights.Light[2].Specular = { 1.0f, 1.0f, 1.0f };
+
+        sComponents.Lights.Light[2].Constant = 1.0f;
+        sComponents.Lights.Light[2].Linear = 0.14f;
+        sComponents.Lights.Light[2].Quadratic = 0.07f;
+
+        sComponents.Lights.Light[2].CutOffAngle = glm::cos(glm::radians(12.5f));
+
+        // Finish Light
+        sComponents.Lights.Count = 3;
 
         int location = modelShader->FindUniformLocation("Light");
         if (location == 0) return;
@@ -381,12 +417,12 @@ public:
         specularMapTexture->Bind(2);
 
         sComponents.CameraUniformBuffer2->Bind(0);
-        //sComponents.MaterialBuffer->Bind(4);
-        sComponents.LightBuffer->Bind(5);
-        sComponents.ViewBuffer->Bind(6);
+        sComponents.ViewBuffer->Bind(4);
+        //sComponents.MaterialBuffer->Bind(5);
+        sComponents.LightBuffer->Bind(6);
         sComponents.CameraUniformBuffer2->UpdateData(&sComponents.Camera2, sizeof(Components::CameraData2));
         //sComponents.MaterialBuffer->UpdateData(&sComponents.Material, sizeof(Components::UMaterial));
-        sComponents.LightBuffer->UpdateData(&sComponents.Light, sizeof(Components::ULight));
+        sComponents.LightBuffer->UpdateData(&sComponents.Lights, sizeof(Components::ULights));
         sComponents.ViewBuffer->UpdateData(&sComponents.View, sizeof(Components::UView));
 
         test.Draw(mCommandBuffer);
