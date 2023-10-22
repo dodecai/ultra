@@ -1,7 +1,6 @@
 ﻿import <Settings.h>;
 import <Ultra/EntryPoint.h>;
 import Ultra;
-import Ultra.Asset.Manager;
 import Ultra.Spectra.Designer;
 
 namespace Ultra {
@@ -13,6 +12,7 @@ class Spectra: public Application {
 public:
     // Constructors and Destructor
     Spectra(const ApplicationProperties &properties): Application(properties) {
+        AssetManager::Instance().Load();
     }
     ~Spectra() = default;
 
@@ -20,7 +20,6 @@ public:
     void Create() {
         PushLayer(new Designer());
         mRenderer = Renderer::Create();
-        AssetManager::Instance().Load();
     }
 
     void Destroy() {

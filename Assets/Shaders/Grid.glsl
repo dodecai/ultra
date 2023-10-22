@@ -1,55 +1,57 @@
 ﻿// Grid Shader
 #type vertex
 #version 450 core
-#extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) in vec3 aPosition;
-layout(location = 0) out vec3 vNearClip;
-layout(location = 1) out vec3 vFarClip;
+layout(location = 0) in vec3 pos;
 
-layout(std140, binding = 0) uniform Camera {
-    mat4 uViewProjection;
-    mat4 uProjection;
-    mat4 uView;
-    float uNearClip;
-    float uFarClip;
-};
+// Shared set between most vertex shaders
+layout(set = 0, binding = 0) uniform ViewUniforms {
+    mat4 view;
+    mat4 proj;
+    float near;
+    float far;
+} view;
+
+layout(location = 0) out float near;
+layout(location = 1) out float far;
+layout(location = 2) out vec3 nearPoint;
+layout(location = 3) out vec3 farPoint;
+layout(location = 4) out mat4 fragView;
+layout(location = 8) out mat4 fragProj;
 
 vec3 UnprojectPoint(float x, float y, float z, mat4 view, mat4 projection) {
-    mat4 invertedView = inverse(view);
-    mat4 invertedProjection = inverse(projection);
-    vec4 unprojectedPoint =  invertedView * invertedProjection * vec4(x, y, z, 1.0);
+    mat4 viewInv = inverse(view);
+    mat4 projInv = inverse(projection);
+    vec4 unprojectedPoint =  viewInv * projInv * vec4(x, y, z, 1.0);
     return unprojectedPoint.xyz / unprojectedPoint.w;
 }
 
+// normal vertice projection
 void main() {
-    vec3 position = aPosition.xyz;
+    vec3 p = pos.xyz;
+    near = view.near;
+    far = view.far;
+    nearPoint = UnprojectPoint(p.x, p.y, 0.0, view.view, view.proj).xyz; // unprojecting on the near plane
+    farPoint = UnprojectPoint(p.x, p.y, 1.0, view.view, view.proj).xyz; // unprojecting on the far plane
+    fragView = view.view;
+    fragProj = view.proj;
 
-    vNearClip = UnprojectPoint(position.x, position.y, 0.0, uView, uProjection).xyz;
-    vFarClip = UnprojectPoint(position.x, position.y, 1.0, uView, uProjection).xyz;
-
-    gl_Position = vec4(position, 1.0);
+    gl_Position = vec4(p, 1.0); // using directly the clipped coordinates
 }
+
 
 #type fragment
 #version 450 core
-#extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) in vec3 vNearClip;
-layout(location = 1) in vec3 vFarClip;
-layout(location = 2) in mat4 vFragmentView;
-layout(location = 6) in mat4 vFramgentProjection;
-layout(location = 0) out vec4 oColor;
+layout(location = 0) in float near; //0.01
+layout(location = 1) in float far; //100
+layout(location = 2) in vec3 nearPoint;
+layout(location = 3) in vec3 farPoint;
+layout(location = 4) in mat4 fragView;
+layout(location = 8) in mat4 fragProj;
+layout(location = 0) out vec4 outColor;
 
-layout(std140, binding = 0) uniform Camera {
-    mat4 uViewProjection;
-    mat4 uView;
-    mat4 uProjection;
-    float uNearClip;
-    float uFarClip;
-};
-
-vec4 CalculateGridColors(vec3 fragPos3D, float scale, bool drawAxis) {
+vec4 grid(vec3 fragPos3D, float scale, bool drawAxis) {
     vec2 coord = fragPos3D.xz * scale;
     vec2 derivative = fwidth(coord);
     vec2 grid = abs(fract(coord - 0.5) - 0.5) / derivative;
@@ -57,34 +59,34 @@ vec4 CalculateGridColors(vec3 fragPos3D, float scale, bool drawAxis) {
     float minimumz = min(derivative.y, 1);
     float minimumx = min(derivative.x, 1);
     vec4 color = vec4(0.2, 0.2, 0.2, 1.0 - min(line, 1.0));
-
+    // z axis
     if(fragPos3D.x > -0.1 * minimumx && fragPos3D.x < 0.1 * minimumx) color.z = 1.0;
+    // x axis
     if(fragPos3D.z > -0.1 * minimumz && fragPos3D.z < 0.1 * minimumz) color.x = 1.0;
     return color;
 }
 
-float ComputeDepth(vec3 position) {
-    vec4 clipSpacePosition = vFramgentProjection * vFragmentView * vec4(position.xyz, 1.0);
-    return (clipSpacePosition.z / clipSpacePosition.w);
+float computeDepth(vec3 pos) {
+    vec4 clip_space_pos = fragProj * fragView * vec4(pos.xyz, 1.0);
+    return (clip_space_pos.z / clip_space_pos.w);
 }
 
-float ComputeLinearDepth(vec3 position) {
-    vec4 clipSpacePosition = vFramgentProjection * vFragmentView * vec4(position.xyz, 1.0);
-    float clipSpaceDepth = (clipSpacePosition.z / clipSpacePosition.w) * 2.0 - 1.0;
-
-    // Set linear depth between near and far clip and normalize it
-    float linearDepth = (2.0 * uNearClip * uFarClip) / (uFarClip + uNearClip - clipSpaceDepth * (uFarClip - uNearClip));
-    return linearDepth / uFarClip;
+float computeLinearDepth(vec3 pos) {
+    vec4 clip_space_pos = fragProj * fragView * vec4(pos.xyz, 1.0);
+    float clip_space_depth = (clip_space_pos.z / clip_space_pos.w) * 2.0 - 1.0; // put back between -1 and 1
+    float linearDepth = (2.0 * near * far) / (far + near - clip_space_depth * (far - near)); // get linear value between 0.01 and 100
+    return linearDepth / far; // normalize
 }
 
 void main() {
-    float t = -vNearClip.y / (vFarClip.y - vNearClip.y);
-    vec3 fragPos3D = vNearClip + t * (vFarClip - vNearClip);
-    
-    gl_FragDepth = ComputeDepth(fragPos3D);
-    float linearDepth = ComputeLinearDepth(fragPos3D);
+    float t = -nearPoint.y / (farPoint.y - nearPoint.y);
+    vec3 fragPos3D = nearPoint + t * (farPoint - nearPoint);
+
+    gl_FragDepth = computeDepth(fragPos3D);
+
+    float linearDepth = computeLinearDepth(fragPos3D);
     float fading = max(0, (0.5 - linearDepth));
 
-    oColor = CalculateGridColors(fragPos3D, 10, true) * float(t > 0);
-    //oColor *= fading;
+    outColor = (grid(fragPos3D, 10, true) + grid(fragPos3D, 1, true))* float(t > 0); // adding multiple resolution for the grid
+    outColor.a *= fading;
 }

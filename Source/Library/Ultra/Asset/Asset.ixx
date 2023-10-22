@@ -12,6 +12,7 @@ enum class AssetType {
     Script,
     Shader,
     Sound,
+    Texture,
     Unknown,
 };
 
@@ -23,6 +24,7 @@ string to_string(const AssetType &type) {
         case AssetType::Script:     return "Script";
         case AssetType::Shader:     return "Shader";
         case AssetType::Sound:      return "Sound";
+        case AssetType::Texture:    return "Texture";
         case AssetType::Unknown:    return "Unknown";
         default:                    return "Invalid";
     }
@@ -31,6 +33,7 @@ string to_string(const AssetType &type) {
 struct Asset {
     AssetType Type { AssetType::Unknown };
     string Path {};
+    string ID {};
 };
 
 namespace Colors {
@@ -51,14 +54,38 @@ namespace Colors {
 }
 
 struct Light {
-    glm::vec3 Color;
-    glm::vec3 AmbientIntensity;
-    glm::vec3 DiffuseIntensity;
-    glm::vec3 SpecularIntensity;
+    glm::vec3 Color { 1.0f };
+    glm::vec3 AmbientIntensity { 0.1f };
+    glm::vec3 DiffuseIntensity { 0.5f };
+    glm::vec3 SpecularIntensity { 1.0f };
 
+    float Intensity = 1.0f;
+};
+
+struct DirectionalLight: public Light {
     glm::vec3 Direction;
+};
+
+struct PointLight: public Light {
     glm::vec3 Position;
-    float Intensity;
+
+    // Attenuation
+    float Constant = 1.0f;
+    float Linear = 0.09f;
+    float Quadratic = 0.032f;
+};
+
+struct SpotLight: public Light {
+    glm::vec3 Position;
+    glm::vec3 Direction;
+
+    // Attenuation
+    float Constant = 1.0f;
+    float Linear = 0.09f;
+    float Quadratic = 0.032f;
+
+    // Cutoff
+    float CutOffAngle = glm::cos(glm::radians(12.5f));
 };
 
 }

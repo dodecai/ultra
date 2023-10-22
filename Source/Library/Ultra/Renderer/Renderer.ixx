@@ -2,8 +2,8 @@
 
 import Ultra.Graphics.Context;
 
-export import Ultra.Core;
-export import Ultra.Logger;
+import Ultra.Core;
+import Ultra.Logger;
 export import Ultra.Renderer.Camera;
 export import Ultra.Renderer.DesignerCamera;
 export import Ultra.Renderer.Buffer;
@@ -40,9 +40,9 @@ public:
     void Load();
     void RenderFrame();
     void Dispose();
-    void Test(const DesignerCamera &camera);
 
-    void DrawGrid(const DesignerCamera &camera);
+    // Only for quick testing
+    CommandBuffer *GetCommandBuffer() const { return mCommandBuffer.get(); }
 
 protected:
     Scope<CommandBuffer> mCommandBuffer;

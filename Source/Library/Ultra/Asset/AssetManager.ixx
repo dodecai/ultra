@@ -9,19 +9,20 @@ import Ultra.System.FileSystem;
 export namespace Ultra {
 
 class AssetManager {
-    using AssetFiles = unordered_map<Asset, vector<string>>;
+    using AssetFiles = unordered_map<AssetType, vector<string>>;
     using AssetMappings = unordered_map<AssetType, vector<string>>;
 
 public:
     // Constructors & Destructors
     AssetManager() {
-        mAssetExtensionMappings = {
+        mAssetMappings = {
             { AssetType::Font,    { "otf", "ttf" } },
             { AssetType::Image,   { "jpg", "png" } },
             { AssetType::Model,   { "obj" } },
             { AssetType::Script,  { "cs", "lua" } },
             { AssetType::Shader,  { "glsl", "vert", "frag", "spriv_v" } },
             { AssetType::Sound,   { "mp3", "ogg", "wav" } },
+            { AssetType::Texture, { "jpg", "png" } },
         };
 
     };
@@ -34,12 +35,12 @@ public:
     }
 
     void Load(string_view root = "Assets/") {
-        if (mAssetExtensionMappings.empty()) {
+        if (mAssetMappings.empty()) {
             LogError("The asset extension mappings are empty!");
             return;
         }
 
-        for (auto &[type, extensions] : mAssetExtensionMappings) {
+        for (auto &[type, extensions] : mAssetMappings) {
             LogInfo("Loading '{}' assets from '{}' ...", to_string(type), root);
 
             auto files = Directory::GetFiles(root, String::Join(extensions, '|'));
@@ -57,25 +58,7 @@ public:
                 return resource;
             }
         }
-
-        //auto entries = sPaths[type];
-        //if (!entries.empty()) {
-        //    for (auto &entry : entries) {
-        //        auto resource = std::vformat(entry, std::make_format_args(name));
-        //        if (!resource.empty()) {
-        //            if (File::Exists(resource)) {
-        //                return resource;
-        //            }
-        //        }
-        //    }
-        //}
-
-        //// Search literal path
-        //if (File::Exists(name)) {
-        //    return name;
-        //}
-
-        //LogWarning("Could not resolve path of {} '{}'!", ToString(type), name);
+        LogWarning("Could not resolve asset '{}' under '{}'!", to_string(type), path);
         return {};
     }
 
@@ -92,8 +75,8 @@ public:
 
 private:
     // Properties
-    unordered_map<AssetType, vector<string>> mAssets;
-    unordered_map<AssetType, vector<string>> mAssetExtensionMappings;
+    AssetFiles mAssets;
+    AssetMappings mAssetMappings;
 };
 
 }

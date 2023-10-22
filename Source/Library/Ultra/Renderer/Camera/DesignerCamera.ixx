@@ -97,10 +97,10 @@ private:
         // Lock the camera's rotation
         // mYaw = mPitch = 0.0f;
         mPosition = CalculatePosition();
-        mViewMatrix = glm::lookAt(mPosition, mFocalPoint, glm::vec3(0.0f, 1.0f, 0.0f));
-        //glm::quat orientation = GetOrientation();
-        //mViewMatrix = glm::translate(glm::mat4(1.0f), mPosition) * glm::toMat4(orientation);
-        //mViewMatrix = glm::inverse(mViewMatrix);
+        //mViewMatrix = glm::lookAt(mPosition, mFocalPoint, glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::quat orientation = GetOrientation();
+        mViewMatrix = glm::translate(glm::mat4(1.0f), mPosition) * glm::toMat4(orientation);
+        mViewMatrix = glm::inverse(mViewMatrix);
     }
 
     void Pan(const glm::vec2 &delta) {

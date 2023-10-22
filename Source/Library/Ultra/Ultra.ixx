@@ -40,6 +40,7 @@ export import Ultra.Logger;
 #ifdef LIB_EXTENSION_ENGINE
     export import Ultra.Animation;
     export import Ultra.Asset;
+    export import Ultra.Asset.Manager;
     export import Ultra.Math;
     export import Ultra.Media;
     export import Ultra.Physics;

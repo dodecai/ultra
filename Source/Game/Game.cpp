@@ -28,7 +28,7 @@ public:
         Lua_SetBool(mLua, "__debug__", false); //DEBUG > 0
         Lua_SetBool(mLua, "__embedded__", true);
         Lua_SetNumber(mLua, "__checklevel__", 0); // CHECK_LEVEL [=0]
-        Lua_SetStr(mLua, "__app__", "LTheory");
+        Lua_SetStr(mLua, "__app__", "TestHmGui");
         Lua_DoFile(mLua, "./Script/Main.lua");
     }
 

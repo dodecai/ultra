@@ -31,9 +31,9 @@ public:
 
 private:
     void Load(const string &path) {
-        Assimp::DefaultLogger::create("", Assimp::Logger::VERBOSE);
-        Assimp::LogStream *stderrStream = Assimp::LogStream::createDefaultStream(aiDefaultLogStream_STDERR);
-        Assimp::DefaultLogger::get()->attachStream(stderrStream, Assimp::Logger::NORMAL | Assimp::Logger::DEBUGGING | Assimp::Logger::VERBOSE);
+        //Assimp::DefaultLogger::create("", Assimp::Logger::VERBOSE);
+        //Assimp::LogStream *stderrStream = Assimp::LogStream::createDefaultStream(aiDefaultLogStream_STDERR);
+        //Assimp::DefaultLogger::get()->attachStream(stderrStream, Assimp::Logger::NORMAL | Assimp::Logger::DEBUGGING | Assimp::Logger::VERBOSE);
 
         Assimp::Importer importer;
         const auto *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
@@ -45,7 +45,7 @@ private:
         ProcessNode(scene->mRootNode, scene);
 
 
-        Assimp::DefaultLogger::kill();
+        //Assimp::DefaultLogger::kill();
     }
 
     void ProcessNode(aiNode *node, const aiScene *scene) {
