@@ -116,13 +116,15 @@ void main() {
 
 vec4 CalculateDirectionalLight(Light light, vec3 normal, vec3 viewDirection, bool materialActive) {
     // Properties
+    const float PI = 3.14159265;
     vec3 color = vec3(0.0f);
     vec3 lightDirection = normalize(-light.Direction);
     // Diffuse Shading
     float diffuse = max(dot(normal, lightDirection), 0.0f);
     // Specular Shading
-    vec3 reflectDirection = reflect(-lightDirection, normal);
-    float specular = pow(max(dot(viewDirection, reflectDirection), 0.0f), uShininess);
+    const float energyConservation = ( 8.0 + uShininess ) / ( 8.0 * PI ); 
+    vec3 halfwayDirection = normalize(lightDirection + viewDirection);
+    float specular = energyConservation * pow(max(dot(normal, halfwayDirection), 0.0f), uShininess);
     
     // Ambient lighting
     if (materialActive) {
@@ -150,13 +152,15 @@ vec4 CalculateDirectionalLight(Light light, vec3 normal, vec3 viewDirection, boo
 
 vec4 CalculatePointLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 viewDirection, bool materialActive) {    
     // Properties
+    const float PI = 3.14159265;
     vec3 color = vec3(0.0f);
     vec3 lightDirection = normalize(light.Position - vFragPos);
     // Diffuse Shading
     float diffuse = max(dot(normal, lightDirection), 0.0f);
     // Specular Shading
-    vec3 reflectDirection = reflect(-lightDirection, normal);
-    float specular = pow(max(dot(viewDirection, reflectDirection), 0.0f), uShininess);
+    const float energyConservation = ( 8.0 + uShininess ) / ( 8.0 * PI ); 
+    vec3 halfwayDirection = normalize(lightDirection + viewDirection);
+    float specular = energyConservation * pow(max(dot(normal, halfwayDirection), 0.0f), uShininess);
     // Attenuation
     float distance = length(light.Position - vFragPos);
     float attenuation = 1.0f / (light.Constant + light.Linear * distance + light.Quadratic * (distance * distance));
@@ -190,13 +194,15 @@ vec4 CalculatePointLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 v
 
 vec4 CalculateSpotLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 viewDirection, bool materialActive) {
     // Properties
+    const float PI = 3.14159265;
     vec3 color = vec3(0.0f);
     vec3 lightDirection = normalize(light.Position - vFragPos);
     // Diffuse Shading
     float diffuse = max(dot(normal, lightDirection), 0.0f);
     // Specular Shading
-    vec3 reflectDirection = reflect(-lightDirection, normal);
-    float specular = pow(max(dot(viewDirection, reflectDirection), 0.0f), uShininess);
+    const float energyConservation = ( 8.0 + uShininess ) / ( 8.0 * PI ); 
+    vec3 halfwayDirection = normalize(lightDirection + viewDirection);
+    float specular = energyConservation * pow(max(dot(normal, halfwayDirection), 0.0f), uShininess);
     // Attenuation
     float distance = length(light.Position - vFragPos);
     float attenuation = 1.0f / (light.Constant + light.Linear * distance + light.Quadratic * (distance * distance));

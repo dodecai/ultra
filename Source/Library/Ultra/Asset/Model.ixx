@@ -149,13 +149,13 @@ private:
         float shininess;
 
         material->Get(AI_MATKEY_COLOR_AMBIENT, color);
-        result.Ambient = glm::vec3(color.r, color.g, color.b) * 0.5f;
+        result.Ambient = glm::vec3(color.r, color.g, color.b);
 
         material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
-        result.Diffuse = glm::vec3(color.r, color.g, color.b) * 0.5f;
+        result.Diffuse = glm::vec3(color.r, color.g, color.b);
 
         material->Get(AI_MATKEY_COLOR_SPECULAR, color);
-        result.Specular = glm::vec3(color.r, color.g, color.b) * 0.5f;
+        result.Specular = glm::vec3(color.r, color.g, color.b);
 
         material->Get(AI_MATKEY_SHININESS, shininess);
         if (shininess < 0.0f) {

@@ -280,7 +280,7 @@ public:
 
         // Load Shaders
         static auto lightShader = Shader::Create("Assets/Shaders/Light.glsl");
-        static auto modelShader = Shader::Create("Assets/Shaders/Model.glsl");
+        static auto modelShader = Shader::Create("Assets/Shaders/Material.Blinn-Phong.glsl");
 
         // ToDo: Create Light Component
         static float timeValue = 0.1f;
