@@ -13,6 +13,12 @@
     #else
         #define APP_API __declspec(dllimport)
     #endif
+
+    #ifdef APP_COMPILER_MSVC
+        #define CPP_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
+    #else
+        #define CPP_NO_UNIQUE_ADDRESS [[no_unique_address]]
+    #endif
 #else
 	#error "This library currently supports only Windows!""
 #endif

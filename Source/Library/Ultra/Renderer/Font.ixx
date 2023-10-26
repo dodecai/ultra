@@ -12,7 +12,6 @@ export module Ultra.Renderer.Font;
 
 import Ultra.Core;
 import Ultra.Logger;
-import Ultra.Math;
 import Ultra.Renderer.Data;
 import Ultra.Renderer.Texture;
 

@@ -100,4 +100,6 @@ using std::uint32_t;
 using std::uint64_t;
 using std::uintptr_t;
 
+using empty_t = std::monostate;
+
 }

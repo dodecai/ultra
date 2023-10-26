@@ -143,8 +143,8 @@ Size Font::GetSize(string_view text) {
 FontSize Font::GetSizeFull(string_view text) {
     int x = 0;
     int y = 0;
-    Vector2Di lower = { INT_MAX, INT_MAX };
-    Vector2Di upper = { INT_MIN, INT_MIN };
+    array<int, 2> lower = { INT_MAX, INT_MAX };
+    array<int, 2> upper = { INT_MIN, INT_MIN };
 
     auto begin = text.begin();
     auto end = text.end();
@@ -161,14 +161,14 @@ FontSize Font::GetSizeFull(string_view text) {
         if (lastGlyph) x += GetKerning(lastGlyph, glyph->UniqueID);
         lastGlyph = glyph->UniqueID;
 
-        lower.X = std::min(lower.X, x + glyph->X);
-        lower.Y = std::min(lower.Y, y + glyph->Y);
-        upper.X = std::max(upper.X, x + (glyph->X + glyph->Width));
-        upper.Y = std::max(upper.Y, y + (glyph->Y + glyph->Height));
+        lower[0] = std::min(lower[0], x + glyph->X);
+        lower[1] = std::min(lower[1], y + glyph->Y);
+        upper[0] = std::max(upper[0], x + (glyph->X + glyph->Width));
+        upper[1] = std::max(upper[1], y + (glyph->Y + glyph->Height));
         x += glyph->Advance;
     }
 
-    return { (float)lower.X, (float)lower.Y, (float)upper.X - lower.X, (float)upper.Y - lower.Y };
+    return { (float)lower[0], (float)lower[1], (float)upper[0] - lower[0], (float)upper[1] - lower[1] };
 }
 
 
@@ -194,7 +194,7 @@ Glyph *Font::GetGlyph(uint32_t codepoint) {
     g->X = face->glyph->bitmap_left;
     g->Y = -face->glyph->bitmap_top;
     
-    vector<Vector4Df> buffer {};
+    vector<array<float, 4>> buffer {};
     buffer.reserve(g->Width * g->Height);
 
     // Copy rendered bitmap into buffer

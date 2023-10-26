@@ -116,12 +116,12 @@ void GLRenderDevice::Load() {
     // Uniform Block Size
     GLint maxUniformBlockSize;
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUniformBlockSize);
-    printf("Max uniform block size: %d\n", maxUniformBlockSize);
+    LogTrace("Max uniform block size: {}", maxUniformBlockSize);
 
     // Uniform Block Size
     GLint maxUniformBindings;
     glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxUniformBindings);
-    printf("Max uniform bindings: %d\n", maxUniformBindings);
+    LogTrace("Max uniform bindings: {}", maxUniformBindings);
 
     glBindVertexArray(0);
     capabilities.Log();

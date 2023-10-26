@@ -35,25 +35,25 @@ using Int = int32_t;
 using UInt = uint32_t;
 
 // Vector Types
-using Bool2 = glm::bvec2;
-using Bool3 = glm::bvec3;
-using Bool4 = glm::bvec4;
+using Bool2 = VectorBase<bool, 2, VectorAliases::None>;
+using Bool3 = VectorBase<bool, 3, VectorAliases::None>;
+using Bool4 = VectorBase<bool, 4, VectorAliases::None>;
 
-using Double2 = glm::dvec2;
-using Double3 = glm::dvec3;
-using Double4 = glm::dvec4;
+using Double2 = VectorBase<double, 2>;
+using Double3 = VectorBase<double, 3>;
+using Double4 = VectorBase<double, 4>;
 
-using Float2 = glm::vec2;
-using Float3 = glm::vec3;
-using Float4 = glm::vec4;
+using Float2 = VectorBase<float, 2>;
+using Float3 = VectorBase<float, 3>;
+using Float4 = VectorBase<float, 4>;
 
-using Int2 = glm::ivec2;
-using Int3 = glm::ivec3;
-using Int4 = glm::ivec4;
+using Int2 = VectorBase<int32_t, 2>;
+using Int3 = VectorBase<int32_t, 3>;
+using Int4 = VectorBase<int32_t, 4>;
 
-using UInt2 = glm::uvec2;
-using UInt3 = glm::uvec3;
-using UInt4 = glm::uvec4;
+using UInt2 = VectorBase<uint32_t, 2>;
+using UInt3 = VectorBase<uint32_t, 3>;
+using UInt4 = VectorBase<uint32_t, 4>;
 
 // Matrix Types
 using Matrix2 = glm::mat2;

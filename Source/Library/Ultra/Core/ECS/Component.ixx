@@ -23,7 +23,6 @@ enum class Components {
     Sprite
 };
 
-
 namespace Component {
 
 // Descriptive Components

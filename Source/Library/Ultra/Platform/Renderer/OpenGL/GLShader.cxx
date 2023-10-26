@@ -160,22 +160,25 @@ void GLShader::UpdateUniformBuffer(const string &name, const void *data, size_t 
 
 void GLShader::UpdateUniform(const string &name, const Bool &data) {
     auto location = FindUniformLocation(name);
-    glUniform1i(location, data);
+    glUniform1i(location, static_cast<int32_t>(data));
 }
 
 void GLShader::UpdateUniform(const string &name, const Bool2 &data) {
     auto location = FindUniformLocation(name);
-    glUniform2iv(location, 1, reinterpret_cast<const GLint *>(glm::value_ptr(data)));
+    auto converted = data.As<GLint>();
+    glUniform2iv(location, 1, converted.data());
 }
 
 void GLShader::UpdateUniform(const string &name, const Bool3 &data) {
     auto location = FindUniformLocation(name);
-    glUniform3iv(location, 1, reinterpret_cast<const GLint *>(glm::value_ptr(data)));
+    auto converted = data.As<GLint>();
+    glUniform3iv(location, 1, converted.data());
 }
 
 void GLShader::UpdateUniform(const string &name, const Bool4 &data) {
     auto location = FindUniformLocation(name);
-    glUniform4iv(location, 1, reinterpret_cast<const GLint *>(glm::value_ptr(data)));
+    auto converted = data.As<GLint>();
+    glUniform4iv(location, 1, converted.data());
 }
 
 void GLShader::UpdateUniform(const string &name, const Double &data) {
@@ -185,17 +188,17 @@ void GLShader::UpdateUniform(const string &name, const Double &data) {
 
 void GLShader::UpdateUniform(const string &name, const Double2 &data) {
     auto location = FindUniformLocation(name);
-    glUniform2dv(location, 1, glm::value_ptr(data));
+    glUniform2dv(location, 1, data);
 }
 
 void GLShader::UpdateUniform(const string &name, const Double3 &data) {
     auto location = FindUniformLocation(name);
-    glUniform3dv(location, 1, glm::value_ptr(data));
+    glUniform3dv(location, 1, data);
 }
 
 void GLShader::UpdateUniform(const string &name, const Double4 &data) {
     auto location = FindUniformLocation(name);
-    glUniform4dv(location, 1, glm::value_ptr(data));
+    glUniform4dv(location, 1, data);
 }
 
 void GLShader::UpdateUniform(const string &name, const Float &data) {
@@ -205,17 +208,17 @@ void GLShader::UpdateUniform(const string &name, const Float &data) {
 
 void GLShader::UpdateUniform(const string &name, const Float2 &data) {
     auto location = FindUniformLocation(name);
-    glUniform2fv(location, 1, glm::value_ptr(data));
+    glUniform2fv(location, 1, data);
 }
 
 void GLShader::UpdateUniform(const string &name, const Float3 &data) {
     auto location = FindUniformLocation(name);
-    glUniform3fv(location, 1, glm::value_ptr(data));
+    glUniform3fv(location, 1, data);
 }
 
 void GLShader::UpdateUniform(const string &name, const Float4 &data) {
     auto location = FindUniformLocation(name);
-    glUniform4fv(location, 1, glm::value_ptr(data));
+    glUniform4fv(location, 1, data);
 }
 
 void GLShader::UpdateUniform(const string &name, const Int &data) {
@@ -225,17 +228,17 @@ void GLShader::UpdateUniform(const string &name, const Int &data) {
 
 void GLShader::UpdateUniform(const string &name, const Int2 &data) {
     auto location = FindUniformLocation(name);
-    glUniform2iv(location, 1, glm::value_ptr(data));
+    glUniform2iv(location, 1, data);
 }
 
 void GLShader::UpdateUniform(const string &name, const Int3 &data) {
     auto location = FindUniformLocation(name);
-    glUniform3iv(location, 1, glm::value_ptr(data));
+    glUniform3iv(location, 1, data);
 }
 
 void GLShader::UpdateUniform(const string &name, const Int4 &data) {
     auto location = FindUniformLocation(name);
-    glUniform4iv(location, 1, glm::value_ptr(data));
+    glUniform4iv(location, 1, data);
 }
 
 void GLShader::UpdateUniform(const string &name, const UInt &data) {
@@ -245,17 +248,17 @@ void GLShader::UpdateUniform(const string &name, const UInt &data) {
 
 void GLShader::UpdateUniform(const string &name, const UInt2 &data) {
     auto location = FindUniformLocation(name);
-    glUniform2uiv(location, 1, glm::value_ptr(data));
+    glUniform2uiv(location, 1, data);
 }
 
 void GLShader::UpdateUniform(const string &name, const UInt3 &data) {
     auto location = FindUniformLocation(name);
-    glUniform3uiv(location, 1, glm::value_ptr(data));
+    glUniform3uiv(location, 1, data);
 }
 
 void GLShader::UpdateUniform(const string &name, const UInt4 &data) {
     auto location = FindUniformLocation(name);
-    glUniform4uiv(location, 1, glm::value_ptr(data));
+    glUniform4uiv(location, 1, data);
 }
 
 void GLShader::UpdateUniform(const string &name, const Matrix2 &data) {

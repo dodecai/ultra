@@ -1,63 +1,216 @@
-﻿export module Ultra.Math.Vector;
+﻿module;
+
+#include "Ultra/Core/Core.h"
+
+export module Ultra.Math.Vector;
 
 import Ultra.Core;
 import Ultra.Logger;
 
 ///
-/// @brief Vector
+/// @brief Vector[2-4]D
 ///
 export namespace Ultra {
 
-// Concepts
+#pragma region Vector Data
+
+///
+/// @brief Concepts
+///
+
+// VectorTypes: [bool|double|float|int32|uint32]
 template<typename T>
-concept VectorNumerics = 
-    std::is_same_v<T, bool> ||
+concept VectorNumerics =
+std::is_same_v<T, bool> ||
     std::is_same_v<T, double> ||
     std::is_same_v<T, float> ||
     std::is_same_v<T, int32_t> ||
     std::is_same_v<T, uint32_t>;
 
+// VectorSizes: [2|3|4]
+template<size_t N>
+concept VectorSizeRange = (N >= 2 && N <= 4);
+
 ///
-/// @brief Vector[2-4]D
+/// @brief Enumerations
 ///
-#pragma warning(push)
+
+// Vector Aliases: [None|Color|Coordinate|Normal|Rotation|TextureCoordinate]
+enum class VectorAliases {
+    Color,
+    Coordinate,
+    Normal,
+    Rotation,
+    TextureCoordinate,
+    None,
+};
+
+#pragma pack(push, 1)
+#pragma warning(push, 1)
 #pragma warning(disable: 4201)
+
+///
+/// @brief Vector Data: Prototype
+/// @tparam T Vector Type: [bool|double|float|int32|uint32]
+/// @tparam N Vector Size: [2|3|4]
+/// @tparam A Vector Alias: [None|Color|Coordinate|Normal|Rotation|TextureCoordinate]
+///
+template<VectorNumerics T, size_t N, VectorAliases A = VectorAliases::None>
+    requires VectorSizeRange<N>
+struct VectorData;
+
+///
+/// @brief Vector Data: None Specialization (simple array)
+///
 template<VectorNumerics T, size_t N>
-struct Vector {
-    // Compile-Time Checks
-    static_assert(N >= 2 && N <= 4, "Vector size must be between 2 and 4.");
-    
-    // Types
-    struct EmptyType {};
-    using T1 = typename std::conditional_t<N >= 1, T, EmptyType>; // Left for future use, maybe needed
-    using T2 = typename std::conditional_t<N >= 2, T, EmptyType>;
-    using T3 = typename std::conditional_t<N >= 3, T, EmptyType>;
-    using T4 = typename std::conditional_t<N >= 4, T, EmptyType>;
+struct VectorData<T, N, VectorAliases::None> {
+    std::array<T, N> Data;
+};
+
+///
+/// @brief Vector Data: Color Specialization with additional aliases [R|G|B|A]
+///
+template<VectorNumerics T, size_t N>
+struct VectorData<T, N, VectorAliases::Color> {
+    // Aliases
+    using T1 = typename std::conditional_t<N >= 1, T, std::monostate>;
+    using T2 = typename std::conditional_t<N >= 2, T, std::monostate>;
+    using T3 = typename std::conditional_t<N >= 3, T, std::monostate>;
+    using T4 = typename std::conditional_t<N >= 4, T, std::monostate>;
 
     // Properties
     union {
+        std::array<T, N> Data;
         struct {
-            T1 X;
-            T2 Y;
-            T3 Z;
-            T4 W;
+            CPP_NO_UNIQUE_ADDRESS T1 R;
+            CPP_NO_UNIQUE_ADDRESS T2 G;
+            CPP_NO_UNIQUE_ADDRESS T3 B;
+            CPP_NO_UNIQUE_ADDRESS T4 A;
         };
-
-        array<T, N> Data;
     };
+};
 
-    // Default
-    constexpr explicit Vector(const T &value):
-        Data({ value }) {
-    }
-    constexpr Vector(const array<T, N> &data):
-        Data(data) {
-    }
-    constexpr Vector(std::initializer_list<T> initList) {
-        std::copy(initList.begin(), initList.end(), Data.begin());
-    }
+///
+/// @brief Vector Data: Coordinates Specialization with additional aliases [X|Y|Z|W]
+///
+template<VectorNumerics T, size_t N>
+struct VectorData<T, N, VectorAliases::Coordinate> {
+    // Aliases
+    using T1 = typename std::conditional_t<N >= 1, T, std::monostate>;
+    using T2 = typename std::conditional_t<N >= 2, T, std::monostate>;
+    using T3 = typename std::conditional_t<N >= 3, T, std::monostate>;
+    using T4 = typename std::conditional_t<N >= 4, T, std::monostate>;
+
+    // Properties
+    union {
+        std::array<T, N> Data;
+        struct {
+            CPP_NO_UNIQUE_ADDRESS T1 X;
+            CPP_NO_UNIQUE_ADDRESS T2 Y;
+            CPP_NO_UNIQUE_ADDRESS T3 Z;
+            CPP_NO_UNIQUE_ADDRESS T4 W;
+        };
+    };
+};
+
+///
+/// @brief Vector Data: Normal Specialization with additional aliases [NX|NY|NZ]
+///
+template<VectorNumerics T, size_t N>
+    requires (N <= 3)
+struct VectorData<T, N, VectorAliases::Normal> {
+    // Aliases
+    using T1 = typename std::conditional_t<N >= 1, T, std::monostate>;
+    using T2 = typename std::conditional_t<N >= 2, T, std::monostate>;
+    using T3 = typename std::conditional_t<N >= 3, T, std::monostate>;
+
+    // Properties
+    union {
+        std::array<T, N> Data;
+        struct {
+            CPP_NO_UNIQUE_ADDRESS T1 NX;
+            CPP_NO_UNIQUE_ADDRESS T2 NY;
+            CPP_NO_UNIQUE_ADDRESS T3 NZ;
+        };
+    };
+};
+
+///
+/// @brief Vector Data: Rotation Specialization with additional aliases [Pitch|Yaw|Roll]
+///
+template<VectorNumerics T, size_t N>
+    requires (N == 3)
+struct VectorData<T, N, VectorAliases::Rotation> {
+    // Aliases
+    using T1 = typename std::conditional_t<N >= 1, T, std::monostate>;
+    using T2 = typename std::conditional_t<N >= 2, T, std::monostate>;
+    using T3 = typename std::conditional_t<N >= 3, T, std::monostate>;
+
+    // Properties
+    union {
+        std::array<T, N> Data;
+        struct {
+            CPP_NO_UNIQUE_ADDRESS T1 Pitch;
+            CPP_NO_UNIQUE_ADDRESS T2 Yaw;
+            CPP_NO_UNIQUE_ADDRESS T3 Roll;
+        };
+    };
+};
+
+///
+/// @brief Vector Data: Texture Coordinates Specialization with additional aliases [U|V|W|Q]
+///
+template<VectorNumerics T, size_t N>
+struct VectorData<T, N, VectorAliases::TextureCoordinate> {
+    // Aliases
+    using T1 = typename std::conditional_t<N >= 1, T, std::monostate>;
+    using T2 = typename std::conditional_t<N >= 2, T, std::monostate>;
+    using T3 = typename std::conditional_t<N >= 3, T, std::monostate>;
+    using T4 = typename std::conditional_t<N >= 4, T, std::monostate>;
+
+    // Properties
+    union {
+        std::array<T, N> Data;
+        struct {
+            CPP_NO_UNIQUE_ADDRESS T1 U;
+            CPP_NO_UNIQUE_ADDRESS T2 V;
+            CPP_NO_UNIQUE_ADDRESS T3 W;
+            CPP_NO_UNIQUE_ADDRESS T3 Q;
+        };
+    };
+};
+
+#pragma pack(pop)
+#pragma warning(pop)
+
+#pragma endregion
+
+#pragma region Vector Base
+
+///
+/// @brief VectorBase: Prototype
+/// | This is the vector base aggregation, which is used to implement the Vector class or similar arithmetic classes.
+///
+template<VectorNumerics T, size_t N, VectorAliases A = VectorAliases::None>
+struct VectorBase;
+
+///
+/// @brief VectorBase: Specialization
+/// | This is the specialization for nearly all types (except booleans), which offers everything needed.
+/// @note Not used aliases are set to std::monostate and don't require any storage.
+///
+template<VectorNumerics T, size_t N, VectorAliases A>
+struct VectorBase: public VectorData<T, N, A> {
+    // Import VectorData
+    using VectorData<T, N, A>::Data;
 
     // Accessors
+    operator T *() {
+        return &Data[0];
+    }
+    operator const T *() const {
+        return &Data[0];
+    }
     T &operator[](size_t index) {
         return Data[index];
     }
@@ -65,49 +218,166 @@ struct Vector {
         return Data[index];
     }
 
-    // Comparisons
-    std::strong_ordering operator<=>(const Vector &other) const {
-        for (size_t i = 0; i < N; i++) {
-            if (auto result = Data[i] <=> other.Data[i]; result != 0) return result;
+    // Comparison
+    auto operator<=>(const VectorBase &other) const {
+        for (size_t i = 0; i < N; ++i) {
+            if (auto cmp = std::compare_strong_order_fallback(Data[i], other.Data[i]); cmp != 0) {
+                return cmp;
+            }
         }
         return std::strong_ordering::equal;
     }
+    auto operator==(const VectorBase &other) const {
+        return (*this <=> other) == 0;
+    }
 
-    // Conversions
-    operator string() {
-        string result;
-        result.reserve(N * 6);
-        result = "[ ";
-        for (const auto &element : Data) {
-            result += std::format("{}, ", element);
-        }
-        result = result.substr(0, result.length() - 2);
-        result += " ]";
+    // Conversion
+    template <VectorNumerics U>
+    array<U, N> As() const {
+        array<U, N> result;
+        std::transform(Data.begin(), Data.end(), result.begin(), [](bool b) {
+            return static_cast<U>(b);
+        });
         return result;
     }
 
-    // Mutators
-    void SetZero() {
-        for (size_t i = 0; i < N; i++) {
-            Data[i] = static_cast<T>(0);
-        }
+    // Arithmetic
+    auto operator+(const VectorBase &other) {
+        VectorBase result = *this;
+        return result += other;
+    }
+    auto operator-(const VectorBase &other) {
+        VectorBase result = *this;
+        return result -= other;
+    }
+    auto operator*(const VectorBase &other) {
+        VectorBase result = *this;
+        return result *= other;
+    }
+    auto operator/(const VectorBase &other) {
+        VectorBase result = *this;
+        return result /= other;
+    }
+    template<VectorNumerics S = T>
+    auto operator+(S scalar) {
+        VectorBase result = *this;
+        return result += scalar;
+    }
+    template<VectorNumerics S = T>
+    auto operator-(S scalar) {
+        VectorBase result = *this;
+        return result -= scalar;
+    }
+    template<VectorNumerics S = T>
+    auto operator*(S scalar) {
+        VectorBase result = *this;
+        return result *= scalar;
+    }
+    template<VectorNumerics S = T>
+    auto operator/(S scalar) {
+        VectorBase result = *this;
+        return result /= scalar;
     }
 
-    // Methods
-    
+    // - Allow scalar additions and multiplications from the left and right
+    template<VectorNumerics S = T>
+    friend VectorBase operator+(S scalar, const VectorBase &v) {
+        VectorBase result = v;
+        for (size_t i = 0; i < N; i++) { result.Data[i] += scalar; }
+        return result;
+    }
+    template<VectorNumerics S = T>
+    friend VectorBase operator*(S scalar, const VectorBase &v) {
+        VectorBase result = v;
+        for (size_t i = 0; i < N; i++) { result.Data[i] *= scalar; }
+        return result;
+    }
+
+    // Assignment
+    VectorBase &operator=(const VectorBase &) = default;
+    VectorBase &operator+=(const VectorBase &other) {
+        for (size_t i = 0; i < N; i++) { Data[i] += other.Data[i]; }
+        return *this;
+    }
+    VectorBase &operator-=(const VectorBase &other) {
+        for (size_t i = 0; i < N; i++) { Data[i] -= other.Data[i]; }
+        return *this;
+    }
+    VectorBase &operator*=(const VectorBase &other) {
+        for (size_t i = 0; i < N; i++) { Data[i] *= other.Data[i]; }
+        return *this;
+    }
+    VectorBase &operator/=(const VectorBase &other) {
+        static constexpr T infinity = std::numeric_limits<T>::infinity() ? std::numeric_limits<T>::infinity() : std::numeric_limits<T>::max();
+        for (size_t i = 0; i < N; i++) {
+            auto value = Data[i] / other.Data[i];
+            Data[i] = std::isfinite(value) ? value : infinity;
+        }
+        return *this;
+    }
+    template<VectorNumerics S = T>
+    VectorBase &operator+=(S scalar) {
+        for (size_t i = 0; i < N; i++) { Data[i] += scalar; }
+        return *this;
+    }
+    template<VectorNumerics S = T>
+    VectorBase &operator-=(S scalar) {
+        for (size_t i = 0; i < N; i++) { Data[i] -= scalar; }
+        return *this;
+    }
+    template<VectorNumerics S = T>
+    VectorBase &operator*=(S scalar) {
+        for (size_t i = 0; i < N; i++) { Data[i] *= scalar; }
+        return *this;
+    }
+    template<VectorNumerics S = T>
+    VectorBase &operator/=(S scalar) {
+        static constexpr T infinity = std::numeric_limits<T>::infinity() ? std::numeric_limits<T>::infinity() : std::numeric_limits<T>::max();
+        for (size_t i = 0; i < N; i++) {
+            auto value = Data[i] / scalar;
+            Data[i] = std::isfinite(value) ? value : infinity;
+        }
+        return *this;
+    }
+
+    // Iterators
+    auto begin() { return Data.begin(); }
+    auto end() { return Data.end(); }
+    auto rbegin() { return Data.rbegin(); }
+    auto rend() { return Data.rend(); }
+
+    auto begin() const { return Data.begin(); }
+    auto end() const { return Data.end(); }
+    auto rbegin() const { return Data.rbegin(); }
+    auto rend() const { return Data.rend(); }
+
+    // Negates this vector.
+    auto operator-() const {
+        VectorBase result;
+        for (size_t i = 0; i < N; i++) { result.Data[i] = -Data[i]; }
+        return result;
+    }
+
+    ///
+    /// Methods
+    ///
+
+    // Mutators
+
     // Calculates the angle between this vector and another vector in radians.
-    T Angle(const Vector &other) {
+    T Angle(const VectorBase &other) {
         return std::acos(Dot(other) / (Length() * other.Length()));
     }
-    
+
     // Calculates the angle between this vector and another vector in degrees.
-    T AngleInDegrees(const Vector &other) {
-        return std::acos(Dot(other) / (Length() * other.Length())) * (180.0 / std::numbers::pi);
+    T AngleInDegrees(const VectorBase &other) {
+        static constexpr T degreeConversionFactor = static_cast<T>(180.0 / std::numbers::pi);
+        return std::acos(Dot(other) / (Length() * other.Length())) * degreeConversionFactor;
     }
 
     // Returns a vector with the absolute value of each component.
-    Vector Abs() {
-        Vector result {};
+    VectorBase Abs() {
+        VectorBase result {};
         for (size_t i = 0; i < N; i++) {
             result[i] = std::abs(Data[i]);
         }
@@ -115,8 +385,8 @@ struct Vector {
     }
 
     // Rounds up each component of this vector.
-    Vector Ceil() const {
-        Vector result;
+    VectorBase Ceil() const {
+        VectorBase result;
         for (size_t i = 0; i < N; i++) {
             result.Data[i] = std::ceil(Data[i]);
         }
@@ -124,7 +394,7 @@ struct Vector {
     }
 
     // Calculates the cross product between this vector and another vector (only valid for 3D vectors).
-    Vector Cross(const Vector &other) const requires (N == 3) {
+    VectorBase Cross(const VectorBase &other) const requires (N == 3) {
         return {
             Data[1] * other.Data[2] - Data[2] * other.Data[1],
             Data[2] * other.Data[0] - Data[0] * other.Data[2],
@@ -133,21 +403,21 @@ struct Vector {
     }
 
     // Clamps each component of the vector between given minimum and maximum values.
-    Vector Clamp(T minVal, T maxVal) const {
-        Vector result = *this;
+    VectorBase Clamp(T minVal, T maxVal) const {
+        VectorBase result = *this;
         for (size_t i = 0; i < N; i++) {
             result[i] = std::clamp(result[i], minVal, maxVal);
         }
         return result;
     }
-    
+
     // Calculates the distance between this vector and another vector.
-    T Distance(const Vector &other) {
+    T Distance(const VectorBase &other) {
         return (*this - other).Length();
     }
-    
+
     // Calculates the dot product between this vector and another vector.
-    T Dot(const Vector &other) const {
+    T Dot(const VectorBase &other) const {
         T result {};
         for (size_t i = 0; i < N; i++) {
             result += Data[i] * other.Data[i];
@@ -156,8 +426,8 @@ struct Vector {
     }
 
     // Rounds down each component of this vector.
-    Vector Floor() const {
-        Vector result;
+    VectorBase Floor() const {
+        VectorBase result;
         for (size_t i = 0; i < N; i++) {
             result.Data[i] = std::floor(Data[i]);
         }
@@ -165,8 +435,8 @@ struct Vector {
     }
 
     // Returns the element-wise multiplication of two vectors.
-    Vector Hadamard(const Vector &other) const {
-        Vector result;
+    VectorBase Hadamard(const VectorBase &other) const {
+        VectorBase result;
         for (size_t i = 0; i < N; i++) {
             result.Data[i] = Data[i] * other.Data[i];
         }
@@ -174,8 +444,8 @@ struct Vector {
     }
 
     // Converts a 3D vector to a homogeneous 4D vector
-    Vector<T, 4> Homogenize() const requires (N == 3) {
-        return Vector<T, 4>{Data[0], Data[1], Data[2], static_cast<T>(1)};
+    VectorBase<T, 4> Homogenize() const requires (N == 3) {
+        return VectorBase<T, 4>{Data[0], Data[1], Data[2], static_cast<T>(1)};
     }
 
     // Returns the length (magnitude) of the vector.
@@ -184,13 +454,13 @@ struct Vector {
     }
 
     // Linearly interpolates between this vector and another vector based on a given factor.
-    Vector Lerp(const Vector &other, T factor) const {
+    VectorBase Lerp(const VectorBase &other, T factor) const {
         return (*this * (1 - factor)) + (other * factor);
     }
 
     // Returns a vector with the maximum value from each pair of components from two vectors.
-    static Vector Max(const Vector &a, const Vector &b) {
-        Vector result = a;
+    static VectorBase Max(const VectorBase &a, const VectorBase &b) {
+        VectorBase result = a;
         for (size_t i = 0; i < N; i++) {
             result[i] = std::max(a[i], b[i]);
         }
@@ -198,16 +468,16 @@ struct Vector {
     }
 
     // Returns a vector with the minimum value from each pair of components from two vectors.
-    static Vector Min(const Vector &a, const Vector &b) {
-        Vector result = a;
+    static VectorBase Min(const VectorBase &a, const VectorBase &b) {
+        VectorBase result = a;
         for (size_t i = 0; i < N; i++) {
             result[i] = std::min(a[i], b[i]);
         }
         return result;
     }
-    
+
     // Checks if two vectors are approximately equal within a given tolerance.
-    bool NearlyEqual(const Vector &other, T epsilon = std::numeric_limits<T>::epsilon()) const {
+    bool NearlyEqual(const VectorBase &other, T epsilon = std::numeric_limits<T>::epsilon()) const {
         for (size_t i = 0; i < N; i++) {
             if (std::abs(Data[i] - other.Data[i]) > epsilon) {
                 return false;
@@ -217,9 +487,8 @@ struct Vector {
     }
 
     // Returns a normalized version of the vector.
-    Vector Normalize() {
-        if (!ValidateNonZero()) { throw std::invalid_argument("Cannot normalize the zero vector."); }
-        Vector result = *this;
+    VectorBase Normalize() {
+        VectorBase result = *this;
         T length = Length();
         for (size_t i = 0; i < N; i++) {
             result[i] /= length;
@@ -228,8 +497,8 @@ struct Vector {
     }
 
     // Rounds each component of this vector to the nearest integer.
-    Vector Round() const {
-        Vector result;
+    VectorBase Round() const {
+        VectorBase result;
         for (size_t i = 0; i < N; i++) {
             result.Data[i] = std::round(Data[i]);
         }
@@ -237,20 +506,20 @@ struct Vector {
     }
 
     // Returns a vector perpendicular to the current 2D vector.
-    Vector Perpendicular() const requires (N == 2) {
-        return Vector { -Data[1], Data[0] };
+    VectorBase Perpendicular() const requires (N == 2) {
+        return VectorBase { -Data[1], Data[0] };
     }
 
     // Projects this vector onto another vector.
-    Vector Projection(const Vector &other) const {
+    VectorBase Projection(const VectorBase &other) const {
         T squaredLength = other.SquaredLength();
         T dotProduct = Dot(other);
         return (dotProduct / squaredLength) * other;
     }
 
     // Raises each component of the vector to a given power.
-    Vector Pow(T exponent) const {
-        Vector result = *this;
+    VectorBase Pow(T exponent) const {
+        VectorBase result = *this;
         for (size_t i = 0; i < N; i++) {
             result[i] = std::pow(result[i], exponent);
         }
@@ -258,17 +527,17 @@ struct Vector {
     }
 
      // Reflects the vector off a surface with the given normal.
-    Vector Reflection(const Vector &normal) {
+    VectorBase Reflection(const VectorBase &normal) {
         return *this - 2 * Projection(normal);
     }
 
     // Returns the rejection of this vector from another vector.
-    Vector Reject(const Vector &other) const {
+    VectorBase Reject(const VectorBase &other) const {
         return *this - Projection(other);
     }
 
     // Returns the squared distance between this vector and another vector.
-    T SquaredDistance(const Vector &other) const {
+    T SquaredDistance(const VectorBase &other) const {
         return (*this - other).SquaredLength();
     }
 
@@ -280,7 +549,7 @@ struct Vector {
         }
         return result;
     }
-    
+
     // Returns the squared magnitude of this vector.
     T SquaredMagnitude() const {
         T sum = 0;
@@ -295,180 +564,96 @@ struct Vector {
         return std::abs(SquaredMagnitude() - 1) < epsilon;
     }
 
-    // Negates this vector.
-    Vector operator-() const {
-        Vector result;
-        for (size_t i = 0; i < N; i++) {
-            result.Data[i] = -Data[i];
-        }
-        return result;
-    }
-
-    // Operations
-    Vector operator+(const Vector &other) const {
-        Vector result = *this;
-        result += other;
-        return result;
-    }
-    Vector operator-(const Vector &other) const {
-        Vector result = *this;
-        result -= other;
-        return result;
-    }
-    Vector operator*(const Vector &other) const {
-        Vector result;
-        for (int i = 0; i < N; i++) {
-            result[i] = this->Data[i] * other.Data[i];
-        }
-        return result;
-    }
-    Vector operator/(const Vector &other) const {
-        if (!ValidateNonZero()) { throw std::invalid_argument("Cannot divide the zero vector."); }
-        Vector result;
-        for (int i = 0; i < N; i++) {
-            result[i] = this->Data[i] / other.Data[i];
-        }
-        return result;
-    }
-    Vector &operator+=(const Vector &other) {
-        for (size_t i = 0; i < N; i++) {
-            Data[i] += other.Data[i];
-        }
-        return *this;
-    }
-    Vector &operator-=(const Vector &other) {
-        for (size_t i = 0; i < N; i++) {
-            Data[i] -= other.Data[i];
-        }
-        return *this;
-    }
-    Vector operator*(const T &scalar) const {
-        Vector result = *this;
-        result *= scalar;
-        return result;
-    }
-    Vector operator/(const T &scalar) const {
-        if (!ValidateNonZero()) { throw std::invalid_argument("Cannot divide the zero vector."); }
-        Vector result = *this;
-        result /= scalar;
-        return result;
-    }
-    Vector &operator*=(const T &scalar) {
-        for (size_t i = 0; i < N; i++) {
-            Data[i] *= scalar;
-        }
-        return *this;
-    }
-    Vector &operator/=(const T &scalar) {
-        if (!ValidateNonZero()) { throw std::invalid_argument("Cannot divide the zero vector."); }
-        for (size_t i = 0; i < N; i++) {
-            Data[i] /= scalar;
-        }
-        return *this;
-    }
-
-    friend Vector operator*(const T &scalar, const Vector &v) {
-        return v * scalar;
-    }
-
-private:
-    bool ValidateNonZero(T tolerance = std::numeric_limits<T>::epsilon()) const {
-        return SquaredLength() > tolerance * tolerance;
+    // Resets the vector to zero.
+    void Zero() {
+        std::fill(Data.begin(), Data.end(), static_cast<T>(0));
     }
 };
 
+///
+/// @brief Vector: Boolean Specialization
+/// | Due to the nature of booleans, this specialization has no arithmetic operators or methods.
+///
 template<size_t N>
-struct Vector<bool, N> {
-    // Compile-Time Checks
-    static_assert(N >= 2 && N <= 4, "Vector size must be between 2 and 4.");
-
-    // Properties
-    array<bool, N> Data;
-
-    // Default
-    constexpr explicit Vector(const bool &value):
-        Data({ value }) {
-    }
-    constexpr Vector(const array<bool, N> &data) :
-        Data(data) {
-    }
+struct VectorBase<bool, N, VectorAliases::None>: public VectorData<bool, N, VectorAliases::None> {
+    // Import VectorData
+    using VectorData<bool, N, VectorAliases::None>::Data;
 
     // Accessors
-    bool &operator[](size_t index) {
+    operator bool *() {
+        return &Data[0];
+    }
+    operator const bool *() const {
+        return &Data[0];
+    }
+    bool operator[](size_t index) {
         return Data[index];
     }
-    const bool &operator[](size_t index) const {
+    bool operator[](size_t index) const {
         return Data[index];
     }
 
-    // Comparisons
-    std::strong_ordering operator<=>(const Vector &other) const {
-        for (size_t i = 0; i < N; i++) {
-            if (auto result = Data[i] <=> other.Data[i]; result != 0) return result;
+    // Comparison
+    auto operator<=>(const VectorBase &other) const {
+        for (size_t i = 0; i < N; ++i) {
+            if (auto cmp = std::compare_strong_order_fallback(Data[i], other.Data[i]); cmp != 0) {
+                return cmp;
+            }
         }
         return std::strong_ordering::equal;
     }
+    auto operator==(const VectorBase &other) const {
+        return (*this <=> other) == 0;
+    }
 
-    // Conversions
-    operator string() {
-        string result;
-        result.reserve(N * 6);
-        result = "[ ";
-        for (const auto &element : Data) {
-            result += element ? "true, " : "false, ";
-        }
-        result = result.substr(0, result.length() - 2);
-        result += " ]";
+    // Conversion
+    template <VectorNumerics U>
+    array<U, N> As() const {
+        array<U, N> result;
+        std::transform(Data.begin(), Data.end(), result.begin(), [](bool b) {
+            return static_cast<U>(b);
+        });
         return result;
     }
-};
-#pragma warning(pop)
 
-template<VectorNumerics T>
-struct Vector2D: Vector<T, 2> {
-    // Default
-    Vector2D(T x = {}, T y = {}):
-        Vector<T, 2>({ x, y }) {
-    }
-};
+    // Iterators
+    auto begin() { return Data.begin(); }
+    auto end() { return Data.end(); }
+    auto rbegin() { return Data.rbegin(); }
+    auto rend() { return Data.rend(); }
 
-template <VectorNumerics T>
-struct Vector3D : Vector<T, 3> {
-    // Default
-    Vector3D(T x = {}, T y = {}, T z = {}):
-        Vector<T, 3>({ x, y, z }) {
-    }
-
+    auto begin() const { return Data.begin(); }
+    auto end() const { return Data.end(); }
+    auto rbegin() const { return Data.rbegin(); }
+    auto rend() const { return Data.rend(); }
 };
 
-template<VectorNumerics T>
-struct Vector4D: Vector<T, 4> {
-    // Default
-    Vector4D(T x = {}, T y = {}, T z = {}, T w = {}):
-        Vector<T, 4>({ x, y, z, w }) {
-    }
-};
+#pragma endregion
 
-using Vector2Db = Vector2D<bool>;
-using Vector3Db = Vector3D<bool>;
-using Vector4Db = Vector4D<bool>;
 
-using Vector2Dd = Vector2D<double>;
-using Vector3Dd = Vector3D<double>;
-using Vector4Dd = Vector4D<double>;
+///
+/// @brief Aliases
+///
 
-using Vector2Df = Vector2D<float>;
-using Vector3Df = Vector3D<float>;
-using Vector4Df = Vector4D<float>;
+using ColorRGB = VectorBase<float, 3, VectorAliases::Color>;
+using ColorRGBA = VectorBase<float, 4, VectorAliases::Color>;
+using Direction2D = VectorBase<float, 2, VectorAliases::Coordinate>;
+using Direction3D = VectorBase<float, 3, VectorAliases::Coordinate>;
+using Normal2D = VectorBase<float, 2, VectorAliases::Normal>;
+using Normal3D = VectorBase<float, 3, VectorAliases::Normal>;
+using Position2D = VectorBase<float, 2, VectorAliases::Coordinate>;
+using Position3D = VectorBase<float, 3, VectorAliases::Coordinate>;
+using Rotation3D = VectorBase<float, 3, VectorAliases::Rotation>;
+using TextureCoord2D = VectorBase<float, 2, VectorAliases::TextureCoordinate>;
+using TextureCoord3D = VectorBase<float, 3, VectorAliases::TextureCoordinate>;
 
-using Vector2Di = Vector2D<int32_t>;
-using Vector3Di = Vector3D<int32_t>;
-using Vector4Di = Vector4D<int32_t>;
+using Vector2 = VectorBase<float, 2, VectorAliases::Coordinate>;
+using Vector3 = VectorBase<float, 3, VectorAliases::Coordinate>;
+using Vector4 = VectorBase<float, 4, VectorAliases::Coordinate>;
 
-using Vector2Du = Vector2D<uint32_t>;
-using Vector3Du = Vector3D<uint32_t>;
-using Vector4Du = Vector4D<uint32_t>;
-
+///
+/// @brief Test Interface
+///
 export namespace Test {
 
 void VectorTests();
@@ -477,28 +662,94 @@ void VectorTests();
 
 }
 
+///
+/// @brief Conversions
+///
+
+namespace std {
+
+template<Ultra::VectorNumerics T, size_t N, Ultra::VectorAliases A>
+string to_string(const Ultra::VectorBase<T, N, A> &vector) {
+    string result;
+    result.reserve(N * 6);
+    result = "[ ";
+    for (const auto &element : vector) {
+        result += std::format("{}, ", element);
+    }
+    result = result.substr(0, result.length() - 2);
+    result += " ]";
+    return result;
+}
+
+template<Ultra::VectorNumerics T, size_t N, Ultra::VectorAliases A>
+struct std::formatter<Ultra::VectorBase<T, N, A>> {
+    constexpr auto parse(format_parse_context &ctx) {
+        return ctx.begin();
+    }
+
+    auto format(const Ultra::VectorBase<T, N, A> &vector, format_context &ctx) {
+        ostringstream stream;
+        stream << "[ ";
+        for (size_t i = 0; i < N; ++i) {
+            stream << vector[i] << (i < N - 1 ? ", " : " ");
+        }
+        stream << "]";
+        return format_to(ctx.out(), "{}", stream.str());
+    }
+};
+
+}
+
+
+
 module: private;
 
 namespace Ultra::Test {
 
-void VectorTests() {
-    LogInfo("Testing Vector");
+///
+/// @brief: These tests are executed during the compilation phase, so no need to call them.
+///
+void Compiler() {
+    // Ensure that the sizes are correct
+    static_assert( 2 == sizeof(VectorBase<bool,    2>), "VectorBase<bool>[2]:   The type size should be 2 byte(s)!");
+    static_assert( 3 == sizeof(VectorBase<bool,    3>), "VectorBase<bool>[3]:   The type size should be 3 byte(s)!");
+    static_assert( 4 == sizeof(VectorBase<bool,    4>), "VectorBase<bool>[4]:   The type size should be 4 byte(s)!");
+    static_assert(16 == sizeof(VectorBase<double,  2>), "VectorBase<double>[2]: The type size should be 16 bytes(s)!");
+    static_assert(24 == sizeof(VectorBase<double,  3>), "VectorBase<double>[3]: The type size should be 24 bytes(s)!");
+    static_assert(32 == sizeof(VectorBase<double,  4>), "VectorBase<double>[4]: The type size should be 32 bytes(s)!");
+    static_assert( 8 == sizeof(VectorBase<float,   2>), "VectorBase<float>[2]:  The type size should be 8 bytes(s)!");
+    static_assert(12 == sizeof(VectorBase<float,   3>), "VectorBase<float>[3]:  The type size should be 12 bytes(s)!");
+    static_assert(16 == sizeof(VectorBase<float,   4>), "VectorBase<float>[4]:  The type size should be 16 bytes(s)!");
+    static_assert( 8 == sizeof(VectorBase<int32_t, 2>), "VectorBase<int32>[2]:  The type size should be 8 byte(s)!");
+    static_assert(12 == sizeof(VectorBase<int32_t, 3>), "VectorBase<int32>[3]:  The type size should be 12 byte(s)!");
+    static_assert(16 == sizeof(VectorBase<int32_t, 4>), "VectorBase<int32>[4]:  The type size should be 16 byte(s)!");
+    static_assert( 8 == sizeof(VectorBase<uint32_t,2>), "VectorBase<uint32>[2]: The type size should be 8 bytes(s)!");
+    static_assert(12 == sizeof(VectorBase<uint32_t,3>), "VectorBase<uint32>[3]: The type size should be 12 bytes(s)!");
+    static_assert(16 == sizeof(VectorBase<uint32_t,4>), "VectorBase<uint32>[4]: The type size should be 16 bytes(s)!");
+    static_assert( 8 == sizeof(VectorBase<float,   2>), "VectorBase<float>[2]:  The type size should be 8 byte(s)!");
+    static_assert(12 == sizeof(VectorBase<float,   3>), "VectorBase<float>[3]:  The type size should be 12 byte(s)!");
+    static_assert(16 == sizeof(VectorBase<float,   4>), "VectorBase<float>[4]:  The type size should be 16 byte(s)!");
+}
 
-    // Create two 3D vectors for testing.
-    Vector<int, 3> v1({ 1, 2, 3 });
-    Vector<int, 3> v2({ 4, 5, 6 });
+///
+/// @brief Vector Tests
+///
+void VectorTests() {
+    // Preparation
+    LogInfo("Testing Vector");
+    VectorBase<int, 3, VectorAliases::Coordinate> v0 { 1, 2, 3 };
+    VectorBase<int, 3> v1({ 1, 2, 3 });
+    VectorBase<int, 3> v2({ 4, 5, 6 });
 
     // Test basic properties
-    AppAssert(v1[0] == 1 && v1[1] == 2 && v1[2] == 3, "Basic properties test failed for v1.");
-    AppAssert(v1.X == 1 && v1.Y == 2 && v1.Z == 3, "XYZ accessors test failed for v1.");
+    AppAssert(v0[0] == 1 && v0[1] == 2 && v0[2] == 3, "Basic properties test failed for v0.");
+    AppAssert(v0.X == 1 && v0.Y == 2 && v0.Z == 3, "XYZ accessors test failed for vo.");
 
     // Test arithmetic operations
     auto sum = v1 + v2;
     AppAssert(sum[0] == 5 && sum[1] == 7 && sum[2] == 9, "Addition test failed.");
-
     auto diff = v2 - v1;
     AppAssert(diff[0] == 3 && diff[1] == 3 && diff[2] == 3, "Subtraction test failed.");
-
     auto prod = v1 * 2;
     AppAssert(prod[0] == 2 && prod[1] == 4 && prod[2] == 6, "Scalar multiplication test failed.");
 
@@ -511,7 +762,7 @@ void VectorTests() {
     AppAssert(crossProd[0] == -3 && crossProd[1] == 6 && crossProd[2] == -3, "Cross product test failed.");
 
     // Test normalization (will use a 2D vector for easier computation)
-    Vector<double, 2> v3({ 3.0, 4.0 }); // A 3-4-5 right triangle
+    VectorBase<double, 2> v3({ 3.0, 4.0 }); // A 3-4-5 right triangle
     auto normalized = v3.Normalize();
     double length = normalized.Length();
     AppAssert(length > 0.99 && length < 1.01, "Normalization test failed.");  // Close enough to 1 for floating point precision
@@ -520,26 +771,26 @@ void VectorTests() {
     AppAssert((v1 <=> v2) == std::strong_ordering::less, "Comparison test failed.");
 
     // Test string conversion
-    std::string v1Str = static_cast<std::string>(v1);
-    AppAssert(v1Str == "[ 1, 2, 3 ]", "String conversion test failed.");
+    //std::string v1Str = static_cast<std::string>(v1);
+    //AppAssert(v1Str == "[ 1, 2, 3 ]", "String conversion test failed.");
 
     // Test Angle
-    Vector<double, 2> v4({ 1.0, 0.0 });
-    Vector<double, 2> v5({ 0.0, 1.0 });
+    VectorBase<double, 2> v4({ 1.0, 0.0 });
+    VectorBase<double, 2> v5({ 0.0, 1.0 });
     double angle = v4.Angle(v5);
     AppAssert(angle > 1.56 && angle < 1.58, "Angle test failed.");  // Close to pi/2 or 90 degrees
 
     // Test Abs
-    Vector<int, 3> v6({ -1, -2, -3 });
+    VectorBase<int, 3> v6({ -1, -2, -3 });
     auto absVec = v6.Abs();
     AppAssert(absVec[0] == 1 && absVec[1] == 2 && absVec[2] == 3, "Absolute value test failed.");
 
     // Test Clamp
-    Vector<int, 3> v7 = v1.Clamp(2, 3);
+    VectorBase<int, 3> v7 = v1.Clamp(2, 3);
     AppAssert(v7[0] == 2 && v7[1] == 2 && v7[2] == 3, "Clamp test failed.");
 
     // Test Distance
-    double dist = v3.Distance(Vector<double, 2>({ 0.0, 0.0 }));
+    double dist = v3.Distance(VectorBase<double, 2>({ 0.0, 0.0 }));
     AppAssert(dist > 4.99 && dist < 5.01, "Distance test failed.");  // Close to 5
 
     // Test Projection
@@ -547,9 +798,54 @@ void VectorTests() {
     AppAssert(proj[0] == 0.0 && proj[1] == 0.0, "Projection test failed.");  // Should be the zero vector
 
     // Test Reflection
-    Vector<double, 2> v8({ 1.0, 1.0 });
+    VectorBase<double, 2> v8({ 1.0, 1.0 });
     auto reflect = v8.Reflection(v4);
     AppAssert(reflect[0] == -1.0 && reflect[1] == 1.0, "Reflection test failed.");
+
+
+    VectorBase<bool, 2> bool2 = { true, false };
+    VectorBase<bool, 3> bool3 = { true, false, true };
+    VectorBase<bool, 4> bool4 = { true, false, true, false };
+
+    ColorRGB rgb = { 0.5f, 0.5f, 0.5f };
+    ColorRGBA rgba = { 0.5f, 0.5f, 0.5f, 0.5f };
+
+    Direction2D dir2 = { 0.5f, 0.5f };
+    Direction3D dir3 = { 0.5f, 0.5f, 0.5f };
+
+    Normal2D norm2 = { 0.5f, 0.5f };
+    Normal3D norm3 = { 0.5f, 0.5f, 0.5f };
+
+    Position2D start { 0.5f, 0.5f };
+    Position3D end { 0.5f, 0.5f, 0.5f };
+
+    TextureCoord2D uv = { 0.5f, 0.5f };
+    TextureCoord3D uvw = { 0.5f, 0.5f, 0.5f };
+
+    auto converted = rgba.As<double>();
+
+    // Test basic properties
+    AppAssert(bool2 == VectorBase<bool, 2> { true, false }, "Comparision test failed for boolean!");
+    rgba *= 0.25f * 2;
+    AppAssert(rgba == ColorRGBA { 0.25f, 0.25f, 0.25f, 0.25f }, "Comparision test failed for ColorRGBA!");
+
+    auto boom = start / 0;
+    auto boomagain = end / 0.00000000f;
+
+    LogInfo("Bool1: {}", std::to_string(bool2));
+    LogInfo("Bool2: {}", std::to_string(bool3));
+    LogInfo("Bool3: {}", std::to_string(bool4));
+    LogInfo("ColorRGB:   {}", std::to_string(rgb));
+    LogInfo("ColorRGBA:  {}", std::to_string(rgba));
+    LogInfo("Direction2D:{}", std::to_string(dir2));
+    LogInfo("Direction3D:{}", std::to_string(dir3));
+    LogInfo("Normal2D:   {}", std::to_string(norm2));
+    LogInfo("Normal3D:   {}", std::to_string(norm3));
+    LogInfo("Position2D: {}", std::to_string(start));
+    LogInfo("Position3D: {}", std::to_string(end));
+    LogInfo("TextureCoord2D: {}", std::to_string(uv));
+    LogInfo("TextureCoord3D: {}", std::to_string(uvw));
+
 
     LogInfo("~Testing Vector");
 }
