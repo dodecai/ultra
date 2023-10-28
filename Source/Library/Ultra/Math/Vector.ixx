@@ -362,21 +362,19 @@ struct VectorBase: public VectorData<T, N, A> {
     /// Methods
     ///
 
-    // Mutators
-
     // Calculates the angle between this vector and another vector in radians.
-    T Angle(const VectorBase &other) {
+    inline T Angle(const VectorBase &other) const requires (N >= 2) {
         return std::acos(Dot(other) / (Length() * other.Length()));
     }
 
     // Calculates the angle between this vector and another vector in degrees.
-    T AngleInDegrees(const VectorBase &other) {
+    inline T AngleInDegrees(const VectorBase &other) const requires (N >= 2) {
         static constexpr T degreeConversionFactor = static_cast<T>(180.0 / std::numbers::pi);
         return std::acos(Dot(other) / (Length() * other.Length())) * degreeConversionFactor;
     }
 
     // Returns a vector with the absolute value of each component.
-    VectorBase Abs() {
+    inline VectorBase Abs() const {
         VectorBase result {};
         for (size_t i = 0; i < N; i++) {
             result[i] = std::abs(Data[i]);
@@ -385,7 +383,7 @@ struct VectorBase: public VectorData<T, N, A> {
     }
 
     // Rounds up each component of this vector.
-    VectorBase Ceil() const {
+    inline VectorBase Ceil() const {
         VectorBase result;
         for (size_t i = 0; i < N; i++) {
             result.Data[i] = std::ceil(Data[i]);
@@ -394,7 +392,7 @@ struct VectorBase: public VectorData<T, N, A> {
     }
 
     // Calculates the cross product between this vector and another vector (only valid for 3D vectors).
-    VectorBase Cross(const VectorBase &other) const requires (N == 3) {
+    inline VectorBase Cross(const VectorBase &other) const requires (N == 3) {
         return {
             Data[1] * other.Data[2] - Data[2] * other.Data[1],
             Data[2] * other.Data[0] - Data[0] * other.Data[2],
@@ -403,7 +401,7 @@ struct VectorBase: public VectorData<T, N, A> {
     }
 
     // Clamps each component of the vector between given minimum and maximum values.
-    VectorBase Clamp(T minVal, T maxVal) const {
+    inline VectorBase Clamp(T minVal, T maxVal) const {
         VectorBase result = *this;
         for (size_t i = 0; i < N; i++) {
             result[i] = std::clamp(result[i], minVal, maxVal);
@@ -412,12 +410,12 @@ struct VectorBase: public VectorData<T, N, A> {
     }
 
     // Calculates the distance between this vector and another vector.
-    T Distance(const VectorBase &other) {
+    inline T Distance(const VectorBase &other) {
         return (*this - other).Length();
     }
 
     // Calculates the dot product between this vector and another vector.
-    T Dot(const VectorBase &other) const {
+    inline T Dot(const VectorBase &other) const {
         T result {};
         for (size_t i = 0; i < N; i++) {
             result += Data[i] * other.Data[i];
@@ -426,7 +424,7 @@ struct VectorBase: public VectorData<T, N, A> {
     }
 
     // Rounds down each component of this vector.
-    VectorBase Floor() const {
+    inline VectorBase Floor() const {
         VectorBase result;
         for (size_t i = 0; i < N; i++) {
             result.Data[i] = std::floor(Data[i]);
@@ -435,7 +433,7 @@ struct VectorBase: public VectorData<T, N, A> {
     }
 
     // Returns the element-wise multiplication of two vectors.
-    VectorBase Hadamard(const VectorBase &other) const {
+    inline VectorBase Hadamard(const VectorBase &other) const {
         VectorBase result;
         for (size_t i = 0; i < N; i++) {
             result.Data[i] = Data[i] * other.Data[i];
@@ -444,22 +442,22 @@ struct VectorBase: public VectorData<T, N, A> {
     }
 
     // Converts a 3D vector to a homogeneous 4D vector
-    VectorBase<T, 4> Homogenize() const requires (N == 3) {
+    inline VectorBase<T, 4> Homogenize() const requires (N == 3) {
         return VectorBase<T, 4>{Data[0], Data[1], Data[2], static_cast<T>(1)};
     }
 
     // Returns the length (magnitude) of the vector.
-    T Length() const {
+    inline T Length() const {
         return std::sqrt(SquaredLength());
     }
 
     // Linearly interpolates between this vector and another vector based on a given factor.
-    VectorBase Lerp(const VectorBase &other, T factor) const {
+    inline VectorBase Lerp(const VectorBase &other, T factor) const {
         return (*this * (1 - factor)) + (other * factor);
     }
 
     // Returns a vector with the maximum value from each pair of components from two vectors.
-    static VectorBase Max(const VectorBase &a, const VectorBase &b) {
+    inline VectorBase Max(const VectorBase &a, const VectorBase &b) {
         VectorBase result = a;
         for (size_t i = 0; i < N; i++) {
             result[i] = std::max(a[i], b[i]);
@@ -468,7 +466,7 @@ struct VectorBase: public VectorData<T, N, A> {
     }
 
     // Returns a vector with the minimum value from each pair of components from two vectors.
-    static VectorBase Min(const VectorBase &a, const VectorBase &b) {
+    inline VectorBase Min(const VectorBase &a, const VectorBase &b) {
         VectorBase result = a;
         for (size_t i = 0; i < N; i++) {
             result[i] = std::min(a[i], b[i]);
@@ -477,7 +475,7 @@ struct VectorBase: public VectorData<T, N, A> {
     }
 
     // Checks if two vectors are approximately equal within a given tolerance.
-    bool NearlyEqual(const VectorBase &other, T epsilon = std::numeric_limits<T>::epsilon()) const {
+    inline bool NearlyEqual(const VectorBase &other, T epsilon = std::numeric_limits<T>::epsilon()) const {
         for (size_t i = 0; i < N; i++) {
             if (std::abs(Data[i] - other.Data[i]) > epsilon) {
                 return false;
@@ -487,7 +485,7 @@ struct VectorBase: public VectorData<T, N, A> {
     }
 
     // Returns a normalized version of the vector.
-    VectorBase Normalize() {
+    inline VectorBase Normalize() const {
         VectorBase result = *this;
         T length = Length();
         for (size_t i = 0; i < N; i++) {
@@ -497,7 +495,7 @@ struct VectorBase: public VectorData<T, N, A> {
     }
 
     // Rounds each component of this vector to the nearest integer.
-    VectorBase Round() const {
+    inline VectorBase Round() const {
         VectorBase result;
         for (size_t i = 0; i < N; i++) {
             result.Data[i] = std::round(Data[i]);
@@ -506,19 +504,19 @@ struct VectorBase: public VectorData<T, N, A> {
     }
 
     // Returns a vector perpendicular to the current 2D vector.
-    VectorBase Perpendicular() const requires (N == 2) {
+    inline VectorBase Perpendicular() const requires (N == 2) {
         return VectorBase { -Data[1], Data[0] };
     }
 
     // Projects this vector onto another vector.
-    VectorBase Projection(const VectorBase &other) const {
+    inline VectorBase Projection(const VectorBase &other) const requires (N >= 2) {
         T squaredLength = other.SquaredLength();
         T dotProduct = Dot(other);
         return (dotProduct / squaredLength) * other;
     }
 
     // Raises each component of the vector to a given power.
-    VectorBase Pow(T exponent) const {
+    inline VectorBase Pow(T exponent) const {
         VectorBase result = *this;
         for (size_t i = 0; i < N; i++) {
             result[i] = std::pow(result[i], exponent);
@@ -527,22 +525,22 @@ struct VectorBase: public VectorData<T, N, A> {
     }
 
      // Reflects the vector off a surface with the given normal.
-    VectorBase Reflection(const VectorBase &normal) {
+    inline VectorBase Reflection(const VectorBase &normal) {
         return *this - 2 * Projection(normal);
     }
 
     // Returns the rejection of this vector from another vector.
-    VectorBase Reject(const VectorBase &other) const {
+    inline VectorBase Reject(const VectorBase &other) const requires(N >= 2) {
         return *this - Projection(other);
     }
 
     // Returns the squared distance between this vector and another vector.
-    T SquaredDistance(const VectorBase &other) const {
+    inline T SquaredDistance(const VectorBase &other) const {
         return (*this - other).SquaredLength();
     }
 
     // Returns the squared length (magnitude) of the vector.
-    T SquaredLength() const {
+    inline T SquaredLength() const {
         T result {};
         for (size_t i = 0; i < N; i++) {
             result += Data[i] * Data[i];
@@ -551,7 +549,7 @@ struct VectorBase: public VectorData<T, N, A> {
     }
 
     // Returns the squared magnitude of this vector.
-    T SquaredMagnitude() const {
+    inline T SquaredMagnitude() const {
         T sum = 0;
         for (size_t i = 0; i < N; i++) {
             sum += Data[i] * Data[i];
@@ -560,7 +558,7 @@ struct VectorBase: public VectorData<T, N, A> {
     }
 
     // Checks if the vector is a unit vector.
-    bool UnitVector(T epsilon = std::numeric_limits<T>::epsilon()) const {
+    inline bool UnitVector(T epsilon = std::numeric_limits<T>::epsilon()) const {
         return std::abs(SquaredMagnitude() - 1) < epsilon;
     }
 

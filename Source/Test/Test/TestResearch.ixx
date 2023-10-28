@@ -50,6 +50,8 @@ public:
         //auto sizeB = sizeof(color2);
 
         Ultra::Test::VectorTests();
+        Ultra::Test::MatrixTests();
+        Ultra::Test::QuaternionTests();
 
         //logger.Test();
         //Log("Default 水 öäü");

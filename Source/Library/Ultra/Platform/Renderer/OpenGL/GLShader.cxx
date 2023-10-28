@@ -263,17 +263,17 @@ void GLShader::UpdateUniform(const string &name, const UInt4 &data) {
 
 void GLShader::UpdateUniform(const string &name, const Matrix2 &data) {
     auto location = FindUniformLocation(name);
-    glUniformMatrix2fv(location, 1, GL_FALSE, glm::value_ptr(data));
+    glUniformMatrix2fv(location, 1, GL_FALSE, data);
 }
 
 void GLShader::UpdateUniform(const string &name, const Matrix3 &data) {
     auto location = FindUniformLocation(name);
-    glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(data));
+    glUniformMatrix3fv(location, 1, GL_FALSE, data);
 }
 
 void GLShader::UpdateUniform(const string &name, const Matrix4 &data) {
     auto location = FindUniformLocation(name);
-    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(data));
+    glUniformMatrix4fv(location, 1, GL_FALSE, data);
 }
 
 }

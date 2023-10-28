@@ -56,9 +56,9 @@ using UInt3 = VectorBase<uint32_t, 3>;
 using UInt4 = VectorBase<uint32_t, 4>;
 
 // Matrix Types
-using Matrix2 = glm::mat2;
-using Matrix3 = glm::mat3;
-using Matrix4 = glm::mat4;
+using glm::mat2;
+using glm::mat3;
+using glm::mat4;
 using Matrix2x2 = glm::mat2x2;
 using Matrix2x3 = glm::mat2x3;
 using Matrix2x4 = glm::mat2x4;

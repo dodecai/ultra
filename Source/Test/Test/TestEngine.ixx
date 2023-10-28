@@ -17,6 +17,7 @@ export module Ultra.Test.Engine;
 import Ultra;
 import Ultra.Asset;
 import Ultra.Asset.Model;
+import Ultra.Math;
 import Ultra.Renderer.Buffer;
 import Ultra.Renderer.DesignerCamera;
 import Ultra.Renderer.PipelineState;
@@ -39,6 +40,28 @@ enum class LightType: uint32_t {
     Spot        = 2,
     Flash       = 3,
 };
+
+float DegreesToRadians(float degrees) {
+    return degrees * static_cast<float>(std::numbers::pi) / 180.0f;
+}
+
+namespace ComponentsTest {
+
+struct Transform {
+    Vector3 Rotation = {};
+    Vector3 Scale = {};
+    Vector3 Translation = {};
+
+    operator Matrix4() const {
+        Matrix4 data = Matrix4::Identity();
+        data.Translate(Translation);
+        data.Rotate(Quaternion(Rotation));
+        data.Scale(Scale);
+        return data;
+    }
+};
+
+}
 
 struct Components {
     float CubeVertices[24] = {
@@ -119,10 +142,6 @@ struct Components {
         glm::mat4 Projection = {};
     } Camera2;
     Reference<Buffer> CameraUniformBuffer2;
-
-    struct UTranslation {
-        glm::mat4 Transform = glm::mat4(1.0f);
-    } Translation;
 
     struct UProperties {
         glm::vec4 Color = glm::vec4(1.0f);
@@ -281,8 +300,16 @@ public:
         // Load Shaders
         static auto lightShader = Shader::Create("Assets/Shaders/Light.glsl");
         static auto modelShader = Shader::Create("Assets/Shaders/Material.Blinn-Phong.glsl");
+        static auto debugDepthShader = Shader::Create("Assets/Shaders/Debug.Depth.glsl");
+
+        auto test3 = 1;
 
         // ToDo: Create Light Component
+        ComponentsTest::Transform lightTransform2;
+        lightTransform2.Rotation = { 0.0f, 0.0f, 0.0f };
+        lightTransform2.Scale = { 0.2f, 0.2f, 0.2f };
+        lightTransform2.Translation = { -3.0f, 3.0f, 5.0f };
+
         static float timeValue = 0.1f;
         timeValue += 0.0001f;
         glm::vec3 lightPos = glm::vec3(-3.0f, 3.0f, 5.0f);
@@ -290,6 +317,10 @@ public:
         float angle = timeValue * 2.0f;
         lightPos.x = 1.0f + radius * std::cos(angle);
         lightPos.z = 3.0f + radius * std::sin(angle);
+
+        lightTransform2.Translation.X = 1.0f + radius * std::cos(angle);
+        lightTransform2.Translation.Y = 3.0f + radius * std::sin(angle);
+
 
         // Specify Pipeline and Shader
         static PipelineProperties properties;
@@ -304,7 +335,7 @@ public:
         static auto vertexBuffer = Buffer::Create(BufferType::Vertex, &sComponents.CubeVertices, sizeof(sComponents.CubeVertices));
         static auto indexBuffer = Buffer::Create(BufferType::Index, &sComponents.CubeIndices, sizeof(sComponents.CubeIndices));
         static auto propertiesUniform = Buffer::Create(BufferType::Uniform, &sComponents.Properties, sizeof(sComponents.Properties));
-        static auto translationUnfiorm = Buffer::Create(BufferType::Uniform, &sComponents.Translation, sizeof(sComponents.Translation));
+        static auto translationUnfiorm = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Matrix4));
 
         // Update Vertices and Indices
         vertexBuffer->UpdateData(&sComponents.CubeVertices, sizeof(sComponents.CubeVertices));
@@ -315,13 +346,16 @@ public:
         sComponents.Properties.Color = glm::vec4(1.0f, 1.0f - value, value, 1.0f);
         propertiesUniform->UpdateData(&sComponents.Properties, sizeof(sComponents.Properties));
 
-        // Update Translation
+        // Update Transforms
         auto lightModel = glm::translate(glm::mat4(1.0f), lightPos);
         lightModel = glm::scale(lightModel, glm::vec3(0.2f, 0.2f, 0.2f));
 
         auto lightTransform = projection * view * lightModel;
-        sComponents.Translation.Transform = lightTransform;
-        translationUnfiorm->UpdateData(&sComponents.Translation, sizeof(sComponents.Translation));
+
+        auto test2 = (Matrix4)lightTransform2;
+
+        translationUnfiorm->UpdateData(&lightTransform, sizeof(Matrix4));
+
 
         // Draw
         vertexBuffer->Bind();
@@ -349,7 +383,8 @@ public:
         cubeModel = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 
         // Update Camera, Light and View
-        modelShader->Bind();
+        //modelShader->Bind();
+        debugDepthShader->Bind();
         sComponents.Camera2.Projection = projection;
         sComponents.Camera2.View = view;
         sComponents.Camera2.Model = cubeModel;
@@ -398,8 +433,8 @@ public:
         // Finish Light
         sComponents.Lights.Count = 3;
 
-        int location = modelShader->FindUniformLocation("Light");
-        if (location == 0) return;
+        //int location = modelShader->FindUniformLocation("Light");
+        //if (location == 0) return;
 
         // ToDo: Compiler error...
         // Texture Test
