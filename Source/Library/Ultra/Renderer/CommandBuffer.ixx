@@ -45,6 +45,9 @@ public:
     virtual void Draw(uint32_t vertexCount, uint32_t instanceCount = 0, uint32_t firstVertex = 0, uint32_t firstInstance = 0) = 0;
     virtual void DrawIndexed(uint32_t indexCount, uint32_t instanceCount = 0, uint32_t firstIndex = 0, int32_t vertexOffset = 0, uint32_t firstInstance = 0) = 0;
     virtual void DrawIndexed(size_t count, PrimitiveType type, bool depthTest = true) = 0;
+    virtual void UpdateStencilBuffer() {}
+    virtual void EnableStencilTest() {}
+    virtual void ResetStencilTest() {}
 
     virtual void Execute() = 0;
 };

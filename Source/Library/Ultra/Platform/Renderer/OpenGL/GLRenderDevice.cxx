@@ -90,6 +90,10 @@ void GLRenderDevice::Load() {
     // Multisampling-Support
     glEnable(GL_MULTISAMPLE);
 
+    // Stencil Support
+    glEnable(GL_STENCIL_TEST);
+    glStencilMask(0xFF);
+
     // Information
     auto &capabilities = RenderDevice::GetCapabilities();
     capabilities.Vendor = (const char *)glGetString(GL_VENDOR);

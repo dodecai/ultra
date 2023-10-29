@@ -57,7 +57,7 @@ void GLCommandBuffer::DrawIndexed(uint32_t indexCount, uint32_t instanceCount, u
 }
 
 void GLCommandBuffer::DrawIndexed(size_t count, PrimitiveType primitive, bool depthTest) {
-    if (!depthTest) { glDisable(GL_DEPTH_TEST); } else { glEnable(GL_DEPTH_TEST); };
+    if (!depthTest) { glDepthMask(GL_FALSE); } else { glDepthMask(GL_TRUE); };
 
     GLenum type = GL_UNSIGNED_INT;
     //switch (properties.Type) {
@@ -76,7 +76,26 @@ void GLCommandBuffer::DrawIndexed(size_t count, PrimitiveType primitive, bool de
     // ToDo: C4267 possible loss of data
     glDrawElements(mode, static_cast<GLsizei>(count), type, nullptr);
 
-    if (!depthTest) { glEnable(GL_DEPTH_TEST); } else { glDisable(GL_DEPTH_TEST); };
+    if (!depthTest) { glDepthMask(GL_TRUE); } else { glDepthMask(GL_FALSE); };
+}
+
+void GLCommandBuffer::UpdateStencilBuffer() {
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
+}
+
+void GLCommandBuffer::EnableStencilTest() {
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);
+    glDisable(GL_DEPTH_TEST);
+}
+
+void GLCommandBuffer::ResetStencilTest() {
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
+    glEnable(GL_DEPTH_TEST);
 }
 
 

@@ -12,18 +12,18 @@ import <stb/stb_image.h>;
 //#define STB_IMAGE_WRITE_IMPLEMENTATION
 #pragma warning(pop)
 
+import Ultra.System.FileSystem;
+
 namespace Ultra {
 
 // Helpers
-[[maybe_unused]] static GLenum GLTextureDataType(TextureDataType type) {
-    switch (type) {
-        case TextureDataType::Byte:     return GL_UNSIGNED_BYTE;
-        case TextureDataType::Float:    return GL_FLOAT;
-        default: {
-            AppAssert(true, "Not implemented!");
-            return {};
-        }
-    }
+void GLCreateSampler(TextureProperties properties) {
+    //glCreateSamplers(1, &mTextureID);
+    //glSamplerParameteri(mTextureID, GL_TEXTURE_MIN_FILTER, GLSamplerFilter(properties.SamplerFilter, properties.GenerateMips));
+    //glSamplerParameteri(mTextureID, GL_TEXTURE_MAG_FILTER, GLSamplerFilter(properties.SamplerFilter, false));
+    //glSamplerParameteri(mTextureID, GL_TEXTURE_WRAP_R, GLSamplerWrap(properties.SamplerWrap));
+    //glSamplerParameteri(mTextureID, GL_TEXTURE_WRAP_S, GLSamplerWrap(properties.SamplerWrap));
+    //glSamplerParameteri(mTextureID, GL_TEXTURE_WRAP_T, GLSamplerWrap(properties.SamplerWrap));
 }
 
 inline GLenum GLFormatDataType(TextureFormat format) {
@@ -88,16 +88,6 @@ inline GLenum GLImageFormat(TextureFormat format) {
     }
     AppAssert(false, "Unknown image format");
     return 0;
-}
-
-
-void CreateSampler(TextureProperties properties) {
-    //glCreateSamplers(1, &mTextureID);
-    //glSamplerParameteri(mTextureID, GL_TEXTURE_MIN_FILTER, GLSamplerFilter(properties.SamplerFilter, properties.GenerateMips));
-    //glSamplerParameteri(mTextureID, GL_TEXTURE_MAG_FILTER, GLSamplerFilter(properties.SamplerFilter, false));
-    //glSamplerParameteri(mTextureID, GL_TEXTURE_WRAP_R, GLSamplerWrap(properties.SamplerWrap));
-    //glSamplerParameteri(mTextureID, GL_TEXTURE_WRAP_S, GLSamplerWrap(properties.SamplerWrap));
-    //glSamplerParameteri(mTextureID, GL_TEXTURE_WRAP_T, GLSamplerWrap(properties.SamplerWrap));
 }
 
 inline GLenum GLSamplerWrap(TextureWrap wrap) {
@@ -170,72 +160,82 @@ GLTexture::GLTexture(const TextureProperties &properties, const void *data, size
 }
 
 GLTexture::GLTexture(const TextureProperties &properties, const string &path): Texture(properties, nullptr, 0) {
-    int channels = {};
-    int height = {};
-    int width = {};
+    // Properties
     void *data = nullptr;
-    GLenum renderFormat = {};
+    int width {};
+    int height {};
+    //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    if (properties.Dimension == TextureDimension::Texture2D) {
-        if (stbi_is_hdr(path.c_str())) {
-            data = (float *)stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
-            mProperties.Format = TextureFormat::RGBA32F;
-        } else {
-            if (stbi_info(path.c_str(), &width, &height, &channels)) {
-                switch (channels) {
-                    case 4: {
-                        data = (stbi_uc *)stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
-                        mProperties.Format = TextureFormat::RGBA8;
-                        renderFormat = GL_RGBA8;
-                        break;
-                    }
-                    case 3: {
-                        data = (stbi_uc *)stbi_load(path.c_str(), &width, &height, &channels, 0);
-                        mProperties.Format = TextureFormat::RGB8;
-                        renderFormat = GL_RGB8;
-                        break;
-                    }
-                    case 1: {
-                        data = (stbi_uc *)stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
-                        mProperties.Format = TextureFormat::RGBA8;
-                        renderFormat = GL_RGBA8;
-                        break;
-                    }
-                    default: {
-                        return;
-                    }
-                }
+    // Automatic detection of Cube Textures
+    if (Directory::Exists(path)) {
+        glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &mTextureID);
+        auto images = Directory::GetFiles(path, "Right|Left|Top|Bottom|Front|Back|PositiveX|NegativeX|PositiveY|NegativeY|PositiveZ|NegativeZ");
+
+        bool first = false;
+        for (auto &&image : images) {
+            if (Load(image, data, width, height)) {
+                auto name = File::GetName(image);
+
+                int index = 0;
+                if (name == "Right" || name == "PositiveX")        { index = GL_TEXTURE_CUBE_MAP_POSITIVE_X; }
+                else if (name == "Left" || name == "NegativeX")    { index = GL_TEXTURE_CUBE_MAP_NEGATIVE_X; }
+                else if (name == "Top" || name == "PositiveY")     { index = GL_TEXTURE_CUBE_MAP_POSITIVE_Y; }
+                else if (name == "Bottom" || name == "NegativeY")  { index = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y; }
+                else if (name == "Front" || name == "PositiveZ")   { index = GL_TEXTURE_CUBE_MAP_POSITIVE_Z; }
+                else if (name == "Back" || name == "NegativeZ")    { index = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z; }
+
+                if (!first) glTextureStorage2D(mTextureID, 1, GLImageInternalFormat(mProperties.Format), width, height);
+                first = true;
+
+                glTextureSubImage3D(mTextureID, 0, 0, 0, index, width, height, 1, GLImageFormat(mProperties.Format), GLFormatDataType(mProperties.Format), data);
+                stbi_image_free(data);
+                data = nullptr;
+
+                // Set texture parameters
+                // ToDo: Use value from Texture Properties
+                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                //glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+                //glTexParameterfv(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BORDER_COLOR, { 1.0f, 1.0f, 0.0f, 1.0f });
+
+                LogTrace("The image '{}' was loaded successfully.", image);
+            } else {
+                LogError("An error occurred while loading image '{}'!", image);
             }
         }
-        mProperties.Height = height;
-        mProperties.Width = width;
 
-        if (data) {
-            //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    } else if (File::Exists(path)) {
+        if (properties.Dimension == TextureDimension::Texture2D) {
             glCreateTextures(GL_TEXTURE_2D, 1, &mTextureID);
-            glTextureStorage2D(mTextureID, 1, renderFormat, width, height);
+            if (Load(path, data, width, height)) {
+                glTextureStorage2D(mTextureID, 1, GLImageInternalFormat(mProperties.Format), width, height);
 
-            // Set texture parameters
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // ToDo: Use value from Texture Properties
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // ToDo: Use value from Texture Properties
-            //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT); // ToDo: 3D
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // ToDo: Use value from Texture Properties
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // ToDo: Use value from Texture Properties
-            //glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, { 1.0f, 1.0f, 0.0f, 1.0f });
+                glTextureSubImage2D(mTextureID, 0, 0, 0, width, height, GLImageFormat(mProperties.Format), GLFormatDataType(mProperties.Format), data);
+                stbi_image_free(data);
+                data = nullptr;
 
-            // GLImageInternalFormat
-            glTextureSubImage2D(mTextureID, 0, 0, 0, width, height, GLImageFormat(mProperties.Format), GLFormatDataType(mProperties.Format), data);
-          //glGenerateMipmap(GL_TEXTURE_2D);
+                // Set texture parameters
+                // ToDo: Use value from Texture Properties
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                //glGenerateMipmap(GL_TEXTURE_2D);
+                //glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, { 1.0f, 1.0f, 0.0f, 1.0f });
+                
 
-            // Free image data
-            stbi_image_free(data);
-
-            LogTrace("Texture loaded successfully: {}", path);
+                LogTrace("The image '{}' was loaded successfully.", path);
+            } else {
+                LogError("An error occurred while loading image '{}'!", path);
+            }
         } else {
-            LogError("Failed to load texture : {}", path);
+            LogError("The current dimension isn't implemented!");
         }
     } else {
-        LogError("Texture dimension not supported");
+        LogError("The specified directory/file '{}' doesn't exist!", path);
     }
 }
 
@@ -251,6 +251,55 @@ void GLTexture::Bind(uint32_t slot) const {
 void GLTexture::Unbind(uint32_t slot) const {
     glBindTextureUnit(slot, 0);
 }
+
+bool GLTexture::Load(const string &path, void *&data, int &width, int &height) {
+    int channels = {};
+
+    // Get Meta Data
+    stbi_info(path.c_str(), &width, &height, &channels);
+    // Load Image
+    //stbi_set_flip_vertically_on_load(true); // OpenGL expects the 0.0 coordinate on the y-axis to be on the bottom side of the image
+    if (stbi_is_hdr(path.c_str())) {
+        data = (float *)stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+        mProperties.Format = TextureFormat::RGBA32F;
+    } else {
+        int requiredChannels = 0;
+        switch (channels) {
+            case 4: {
+                requiredChannels = STBI_rgb_alpha;
+                mProperties.Format = TextureFormat::RGBA8;
+                break;
+            }
+            case 3: {
+                requiredChannels = STBI_rgb;
+                mProperties.Format = TextureFormat::RGB8;
+                break;
+            }
+            case 2: {
+                requiredChannels = STBI_grey_alpha;
+                mProperties.Format = TextureFormat::RG8;
+                break;
+            }
+            case 1: {
+                requiredChannels = STBI_grey;
+                mProperties.Format = TextureFormat::R8;
+                break;
+            }
+            default: {
+                return false;
+            }
+        }
+        data = (stbi_uc *)stbi_load(path.c_str(), &width, &height, &channels, requiredChannels);
+    }
+
+    if (data) {
+        mProperties.Height = height;
+        mProperties.Width = width;
+        return true;
+    }
+    return false;
+}
+
 
 //void GLImage::Invalidate() {
 //    if (m_RendererID) Release();

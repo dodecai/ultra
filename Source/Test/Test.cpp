@@ -8,7 +8,7 @@ import Ultra.Test.Research;
 
 // Switches
 //#define CORE_TESTS
-#define ENGINE_TESTS
+//#define ENGINE_TESTS
 //#define RESEARCH_TESTS
 
 namespace Ultra {

@@ -14,6 +14,7 @@ public:
     virtual void Unbind(uint32_t slot) const override;
 
 private:
+    bool Load(const string &path, void *&data, int &width, int &height);
 };
 
 }

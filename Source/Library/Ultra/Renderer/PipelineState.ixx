@@ -12,7 +12,12 @@ enum class CullMode {
     None,
     Back,
     Front,
+    BackAndFront,
+};
+
+enum class FrontFace {
     CCW,
+    CW,
 };
 
 enum class BlendMode {
