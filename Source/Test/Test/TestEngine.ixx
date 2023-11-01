@@ -28,45 +28,109 @@ import Ultra.System.Input;
 
 export namespace Ultra::Test {
 
-struct CameraData {
-    //glm::mat4 ViewProjection = {};
-    glm::mat4 View = {};
-    glm::mat4 Projection = {};
-    float NearClip = {};
-    float FarClip = {};
-};
-
-enum class LightType: uint32_t {
-    Directional = 0,
-    Point       = 1,
-    Spot        = 2,
-    Flash       = 3,
-};
-
 float DegreesToRadians(float degrees) {
     return degrees * static_cast<float>(std::numbers::pi) / 180.0f;
 }
 
-namespace ComponentsTest {
+namespace Components {
+
+// Miscellanous
+struct Camera {
+    glm::mat4 ViewProjectionMatrix = {};
+    glm::mat4 Projection = {};
+    glm::mat4 View = {};
+    float NearClip = {};
+    float FarClip = {};
+};
+
+struct CameraLight {
+    glm::mat4 Model = {};
+    glm::mat4 View = {};
+    glm::mat4 Projection = {};
+};
+
+struct Grid {
+    unsigned int Indices[6] = { 0, 1, 3, 1, 2, 3 };
+    float Vertices[12] = {
+         1.0f,  1.0f,  0.0f,
+         1.0f, -1.0f,  0.0f,
+        -1.0f, -1.0f,  0.0f,
+        -1.0f,  1.0f,  0.0f,
+    };
+};
+
+enum class LightType: uint32_t {
+    Directional = 0,
+    Point = 1,
+    Spot = 2,
+    Flash = 3,
+};
+
+struct Light {
+    alignas(16) LightType Type = LightType::Directional;
+    alignas(16) glm::vec3 LightColor {};
+    alignas(16) glm::vec3 LightPosition {};
+    alignas(16) glm::vec3 LightDirection {};
+    alignas(16) glm::vec3 Ambient { 0.1f, 0.1f, 0.1f };
+    alignas(16) glm::vec3 Diffuse { 0.5f, 0.5f, 0.5f };
+    alignas(16) glm::vec3 Specular { 1.0f, 1.0f, 1.0f };
+
+    // Attenuation
+    float Constant;
+    float Linear;
+    float Quadratic;
+
+    // Spot Light
+    float CutOffAngle;
+};
+
+struct Lights {
+    Light Light[5] {};
+    alignas(16) uint32_t Count = 1;
+};
+
+struct Material {
+    glm::vec3 uDiffuseColor {};
+    glm::vec3 uSpecularColor {};
+    glm::vec3 uAmbientColor {};
+    float Shininess;
+};
+
+struct Properties {
+    glm::vec4 Color = glm::vec4(1.0f);
+    glm::mat4 Transform = glm::mat4(1.0f);
+};
 
 struct Transform {
-    Vector3 Rotation = {};
-    Vector3 Scale = {};
-    Vector3 Translation = {};
+    glm::vec3 Position = {};
+    glm::vec3 Size = { 1.0f, 1.0f, 1.0f };
+    glm::vec3 Rotation = {};
 
-    operator Matrix4() const {
-        Matrix4 data = Matrix4::Identity();
-        data.Translate(Translation);
-        data.Rotate(Quaternion(Rotation));
-        data.Scale(Scale);
-        return data;
+    operator glm::mat4() const {
+        return
+            glm::translate(glm::mat4(1.0f), Position) *
+            glm::toMat4(glm::quat(Rotation)) *
+            glm::scale(glm::mat4(1.0f), Size);
     }
 };
 
-}
+struct View {
+    glm::vec3 Position;
+};
 
-struct Components {
-    float CubeVertices[24] = {
+
+// Shapes
+struct Cube {
+    int Components = 36;
+    unsigned int Indices[36] = {
+         0,  1,  2,  2,  3,  0, // Front
+         4,  5,  6,  6,  7,  4, // Back
+         3,  2,  6,  6,  7,  3, // Top
+         0,  1,  5,  5,  4,  0, // Bottom
+         0,  3,  7,  7,  4,  0, // Left
+         1,  2,  6,  6,  5,  1, // Right
+    };
+    float Vertices[24] = {
         -0.5f, -0.5f, -0.5f,
          0.5f, -0.5f, -0.5f,
          0.5f,  0.5f, -0.5f,
@@ -76,69 +140,15 @@ struct Components {
          0.5f,  0.5f,  0.5f,
         -0.5f,  0.5f,  0.5f,
     };
-    unsigned int CubeIndices[36] = {
-         0,  1,  2,  2,  3,  0, // Front
-         4,  5,  6,  6,  7,  4, // Back
-         3,  2,  6,  6,  7,  3, // Top
-         0,  1,  5,  5,  4,  0, // Bottom
-         0,  3,  7,  7,  4,  0, // Left
-         1,  2,  6,  6,  5,  1, // Right
+};
+
+struct Rectangle {
+    int Components = 6;
+    unsigned int Indices[6] = {
+        0, 1, 3,    // First Triangle
+        1, 2, 3,    // Second Triangle
     };
-    int CubeComponents = 36;
-
-    float SkyboxVertices[24] = {
-        // Vorderseite
-        -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-
-        // Rückseite
-        -1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-    };
-    unsigned int SkyboxIndices[36] = {
-        // Vorderseite
-        0, 1, 2,
-        2, 3, 0,
-
-        // Rückseite
-        4, 5, 6,
-        6, 7, 4,
-
-        // Links
-        0, 3, 7,
-        7, 4, 0,
-
-        // Rechts
-        1, 2, 6,
-        6, 5, 1,
-
-        // Oben
-        3, 2, 6,
-        6, 7, 3,
-
-        // Unten
-        0, 1, 5,
-        5, 4, 0,
-    };
-    int SkyboxComponents = 36;
-
-
-    float TriangleVertices[27] = {
-        // Positions            // Colors                   // Texture Coords
-        -0.5f, -0.5f, 0.0f,     0.0f, 0.0f, 1.0f, 1.0f,     0.0f, 0.0f,         // Left
-         0.5f, -0.5f, 0.0f,     0.0f, 1.0f, 0.0f, 1.0f,     1.0f, 0.0f,         // Right
-         0.0f,  0.5f, 0.0f,     0.0f, 0.0f, 1.0f, 1.0f,     0.5f, 1.0f,         // Top
-    };
-    unsigned int TriangleIndices[3] = {
-        0, 1, 2,
-    };
-    int TriangleComponents = 3;
-
-    float RectangleVertices[36] = {
+    float Vertices[36] = {
         // DrawArrays (specify every rectangle)
         //// First Triangle
         // 0.5f,  0.5f, 0.0f, // Top-Right
@@ -157,75 +167,57 @@ struct Components {
         -0.5f, -0.5f, 0.0f, 0.0f,   0.0f, 1.0f, 1.0f,   0.0f, 0.0f, // Bottom-Left
         -0.5f,  0.5f, 0.0f, 1.0f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f, // Top-Left 
     };
-    unsigned int RectangleIndices[6] = {
-        0, 1, 3,    // First Triangle
-        1, 2, 3,    // Second Triangle
-    };
-    int RectangleComponents = 6;
+};
 
-    float TriangleTexCoords[6] = {
+struct Skybox {
+    int Components = 36;
+    unsigned int Indices[36] = {
+        0, 1, 2, 2, 3, 0,   // Front
+        4, 5, 6, 6, 7, 4,   // Back
+        0, 3, 7, 7, 4, 0,   // Left
+        1, 2, 6, 6, 5, 1,   // Right
+        3, 2, 6, 6, 7, 3,   // Top
+        0, 1, 5, 5, 4, 0,   // Bottom
+        //0,  1,  2,  2,  3,  0, // Front
+        //4,  5,  6,  6,  7,  4, // Back
+        //3,  2,  6,  6,  7,  3, // Top
+        //0,  1,  5,  5,  4,  0, // Bottom
+        //0,  3,  7,  7,  4,  0, // Left
+        //1,  2,  6,  6,  5,  1, // Right
+    };
+    float Vertices[24] = {
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+    };
+};
+
+struct Triangle {
+    int Components = 3;
+    unsigned int Indices[3] = {
+        0, 1, 2,
+    };
+    float Vertices[32] = {
+        // Positions            // Colors                   // Texture Coords
+        -0.5f, -0.5f, 0.0f,     0.0f, 0.0f, 1.0f, 1.0f,     0.0f, 0.0f,         // Left
+         0.5f, -0.5f, 0.0f,     0.0f, 1.0f, 0.0f, 1.0f,     1.0f, 0.0f,         // Right
+         0.0f,  0.5f, 0.0f,     0.0f, 0.0f, 1.0f, 1.0f,     0.5f, 1.0f,         // Top
+    };
+    float TexCoords[6] = {
         // Triangle
         0.0f, 0.0f,  // Lower-Left corner  
         1.0f, 0.0f,  // Lower-Right corner
         0.5f, 1.0f   // Top-Center corner
     };
-
-    struct CameraData {
-        glm::mat4 ViewProjectionMatrix = {};
-        glm::mat4 Projection = {};
-        glm::mat4 View = {};
-        float NearClip = {};
-        float FarClip = {};
-    } Camera;
-    Reference<Buffer> CameraUniformBuffer;
-
-    struct CameraData2 {
-        glm::mat4 Model = {};
-        glm::mat4 View = {};
-        glm::mat4 Projection = {};
-    } Camera2;
-    Reference<Buffer> CameraUniformBuffer2;
-
-    struct UProperties {
-        glm::vec4 Color = glm::vec4(1.0f);
-    } Properties;
-
-    struct UMaterial {
-        glm::vec3 uDiffuseColor {};
-        glm::vec3 uSpecularColor {};
-        glm::vec3 uAmbientColor {};
-        float Shininess;
-    } Material;
-    Reference<Buffer> MaterialBuffer;
-
-    struct ULight {
-        alignas(16) LightType Type = LightType::Directional;
-        alignas(16) glm::vec3 LightColor {};
-        alignas(16) glm::vec3 LightPosition {};
-        alignas(16) glm::vec3 LightDirection {};
-        alignas(16) glm::vec3 Ambient {};
-        alignas(16) glm::vec3 Diffuse {};
-        alignas(16) glm::vec3 Specular {};
-
-        // Attenuation
-        float Constant;
-        float Linear;
-        float Quadratic;
-
-        // Spot Light
-        float CutOffAngle;
-    };
-    struct ULights {
-        ULight Light[5] {};
-        alignas(16) uint32_t Count = 1;
-    } Lights;
-    Reference<Buffer> LightBuffer;
-
-    struct UView {
-        glm::vec3 Position;
-    } View;
-    Reference<Buffer> ViewBuffer;
 };
+
+}
 
 class Engine {
 public:
@@ -246,17 +238,19 @@ public:
 
         // Load Shaders
         mDebugDepthShader = Shader::Create("Assets/Shaders/Debug.Depth.glsl");
+        mGridShader = Shader::Create("Assets/Shaders/Grid.glsl");
         mLightShader = Shader::Create("Assets/Shaders/Light.glsl");
         mModelShader = Shader::Create("Assets/Shaders/Material.Blinn-Phong.glsl");
         mSkyBoxShader = Shader::Create("Assets/Shaders/SkyBox.glsl");
         mStencilOutlineShader = Shader::Create("Assets/Shaders/Stencil.Outline.glsl");
 
         // Load Buffers
-        sComponents.CameraUniformBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::CameraData));
-        sComponents.CameraUniformBuffer2 = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::CameraData2));
-        sComponents.MaterialBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::UMaterial));
-        sComponents.LightBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::ULights));
-        sComponents.ViewBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::UView));
+        mCameraUniformBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::Camera));
+        mCameraUniformBuffer2 = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::CameraLight));
+        mMaterialBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::Material));
+        mLightBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::Lights));
+        mPropertiesBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::Properties));
+        mViewBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::View));
 
     }
     ~Engine() = default;
@@ -265,201 +259,170 @@ public:
         mRenderer->RenderFrame();
         mDesignerCamera.Update(deltaTime);
 
-        sComponents.Camera2.Projection = mDesignerCamera.GetProjectionMatrix();
-        sComponents.Camera2.View = mDesignerCamera.GetViewMatrix();
-        sComponents.Camera2.Model = glm::mat4(1.0f);
+        mCamera.ViewProjectionMatrix = mDesignerCamera.GetViewProjection();
+        mCamera.Projection = mDesignerCamera.GetProjectionMatrix();
+        mCamera.View = mDesignerCamera.GetViewMatrix();
+        mCamera.NearClip = mDesignerCamera.GetNearPoint();
+        mCamera.FarClip = mDesignerCamera.GetFarPoint();
+        mCameraUniformBuffer->UpdateData(&mCamera, sizeof(Components::Camera));
+
+        mCameraLight.Projection = mDesignerCamera.GetProjectionMatrix();
+        mCameraLight.View = mDesignerCamera.GetViewMatrix();
+        mCameraLight.Model = glm::mat4(1.0f);
 
         // Mesh Renderer (3D)
         #if TEST_MESH_RENDERER == 1
-            TestMeshRenderer(deltaTime, mDesignerCamera);
+            TestMeshRenderer(deltaTime);
         #endif
     
         // Sprite Renderer (2D)
         #if TEST_SPRITE_RENDERER == 1
-            TestSpriteRenderer(deltaTime, mDesignerCamera);
+            TestSpriteRenderer(deltaTime);
         #endif
     
         // UI Renderer (2D)
         #if TEST_UI_RENDERER == 1
-            TestUIRenderer(deltaTime, mDesignerCamera);
+            TestUIRenderer(deltaTime);
         #endif
     }
 
     #pragma region Mesh Renderer
 
-    void TestMeshRenderer(Timestamp deltaTime, const DesignerCamera &camera) {
+    void TestMeshRenderer(Timestamp deltaTime) {
         // Draw Scene
-        //DrawGrid(mDesignerCamera);
-        DrawSkybox(deltaTime, camera);
-        DrawLevel(deltaTime, camera);
-        DrawLights(deltaTime, camera);
+        //DrawGrid();
+        DrawLevel(deltaTime);
+
+        //static Model cone("Assets/Models/Cone/Cone.obj");
+        //static Model cube("Assets/Models/Cube/Cube.obj");
+        //static Model cylinder("Assets/Models/Cylinder/Cylinder.obj");
+        //static Model level("Assets/Models/Level/Level.obj");
+        //static Model monkey("Assets/Models/Monkey/Monkey.obj");
+        //static Model plane("Assets/Models/Plane/Plane.obj");
+        //static Model sphere("Assets/Models/Sphere/SphereUV.obj");
+        //static Model torus("Assets/Models/Torus/Torus.obj");
+        DrawCube({ { 0.0f, -0.1f, 0.0f }, { 100.0f, 0.1f, -100.0f } });
+        DrawCube({ { -4.0f, 10.0f, 0.0f } });
+        DrawCube({ { 0.0f, 10.0f, 0.0f }, { 1.0f, 1.0f, 0.2f } });
+        DrawCube({ { 4.0f, 10.0f, 0.0f } });
+        DrawCube({ { 0.0f, 1.0f, 9.0f }, { 1.0f, 1.0f, 0.2f } });
+
+        DrawLights(deltaTime);
+        DrawSkybox(deltaTime);
     }
 
-    void DrawGrid(const DesignerCamera &camera) {
-        //static unsigned int indices[] = { 0, 1, 3, 1, 2, 3 };
-        //static float vertices[] = {
-        //     1.0f,  1.0f,  0.0f,
-        //     1.0f, -1.0f,  0.0f,
-        //    -1.0f, -1.0f,  0.0f,
-        //    -1.0f,  1.0f,  0.0f,
-        //};
-
-        //static Reference<Shader> BasicShader = Shader::Create("Assets/Shaders/Grid.glsl");
-        //static PipelineProperties properties;
-        //properties.BlendMode = BlendMode::Alpha;
-        //properties.DepthTest = true;
-        //properties.Wireframe = false;
-        //properties.Layout = {
-        //    { ShaderDataType::Float3, "aPosition" }
-        //};
-        //static Reference<PipelineState> BasicPipeline = PipelineState::Create(properties);
-        //static Reference<Buffer> BasicVertex = Buffer::Create(BufferType::Vertex, vertices, sizeof(vertices));
-        //static Reference<Buffer> BasicIndex = Buffer::Create(BufferType::Index, indices, sizeof(indices));
-        //static Reference<Buffer> BasicUniform = Buffer::Create(BufferType::Uniform, nullptr, sizeof(CameraData));
-
-        //BasicVertex->UpdateData(vertices, sizeof(vertices));
-        //BasicIndex->UpdateData(indices, sizeof(indices));
-
-        //static CameraData cameraUniformData;
-        ////cameraUniformData.ViewProjection = camera.GetViewProjection();
-        //cameraUniformData.View = camera.GetViewMatrix();
-        //cameraUniformData.Projection = camera.GetProjection();
-        //cameraUniformData.NearClip = camera.GetNearPoint();
-        //cameraUniformData.FarClip = camera.GetFarPoint();
-        //BasicUniform->UpdateData(&cameraUniformData, sizeof(CameraData));
-
-        //// Renderer
-        //BasicVertex->Bind();
-        //BasicPipeline->Bind();
-        //BasicIndex->Bind();
-        //BasicShader->Bind();
-        //BasicUniform->Bind(0);
-        //mCommandBuffer->DrawIndexed(6, PrimitiveType::Triangle, true);
-    }
-
-    void DrawSkybox(Timestamp deltaTime, const DesignerCamera &camera) {
-        // Prepare
-        auto &projection = camera.GetProjectionMatrix();
-        auto &view = camera.GetViewMatrix();
-        auto model = glm::mat4(1.0f);
-
-        // Skybox
-        TextureProperties skyboxProperties;
-        skyboxProperties.Dimension = TextureDimension::TextureCube;
-        static auto skyboxTexture = Texture::Create(skyboxProperties, "Assets/Textures/Skybox/Light Blue");
-
-        // Specify Pipeline and Shader
-        static PipelineProperties properties;
-        properties.DepthTest = true;
-        properties.Wireframe = false;
-        properties.Layout = {
-            { ShaderDataType::Float3, "aPosition" }
+    void DrawGrid() {
+        // Specify Buffers, Pipeline and Texture
+        static Components::Grid grid;
+        static PipelineProperties properties {
+            .BlendMode = BlendMode::Alpha,
+            .DepthTest = true,
+            .Wireframe = false,
+            .Layout = {
+                { ShaderDataType::Float3, "aPosition" }
+            },
         };
-        static auto pipeline = PipelineState::Create(properties);
-
-        // Specify Buffers and Textures
-        static auto vertexBuffer = Buffer::Create(BufferType::Vertex, &sComponents.SkyboxVertices, sizeof(sComponents.SkyboxVertices));
-        static auto indexBuffer = Buffer::Create(BufferType::Index, &sComponents.SkyboxIndices, sizeof(sComponents.SkyboxIndices));
-        
-        // Update Vertices and Indices
-        vertexBuffer->UpdateData(&sComponents.SkyboxVertices, sizeof(sComponents.SkyboxVertices));
-        indexBuffer->UpdateData(&sComponents.SkyboxIndices, sizeof(sComponents.SkyboxIndices));
-
-        // Update Transforms
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
-        sComponents.Camera2.View = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-        //sComponents.Camera2.Model = model;
+        static Reference<PipelineState> pipeline = PipelineState::Create(properties);
+        static Reference<Buffer> vertexBuffer = Buffer::Create(BufferType::Vertex, &grid.Vertices, sizeof(Components::Grid::Vertices));
+        static Reference<Buffer> indexBuffer = Buffer::Create(BufferType::Index, &grid.Indices, sizeof(Components::Grid::Indices));
 
         // Draw
         vertexBuffer->Bind();
         pipeline->Bind();
         indexBuffer->Bind();
-
-        mSkyBoxShader->Bind();
-        skyboxTexture->Bind(0);
-        sComponents.CameraUniformBuffer2->Bind(0);
-        sComponents.CameraUniformBuffer2->UpdateData(&sComponents.Camera2, sizeof(Components::CameraData2));
-        mCommandBuffer->DrawIndexed(sComponents.SkyboxComponents, PrimitiveType::Triangle, false);
+        mGridShader->Bind();
+        mCameraUniformBuffer->Bind(0);
+        mCommandBuffer->DrawIndexed(sizeof(grid.Indices), PrimitiveType::Triangle, true);
     }
 
-    void DrawLevel(Timestamp deltaTime, const DesignerCamera &camera) {
-        // Prepare
-        auto &projection = camera.GetProjectionMatrix();
-        auto &view = camera.GetViewMatrix();
-        auto model = glm::mat4(1.0f);
+    void DrawSkybox(Timestamp deltaTime) {
+        // Specify Buffers, Pipeline and Texture
+        static Components::Skybox skybox;
+        static PipelineProperties properties {
+            .DepthTest = true,
+            .Wireframe = false,
+            .Layout = {
+                { ShaderDataType::Float3, "aPosition" }
+            }
+        };
+        static auto pipeline = PipelineState::Create(properties);
+        static TextureProperties skyboxProperties = {
+            .Dimension = TextureDimension::TextureCube,
+        };
+        static auto skyboxTexture = Texture::Create(skyboxProperties, "Assets/Textures/Skybox/Sinister");
+        static auto vertexBuffer = Buffer::Create(BufferType::Vertex, &skybox.Vertices, sizeof(Components::Skybox::Vertices));
+        static auto indexBuffer = Buffer::Create(BufferType::Index, &skybox.Indices, sizeof(Components::Skybox::Indices));
 
-        // Load Models
-        static Model cone("Assets/Models/Cone/Cone.obj");
-        static Model cube("Assets/Models/Cube/Cube.obj");
-        static Model cylinder("Assets/Models/Cylinder/Cylinder.obj");
-        static Model level("Assets/Models/Level/Level.obj");
-        static Model monkey("Assets/Models/Monkey/Monkey.obj");
-        static Model plane("Assets/Models/Plane/Plane.obj");
-        static Model sphere("Assets/Models/Sphere/SphereUV.obj");
-        static Model torus("Assets/Models/Torus/Torus.obj");
+        // Update Transform
+        mCameraLight.View = glm::mat4(glm::mat3(mDesignerCamera.GetViewMatrix()));
+
+        // Draw
+        vertexBuffer->Bind();
+        pipeline->Bind();
+        indexBuffer->Bind();
+        mSkyBoxShader->Bind();
+        skyboxTexture->Bind(0);
+        mCameraUniformBuffer2->Bind(0);
+        mCameraUniformBuffer2->UpdateData(&mCameraLight, sizeof(Components::CameraLight));
+        mCommandBuffer->DrawIndexed(skybox.Components, PrimitiveType::Triangle, false);
+    }
+
+    void DrawLevel(Timestamp deltaTime) {
+        // Load Model
         static Model test("Assets/Models/Test/Test.obj");
 
-        // Translate Cube Model
-        auto cubeModel = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        cubeModel = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+        // Update Transform
+        auto model =
+            glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) *
+            glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
         // Update Camera, Light and View
         mModelShader->Bind();
-        //mDebugDepthShader->Bind();
-        sComponents.Camera2.Projection = mDesignerCamera.GetProjectionMatrix();
-        sComponents.Camera2.View = mDesignerCamera.GetViewMatrix();
-        sComponents.Camera2.Model = cubeModel;
-        sComponents.View.Position = camera.GetPosition();
+        mCameraLight.Projection = mDesignerCamera.GetProjectionMatrix();
+        mCameraLight.View = mDesignerCamera.GetViewMatrix();
+        mCameraLight.Model = model;
+        mView.Position = mDesignerCamera.GetPosition();
 
-        sComponents.Material.Shininess = 16.0f;
 
-        // Directional Light
-        sComponents.Lights.Light[1].Type = LightType::Directional;
-        sComponents.Lights.Light[0].LightColor = { 1.0f, 1.0f, 1.0f };
-        sComponents.Lights.Light[0].LightDirection = { 0.0f, -128.0f, -64.0f };
+        // Lighs
+        // - Directional Light
+        mLights.Light[0] = {
+            .Type = Components::LightType::Directional,
+            .LightColor = { 1.0f, 1.0f, 1.0f },
+            .LightDirection = { 0.0f, -128.0f, -64.0f },
+        };
+        // - Point Light
+        mLights.Light[1] = {
+            .Type = Components::LightType::Point,
+            .LightColor = mProperties.Color,
+            .LightPosition = mLightPosition,
+            
+            .Constant = 1.0f,
+            .Linear = 0.14f,
+            .Quadratic = 0.07f,
+        };
+        // - Spot Light
+        mLights.Light[2] = {
+            .Type = Components::LightType::Spot,
+            .LightColor = { 1.0f, 1.0f, 1.0f },
+            .LightPosition = mDesignerCamera.GetPosition(),
+            .LightDirection = mDesignerCamera.GetForwardDirection(),
 
-        sComponents.Lights.Light[0].Ambient = { 0.1f, 0.1f, 0.1f };
-        sComponents.Lights.Light[0].Diffuse = { 0.5f, 0.5f, 0.5f };
-        sComponents.Lights.Light[0].Specular = { 1.0f, 1.0f, 1.0f };
+            .Constant = 1.0f,
+            .Linear = 0.14f,
+            .Quadratic = 0.07f,
 
-        // Point Light
-        sComponents.Lights.Light[1].Type = LightType::Point;
-        sComponents.Lights.Light[1].LightColor = sComponents.Properties.Color;
-        sComponents.Lights.Light[1].LightPosition = mLightPosition;
-
-        sComponents.Lights.Light[1].Ambient = { 0.1f, 0.1f, 0.1f };
-        sComponents.Lights.Light[1].Diffuse = { 0.5f, 0.5f, 0.5f };
-        sComponents.Lights.Light[1].Specular = { 1.0f, 1.0f, 1.0f };
-
-        sComponents.Lights.Light[1].Constant = 1.0f;
-        sComponents.Lights.Light[1].Linear = 0.14f;
-        sComponents.Lights.Light[1].Quadratic = 0.07f;
-
-        // Spot Light
-        sComponents.Lights.Light[2].Type = LightType::Spot;
-        sComponents.Lights.Light[2].LightColor = { 1.0f, 1.0f, 1.0f };
-        sComponents.Lights.Light[2].LightPosition = camera.GetPosition();
-        sComponents.Lights.Light[2].LightDirection = camera.GetForwardDirection();
-
-        sComponents.Lights.Light[2].Ambient = { 0.1f, 0.1f, 0.1f };
-        sComponents.Lights.Light[2].Diffuse = { 0.5f, 0.5f, 0.5f };
-        sComponents.Lights.Light[2].Specular = { 1.0f, 1.0f, 1.0f };
-
-        sComponents.Lights.Light[2].Constant = 1.0f;
-        sComponents.Lights.Light[2].Linear = 0.14f;
-        sComponents.Lights.Light[2].Quadratic = 0.07f;
-
-        sComponents.Lights.Light[2].CutOffAngle = glm::cos(glm::radians(12.5f));
-
-        // Finish Light
-        sComponents.Lights.Count = 3;
+            .CutOffAngle = glm::cos(glm::radians(12.5f)),
+        };
+        // - Finish Light
+        mLights.Count = 3;
 
         // ToDo: Compiler error...
         // Texture Test
         //static MaterialData materialData {
         //    .Shininess = 32.0f * 256.0f
         //};
+        mMaterial.Shininess = 16.0f;
         //static auto materialBuffer = Buffer::Create(BufferType::Uniform, &materialData, sizeof(MaterialData));
         static auto diffuseMapTexture = Texture::Create({}, "Assets/Models/Test/diffuse-map.png");
         static auto specularMapTexture = Texture::Create({}, "Assets/Models/Test/specular-map.png");
@@ -470,64 +433,48 @@ public:
         diffuseMapTexture->Bind(0);
         specularMapTexture->Bind(2);
 
-        sComponents.CameraUniformBuffer2->Bind(0);
-        sComponents.ViewBuffer->Bind(4);
-        //sComponents.MaterialBuffer->Bind(5);
-        sComponents.LightBuffer->Bind(6);
-        sComponents.CameraUniformBuffer2->UpdateData(&sComponents.Camera2, sizeof(Components::CameraData2));
-        //sComponents.MaterialBuffer->UpdateData(&sComponents.Material, sizeof(Components::UMaterial));
-        sComponents.LightBuffer->UpdateData(&sComponents.Lights, sizeof(Components::ULights));
-        sComponents.ViewBuffer->UpdateData(&sComponents.View, sizeof(Components::UView));
+        mCameraUniformBuffer2->Bind(0);
+        mViewBuffer->Bind(4);
+        //mMaterialBuffer->Bind(5);
+        mLightBuffer->Bind(6);
+        mCameraUniformBuffer2->UpdateData(&mCameraLight, sizeof(Components::CameraLight));
+        //mMaterialBuffer->UpdateData(&sComponents.Material, sizeof(Components::UMaterial));
+        mLightBuffer->UpdateData(&mLights, sizeof(Components::Lights));
+        mViewBuffer->UpdateData(&mView, sizeof(Components::View));
 
         test.Draw(mCommandBuffer);
     }
 
-    void DrawLights(Timestamp deltaTime, const DesignerCamera &camera) {
-        // Prepare
-        auto &projection = camera.GetProjectionMatrix();
-        auto &view = camera.GetViewMatrix();
-        auto model = glm::mat4(1.0f);
-
-        static float timeValue = 0.1f;
-        timeValue += (float)deltaTime /2;
-        mLightPosition = glm::vec3(-3.0f, 3.0f, 5.0f);
-        float radius = 5.0f;
-        float angle = timeValue * 2.0f;
-        mLightPosition.x = 1.0f + radius * std::cos(angle);
-        mLightPosition.z = 3.0f + radius * std::sin(angle);
-
-        // Specify Pipeline and Shader
-        static PipelineProperties properties;
-        properties.DepthTest = true;
-        properties.Wireframe = false;
-        properties.Layout = {
-            { ShaderDataType::Float3, "aPosition" }
+    void DrawLights(Timestamp deltaTime) {
+        // Specify Buffers, Pipeline and Texture
+        static Components::Cube cube;
+        static PipelineProperties properties {
+            .DepthTest = true,
+            .Wireframe = false,
+            .Layout = {
+                { ShaderDataType::Float3, "aPosition" }
+            },
         };
         static auto pipeline = PipelineState::Create(properties);
 
         // Specify Buffers and Textures
-        static auto vertexBuffer = Buffer::Create(BufferType::Vertex, &sComponents.CubeVertices, sizeof(sComponents.CubeVertices));
-        static auto indexBuffer = Buffer::Create(BufferType::Index, &sComponents.CubeIndices, sizeof(sComponents.CubeIndices));
-        static auto propertiesUniform = Buffer::Create(BufferType::Uniform, &sComponents.Properties, sizeof(sComponents.Properties));
-        static auto translationUnfiorm = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Matrix4));
-
-        // Update Vertices and Indices
-        vertexBuffer->UpdateData(&sComponents.CubeVertices, sizeof(sComponents.CubeVertices));
-        indexBuffer->UpdateData(&sComponents.CubeIndices, sizeof(sComponents.CubeIndices));
+        static auto vertexBuffer = Buffer::Create(BufferType::Vertex, &cube.Vertices, sizeof(Components::Cube::Vertices));
+        static auto indexBuffer = Buffer::Create(BufferType::Index, &cube.Indices, sizeof(Components::Cube::Indices));
 
         // Update Properties
+        mLightPosition = glm::vec3(-3.0f, 3.0f, 5.0f);
+        static float timeValue = 0.1f;
+        timeValue += (float)deltaTime;
+        float angle = timeValue * 2.0f;
+        float radius = 5.0f;
+        mLightPosition.x = 1.0f + radius * std::cos(angle);
+        mLightPosition.z = 3.0f + radius * std::sin(angle);
+
         float value = (sin(timeValue) / 2.0f) + 0.5f;
-        sComponents.Properties.Color = glm::vec4(1.0f, 1.0f - value, value, 1.0f);
-        propertiesUniform->UpdateData(&sComponents.Properties, sizeof(sComponents.Properties));
-
-        // Update Transforms
-        auto lightModel = glm::translate(glm::mat4(1.0f), mLightPosition);
-        lightModel = glm::scale(lightModel, glm::vec3(0.2f, 0.2f, 0.2f));
-        auto lightModelStencil = glm::translate(glm::mat4(1.0f), mLightPosition);
-        lightModelStencil = glm::scale(lightModelStencil, glm::vec3(0.3f, 0.3f, 0.3f));
-
-        auto lightTransform = projection * view * lightModel;
-        auto lightTransformStencil = projection * view * lightModelStencil;
+        mProperties.Color = glm::vec4(1.0f, 1.0f - value, value, 1.0f);
+        auto model = glm::translate(glm::mat4(1.0f), mLightPosition) *
+                     glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f));
+        mProperties.Transform = mDesignerCamera.GetProjectionMatrix() * mDesignerCamera.GetViewMatrix() * model;
 
         // Draw
         mCommandBuffer->UpdateStencilBuffer();
@@ -537,30 +484,51 @@ public:
         indexBuffer->Bind();
 
         mLightShader->Bind();
-        propertiesUniform->Bind(0);
-        translationUnfiorm->Bind(1);
-        translationUnfiorm->UpdateData(&lightTransform, sizeof(Matrix4));
-        mCommandBuffer->DrawIndexed(sComponents.CubeComponents, PrimitiveType::Triangle, true);
+        mPropertiesBuffer->Bind(0);
+        mPropertiesBuffer->UpdateData(&mProperties, sizeof(Components::Properties));
+        mCommandBuffer->DrawIndexed(cube.Components, PrimitiveType::Triangle, true);
 
         mCommandBuffer->EnableStencilTest();
+
+        model = glm::translate(glm::mat4(1.0f), mLightPosition) *
+                glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 0.3f, 0.3f));
+        mProperties.Transform = mDesignerCamera.GetProjectionMatrix() * mDesignerCamera.GetViewMatrix() * model;
 
         vertexBuffer->Bind();
         pipeline->Bind();
         indexBuffer->Bind();
 
         mStencilOutlineShader->Bind();
-        propertiesUniform->Bind(0);
-        translationUnfiorm->Bind(1);
-        translationUnfiorm->UpdateData(&lightTransformStencil, sizeof(Matrix4));
-        mCommandBuffer->DrawIndexed(sComponents.CubeComponents, PrimitiveType::Triangle, false);
+        mPropertiesBuffer->Bind(0);
+        mPropertiesBuffer->UpdateData(&mProperties, sizeof(Components::Properties));
+        mCommandBuffer->DrawIndexed(cube.Components, PrimitiveType::Triangle, false);
 
         mCommandBuffer->ResetStencilTest();
+    }
+
+
+
+    void DrawCube(const Components::Transform &transform) {
+        static Model cube("Assets/Models/Cube/Cube.obj");
+        auto model = transform;
+
+        mModelShader->Bind();
+        mCameraLight.Model = model;
+        mView.Position = mDesignerCamera.GetPosition();
+
+        mCameraUniformBuffer2->Bind(0);
+        mViewBuffer->Bind(4);
+        //mMaterialBuffer->Bind(5);
+        mCameraUniformBuffer2->UpdateData(&mCameraLight, sizeof(Components::CameraLight));
+        //mMaterialBuffer->UpdateData(&mMaterial, sizeof(Components::Material));
+        mViewBuffer->UpdateData(&mView, sizeof(Components::View));
+        cube.Draw(mCommandBuffer);
     }
 
     #pragma endregion
 
     #pragma region Sprite Renderer
-    void TestSpriteRenderer(Timestamp deltaTime, const DesignerCamera &camera) {
+    void TestSpriteRenderer(Timestamp deltaTime) {
         // Prepare
         Renderer2D::StartScene(mDesignerCamera);
 
@@ -588,7 +556,7 @@ public:
 
     #pragma region UI Renderer
 
-    void TestUIRenderer(Timestamp deltaTime, const DesignerCamera &camera) {
+    void TestUIRenderer(Timestamp deltaTime) {
     }
 
     #pragma endregion
@@ -627,14 +595,30 @@ private:
     // Point Light Position
     glm::vec3 mLightPosition {};
 
+    // Buffers
+    Reference<Buffer> mCameraUniformBuffer;
+    Reference<Buffer> mCameraUniformBuffer2;
+    Reference<Buffer> mMaterialBuffer;
+    Reference<Buffer> mLightBuffer;
+    Reference<Buffer> mPropertiesBuffer;
+    Reference<Buffer> mViewBuffer;
+
+    // Components
+    Components::Camera mCamera;
+    Components::CameraLight mCameraLight;
+    Components::Lights mLights;
+    Components::Material mMaterial;
+    Components::Properties mProperties;
+    Components::Transform mTransform;
+    Components::View mView;
+
     // Shaders
     Reference<Shader> mDebugDepthShader;
+    Reference<Shader> mGridShader;
     Reference<Shader> mModelShader;
     Reference<Shader> mLightShader;
     Reference<Shader> mSkyBoxShader;
     Reference<Shader> mStencilOutlineShader;
-
-    static inline Components sComponents {};
 };
 
 }

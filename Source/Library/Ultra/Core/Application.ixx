@@ -110,7 +110,7 @@ public:
         mContext->Attach();
         mContext->Load();
         mContext->SetViewport(mWindow->GetContexttSize().Width, mWindow->GetContexttSize().Height);
-        mContext->SetVSync(false);
+        mContext->SetVSync(true);
         mContext->Clear();
 
         // Load Core Layer

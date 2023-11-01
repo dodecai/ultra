@@ -198,7 +198,7 @@ GLTexture::GLTexture(const TextureProperties &properties, const string &path): T
                 glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
                 glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                //glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+                //glGenerateMipmap(mTextureID);
                 //glTexParameterfv(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BORDER_COLOR, { 1.0f, 1.0f, 0.0f, 1.0f });
 
                 LogTrace("The image '{}' was loaded successfully.", image);

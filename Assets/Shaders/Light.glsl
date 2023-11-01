@@ -7,8 +7,6 @@ layout (location = 0) out vec4 vColor;
 
 layout (std140, binding = 0) uniform Properties {
     vec4 uColor;
-};
-layout (std140, binding = 1) uniform Translation {
     mat4 uTransform;
 };
 
