@@ -1,16 +1,9 @@
 ﻿// Grid Shader
 #type vertex
 #version 450 core
+#include <Buffers.glslh>
 
-layout(location = 0) in vec3 pos;
-
-// Shared set between most vertex shaders
-layout(set = 0, binding = 0) uniform ViewUniforms {
-    mat4 view;
-    mat4 proj;
-    float near;
-    float far;
-} view;
+layout(location = 0) in vec3 aPosition;
 
 layout(location = 0) out float near;
 layout(location = 1) out float far;
@@ -19,51 +12,55 @@ layout(location = 3) out vec3 farPoint;
 layout(location = 4) out mat4 fragView;
 layout(location = 8) out mat4 fragProj;
 
-vec3 UnprojectPoint(float x, float y, float z, mat4 view, mat4 projection) {
-    mat4 viewInv = inverse(view);
-    mat4 projInv = inverse(projection);
-    vec4 unprojectedPoint =  viewInv * projInv * vec4(x, y, z, 1.0);
+vec3 UnprojectPoint(float x, float y, float z) {
+    vec4 unprojectedPoint =  uCamera.InverseView * uCamera.InverseProjection * vec4(x, y, z, 1.0);
     return unprojectedPoint.xyz / unprojectedPoint.w;
 }
 
 // normal vertice projection
 void main() {
-    vec3 p = pos.xyz;
-    near = view.near;
-    far = view.far;
-    nearPoint = UnprojectPoint(p.x, p.y, 0.0, view.view, view.proj).xyz; // unprojecting on the near plane
-    farPoint = UnprojectPoint(p.x, p.y, 1.0, view.view, view.proj).xyz; // unprojecting on the far plane
-    fragView = view.view;
-    fragProj = view.proj;
+    near = uCamera.Near;
+    far = uCamera.Far;
+    fragView = uCamera.View;
+    fragProj = uCamera.Projection;
+    vec3 position = aPosition.xyz;
 
-    gl_Position = vec4(p, 1.0); // using directly the clipped coordinates
+    // Unprojecting the nar/far point
+    nearPoint = UnprojectPoint(position.x, position.y, 0.0).xyz;
+    farPoint = UnprojectPoint(position.x, position.y, 1.0).xyz;
+
+    // Use directly the clipped coordinates
+    gl_Position = vec4(position, 1.0);
 }
 
 
 #type fragment
 #version 450 core
 
-layout(location = 0) in float near; //0.01
-layout(location = 1) in float far; //100
+layout(location = 0) in float near;
+layout(location = 1) in float far;
 layout(location = 2) in vec3 nearPoint;
 layout(location = 3) in vec3 farPoint;
 layout(location = 4) in mat4 fragView;
 layout(location = 8) in mat4 fragProj;
 layout(location = 0) out vec4 outColor;
 
-vec4 grid(vec3 fragPos3D, float scale, bool drawAxis) {
-    vec2 coord = fragPos3D.xz * scale;
-    vec2 derivative = fwidth(coord);
-    vec2 grid = abs(fract(coord - 0.5) - 0.5) / derivative;
-    float line = min(grid.x, grid.y);
-    float minimumz = min(derivative.y, 1);
-    float minimumx = min(derivative.x, 1);
-    vec4 color = vec4(0.2, 0.2, 0.2, 1.0 - min(line, 1.0));
-    // z axis
-    if(fragPos3D.x > -0.1 * minimumx && fragPos3D.x < 0.1 * minimumx) color.z = 1.0;
-    // x axis
-    if(fragPos3D.z > -0.1 * minimumz && fragPos3D.z < 0.1 * minimumz) color.x = 1.0;
-    return color;
+float computeDepth(vec3 pos);
+float computeLinearDepth(vec3 pos);
+vec4 grid(vec3 fragPos3D, float scale, bool drawAxis);
+
+void main() {
+    float t = -nearPoint.y / (farPoint.y - nearPoint.y);
+    vec3 fragPos3D = nearPoint + t * (farPoint - nearPoint);
+
+    gl_FragDepth = computeDepth(fragPos3D);
+
+    float linearDepth = computeLinearDepth(fragPos3D);
+    float fading = max(0, (0.5 - linearDepth));
+     
+    // adding multiple resolution for the grid
+    outColor = (grid(fragPos3D, 10, true) + grid(fragPos3D, 1, true))* float(t > 0);
+    outColor.a *= fading;
 }
 
 float computeDepth(vec3 pos) {
@@ -78,15 +75,17 @@ float computeLinearDepth(vec3 pos) {
     return linearDepth / far; // normalize
 }
 
-void main() {
-    float t = -nearPoint.y / (farPoint.y - nearPoint.y);
-    vec3 fragPos3D = nearPoint + t * (farPoint - nearPoint);
-
-    gl_FragDepth = computeDepth(fragPos3D);
-
-    float linearDepth = computeLinearDepth(fragPos3D);
-    float fading = max(0, (0.5 - linearDepth));
-
-    outColor = (grid(fragPos3D, 10, true) + grid(fragPos3D, 1, true))* float(t > 0); // adding multiple resolution for the grid
-    outColor.a *= fading;
+vec4 grid(vec3 fragPos3D, float scale, bool drawAxis) {
+    vec2 coord = fragPos3D.xz * scale;
+    vec2 derivative = fwidth(coord);
+    vec2 grid = abs(fract(coord - 0.5) - 0.5) / derivative;
+    float line = min(grid.x, grid.y);
+    float minimumz = min(derivative.y, 1);
+    float minimumx = min(derivative.x, 1);
+    vec4 color = vec4(0.2, 0.2, 0.2, 1.0 - min(line, 1.0));
+    // z axis
+    if(fragPos3D.x > -0.1 * minimumx && fragPos3D.x < 0.1 * minimumx) color.z = 1.0;
+    // x axis
+    if(fragPos3D.z > -0.1 * minimumz && fragPos3D.z < 0.1 * minimumz) color.x = 1.0;
+    return color;
 }

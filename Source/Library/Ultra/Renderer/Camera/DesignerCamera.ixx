@@ -64,10 +64,24 @@ public:
     inline float GetDistance() const { return mDistance; }
     inline void SetDistance(float distance) { mDistance = distance; }
 
-    inline void SetViewportSize(float width, float height) { mViewportWidth = width; mViewportHeight = height; UpdateProjection(); }
+    inline void SetPosition(const glm::vec3 &position) {
+        mPosition = position;
+        mFocalPoint = mPosition + GetForwardDirection() * mDistance;
+        UpdateProjection();
+        UpdateView();
+    }
+    inline void SetViewportSize(float width, float height) {
+        mAspectRatio = width / height;
+        mViewportWidth = width;
+        mViewportHeight = height;
+        UpdateProjection();
+    }
     const glm::mat4 &GetViewMatrix() const { return mViewMatrix; }
     const glm::mat4 &GetProjectionMatrix() const { return mProjection; }
     glm::mat4 GetViewProjection() const { return mProjection * mViewMatrix; }
+    glm::mat4 GetInverseViewProjection() const { return glm::inverse(GetViewProjection()); }
+    glm::mat4 GetInverseView() const { return glm::inverse(mViewMatrix); }
+    glm::mat4 GetInverseProjection() const { return glm::inverse(mProjection); }
 
     glm::vec3 GetUpDirection() const {
         return glm::rotate(GetOrientation(), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -148,6 +162,9 @@ private:
 
 private:
     float mAspectRatio = 1.334f;
+    float mViewportWidth = 800;
+    float mViewportHeight = 600;
+
     float mFOV = 45.0f;
     float mNearClip = 0.1f;
     float mFarClip = 1000.0f;
@@ -160,9 +177,6 @@ private:
     float mDistance = 5.0f;
     float mPitch = 0.0f;
     float mYaw = 0.0f;
-
-    float mViewportWidth = 800;
-    float mViewportHeight = 600;
 };
 
 #define EXAMPLES

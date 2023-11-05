@@ -148,7 +148,7 @@ class UIRenderer: public SteadyObject {
     UIRenderer() {
         // Panel
         {
-            SRenderData.PanelShader = Shader::Create("Assets/Shaders/UI.glsl");
+            SRenderData.PanelShader = Shader::Create("Assets/Shaders/UI/UI.glsl");
             PipelineProperties panelProperties;
             panelProperties.BlendMode = BlendMode::Alpha;
             panelProperties.DepthTest = true;
@@ -187,7 +187,7 @@ class UIRenderer: public SteadyObject {
 
         // Component
         {
-            SRenderData.ComponentShader = Shader::Create("Assets/Shaders/UIElement.glsl");
+            SRenderData.ComponentShader = Shader::Create("Assets/Shaders/UI/UIElement.glsl");
             PipelineProperties componentProperties;
             componentProperties.BlendMode = BlendMode::Alpha;
             componentProperties.DepthTest = true;
@@ -235,7 +235,7 @@ class UIRenderer: public SteadyObject {
 
         // Text
         {
-            SRenderData.TextShader = Shader::Create("Assets/Shaders/UIText2.glsl");
+            SRenderData.TextShader = Shader::Create("Assets/Shaders/UI/UIText2.glsl");
             PipelineProperties textProperties;
             textProperties.BlendMode = BlendMode::Alpha;
             textProperties.DepthTest = true;

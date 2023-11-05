@@ -30,6 +30,7 @@ export import <print>;
 export import <queue>;
 export import <random>;
 export import <ranges>;
+export import <regex>;
 export import <source_location>;
 export import <sstream>;
 export import <stdexcept>;

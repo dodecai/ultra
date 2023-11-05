@@ -1,6 +1,7 @@
 ﻿// Model Shaders
 #type vertex
 #version 450 core
+#include <Buffers.glslh>
 
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec3 aNormal;
@@ -14,23 +15,18 @@ layout (location = 0) out vec2 vTexCoords;
 layout (location = 1) out vec3 vNormal;
 layout (location = 2) out vec3 vFragPos;
 
-layout(std140, binding = 0) uniform Camera {
-    mat4 uModel;
-    mat4 uView;
-    mat4 uProjection;
-};
-
 void main() {
     vTexCoords = aTexCoords;
-    vNormal = mat3(transpose(inverse(uModel))) * aNormal;
-    vFragPos = vec3(uModel * vec4(aPosition, 1.0));
+    vNormal = mat3(transpose(inverse(uEntity.Transform))) * aNormal;
+    vFragPos = vec3(uEntity.Transform * vec4(aPosition, 1.0));
 
-    gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);
+    gl_Position = uCamera.ViewProjection * uEntity.Transform * vec4(aPosition, 1.0);
 }
 
 #type fragment
 #version 450 core
 #extension GL_EXT_scalar_block_layout : require
+#include <Buffers.glslh>
 
 layout (location = 0) out vec4 oFragColor;
 
@@ -43,44 +39,6 @@ layout(binding = 1) uniform sampler2D uTextureNormal;
 layout(binding = 2) uniform sampler2D uTextureSpecular;
 layout(binding = 3) uniform sampler2D uTextureHeight;
 
-layout(std140, binding = 4) uniform View {
-    vec3 uViewPosition;
-};
-
-layout(std140, binding = 5) uniform Material {
-    vec3 uMaterialAmbientColor;
-    vec3 uMaterialDiffuseColor;
-    vec3 uMaterialSpecularColor;
-    float uShininess;
-};
-
-#define MAX_LIGHTS 5
-#define DIRECTIONAL_LIGHT 0
-#define POINT_LIGHT 1
-#define SPOT_LIGHT 2
-struct Light {
-    uint Type;
-    vec3 Color;
-    vec3 Position;
-    vec3 Direction;
-    vec3 Ambient;
-    vec3 Diffuse;
-    vec3 Specular;
-
-    // Attenuation
-    float Constant;
-    float Linear;
-    float Quadratic;
-
-    // Spotlight
-    float CuttOffAngle;
-};
-
-layout(std140, binding = 6) uniform LightArray {
-    Light uLights[MAX_LIGHTS];
-    uint uCount;
-};
-
 vec4 CalculateDirectionalLight(Light light, vec3 normal, vec3 viewDirection, bool materialActive);
 vec4 CalculatePointLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 viewDirection, bool materialActive);
 vec4 CalculateSpotLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 viewDirection, bool materialActive);
@@ -90,12 +48,12 @@ void main() {
     vec4 color = vec4(0.0f);
     const float epsilon = 1e-6;
     vec3 normal = normalize(vNormal);
-    vec3 viewDirection = normalize(uViewPosition  - vFragPos);
+    vec3 viewDirection = normalize(uCamera.Position  - vFragPos);
 
     // Phong Lighting
     bool materialActive = all(equal(uMaterialAmbientColor, vec3(0.0f))) && all(equal(uMaterialDiffuseColor, vec3(0.0f))) && all(equal(uMaterialSpecularColor, vec3(0.0f)));
     materialActive = false;
-    uint count = uCount;
+    uint count = uLightCount;
     for (uint i = 0; i < count; i++) {
         if (uLights[i].Type == DIRECTIONAL_LIGHT) {
             // Phase 1: Directional Lighting

@@ -1,18 +1,14 @@
 ﻿#type vertex
 #version 450 core
+#include <Buffers.glslh>
 
 layout (location = 0) in vec3 aPosition;
 
 layout (location = 0) out vec4 vColor;
 
-layout (std140, binding = 0) uniform Properties {
-    vec4 uColor;
-    mat4 uTransform;
-};
-
 void main() {
-    vColor = uColor;
-    gl_Position = uTransform * vec4(aPosition, 1.0);
+    vColor = uEntity.Color;
+    gl_Position = uCamera.ViewProjection * uEntity.Transform * vec4(aPosition, 1.0);
 }
 
 #type fragment

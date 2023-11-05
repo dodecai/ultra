@@ -235,6 +235,7 @@ public:
     virtual void UpdateUniform(const string &name, const Matrix4 &data) = 0;
 
 protected:
+    void Preprocess(string &source, const string &directory);
     ShaderList Convert(string &source);
 
     ShaderList mShaders;

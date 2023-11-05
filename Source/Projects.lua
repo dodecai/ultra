@@ -76,6 +76,27 @@
             },
         },
         ["Shaders"] = {
+            ["Debug"] = {
+                "Assets/Shaders/Debug/*",
+            },
+            ["Defaults"] = {
+                "Assets/Shaders/Defaults/*",
+            },
+            ["Materials"] = {
+                "Assets/Shaders/Materials/*",
+            },
+            ["Meshes"] = {
+                "Assets/Shaders/Meshes/*",
+            },
+            ["PostProcessing"] = {
+                "Assets/Shaders/PostProcessing/*",
+            },
+            ["Sprites"] = {
+                "Assets/Shaders/Sprites/*",
+            },
+            ["UI"] = {
+                "Assets/Shaders/UI/*",
+            },
             "Assets/Shaders/*",
         },
         ["Sounds"] = {

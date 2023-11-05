@@ -31,12 +31,49 @@ Scope<Shader> Shader::Create(const string &source, const string &entryPoint, con
 }
 
 
+void Shader::Preprocess(string &source, const string &directory) {
+    std::regex includeRegex(R""(#include\s+[<"]([^">]+)[">])"");
+    std::smatch match;
+
+    // Process includes
+    while (std::regex_search(source, match, includeRegex)) {
+        auto includeDirective = match[0].str();
+        auto includeFile = match[1].str();
+        string includeFilePath;
+
+        // Check if include file is a default shader
+        if (includeDirective.find('<') != std::string::npos) {
+            includeFilePath = "Assets/Shaders/Defaults/" + includeFile;
+        } else {
+            includeFilePath = directory + "/" + includeFile;
+        }
+
+        if (!Directory::ValidatePath(includeFilePath)) {
+            LogError("Include file not found: {}", includeFilePath);
+            return;
+        }
+
+        auto includeSource = File::LoadAsString(includeFilePath);
+        Preprocess(includeSource, File::GetPath(includeFilePath));  // Recursive include processing
+
+        // Remove non-ascii characters
+        includeSource.erase(std::remove_if(includeSource.begin(), includeSource.end(), [](char c) { return static_cast<unsigned char>(c) >= 128; }), includeSource.end());
+        
+        // Replace include directive with include source
+        source.replace(match.position(), includeDirective.length(), includeSource);
+    }
+}
+
 Shader::ShaderList Shader::Convert(string &source) {
     // Check if source is file path and load the code
+    auto directory = File::GetPath(source);
     if (Directory::ValidatePath(source)) {
         mShaderName = File::GetName(source);
         source = File::LoadAsString(source);
     }
+
+    // Process includes
+    Preprocess(source, directory);
 
     // Detect newline format (Linux, Windows, Mac)
     auto eolConversion = '\n';
@@ -64,10 +101,40 @@ Shader::ShaderList Shader::Convert(string &source) {
         // Extract the shader code
         auto codeStart = typeEnd + eolSize;
         auto codeLength = std::ranges::distance(codeStart, element.end());
-        string_view code(&*codeStart, codeLength);
+        string code(&*codeStart, codeLength);
+
+        // Determine shader type and prepend appropriate define directive
+        auto shaderType = (ShaderType)ShaderTypeFromString(string(type));
+        string defineDirective;
+        switch (shaderType) {
+            case ShaderType::Compute:       { defineDirective = "#define COMPUTE_SHADER\n"; break; }
+            case ShaderType::Fragment:      { defineDirective = "#define PIXEL_SHADER\n"; break; }
+            case ShaderType::Geometry:      { defineDirective = "#define GEOMETRY_SHADER\n"; break; }
+            case ShaderType::TessControl:   { defineDirective = "#define TESSELLATION_CONTROL_SHADER\n"; break; }
+            case ShaderType::TessEvaluation:{ defineDirective = "#define TESSELLATION_EVALUATION_SHADER\n"; break; }
+            case ShaderType::Vertex:        { defineDirective = "#define VERTEX_SHADER\n"; break; }
+            default: {
+                LogWarning("The shader type couldn't be detected or wasn't specified!");
+                break;
+            }
+        }
+
+        // Find the position of the #version directive
+        auto versionPos = code.find("#version");
+        if (versionPos != string::npos) {
+            // Find the end of the #version directive line
+            auto versionEnd = code.find('\n', versionPos);
+            if (versionEnd != string::npos) {
+                // Insert the define directive after the #version directive
+                code.insert(versionEnd + 1, defineDirective);
+            }
+        } else {
+            // If there's no #version directive, prepend the define directive to the code
+            code = defineDirective + code;
+        }
 
         // Store the shader code in the map
-        shaders[ShaderTypeFromString(string(type))] = string(code);
+        shaders[ShaderTypeFromString(string(type))] = code;
     }
 
     // ... otherwise, return the source as it is, but raise a warning, if the type wasn't specified

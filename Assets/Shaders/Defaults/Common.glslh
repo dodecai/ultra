@@ -1,0 +1,10 @@
+﻿
+#ifdef VERTEX_SHADER
+#endif
+
+#ifdef PIXEL_SHADER
+
+// Switch to DirectX/Vulkan Coordinate System
+layout(origin_upper_left) in vec4 gl_FragCoord;
+
+#endif

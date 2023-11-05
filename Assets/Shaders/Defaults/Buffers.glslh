@@ -1,0 +1,103 @@
+﻿// ToDo
+//#pragma once
+
+///
+/// @brief Camera\Renderer\Scene\Screen Data
+///
+
+layout(std140, binding = 0) uniform RendererData {
+	bool Antialising;
+	bool Shadows;
+} uRenderer;
+
+layout(std140, binding = 1) uniform CameraData {
+	mat4 ViewProjection;
+    mat4 Projection;
+    mat4 View;
+	mat4 InverseViewProjection;
+    mat4 InverseProjection;
+    mat4 InverseView;
+	vec3 Position;
+	float Near;
+	float Far;
+} uCamera;
+
+layout(std140, binding = 2) uniform SceneData {
+    bool AmbientOcclusion;
+    bool Skybox;
+} uScene;
+
+layout(std140, binding = 3) uniform ScreenData {
+	vec2 Resolution;
+} uScreen;
+
+///
+/// @brief Animation and Object Data
+///
+
+layout(std140, binding = 4) uniform EntityData {
+	vec4 Color;
+	mat4 Transform;
+} uEntity;
+
+layout(std140, binding = 5) uniform AnimationData {
+    float DeltaTime;
+	uint Frame;
+} uAnimation;
+
+///
+/// @brief Light and Shadow Data
+///
+
+#define MAX_LIGHTS 5
+#define DIRECTIONAL_LIGHT 0
+#define POINT_LIGHT 1
+#define SPOT_LIGHT 2
+
+struct Light {
+    uint Type;
+	vec3 Color;
+	vec3 Position;
+    vec3 Direction;
+    vec3 Ambient;
+    vec3 Diffuse;
+    vec3 Specular;
+
+    // Attenuation
+    float Constant;
+    float Linear;
+    float Quadratic;
+
+    // Spotlight
+    float CuttOffAngle;
+};
+
+layout(std140, binding = 6) uniform LightData {
+	Light uLights[MAX_LIGHTS];
+    uint uLightCount;
+};
+
+#define MAX_SHADOWS 4
+
+struct Shadow {
+    float Bias;
+    vec3 LightDirection;
+    vec3 LightPosition;
+    float MapResolution;
+    mat4 Matrix;
+    float Softness;
+};
+
+layout(std140, binding = 7) uniform ShadowData {
+	Shadow uShadows[MAX_SHADOWS];
+};
+
+///
+/// ToDo
+///
+layout(std140, binding = 9) uniform Material {
+    vec3 uMaterialAmbientColor;
+    vec3 uMaterialDiffuseColor;
+    vec3 uMaterialSpecularColor;
+    float uShininess;
+};

@@ -65,11 +65,15 @@ struct RendererData {
 
     // Uniforms
     struct CameraData {
-        glm::mat4 ViewProjectionMatrix = {};
+        glm::mat4 ViewProjection = {};
         glm::mat4 Projection = {};
         glm::mat4 View = {};
-        float NearClip = {};
-        float FarClip = {};
+        glm::mat4 InverseViewProjection = {};
+        glm::mat4 InverseProjection = {};
+        glm::mat4 InverseView = {};
+        glm::vec3 Position {};
+        float Near = {};
+        float Far = {};
     };
     CameraData CameraBuffer;
     Reference<Buffer> CameraUniformBuffer;
@@ -81,7 +85,7 @@ static RendererData sData;
 void Renderer2D::Load() {
     // Circles
     {
-        sData.CircleShader = Shader::Create("Assets/Shaders/Circle.glsl");
+        sData.CircleShader = Shader::Create("Assets/Shaders/Sprites/Circle.glsl");
         PipelineProperties pipelineProperties;
         pipelineProperties.Layout = {
             { ShaderDataType::Float3, "aWorldPosition" },
@@ -119,7 +123,7 @@ void Renderer2D::Load() {
 
     // Lines
     {
-        sData.LineShader = Shader::Create("Assets/Shaders/Line.glsl");
+        sData.LineShader = Shader::Create("Assets/Shaders/Sprites/Line.glsl");
 
         PipelineProperties pipelineProperties;
         pipelineProperties.Layout = {
@@ -190,7 +194,7 @@ void Renderer2D::Load() {
         int32_t samplers[sData.MaxTextureSlots];
         for (uint32_t i = 0; i < sData.MaxTextureSlots; i++) samplers[i] = i;
 
-        sData.TextureShader = Shader::Create("./Assets/Shaders/Texture.glsl");
+        sData.TextureShader = Shader::Create("./Assets/Shaders/Sprites/Texture.glsl");
         sData.TextureShader->Bind();
         sData.TextureShader->UpdateUniformBuffer("uTextures", (void *)samplers, sData.MaxTextureSlots);
 
@@ -233,8 +237,8 @@ void Renderer2D::Dispose() {
 void Renderer2D::StartScene(const Camera &camera) {
     sData.DepthTest = true;
 
-    sData.CameraBuffer.ViewProjectionMatrix = camera.GetProjection();
-    sData.CameraUniformBuffer->Bind(0);
+    sData.CameraBuffer.ViewProjection = camera.GetProjection();
+    sData.CameraUniformBuffer->Bind(1);
     sData.CameraUniformBuffer->UpdateData(&sData.CameraBuffer, sizeof(RendererData::CameraData));
 
     NextBatch();
@@ -243,8 +247,8 @@ void Renderer2D::StartScene(const Camera &camera) {
 void Renderer2D::StartScene(const DesignerCamera &camera) {
     sData.DepthTest = true;
 
-    sData.CameraBuffer.ViewProjectionMatrix = camera.GetViewProjection();
-    sData.CameraUniformBuffer->Bind(0);
+    sData.CameraBuffer.ViewProjection = camera.GetViewProjection();
+    sData.CameraUniformBuffer->Bind(1);
     sData.CameraUniformBuffer->UpdateData(&sData.CameraBuffer, sizeof(RendererData::CameraData));
 
     NextBatch();
@@ -253,8 +257,8 @@ void Renderer2D::StartScene(const DesignerCamera &camera) {
 void Renderer2D::StartScene(const PerspectiveCamera &camera) {
     sData.DepthTest = true;
 
-    sData.CameraBuffer.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
-    sData.CameraUniformBuffer->Bind(0);
+    sData.CameraBuffer.ViewProjection = camera.GetViewProjectionMatrix();
+    sData.CameraUniformBuffer->Bind(1);
     sData.CameraUniformBuffer->UpdateData(&sData.CameraBuffer, sizeof(RendererData::CameraData));
 
     NextBatch();
@@ -263,8 +267,8 @@ void Renderer2D::StartScene(const PerspectiveCamera &camera) {
 void Renderer2D::StartScene(const OrthographicCamera &camera) {
     sData.DepthTest = true;
 
-    sData.CameraBuffer.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
-    sData.CameraUniformBuffer->Bind(0);
+    sData.CameraBuffer.ViewProjection = camera.GetViewProjectionMatrix();
+    sData.CameraUniformBuffer->Bind(1);
     sData.CameraUniformBuffer->UpdateData(&sData.CameraBuffer, sizeof(RendererData::CameraData));
 
     NextBatch();

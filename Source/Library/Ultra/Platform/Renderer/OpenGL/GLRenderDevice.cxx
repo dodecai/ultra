@@ -83,6 +83,12 @@ void GLRenderDevice::Load() {
     glBlendEquation(GL_FUNC_ADD);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // Switch Depth-Buffer Coordinate System (makes it easier to support DirectX and Vulkan)
+    //glDepthRange(0.0f, 1.0f);
+
+    // Program Extensions
+    glEnable(GL_PROGRAM_POINT_SIZE);
+
     // Pixel Byte Pack/Unpack-Alignment
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);

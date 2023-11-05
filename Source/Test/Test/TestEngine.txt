@@ -1,4 +1,4 @@
-﻿module;
+module;
 
 #define TEST_MESH_RENDERER 1
 #define TEST_SPRITE_RENDERER 0
@@ -33,11 +33,10 @@ enum class UniformPosition {
     CameraData      = 1,
     SceneData       = 2,
     ScreenData      = 3,
-    EntityData      = 4,
+    ModelData       = 4,
     AnimationData   = 5,
     LightData       = 6,
     ShadowData      = 7,
-    MaterialData    = 9,
 };
 
 float DegreesToRadians(float degrees) {
@@ -48,20 +47,15 @@ namespace Components {
 
 // Miscellanous
 struct Camera {
-    glm::mat4 ViewProjection = {};
-    glm::mat4 Projection = {};
-    glm::mat4 View = {};
-    glm::mat4 InverseViewProjection = {};
-    glm::mat4 InverseProjection = {};
-    glm::mat4 InverseView = {};
+    glm::mat4 ViewProjection {};
+    glm::mat4 Projection {};
+    glm::mat4 View {};
+    glm::mat4 InverseViewProjection {};
+    glm::mat4 InverseProjection {};
+    glm::mat4 InverseView {};
     glm::vec3 Position {};
-    float Near = {};
-    float Far = {};
-};
-
-struct EntityData {
-    glm::vec4 Color = {};
-    glm::mat4 Transform = {};
+    float Near {};
+    float Far {};
 };
 
 struct CameraLight {
@@ -115,6 +109,11 @@ struct Material {
     glm::vec3 uSpecularColor {};
     glm::vec3 uAmbientColor {};
     float Shininess;
+};
+
+struct Properties {
+    glm::vec4 Color = glm::vec4(1.0f);
+    glm::mat4 Transform = glm::mat4(1.0f);
 };
 
 struct Transform {
@@ -249,7 +248,10 @@ public:
         auto aspectRatio = 1280.0f / 1024.0f;
         mDesignerCamera = DesignerCamera(45.0f, aspectRatio, 0.1f, 1000.0f);
         mDesignerCamera.SetViewportSize(1280.0f, 1024.0f);
-        mDesignerCamera.SetPosition({ 0.0f, 2.0f, 24.0f });
+        mDesignerCamera.SetPosition({ 0.0f, 6.0f, 24.0f });
+
+        // Load Textures
+        mCheckerBoard = Texture::Create(TextureProperties(), "./Assets/Textures/CheckerBoard.png");
 
         // Load Shaders
         mDebugDepthShader = Shader::Create("Assets/Shaders/Debug/DepthVisualizer.glsl");
@@ -261,12 +263,12 @@ public:
 
         // Load Buffers
         mCameraUniformBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::Camera));
-        mEntityUniformBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::EntityData));
-        mLightBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::Lights));
+        mCameraUniformBuffer2 = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::CameraLight));
         mMaterialBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::Material));
+        mLightBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::Lights));
+        mPropertiesBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::Properties));
+        mViewBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::View));
 
-        // Load Textures
-        mCheckerBoard = Texture::Create(TextureProperties(), "./Assets/Textures/CheckerBoard.png");
     }
     ~Engine() = default;
 
@@ -275,19 +277,22 @@ public:
 
         // Update Camera
         mDesignerCamera.Update(deltaTime);
-
         mCamera.ViewProjection = mDesignerCamera.GetViewProjection();
         mCamera.Projection = mDesignerCamera.GetProjectionMatrix();
         mCamera.View = mDesignerCamera.GetViewMatrix();
-        mCamera.InverseViewProjection = mDesignerCamera.GetInverseViewProjection();
-        mCamera.InverseProjection = mDesignerCamera.GetInverseProjection();
-        mCamera.InverseView = mDesignerCamera.GetInverseView();
+        //mCamera.InverseViewProjection = mDesignerCamera.GetViewProjection();
+        //mCamera.InverseProjection = mDesignerCamera.GetProjectionMatrix();
+        //mCamera.InverseView = mDesignerCamera.GetViewMatrix();
         mCamera.Position = mDesignerCamera.GetPosition();
         mCamera.Near = mDesignerCamera.GetNearPoint();
         mCamera.Far = mDesignerCamera.GetFarPoint();
         mCameraUniformBuffer->UpdateData(&mCamera, sizeof(Components::Camera));
-        mCameraUniformBuffer->Bind(0);
         mCameraUniformBuffer->Bind((uint32_t)UniformPosition::CameraData);
+
+        // ToDo: Remove
+        mCameraLight.Projection = mDesignerCamera.GetProjectionMatrix();
+        mCameraLight.View = mDesignerCamera.GetViewMatrix();
+        mCameraLight.Model = glm::mat4(1.0f);
 
         // Mesh Renderer (3D)
         #if TEST_MESH_RENDERER == 1
@@ -309,7 +314,7 @@ public:
 
     void TestMeshRenderer(Timestamp deltaTime) {
         // Draw Scene
-        //DrawGrid();
+        DrawGrid();
         DrawLevel(deltaTime);
         DrawSkybox(deltaTime);
     }
@@ -379,18 +384,18 @@ public:
     }
 
     void DrawCube(const Components::Transform &transform) {
-        // Define Cube Model
         static Model cube("Assets/Models/Cube/Cube.obj");
-        
-        // Bind Shader
-        mModelShader->Bind();
-        
-        // Update Entity Data
-        Components::EntityData entityData;
-        entityData.Transform = transform;
-        mEntityUniformBuffer->UpdateData(&entityData, sizeof(Components::EntityData));
-        mEntityUniformBuffer->Bind((size_t)UniformPosition::EntityData);
 
+        mModelShader->Bind();
+        mCameraLight.Model = transform;
+        mView.Position = mDesignerCamera.GetPosition();
+
+        mCameraUniformBuffer2->Bind(0);
+        mViewBuffer->Bind(4);
+        //mMaterialBuffer->Bind(5);
+        mCameraUniformBuffer2->UpdateData(&mCameraLight, sizeof(Components::CameraLight));
+        //mMaterialBuffer->UpdateData(&mMaterial, sizeof(Components::Material));
+        mViewBuffer->UpdateData(&mView, sizeof(Components::View));
         cube.Draw(mCommandBuffer);
     }
 
@@ -410,7 +415,7 @@ public:
         static auto vertexBuffer = Buffer::Create(BufferType::Vertex, &cube.Vertices, sizeof(Components::Cube::Vertices));
         static auto indexBuffer = Buffer::Create(BufferType::Index, &cube.Indices, sizeof(Components::Cube::Indices));
 
-        // Update Entity Data
+        // Update Properties
         mLightPosition = glm::vec3(-3.0f, 3.0f, 5.0f);
         static float timeValue = 0.1f;
         timeValue += (float)deltaTime;
@@ -420,10 +425,10 @@ public:
         mLightPosition.z = 3.0f + radius * std::sin(angle);
 
         float value = (sin(timeValue) / 2.0f) + 0.5f;
-        mLightData.Color = glm::vec4(1.0f, 1.0f - value, value, 1.0f);
+        mProperties.Color = glm::vec4(1.0f, 1.0f - value, value, 1.0f);
         auto model = glm::translate(glm::mat4(1.0f), mLightPosition) *
             glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f));
-        mLightData.Transform = model;
+        mProperties.Transform = mDesignerCamera.GetProjectionMatrix() * mDesignerCamera.GetViewMatrix() * model;
 
         // Lighs
         // - Directional Light
@@ -435,7 +440,7 @@ public:
         // - Point Light
         mLights.Light[1] = {
             .Type = Components::LightType::Point,
-            .LightColor = mLightData.Color,
+            .LightColor = mProperties.Color,
             .LightPosition = mLightPosition,
 
             .Constant = 1.0f,
@@ -466,44 +471,44 @@ public:
         indexBuffer->Bind();
 
         mLightShader->Bind();
+        mPropertiesBuffer->Bind(0);
         mLightBuffer->Bind(6);
         mLightBuffer->UpdateData(&mLights, sizeof(Components::Lights));
-        mEntityUniformBuffer->UpdateData(&mLightData, sizeof(Components::EntityData));
-        mEntityUniformBuffer->Bind((size_t)UniformPosition::EntityData);
-
+        mPropertiesBuffer->UpdateData(&mProperties, sizeof(Components::Properties));
         mCommandBuffer->DrawIndexed(cube.Components, PrimitiveType::Triangle, true);
 
         mCommandBuffer->EnableStencilTest();
 
         model = glm::translate(glm::mat4(1.0f), mLightPosition) *
             glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 0.3f, 0.3f));
-        mLightData.Transform = mDesignerCamera.GetProjectionMatrix() * mDesignerCamera.GetViewMatrix() * model;
+        mProperties.Transform = mDesignerCamera.GetProjectionMatrix() * mDesignerCamera.GetViewMatrix() * model;
 
         vertexBuffer->Bind();
         pipeline->Bind();
         indexBuffer->Bind();
 
         mStencilOutlineShader->Bind();
-        mEntityUniformBuffer->UpdateData(&mLightData, sizeof(Components::EntityData));
-        mEntityUniformBuffer->Bind((size_t)UniformPosition::EntityData);
-
+        mPropertiesBuffer->Bind(0);
+        mPropertiesBuffer->UpdateData(&mProperties, sizeof(Components::Properties));
         mCommandBuffer->DrawIndexed(cube.Components, PrimitiveType::Triangle, false);
 
         mCommandBuffer->ResetStencilTest();
     }
 
     void DrawModel(Model &model, const glm::vec3 &position, const glm::vec3 &size = { 1.0f, 1.0f, 1.0f }) {
-        // Bind Shader
+        // Update Transform
+        auto transform =
+            glm::translate(glm::mat4(1.0f), position) *
+            glm::scale(glm::mat4(1.0f), size);
+
+        // Update Camera, Light and View
         //mDebugDepthShader->Bind();
         mModelShader->Bind();
-        
-        // Update Entity Data
-        Components::EntityData entityData;
-        entityData.Transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), size);
-        mEntityUniformBuffer->UpdateData(&entityData, sizeof(Components::EntityData));
-        mEntityUniformBuffer->Bind((size_t)UniformPosition::EntityData);
+        mCameraLight.Projection = mDesignerCamera.GetProjectionMatrix();
+        mCameraLight.View = mDesignerCamera.GetViewMatrix();
+        mCameraLight.Model = transform;
+        mView.Position = mDesignerCamera.GetPosition();
 
-        // Material Tests
         // ToDo: Compiler error...
         // Texture Test
         //static MaterialData materialData {
@@ -511,9 +516,17 @@ public:
         //};
         mMaterial.Shininess = 16.0f;
         //static auto materialBuffer = Buffer::Create(BufferType::Uniform, &materialData, sizeof(MaterialData));
-        //mMaterialBuffer->UpdateData(&sComponents.Material, sizeof(Components::UMaterial));
+
         //materialBuffer->UpdateData(&materialData, sizeof(MaterialData));
-        //materialBuffer->Bind(9);
+
+        //materialBuffer->Bind(0);
+
+        mCameraUniformBuffer2->Bind(0);
+        mViewBuffer->Bind(4);
+        //mMaterialBuffer->Bind(5);
+        mCameraUniformBuffer2->UpdateData(&mCameraLight, sizeof(Components::CameraLight));
+        //mMaterialBuffer->UpdateData(&sComponents.Material, sizeof(Components::UMaterial));
+        mViewBuffer->UpdateData(&mView, sizeof(Components::View));
 
         model.Draw(mCommandBuffer);
     }
@@ -536,12 +549,17 @@ public:
         static auto vertexBuffer = Buffer::Create(BufferType::Vertex, &skybox.Vertices, sizeof(Components::Skybox::Vertices));
         static auto indexBuffer = Buffer::Create(BufferType::Index, &skybox.Indices, sizeof(Components::Skybox::Indices));
 
+        // Update Transform
+        mCameraLight.View = glm::mat4(glm::mat3(mDesignerCamera.GetViewMatrix()));
+
         // Draw
         vertexBuffer->Bind();
         pipeline->Bind();
         indexBuffer->Bind();
         mSkyBoxShader->Bind();
         skyboxTexture->Bind(0);
+        mCameraUniformBuffer2->Bind(0);
+        mCameraUniformBuffer2->UpdateData(&mCameraLight, sizeof(Components::CameraLight));
         mCommandBuffer->DrawIndexed(skybox.Components, PrimitiveType::Triangle, false);
     }
 
@@ -617,16 +635,20 @@ private:
 
     // Buffers
     Reference<Buffer> mCameraUniformBuffer;
-    Reference<Buffer> mEntityUniformBuffer;
+    Reference<Buffer> mCameraUniformBuffer2;
     Reference<Buffer> mMaterialBuffer;
     Reference<Buffer> mLightBuffer;
+    Reference<Buffer> mPropertiesBuffer;
+    Reference<Buffer> mViewBuffer;
 
     // Components
     Components::Camera mCamera;
-    Components::EntityData mLightData;
+    Components::CameraLight mCameraLight;
     Components::Lights mLights;
     Components::Material mMaterial;
+    Components::Properties mProperties;
     Components::Transform mTransform;
+    Components::View mView;
 
     // Shaders
     Reference<Shader> mDebugDepthShader;
