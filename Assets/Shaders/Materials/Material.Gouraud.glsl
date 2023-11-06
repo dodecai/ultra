@@ -51,8 +51,8 @@ void main() {
     vec3 viewDirection = normalize(uCamera.Position  - vFragPos);
 
     // Phong Lighting
-    bool materialActive = all(equal(uMaterialAmbientColor, vec3(0.0f))) && all(equal(uMaterialDiffuseColor, vec3(0.0f))) && all(equal(uMaterialSpecularColor, vec3(0.0f)));
-    materialActive = false;
+    bool materialActive = all(equal(uMaterial.AmbientColor, vec3(0.0f))) && all(equal(uMaterial.DiffuseColor, vec3(0.0f))) && all(equal(uMaterial.SpecularColor, vec3(0.0f)));
+    materialActive = true;
     uint count = uLightCount;
     for (uint i = 0; i < count; i++) {
         if (uLights[i].Type == DIRECTIONAL_LIGHT) {
@@ -68,7 +68,7 @@ void main() {
     }
 
     
-    oFragColor = vec4(color.rgb, 1.0);
+    oFragColor = vec4(color.rgb, texture(uTextureDiffuse, vTexCoords).a);
 }
 
 
@@ -80,29 +80,29 @@ vec4 CalculateDirectionalLight(Light light, vec3 normal, vec3 viewDirection, boo
     // Diffuse Shading
     float diffuse = max(dot(normal, lightDirection), 0.0f);
     // Specular Shading
-    const float energyConservation = ( 2.0 + uShininess ) / ( 2.0 * PI ); 
+    const float energyConservation = ( 2.0 + uMaterial.Shininess ) / ( 2.0 * PI ); 
     vec3 reflectDirection = reflect(-lightDirection, normal);
-    float specular = energyConservation * pow(max(dot(viewDirection, reflectDirection), 0.0f), uShininess);
+    float specular = energyConservation * pow(max(dot(viewDirection, reflectDirection), 0.0f), uMaterial.Shininess);
     
     // Ambient lighting
     if (materialActive) {
         color += light.Ambient * texture(uTextureDiffuse, vTexCoords).rgb;
     } else {
-        color += light.Ambient * uMaterialAmbientColor;
+        color += light.Ambient * uMaterial.AmbientColor;
     }
     
     // Diffuse lighting
     if (materialActive) {
         color += light.Diffuse * diffuse * texture(uTextureDiffuse, vTexCoords).rgb;
     } else {
-        color += light.Diffuse * (diffuse * uMaterialDiffuseColor);
+        color += light.Diffuse * (diffuse * uMaterial.DiffuseColor);
     }
     
     // Specular lighting
     if (materialActive) {
         color += light.Specular * specular * texture(uTextureSpecular, vTexCoords).rgb;
     } else {
-        color += light.Specular * (specular * uMaterialSpecularColor);
+        color += light.Specular * (specular * uMaterial.SpecularColor);
     }
     
     return vec4(color, 1.0f);
@@ -116,9 +116,9 @@ vec4 CalculatePointLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 v
     // Diffuse Shading
     float diffuse = max(dot(normal, lightDirection), 0.0f);
     // Specular Shading
-    const float energyConservation = ( 2.0 + uShininess ) / ( 2.0 * PI ); 
+    const float energyConservation = ( 2.0 + uMaterial.Shininess ) / ( 2.0 * PI ); 
     vec3 reflectDirection = reflect(-lightDirection, normal);
-    float specular = energyConservation * pow(max(dot(viewDirection, reflectDirection), 0.0f), uShininess);
+    float specular = energyConservation * pow(max(dot(viewDirection, reflectDirection), 0.0f), uMaterial.Shininess);
     // Attenuation
     float distance = length(light.Position - vFragPos);
     float attenuation = 1.0f / (light.Constant + light.Linear * distance + light.Quadratic * (distance * distance));
@@ -127,7 +127,7 @@ vec4 CalculatePointLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 v
     if (materialActive) {
         color += light.Ambient * texture(uTextureDiffuse, vTexCoords).rgb;
     } else {
-        color += (light.Ambient * light.Color) * uMaterialAmbientColor;
+        color += (light.Ambient * light.Color) * uMaterial.AmbientColor;
     }
     color *= attenuation;
     
@@ -135,7 +135,7 @@ vec4 CalculatePointLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 v
     if (materialActive) {
         color += light.Diffuse * diffuse * texture(uTextureDiffuse, vTexCoords).rgb;
     } else {
-        color += (light.Diffuse * light.Color) * (diffuse * uMaterialDiffuseColor);
+        color += (light.Diffuse * light.Color) * (diffuse * uMaterial.DiffuseColor);
     }
     color *= attenuation;
 
@@ -143,7 +143,7 @@ vec4 CalculatePointLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 v
     if (materialActive) {
         color += light.Specular * specular * texture(uTextureSpecular, vTexCoords).rgb;
     } else {
-        color += (light.Specular * light.Color) * (specular * uMaterialSpecularColor);
+        color += (light.Specular * light.Color) * (specular * uMaterial.SpecularColor);
     }
     color *= attenuation;
 
@@ -158,9 +158,9 @@ vec4 CalculateSpotLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 vi
     // Diffuse Shading
     float diffuse = max(dot(normal, lightDirection), 0.0f);
     // Specular Shading
-    const float energyConservation = ( 2.0 + uShininess ) / ( 2.0 * PI ); 
+    const float energyConservation = ( 2.0 + uMaterial.Shininess ) / ( 2.0 * PI ); 
     vec3 reflectDirection = reflect(-lightDirection, normal);
-    float specular = energyConservation * pow(max(dot(viewDirection, reflectDirection), 0.0f), uShininess);
+    float specular = energyConservation * pow(max(dot(viewDirection, reflectDirection), 0.0f), uMaterial.Shininess);
     // Attenuation
     float distance = length(light.Position - vFragPos);
     float attenuation = 1.0f / (light.Constant + light.Linear * distance + light.Quadratic * (distance * distance));
@@ -173,7 +173,7 @@ vec4 CalculateSpotLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 vi
     if (materialActive) {
         color += light.Ambient * texture(uTextureDiffuse, vTexCoords).rgb;
     } else {
-        color += (light.Ambient * light.Color) * uMaterialAmbientColor;
+        color += (light.Ambient * light.Color) * uMaterial.AmbientColor;
     }
     color *= attenuation * intensity;
     
@@ -181,7 +181,7 @@ vec4 CalculateSpotLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 vi
     if (materialActive) {
         color += light.Diffuse * diffuse * texture(uTextureDiffuse, vTexCoords).rgb;
     } else {
-        color += (light.Diffuse * light.Color) * (diffuse * uMaterialDiffuseColor);
+        color += (light.Diffuse * light.Color) * (diffuse * uMaterial.DiffuseColor);
     }
     color *= attenuation * intensity;
 
@@ -189,7 +189,7 @@ vec4 CalculateSpotLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 vi
     if (materialActive) {
         color += light.Specular * specular * texture(uTextureSpecular, vTexCoords).rgb;
     } else {
-        color += (light.Specular * light.Color) * (specular * uMaterialSpecularColor);
+        color += (light.Specular * light.Color) * (specular * uMaterial.SpecularColor);
     }
     color *= attenuation * intensity;
 

@@ -141,22 +141,15 @@ private:
     }
 
     std::pair<float, float> PanSpeed() const {
-        float x = std::min(mViewportWidth / 1000.0f, 2.4f); // max 2.4f
-        float xFactor = 0.0366f * (x * x) - 0.1778f * x + 0.3021f;
-
-        float y = std::min(mViewportHeight / 1000.0f, 2.4f); // max 2.4f
-        float yFactor = 0.0366f * (y * y) - 0.1778f * y + 0.3021f;
+        float xFactor = std::min(mViewportWidth / 1000.0f, 0.64f);
+        float yFactor = std::min(mViewportHeight / 1000.0f, 0.64f);
         return { xFactor, yFactor };
     }
-
     float RotationSpeed() const {
-        return 0.8f;
+        return 0.92f;
     }
     float ZoomSpeed() const {
-        float distance = mDistance * 0.2f;
-        distance = std::max(distance, 0.0f);
-        float speed = distance * distance;
-        speed = std::min(speed, 100.0f);
+        float speed = std::clamp(0.64f * mDistance, 2.0f, 100.0f);
         return speed;
     }
 

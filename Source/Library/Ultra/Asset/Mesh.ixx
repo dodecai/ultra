@@ -54,6 +54,7 @@ private:
     void SetupMesh() {
         PipelineProperties properties;
         properties.BlendMode = BlendMode::Alpha;
+        properties.CullMode = CullMode::Back;
         properties.DepthTest = true;
         properties.Wireframe = false;
         properties.Layout = {

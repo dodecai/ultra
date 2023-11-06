@@ -8,11 +8,12 @@ namespace Ultra::ShaderCompiler {
 
 shaderc_shader_kind GetNativeShaderKind(ShaderType type) {
     switch (type) {
-        case ShaderType::Vertex: { return shaderc_vertex_shader; }
         case ShaderType::Fragment: { return shaderc_fragment_shader; }
         case ShaderType::Compute: { return shaderc_compute_shader; }
+        case ShaderType::Geometry: { return shaderc_geometry_shader; }
         case ShaderType::TessControl: { return shaderc_tess_control_shader; }
         case ShaderType::TessEvaluation: { return shaderc_tess_evaluation_shader; }
+        case ShaderType::Vertex: { return shaderc_vertex_shader; }
         //case ShaderType::SpirvAssembly: { return shaderc_spirv_assembly; }
         default: { return shaderc_glsl_infer_from_source; }
     }

@@ -96,8 +96,8 @@ layout(std140, binding = 7) uniform ShadowData {
 /// ToDo
 ///
 layout(std140, binding = 9) uniform Material {
-    vec3 uMaterialAmbientColor;
-    vec3 uMaterialDiffuseColor;
-    vec3 uMaterialSpecularColor;
-    float uShininess;
-};
+    vec3 AmbientColor;
+    vec3 DiffuseColor;
+    vec3 SpecularColor;
+    float Shininess;
+} uMaterial;

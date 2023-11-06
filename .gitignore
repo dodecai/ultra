@@ -2,6 +2,7 @@
 /3rd-Party/**/Assets
 /Assets/Models/Backpack
 /Assets/Models/Nanosuit
+/Assets/Models/Sponza
 
 # Build
 /[Bb]uild/

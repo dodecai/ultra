@@ -247,7 +247,7 @@ public:
 
         // Setup Camera
         auto aspectRatio = 1280.0f / 1024.0f;
-        mDesignerCamera = DesignerCamera(45.0f, aspectRatio, 0.1f, 1000.0f);
+        mDesignerCamera = DesignerCamera(45.0f, aspectRatio, 0.1f, 10000.0f);
         mDesignerCamera.SetViewportSize(1280.0f, 1024.0f);
         mDesignerCamera.SetPosition({ 0.0f, 2.0f, 24.0f });
 
@@ -256,6 +256,7 @@ public:
         mGridShader = Shader::Create("Assets/Shaders/Grid.glsl");
         mLightShader = Shader::Create("Assets/Shaders/Light.glsl");
         mModelShader = Shader::Create("Assets/Shaders/Materials/Material.Blinn-Phong.glsl");
+        mNormalsShader = Shader::Create("Assets/Shaders/Debug/NormalsVisualizer.glsl");
         mSkyBoxShader = Shader::Create("Assets/Shaders/SkyBox.glsl");
         mStencilOutlineShader = Shader::Create("Assets/Shaders/Stencil.Outline.glsl");
 
@@ -266,7 +267,14 @@ public:
         mMaterialBuffer = Buffer::Create(BufferType::Uniform, nullptr, sizeof(Components::Material));
 
         // Load Textures
-        mCheckerBoard = Texture::Create(TextureProperties(), "./Assets/Textures/CheckerBoard.png");
+        mCheckerBoard = Texture::Create({}, "./Assets/Textures/CheckerBoard.png");
+        mConcreteTexture = Texture::Create({}, "./Assets/Textures/Concrete.png");
+        mGrassTexture = Texture::Create({ .SamplerWrap = TextureWrap::MirrorClamp }, "./Assets/Textures/Grass.png");
+        mMarbleTexture = Texture::Create({ .SamplerWrap = TextureWrap::Clamp, .GenerateMips = true, }, "./Assets/Textures/Marble.jpg");
+        mMatrixTexture = Texture::Create({}, "./Assets/Textures/Matrix.jpg");
+        mMetalTexture = Texture::Create({}, "./Assets/Textures/Metal.png");
+        mWindowTexture = Texture::Create({ .SamplerWrap = TextureWrap::Clamp }, "./Assets/Textures/Window.png");
+        mWoodTexture = Texture::Create({}, "./Assets/Textures/Wood.png");
     }
     ~Engine() = default;
 
@@ -339,17 +347,23 @@ public:
 
     void DrawLevel(Timestamp deltaTime) {
         // Load Model
+        //static Model backpack("Assets/Models/Backpack/Backpack.obj");
         static Model level("Assets/Models/Test/Test.obj");
         static Model sphere("Assets/Models/Sphere/SphereUV.obj");
         static Model nanosuit("Assets/Models/Nanosuit/Nanosuit.obj");
+        //static Model sponza("Assets/Models/Sponza/Sponza.obj");
 
         // Draw Lights
         DrawLights(deltaTime);
 
         // Draw Models
+        //DrawModel(backpack, { 7.0f, 2.0f, 9.0f }, { 0.2f, 0.2f, 0.2f });
+        DrawModel(nanosuit, { 7.0f, 0.0f, 5.0f }, { 0.2f, 0.2f, 0.2f });
+        mConcreteTexture->Bind(0);
+        mConcreteTexture->Bind(2);
         DrawModel(level, { 0.0f, 0.0f, 0.0f });
         DrawModel(sphere, { 10.0f, 10.0f, 0.0f });
-        DrawModel(nanosuit, { 7.0f, 0.0f, 5.0f }, { 0.2f, 0.2f, 0.2f });
+        //DrawModel(sponza, { 0.0f, 0.0f, 0.0f }, { 0.1f, 0.1f ,0.1f });
 
         // Draw Objects
         static float CubeAX = -4.0f;
@@ -371,19 +385,35 @@ public:
             left = true;
         }
 
-        DrawCube({ { 0.0f, -0.1f, 0.0f }, { 12, 0.1f, -12.0f } });
+        DrawCube({ { 0.0f, -0.001f, 0.0f }, { 12, 0.002f, -12.0f } });
         DrawCube({ { CubeAX, 10.0f, 0.0f } });
         DrawCube({ { CubeBX, 10.0f, 0.0f }, { 1.0f, 1.0f, 0.2f } });
         DrawCube({ { CubeCX, 10.0f, 0.0f } });
+
+
+
+        // Note: Alpha Blending requires the objects to be drawn in order from farthest to nearest
+        mGrassTexture->Bind(0);
+        mGrassTexture->Bind(2);
+        DrawCube({ { -5.0f, 1.0f, 8.0f }, { 1.0f, 1.0f, 0.0f } });
+
+        mWindowTexture->Bind(0);
+        mWindowTexture->Bind(2);
+        DrawCube({ { -1.0f, 1.0f, 8.0f }, { 1.0f, 1.0f, 0.2f } });
+
+        mCommandBuffer->UpdateStencilBuffer();
         DrawCube({ { 0.0f, 1.0f, 9.0f }, { 1.0f, 1.0f, 0.2f } });
+        mCommandBuffer->EnableStencilTest();
+        DrawCube({ { 0.0f, 1.0f, 9.0f }, { 1.1f, 1.1f, 0.3f } }, true);
+        mCommandBuffer->ResetStencilTest();
     }
 
-    void DrawCube(const Components::Transform &transform) {
+    void DrawCube(const Components::Transform &transform, bool stencil = false) {
         // Define Cube Model
         static Model cube("Assets/Models/Cube/Cube.obj");
         
         // Bind Shader
-        mModelShader->Bind();
+        if (stencil) { mStencilOutlineShader->Bind(); } else { mModelShader->Bind(); }
         
         // Update Entity Data
         Components::EntityData entityData;
@@ -459,7 +489,6 @@ public:
         mLights.Count = 3;
 
         // Draw
-        mCommandBuffer->UpdateStencilBuffer();
 
         vertexBuffer->Bind();
         pipeline->Bind();
@@ -472,24 +501,6 @@ public:
         mEntityUniformBuffer->Bind((size_t)UniformPosition::EntityData);
 
         mCommandBuffer->DrawIndexed(cube.Components, PrimitiveType::Triangle, true);
-
-        mCommandBuffer->EnableStencilTest();
-
-        model = glm::translate(glm::mat4(1.0f), mLightPosition) *
-            glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 0.3f, 0.3f));
-        mLightData.Transform = mDesignerCamera.GetProjectionMatrix() * mDesignerCamera.GetViewMatrix() * model;
-
-        vertexBuffer->Bind();
-        pipeline->Bind();
-        indexBuffer->Bind();
-
-        mStencilOutlineShader->Bind();
-        mEntityUniformBuffer->UpdateData(&mLightData, sizeof(Components::EntityData));
-        mEntityUniformBuffer->Bind((size_t)UniformPosition::EntityData);
-
-        mCommandBuffer->DrawIndexed(cube.Components, PrimitiveType::Triangle, false);
-
-        mCommandBuffer->ResetStencilTest();
     }
 
     void DrawModel(Model &model, const glm::vec3 &position, const glm::vec3 &size = { 1.0f, 1.0f, 1.0f }) {
@@ -504,17 +515,19 @@ public:
         mEntityUniformBuffer->Bind((size_t)UniformPosition::EntityData);
 
         // Material Tests
-        // ToDo: Compiler error...
-        // Texture Test
-        //static MaterialData materialData {
-        //    .Shininess = 32.0f * 256.0f
+        //MaterialData materialData {
+        //    .Ambient { 0.1f, 0.1f, 0.1f },
+        //    .Diffuse { 0.5f, 0.5f, 0.5f },
+        //    .Specular { 1.0f, 1.0f, 1.0f },
+        //    .Shininess { 32.0f }
         //};
-        mMaterial.Shininess = 16.0f;
-        //static auto materialBuffer = Buffer::Create(BufferType::Uniform, &materialData, sizeof(MaterialData));
-        //mMaterialBuffer->UpdateData(&sComponents.Material, sizeof(Components::UMaterial));
-        //materialBuffer->UpdateData(&materialData, sizeof(MaterialData));
-        //materialBuffer->Bind(9);
+        //mMaterialBuffer->UpdateData(&materialData, sizeof(Components::Material));
+        //mMaterialBuffer->Bind(9);
 
+        model.Draw(mCommandBuffer);
+
+        // Visualize Normals
+        mNormalsShader->Bind();
         model.Draw(mCommandBuffer);
     }
 
@@ -531,6 +544,7 @@ public:
         static auto pipeline = PipelineState::Create(properties);
         static TextureProperties skyboxProperties = {
             .Dimension = TextureDimension::TextureCube,
+            .SamplerWrap = TextureWrap::Clamp,
         };
         static auto skyboxTexture = Texture::Create(skyboxProperties, "Assets/Textures/Skybox/Sinister");
         static auto vertexBuffer = Buffer::Create(BufferType::Vertex, &skybox.Vertices, sizeof(Components::Skybox::Vertices));
@@ -607,10 +621,10 @@ public:
     #pragma endregion
 
 private:
+    // Objects
+    Scope<Renderer> mRenderer;
     CommandBuffer *mCommandBuffer;
     DesignerCamera mDesignerCamera;
-    Reference<Texture> mCheckerBoard;
-    Scope<Renderer> mRenderer;
 
     // Point Light Position
     glm::vec3 mLightPosition {};
@@ -618,23 +632,33 @@ private:
     // Buffers
     Reference<Buffer> mCameraUniformBuffer;
     Reference<Buffer> mEntityUniformBuffer;
-    Reference<Buffer> mMaterialBuffer;
     Reference<Buffer> mLightBuffer;
+    Reference<Buffer> mMaterialBuffer;
 
     // Components
     Components::Camera mCamera;
     Components::EntityData mLightData;
     Components::Lights mLights;
-    Components::Material mMaterial;
     Components::Transform mTransform;
 
     // Shaders
     Reference<Shader> mDebugDepthShader;
     Reference<Shader> mGridShader;
-    Reference<Shader> mModelShader;
     Reference<Shader> mLightShader;
+    Reference<Shader> mModelShader;
+    Reference<Shader> mNormalsShader;
     Reference<Shader> mSkyBoxShader;
     Reference<Shader> mStencilOutlineShader;
+    
+    // Textures
+    Reference<Texture> mCheckerBoard;
+    Reference<Texture> mConcreteTexture;
+    Reference<Texture> mGrassTexture;
+    Reference<Texture> mMarbleTexture;
+    Reference<Texture> mMatrixTexture;
+    Reference<Texture> mMetalTexture;
+    Reference<Texture> mWindowTexture;
+    Reference<Texture> mWoodTexture;
 };
 
 }

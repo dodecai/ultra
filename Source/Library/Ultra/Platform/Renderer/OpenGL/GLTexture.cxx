@@ -192,13 +192,12 @@ GLTexture::GLTexture(const TextureProperties &properties, const string &path): T
                 data = nullptr;
 
                 // Set texture parameters
-                // ToDo: Use value from Texture Properties
-                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                //glGenerateMipmap(mTextureID);
+                glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_S, GLSamplerWrap(mProperties.SamplerWrap));
+                glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_T, GLSamplerWrap(mProperties.SamplerWrap));
+                glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_R, GLSamplerWrap(mProperties.SamplerWrap));
+                glTextureParameteri(mTextureID, GL_TEXTURE_MIN_FILTER, GLSamplerFilter(mProperties.SamplerFilter, mProperties.GenerateMips));
+                glTextureParameteri(mTextureID, GL_TEXTURE_MAG_FILTER, GLSamplerFilter(mProperties.SamplerFilter, false));
+                if (mProperties.GenerateMips) glGenerateTextureMipmap(mTextureID);
                 //glTexParameterfv(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BORDER_COLOR, { 1.0f, 1.0f, 0.0f, 1.0f });
 
                 LogTrace("The image '{}' was loaded successfully.", image);
@@ -218,12 +217,11 @@ GLTexture::GLTexture(const TextureProperties &properties, const string &path): T
                 data = nullptr;
 
                 // Set texture parameters
-                // ToDo: Use value from Texture Properties
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                //glGenerateMipmap(GL_TEXTURE_2D);
+                glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_S, GLSamplerWrap(mProperties.SamplerWrap));
+                glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_T, GLSamplerWrap(mProperties.SamplerWrap));
+                glTextureParameteri(mTextureID, GL_TEXTURE_MIN_FILTER, GLSamplerFilter(mProperties.SamplerFilter, mProperties.GenerateMips));
+                glTextureParameteri(mTextureID, GL_TEXTURE_MAG_FILTER, GLSamplerFilter(mProperties.SamplerFilter, false));
+                if (mProperties.GenerateMips) glGenerateTextureMipmap(mTextureID);
                 //glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, { 1.0f, 1.0f, 0.0f, 1.0f });
                 
 

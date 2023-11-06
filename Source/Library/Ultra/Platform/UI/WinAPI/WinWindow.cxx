@@ -260,8 +260,9 @@ WinWindow::WinWindow(const WindowProperties &properties):
     }
 
     // Transparency
+    bool transparency = false;
     HMODULE hUser = GetModuleHandle(L"user32.dll");
-    if (hUser) {
+    if (transparency && hUser) {
         pfnSetWindowCompositionAttribute SetWindowCompositionAttribute = (pfnSetWindowCompositionAttribute)GetProcAddress(hUser, "SetWindowCompositionAttribute");
         if (SetWindowCompositionAttribute) {
             // AGBR
