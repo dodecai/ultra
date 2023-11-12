@@ -4,6 +4,7 @@
 #pragma warning(disable: 4201)
 
 #define GLM_ENABLE_EXPERIMENTAL
+#define GLM_FORCE_LEFT_HANDED
 
 export import <glm/glm.hpp>;
 export import <glm/gtc/constants.hpp>;

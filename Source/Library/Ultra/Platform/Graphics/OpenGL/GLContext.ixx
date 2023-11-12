@@ -13,7 +13,7 @@ struct ContextProperties {
     ArithmeticProperty<short> DepthBuffer { 0, 24 };
     ArithmeticProperty<short> StencilBuffer { 0, 8 };
     ArithmeticProperty<short> MSAABuffer { 0, 1 };
-    ArithmeticProperty<short> MSAASamples { 2, 0, 16 };  // ToDo: Depends on hardware so we need to find a way around the crashing.
+    ArithmeticProperty<short> MSAASamples { 4, 0, 16 };  // ToDo: Depends on hardware so we need to find a way around the crashing.
     ArithmeticProperty<short> VersionMajor { 4, 0, 9 };
     ArithmeticProperty<short> VersionMinor { 6, 0, 9 };
 };

@@ -171,7 +171,7 @@ GLTexture::GLTexture(const TextureProperties &properties, const string &path): T
         glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &mTextureID);
         auto images = Directory::GetFiles(path, "Right|Left|Top|Bottom|Front|Back|PositiveX|NegativeX|PositiveY|NegativeY|PositiveZ|NegativeZ");
 
-        bool first = false;
+        bool first = true;
         for (auto &&image : images) {
             if (Load(image, data, width, height)) {
                 auto name = File::GetName(image);
@@ -184,21 +184,31 @@ GLTexture::GLTexture(const TextureProperties &properties, const string &path): T
                 else if (name == "Front" || name == "PositiveZ")   { index = GL_TEXTURE_CUBE_MAP_POSITIVE_Z; }
                 else if (name == "Back" || name == "NegativeZ")    { index = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z; }
 
-                if (!first) glTextureStorage2D(mTextureID, 1, GLImageInternalFormat(mProperties.Format), width, height);
-                first = true;
+                if (first) {
+                    glTextureStorage2D(mTextureID, 1, GLImageInternalFormat(mProperties.Format), width, height);
 
-                glTextureSubImage3D(mTextureID, 0, 0, 0, index, width, height, 1, GLImageFormat(mProperties.Format), GLFormatDataType(mProperties.Format), data);
+                    // Set texture parameters
+                    glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_S, GLSamplerWrap(mProperties.SamplerWrap));
+                    glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_T, GLSamplerWrap(mProperties.SamplerWrap));
+                    glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_R, GLSamplerWrap(mProperties.SamplerWrap));
+                    glTextureParameteri(mTextureID, GL_TEXTURE_MIN_FILTER, GLSamplerFilter(mProperties.SamplerFilter, mProperties.GenerateMips));
+                    glTextureParameteri(mTextureID, GL_TEXTURE_MAG_FILTER, GLSamplerFilter(mProperties.SamplerFilter, false));
+                    //glTexParameterfv(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BORDER_COLOR, { 1.0f, 1.0f, 0.0f, 1.0f });
+
+                    first = false;
+                }
+
+                GLint texWidth, texHeight, texDepth;
+                glGetTextureLevelParameteriv(mTextureID, 0, GL_TEXTURE_WIDTH, &texWidth);
+                glGetTextureLevelParameteriv(mTextureID, 0, GL_TEXTURE_HEIGHT, &texHeight);
+                glGetTextureLevelParameteriv(mTextureID, 0, GL_TEXTURE_DEPTH, &texDepth);
+
+                glTextureSubImage3D(mTextureID, 0, 0, 0, index - GL_TEXTURE_CUBE_MAP_POSITIVE_X, width, height, 1, GLImageFormat(mProperties.Format), GLFormatDataType(mProperties.Format), data);
+                
+                if (mProperties.GenerateMips) glGenerateTextureMipmap(mTextureID);
+                
                 stbi_image_free(data);
                 data = nullptr;
-
-                // Set texture parameters
-                glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_S, GLSamplerWrap(mProperties.SamplerWrap));
-                glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_T, GLSamplerWrap(mProperties.SamplerWrap));
-                glTextureParameteri(mTextureID, GL_TEXTURE_WRAP_R, GLSamplerWrap(mProperties.SamplerWrap));
-                glTextureParameteri(mTextureID, GL_TEXTURE_MIN_FILTER, GLSamplerFilter(mProperties.SamplerFilter, mProperties.GenerateMips));
-                glTextureParameteri(mTextureID, GL_TEXTURE_MAG_FILTER, GLSamplerFilter(mProperties.SamplerFilter, false));
-                if (mProperties.GenerateMips) glGenerateTextureMipmap(mTextureID);
-                //glTexParameterfv(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BORDER_COLOR, { 1.0f, 1.0f, 0.0f, 1.0f });
 
                 LogTrace("The image '{}' was loaded successfully.", image);
             } else {

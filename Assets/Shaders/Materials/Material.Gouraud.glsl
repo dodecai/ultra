@@ -2,6 +2,8 @@
 #type vertex
 #version 450 core
 #include <Buffers.glslh>
+#include <Common.glslh>
+#include <Constants.glslh>
 
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec3 aNormal;
@@ -14,25 +16,7 @@ layout (location = 4) in vec3 aBitangent;
 layout (location = 0) out vec2 vTexCoords;
 layout (location = 1) out vec3 vNormal;
 layout (location = 2) out vec3 vFragPos;
-
-void main() {
-    vTexCoords = aTexCoords;
-    vNormal = mat3(transpose(inverse(uEntity.Transform))) * aNormal;
-    vFragPos = vec3(uEntity.Transform * vec4(aPosition, 1.0));
-
-    gl_Position = uCamera.ViewProjection * uEntity.Transform * vec4(aPosition, 1.0);
-}
-
-#type fragment
-#version 450 core
-#extension GL_EXT_scalar_block_layout : require
-#include <Buffers.glslh>
-
-layout (location = 0) out vec4 oFragColor;
-
-layout (location = 0) in vec2 vTexCoords;
-layout (location = 1) in vec3 vNormal;
-layout (location = 2) in vec3 vFragPos;
+layout (location = 3) out vec3 vColor;
 
 layout(binding = 0) uniform sampler2D uTextureDiffuse;
 layout(binding = 1) uniform sampler2D uTextureNormal;
@@ -44,9 +28,14 @@ vec4 CalculatePointLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 v
 vec4 CalculateSpotLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 viewDirection, bool materialActive);
 
 void main() {
+    vTexCoords = aTexCoords;
+    vNormal = mat3(transpose(inverse(uEntity.Transform))) * aNormal;
+    vFragPos = vec3(uEntity.Transform * vec4(aPosition, 1.0));
+
+    gl_Position = uCamera.ViewProjection * uEntity.Transform * vec4(aPosition, 1.0);
+    
     // Properties
     vec4 color = vec4(0.0f);
-    const float epsilon = 1e-6;
     vec3 normal = normalize(vNormal);
     vec3 viewDirection = normalize(uCamera.Position  - vFragPos);
 
@@ -66,23 +55,22 @@ void main() {
             color += CalculateSpotLight(uLights[i], normal, vFragPos, viewDirection, materialActive);
         }
     }
-
-    
-    oFragColor = vec4(color.rgb, texture(uTextureDiffuse, vTexCoords).a);
+    vColor = color.rgb;
 }
-
 
 vec4 CalculateDirectionalLight(Light light, vec3 normal, vec3 viewDirection, bool materialActive) {
     // Properties
-    const float PI = 3.14159265;
     vec3 color = vec3(0.0f);
     vec3 lightDirection = normalize(-light.Direction);
     // Diffuse Shading
     float diffuse = max(dot(normal, lightDirection), 0.0f);
     // Specular Shading
-    const float energyConservation = ( 2.0 + uMaterial.Shininess ) / ( 2.0 * PI ); 
+    float shininess = uMaterial.Shininess;
+    if (shininess == 0.0f) shininess = 1.0f;
+    const float energyConservation = ( 2.0 + shininess ) / ( 2.0 * PI ); 
     vec3 reflectDirection = reflect(-lightDirection, normal);
-    float specular = energyConservation * pow(max(dot(viewDirection, reflectDirection), 0.0f), uMaterial.Shininess);
+    float specular = energyConservation * pow(max(dot(viewDirection, reflectDirection), 0.0f), shininess);
+    //float specular = max(dot(viewDirection, reflectDirection), 0.0f);
     
     // Ambient lighting
     if (materialActive) {
@@ -110,15 +98,17 @@ vec4 CalculateDirectionalLight(Light light, vec3 normal, vec3 viewDirection, boo
 
 vec4 CalculatePointLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 viewDirection, bool materialActive) {    
     // Properties
-    const float PI = 3.14159265;
     vec3 color = vec3(0.0f);
     vec3 lightDirection = normalize(light.Position - vFragPos);
     // Diffuse Shading
     float diffuse = max(dot(normal, lightDirection), 0.0f);
     // Specular Shading
-    const float energyConservation = ( 2.0 + uMaterial.Shininess ) / ( 2.0 * PI ); 
+    float shininess = uMaterial.Shininess;
+    if (shininess == 0.0f) shininess = 1.0f;
+    const float energyConservation = ( 2.0 + shininess) / ( 2.0 * PI ); 
     vec3 reflectDirection = reflect(-lightDirection, normal);
-    float specular = energyConservation * pow(max(dot(viewDirection, reflectDirection), 0.0f), uMaterial.Shininess);
+    float specular = energyConservation * pow(max(dot(viewDirection, reflectDirection), 0.0f), shininess);
+    //float specular = max(dot(viewDirection, reflectDirection), 0.0f);
     // Attenuation
     float distance = length(light.Position - vFragPos);
     float attenuation = 1.0f / (light.Constant + light.Linear * distance + light.Quadratic * (distance * distance));
@@ -152,15 +142,17 @@ vec4 CalculatePointLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 v
 
 vec4 CalculateSpotLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 viewDirection, bool materialActive) {
     // Properties
-    const float PI = 3.14159265;
     vec3 color = vec3(0.0f);
     vec3 lightDirection = normalize(light.Position - vFragPos);
     // Diffuse Shading
     float diffuse = max(dot(normal, lightDirection), 0.0f);
     // Specular Shading
-    const float energyConservation = ( 2.0 + uMaterial.Shininess ) / ( 2.0 * PI ); 
+    float shininess = uMaterial.Shininess;
+    if (shininess == 0.0f) shininess = 1.0f;
+    const float energyConservation = ( 2.0 + shininess) / ( 2.0 * PI ); 
     vec3 reflectDirection = reflect(-lightDirection, normal);
-    float specular = energyConservation * pow(max(dot(viewDirection, reflectDirection), 0.0f), uMaterial.Shininess);
+    float specular = energyConservation * pow(max(dot(viewDirection, reflectDirection), 0.0f), shininess);
+    //float specular = max(dot(viewDirection, reflectDirection), 0.0f);
     // Attenuation
     float distance = length(light.Position - vFragPos);
     float attenuation = 1.0f / (light.Constant + light.Linear * distance + light.Quadratic * (distance * distance));
@@ -195,3 +187,29 @@ vec4 CalculateSpotLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 vi
 
     return vec4(color, 1.0f);
 }
+
+#type fragment
+#version 450 core
+#extension GL_EXT_scalar_block_layout : require
+#include <Buffers.glslh>
+#include <Common.glslh>
+#include <Constants.glslh>
+
+layout (location = 0) out vec4 oFragColor;
+
+layout (location = 0) in vec2 vTexCoords;
+layout (location = 1) in vec3 vNormal;
+layout (location = 2) in vec3 vFragPos;
+layout (location = 3) in vec3 vColor;
+
+layout(binding = 0) uniform sampler2D uTextureDiffuse;
+layout(binding = 1) uniform sampler2D uTextureNormal;
+layout(binding = 2) uniform sampler2D uTextureSpecular;
+layout(binding = 3) uniform sampler2D uTextureHeight;
+
+void main() {
+    float alpha = texture(uTextureDiffuse, vTexCoords).a;
+    if (alpha < EPSILON) discard;
+    oFragColor = vec4(vColor.rgb * texture(uTextureDiffuse, vTexCoords).rgb, alpha);
+}
+

@@ -2,6 +2,8 @@
 #type vertex
 #version 450 core
 #include <Buffers.glslh>
+#include <Common.glslh>
+#include <Constants.glslh>
 
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec3 aNormal;
@@ -27,6 +29,8 @@ void main() {
 #version 450 core
 #extension GL_EXT_scalar_block_layout : require
 #include <Buffers.glslh>
+#include <Common.glslh>
+#include <Constants.glslh>
 
 layout (location = 0) out vec4 oFragColor;
 
@@ -46,7 +50,6 @@ vec4 CalculateSpotLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 vi
 void main() {
     // Properties
     vec4 color = vec4(0.0f);
-    const float epsilon = 1e-6;
     vec3 normal = normalize(vNormal);
     vec3 viewDirection = normalize(uCamera.Position  - vFragPos);
 
@@ -68,22 +71,24 @@ void main() {
     }
 
     float alpha = texture(uTextureDiffuse, vTexCoords).a;
-    if (alpha < 0.001) discard;
+    if (alpha < EPSILON) discard;
     oFragColor = vec4(color.rgb, alpha);
 }
 
 
 vec4 CalculateDirectionalLight(Light light, vec3 normal, vec3 viewDirection, bool materialActive) {
     // Properties
-    const float PI = 3.14159265;
     vec3 color = vec3(0.0f);
     vec3 lightDirection = normalize(-light.Direction);
     // Diffuse Shading
     float diffuse = max(dot(normal, lightDirection), 0.0f);
     // Specular Shading
-    const float energyConservation = ( 8.0 + uMaterial.Shininess ) / ( 8.0 * PI ); 
+    float shininess = uMaterial.Shininess;
+    if (shininess == 0.0f) shininess = 1.0f;
+    const float energyConservation = ( 8.0 + shininess) / ( 8.0 * PI ); 
     vec3 halfwayDirection = normalize(lightDirection + viewDirection);
-    float specular = energyConservation * pow(max(dot(normal, halfwayDirection), 0.0f), uMaterial.Shininess);
+    float specular = energyConservation * pow(max(dot(normal, halfwayDirection), 0.0f), shininess);
+    //float specular = max(dot(normal, halfwayDirection), 0.0f);
     
     // Ambient lighting
     if (materialActive) {
@@ -111,15 +116,17 @@ vec4 CalculateDirectionalLight(Light light, vec3 normal, vec3 viewDirection, boo
 
 vec4 CalculatePointLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 viewDirection, bool materialActive) {    
     // Properties
-    const float PI = 3.14159265;
     vec3 color = vec3(0.0f);
     vec3 lightDirection = normalize(light.Position - vFragPos);
     // Diffuse Shading
     float diffuse = max(dot(normal, lightDirection), 0.0f);
     // Specular Shading
-    const float energyConservation = ( 8.0 + uMaterial.Shininess ) / ( 8.0 * PI ); 
+    float shininess = uMaterial.Shininess;
+    if (shininess == 0.0f) shininess = 1.0f;
+    const float energyConservation = ( 8.0 + shininess) / ( 8.0 * PI ); 
     vec3 halfwayDirection = normalize(lightDirection + viewDirection);
-    float specular = energyConservation * pow(max(dot(normal, halfwayDirection), 0.0f), uMaterial.Shininess);
+    float specular = energyConservation * pow(max(dot(normal, halfwayDirection), 0.0f), shininess);
+    //float specular = max(dot(normal, halfwayDirection), 0.0f);
     // Attenuation
     float distance = length(light.Position - vFragPos);
     float attenuation = 1.0f / (light.Constant + light.Linear * distance + light.Quadratic * (distance * distance));
@@ -153,15 +160,17 @@ vec4 CalculatePointLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 v
 
 vec4 CalculateSpotLight(Light light, vec3 normal, vec3 fragmentPosition, vec3 viewDirection, bool materialActive) {
     // Properties
-    const float PI = 3.14159265;
     vec3 color = vec3(0.0f);
     vec3 lightDirection = normalize(light.Position - vFragPos);
     // Diffuse Shading
     float diffuse = max(dot(normal, lightDirection), 0.0f);
     // Specular Shading
-    const float energyConservation = ( 8.0 + uMaterial.Shininess ) / ( 8.0 * PI ); 
+    float shininess = uMaterial.Shininess;
+    if (shininess == 0.0f) shininess = 1.0f;
+    const float energyConservation = ( 8.0 + shininess) / ( 8.0 * PI ); 
     vec3 halfwayDirection = normalize(lightDirection + viewDirection);
-    float specular = energyConservation * pow(max(dot(normal, halfwayDirection), 0.0f), uMaterial.Shininess);
+    float specular = energyConservation * pow(max(dot(normal, halfwayDirection), 0.0f), shininess);
+    //float specular = max(dot(normal, halfwayDirection), 0.0f);
     // Attenuation
     float distance = length(light.Position - vFragPos);
     float attenuation = 1.0f / (light.Constant + light.Linear * distance + light.Quadratic * (distance * distance));

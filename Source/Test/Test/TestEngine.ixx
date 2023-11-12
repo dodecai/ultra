@@ -273,6 +273,7 @@ public:
         mMarbleTexture = Texture::Create({ .SamplerWrap = TextureWrap::Clamp, .GenerateMips = true, }, "./Assets/Textures/Marble.jpg");
         mMatrixTexture = Texture::Create({}, "./Assets/Textures/Matrix.jpg");
         mMetalTexture = Texture::Create({}, "./Assets/Textures/Metal.png");
+        mSmileyTexture = Texture::Create({ .SamplerWrap = TextureWrap::Clamp }, "./Assets/Textures/Smiley.png");
         mWindowTexture = Texture::Create({ .SamplerWrap = TextureWrap::Clamp }, "./Assets/Textures/Window.png");
         mWoodTexture = Texture::Create({}, "./Assets/Textures/Wood.png");
     }
@@ -390,22 +391,20 @@ public:
         DrawCube({ { CubeBX, 10.0f, 0.0f }, { 1.0f, 1.0f, 0.2f } });
         DrawCube({ { CubeCX, 10.0f, 0.0f } });
 
-
-
         // Note: Alpha Blending requires the objects to be drawn in order from farthest to nearest
-        mGrassTexture->Bind(0);
-        mGrassTexture->Bind(2);
+        mSmileyTexture->Bind(0);
+        mSmileyTexture->Bind(2);
         DrawCube({ { -5.0f, 1.0f, 8.0f }, { 1.0f, 1.0f, 0.0f } });
 
         mWindowTexture->Bind(0);
         mWindowTexture->Bind(2);
         DrawCube({ { -1.0f, 1.0f, 8.0f }, { 1.0f, 1.0f, 0.2f } });
 
-        mCommandBuffer->UpdateStencilBuffer();
+        //mCommandBuffer->UpdateStencilBuffer();
         DrawCube({ { 0.0f, 1.0f, 9.0f }, { 1.0f, 1.0f, 0.2f } });
-        mCommandBuffer->EnableStencilTest();
-        DrawCube({ { 0.0f, 1.0f, 9.0f }, { 1.1f, 1.1f, 0.3f } }, true);
-        mCommandBuffer->ResetStencilTest();
+        //mCommandBuffer->EnableStencilTest();
+        //DrawCube({ { 0.0f, 1.0f, 9.0f }, { 1.1f, 1.1f, 0.3f } }, true);
+        //mCommandBuffer->ResetStencilTest();
     }
 
     void DrawCube(const Components::Transform &transform, bool stencil = false) {
@@ -414,7 +413,17 @@ public:
         
         // Bind Shader
         if (stencil) { mStencilOutlineShader->Bind(); } else { mModelShader->Bind(); }
-        
+
+        // Material Tests
+        MaterialData materialData {
+            .Ambient { 0.1f, 0.1f, 0.1f },
+            .Diffuse { 0.5f, 0.5f, 0.5f },
+            .Specular { 1.0f, 1.0f, 1.0f },
+            .Shininess { 32.0f }
+        };
+        mMaterialBuffer->UpdateData(&materialData, sizeof(Components::Material));
+        mMaterialBuffer->Bind(9);
+
         // Update Entity Data
         Components::EntityData entityData;
         entityData.Transform = transform;
@@ -422,6 +431,10 @@ public:
         mEntityUniformBuffer->Bind((size_t)UniformPosition::EntityData);
 
         cube.Draw(mCommandBuffer);
+
+        // Visualize Normals
+        //mNormalsShader->Bind();
+        //cube.Draw(mCommandBuffer);
     }
 
     void DrawLights(Timestamp deltaTime) {
@@ -514,21 +527,11 @@ public:
         mEntityUniformBuffer->UpdateData(&entityData, sizeof(Components::EntityData));
         mEntityUniformBuffer->Bind((size_t)UniformPosition::EntityData);
 
-        // Material Tests
-        //MaterialData materialData {
-        //    .Ambient { 0.1f, 0.1f, 0.1f },
-        //    .Diffuse { 0.5f, 0.5f, 0.5f },
-        //    .Specular { 1.0f, 1.0f, 1.0f },
-        //    .Shininess { 32.0f }
-        //};
-        //mMaterialBuffer->UpdateData(&materialData, sizeof(Components::Material));
-        //mMaterialBuffer->Bind(9);
-
         model.Draw(mCommandBuffer);
 
         // Visualize Normals
-        mNormalsShader->Bind();
-        model.Draw(mCommandBuffer);
+        //mNormalsShader->Bind();
+        //model.Draw(mCommandBuffer);
     }
 
     void DrawSkybox(Timestamp deltaTime) {
@@ -657,6 +660,7 @@ private:
     Reference<Texture> mMarbleTexture;
     Reference<Texture> mMatrixTexture;
     Reference<Texture> mMetalTexture;
+    Reference<Texture> mSmileyTexture;
     Reference<Texture> mWindowTexture;
     Reference<Texture> mWoodTexture;
 };

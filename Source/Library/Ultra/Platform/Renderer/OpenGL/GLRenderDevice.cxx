@@ -39,7 +39,7 @@ static void GLMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GL
             LogInfo("Platform::OpenGL: {}\n  @{}", message, line);
             break;
         case GL_DEBUG_SEVERITY_NOTIFICATION:
-            LogTrace("Platform::OpenGL: {}\n  @{}", message, line);
+            //LogTrace("Platform::OpenGL: {}\n  @{}", message, line);
             break;
         case GL_DONT_CARE:
             Log("Platform::OpenGL: {}\n  @{}", message, line);
@@ -76,7 +76,7 @@ void GLRenderDevice::Load() {
     // Clipping-Support (triangles drawn anti-clock-wize are the front face)
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
+    glFrontFace(GL_CW);
 
     // Color-Mixing and Transparency-Support
     glEnable(GL_BLEND);
@@ -145,11 +145,10 @@ void GLRenderDevice::Dispose() {};
 
 
 void GLRenderDevice::SetLineThickness(float value) {
-    GLfloat range[2];
+    GLfloat range[2] {};
     glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, range);
     // ToDo: Fails while closing application, the Update function should somehow finish cleanly.
     //APP_ASSERT(!(value < range[0] || value > range[1]), "The specified line width exceeds the supported range!")
-    glLineWidth(value);
 }
 
 void GLRenderDevice::SetPolygonMode(PolygonMode mode) {

@@ -49,7 +49,6 @@ Scope<Renderer> Renderer::Create() {
 
 void Renderer::Load() {
     mRenderDevice->Load();
-    mRenderDevice->SetLineThickness(3.0f);
     mCommandBuffer = CommandBuffer::Create();
     mCommandBuffer->SetViewport(0, 0, 1280, 1024);
     Renderer2D::Load();

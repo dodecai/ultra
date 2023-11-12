@@ -54,7 +54,7 @@ private:
     void SetupMesh() {
         PipelineProperties properties;
         properties.BlendMode = BlendMode::Alpha;
-        properties.CullMode = CullMode::Back;
+        properties.CullMode = CullMode::None; // ToDo: Enable Culling
         properties.DepthTest = true;
         properties.Wireframe = false;
         properties.Layout = {

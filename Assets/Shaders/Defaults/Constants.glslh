@@ -1,0 +1,4 @@
+﻿
+const float EPSILON = 1e-6;
+const float PI = 3.14159265;
+
