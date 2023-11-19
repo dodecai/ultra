@@ -54,7 +54,7 @@ private:
     void SetupMesh() {
         PipelineProperties properties;
         properties.BlendMode = BlendMode::Alpha;
-        properties.CullMode = CullMode::None; // ToDo: Enable Culling
+        properties.CullMode = CullMode::Back; // ToDo: Enable Culling
         properties.DepthTest = true;
         properties.Wireframe = false;
         properties.Layout = {
@@ -108,5 +108,10 @@ void Mesh::Draw(CommandBuffer *commandBuffer) {
     }
     commandBuffer->DrawIndexed(mIndices.size(), PrimitiveType::Triangle, true);
     mPipeline->Unbind();
+
+    for (size_t i = 0; i < mTextures.size(); i++) {
+        if (i >= 3) break;
+        mTextures[i]->Unbind(static_cast<uint32_t>(i));
+    }
 }
 }

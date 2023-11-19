@@ -1,5 +1,5 @@
-# Blender MTL File: 'Test.blend'
-# Material Count: 5
+# Blender 3.6.5 MTL File: 'Test.blend'
+# www.blender.org
 
 newmtl Material
 Ns 250.000000
@@ -39,12 +39,4 @@ Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
-illum 2
-
-newmtl None
-Ns 500
-Ka 0.8 0.8 0.8
-Kd 0.8 0.8 0.8
-Ks 0.8 0.8 0.8
-d 1
 illum 2

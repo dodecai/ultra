@@ -20,44 +20,29 @@ public:
         mAspectRatio(aspectRatio),
         mNearClip(nearClip),
         mFarClip(farClip),
-        Camera(glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip)) {
+        Camera(Math::Perspective(glm::radians(fov), aspectRatio, nearClip, farClip)) {
         UpdateView();
     }
     ~DesignerCamera() = default;
 
     void Update([[maybe_unused]] Timestamp delta) {
-        
+        // ToDo: Works everywhere, but eats the performance...
         const float cameraSpeed = 0.003f;
-        if (Input::GetMouseButtonState(MouseButton::Wheel)) {
-        }
-        if (Input::GetKeyState(KeyCode::Left)) {
-            Pan(glm::vec2(1.0, 0.0f) * cameraSpeed);
-        }
-        if (Input::GetKeyState(KeyCode::Up)) {
-            Pan(glm::vec2(0.0, 1.0f) * cameraSpeed);
-        }
-        if (Input::GetKeyState(KeyCode::Right)) {
-            Pan(glm::vec2(-1.0, 0.0f) * cameraSpeed);
-        }
-        if (Input::GetKeyState(KeyCode::Down)) {
-            Pan(glm::vec2(0.0, -1.0f) * cameraSpeed);
-        }
+        auto wheel = Input::GetMouseWheelDelta();
+        auto [x, y] = Input::GetMousePositionDelta();
+        const glm::vec2 &mouse { x, y };
+        glm::vec2 mouseDelta = (mouse - mInitialMousePosition) * cameraSpeed;
+        mInitialMousePosition = mouse;
 
-        if (Input::GetKeyState(KeyCode::LAlt)) {
-            auto [x, y] = Input::GetMousePosition();
-            const glm::vec2 &mouse { x, y };
-            glm::vec2 mouseDelta = (mouse - mInitialMousePosition) * cameraSpeed;
-            mInitialMousePosition = mouse;
+        if (Input::GetMouseButtonState(MouseButton::Left)) Rotate(mouseDelta);
+        if (Input::GetMouseButtonState(MouseButton::Middle)) Pan(mouseDelta);
+        if (Input::GetMouseButtonState(MouseButton::Right)) Zoom(mouseDelta.y);
 
-            if (Input::GetMouseButtonState(MouseButton::Middle)) Pan(mouseDelta);
-            if (Input::GetMouseButtonState(MouseButton::Left)) Rotate(mouseDelta);
-            if (Input::GetMouseButtonState(MouseButton::Right)) Zoom(mouseDelta.y);
-        } else {
-            // ToDo: Works everywhere, but eats the performance...
-            auto [x, y] = Input::GetMousePosition();
-            const glm::vec2 &mouse { x, y };
-            mInitialMousePosition = mouse;
-        }
+        if (Input::GetKeyState(KeyCode::KeyA)) { Pan(glm::vec2(2.0, 0.0f) * cameraSpeed); }
+        if (Input::GetKeyState(KeyCode::KeyW)) { Pan(glm::vec2(0.0, 2.0f) * cameraSpeed); }
+        if (Input::GetKeyState(KeyCode::KeyD)) { Pan(glm::vec2(-2.0, 0.0f) * cameraSpeed); }
+        if (Input::GetKeyState(KeyCode::KeyS)) { Pan(glm::vec2(0.0, -2.0f) * cameraSpeed); }
+
         UpdateView();
     }
 
@@ -90,11 +75,11 @@ public:
         return glm::rotate(GetOrientation(), glm::vec3(1.0f, 0.0f, 0.0f));
     }
     glm::vec3 GetForwardDirection() const {
-        return glm::rotate(GetOrientation(), glm::vec3(0.0f, 0.0f, -1.0f));
+        return glm::rotate(GetOrientation(), glm::vec3(0.0f, 0.0f, 1.0f));
     }
     glm::vec3 GetPosition() const { return mPosition; }
     glm::quat GetOrientation() const {
-        return glm::quat(glm::vec3(-mPitch, -mYaw, 0.0f));
+        return glm::quat(glm::vec3(mPitch, mYaw, 0.0f));
     }
     float GetNearPoint() const { return mNearClip; }
     float GetFarPoint() const { return mFarClip; }
@@ -105,13 +90,13 @@ public:
 private:
     void UpdateProjection() {
         mAspectRatio = mViewportWidth / mViewportHeight;
-        mProjection = glm::perspective(glm::radians(mFOV), mAspectRatio, mNearClip, mFarClip);
+        mProjection = Math::Perspective(glm::radians(mFOV), mAspectRatio, mNearClip, mFarClip);
     }
     void UpdateView() {
         // Lock the camera's rotation
         // mYaw = mPitch = 0.0f;
         mPosition = CalculatePosition();
-        //mViewMatrix = glm::lookAt(mPosition, mFocalPoint, glm::vec3(0.0f, 1.0f, 0.0f));
+        //mViewMatrix = Math::LookAt(mPosition, mFocalPoint, glm::vec3(0.0f, 1.0f, 0.0f));
         glm::quat orientation = GetOrientation();
         mViewMatrix = glm::translate(glm::mat4(1.0f), mPosition) * glm::toMat4(orientation);
         mViewMatrix = glm::inverse(mViewMatrix);

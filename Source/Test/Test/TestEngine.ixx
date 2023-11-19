@@ -249,7 +249,7 @@ public:
         auto aspectRatio = 1280.0f / 1024.0f;
         mDesignerCamera = DesignerCamera(45.0f, aspectRatio, 0.1f, 10000.0f);
         mDesignerCamera.SetViewportSize(1280.0f, 1024.0f);
-        mDesignerCamera.SetPosition({ 0.0f, 2.0f, 24.0f });
+        mDesignerCamera.SetPosition({ 0.0f, 4.0f, -24.0f });
 
         // Load Shaders
         mDebugDepthShader = Shader::Create("Assets/Shaders/Debug/DepthVisualizer.glsl");
@@ -268,7 +268,7 @@ public:
 
         // Load Textures
         mCheckerBoard = Texture::Create({}, "./Assets/Textures/CheckerBoard.png");
-        mConcreteTexture = Texture::Create({}, "./Assets/Textures/Concrete.png");
+        mConcreteTexture = Texture::Create({ .SamplerWrap = TextureWrap::Repeat }, "./Assets/Textures/Concrete.png");
         mGrassTexture = Texture::Create({ .SamplerWrap = TextureWrap::MirrorClamp }, "./Assets/Textures/Grass.png");
         mMarbleTexture = Texture::Create({ .SamplerWrap = TextureWrap::Clamp, .GenerateMips = true, }, "./Assets/Textures/Marble.jpg");
         mMatrixTexture = Texture::Create({}, "./Assets/Textures/Matrix.jpg");
@@ -359,10 +359,12 @@ public:
 
         // Draw Models
         //DrawModel(backpack, { 7.0f, 2.0f, 9.0f }, { 0.2f, 0.2f, 0.2f });
-        DrawModel(nanosuit, { 7.0f, 0.0f, 5.0f }, { 0.2f, 0.2f, 0.2f });
+        DrawModel(nanosuit, { 7.0f, 0.0f, -5.0f }, { 0.2f, 0.2f, 0.2f });
+        mMetalTexture->Bind(0);
+        mMetalTexture->Bind(2);
+        DrawModel(level, { 0.0f, 0.0f, 0.0f });
         mConcreteTexture->Bind(0);
         mConcreteTexture->Bind(2);
-        DrawModel(level, { 0.0f, 0.0f, 0.0f });
         DrawModel(sphere, { 10.0f, 10.0f, 0.0f });
         //DrawModel(sponza, { 0.0f, 0.0f, 0.0f }, { 0.1f, 0.1f ,0.1f });
 
@@ -386,7 +388,11 @@ public:
             left = true;
         }
 
+        mWoodTexture->Bind(0);
+        mWoodTexture->Bind(2);
         DrawCube({ { 0.0f, -0.001f, 0.0f }, { 12, 0.002f, -12.0f } });
+        mMarbleTexture->Bind(0);
+        mMarbleTexture->Bind(2);
         DrawCube({ { CubeAX, 10.0f, 0.0f } });
         DrawCube({ { CubeBX, 10.0f, 0.0f }, { 1.0f, 1.0f, 0.2f } });
         DrawCube({ { CubeCX, 10.0f, 0.0f } });
@@ -394,14 +400,14 @@ public:
         // Note: Alpha Blending requires the objects to be drawn in order from farthest to nearest
         mSmileyTexture->Bind(0);
         mSmileyTexture->Bind(2);
-        DrawCube({ { -5.0f, 1.0f, 8.0f }, { 1.0f, 1.0f, 0.0f } });
+        DrawCube({ { -5.0f, 1.0f, -8.0f }, { 1.0f, 1.0f, 0.0f } });
 
         mWindowTexture->Bind(0);
         mWindowTexture->Bind(2);
-        DrawCube({ { -1.0f, 1.0f, 8.0f }, { 1.0f, 1.0f, 0.2f } });
+        DrawCube({ { -1.0f, 1.0f, -8.0f }, { 1.0f, 1.0f, 0.2f } });
 
         //mCommandBuffer->UpdateStencilBuffer();
-        DrawCube({ { 0.0f, 1.0f, 9.0f }, { 1.0f, 1.0f, 0.2f } });
+        DrawCube({ { 0.0f, 1.0f, -9.0f }, { 1.0f, 1.0f, 0.2f } });
         //mCommandBuffer->EnableStencilTest();
         //DrawCube({ { 0.0f, 1.0f, 9.0f }, { 1.1f, 1.1f, 0.3f } }, true);
         //mCommandBuffer->ResetStencilTest();

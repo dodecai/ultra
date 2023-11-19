@@ -5,6 +5,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #define GLM_FORCE_LEFT_HANDED
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 export import <glm/glm.hpp>;
 export import <glm/gtc/constants.hpp>;
@@ -87,6 +88,19 @@ using DoubleMatrix4x4 = glm::dmat4x4;
 //using Quaternion = glm::quat;
 
 namespace Math {
+
+glm::mat4 LookAt(const glm::vec3 &position, const glm::vec3 &target, const glm::vec3 &up) {
+    return glm::lookAtLH(position, target, up);
+}
+
+glm::mat4 Perspective(float fov, float aspect, float near, float far) {
+    return glm::perspectiveLH_ZO(fov, aspect, near, far);
+}
+
+glm::mat4 Orthographic(float left, float right, float bottom, float top, float near, float far) {
+    return glm::orthoLH_ZO(left, right, bottom, top, near, far);
+}
+
 
 bool DecomposeTransform([[maybe_unused]] const glm::mat4 &transform, [[maybe_unused]] glm::vec3 &position, [[maybe_unused]] glm::vec3 &orientation, [[maybe_unused]] glm::vec3 &scale) {
     // from glm::decompose in matrix_decompose.inl
