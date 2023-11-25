@@ -17,21 +17,23 @@ namespace msdfgen {
 #define DOUBLE_TO_F16DOT16(x) FT_Fixed(65536.*x)
 
 class FreetypeHandle {
-    friend FreetypeHandle * initializeFreetype();
+    friend FreetypeHandle *initializeFreetype();
     friend void deinitializeFreetype(FreetypeHandle *library);
-    friend FontHandle * loadFont(FreetypeHandle *library, const char *filename);
-    friend FontHandle * loadFontData(FreetypeHandle *library, const byte *data, int length);
+    friend FontHandle *loadFont(FreetypeHandle *library, const char *filename);
+    friend FontHandle *loadFontData(FreetypeHandle *library, const byte *data, int length);
+#ifndef MSDFGEN_DISABLE_VARIABLE_FONTS
     friend bool setFontVariationAxis(FreetypeHandle *library, FontHandle *font, const char *name, double coordinate);
     friend bool listFontVariationAxes(std::vector<FontVariationAxis> &axes, FreetypeHandle *library, FontHandle *font);
+#endif
 
     FT_Library library;
 
 };
 
 class FontHandle {
-    friend FontHandle * adoptFreetypeFont(FT_Face ftFace);
-    friend FontHandle * loadFont(FreetypeHandle *library, const char *filename);
-    friend FontHandle * loadFontData(FreetypeHandle *library, const byte *data, int length);
+    friend FontHandle *adoptFreetypeFont(FT_Face ftFace);
+    friend FontHandle *loadFont(FreetypeHandle *library, const char *filename);
+    friend FontHandle *loadFontData(FreetypeHandle *library, const byte *data, int length);
     friend void destroyFont(FontHandle *font);
     friend bool getFontMetrics(FontMetrics &metrics, FontHandle *font);
     friend bool getFontWhitespaceWidth(double &spaceAdvance, double &tabAdvance, FontHandle *font);
@@ -40,8 +42,10 @@ class FontHandle {
     friend bool loadGlyph(Shape &output, FontHandle *font, unicode_t unicode, double *advance);
     friend bool getKerning(double &output, FontHandle *font, GlyphIndex glyphIndex1, GlyphIndex glyphIndex2);
     friend bool getKerning(double &output, FontHandle *font, unicode_t unicode1, unicode_t unicode2);
+#ifndef MSDFGEN_DISABLE_VARIABLE_FONTS
     friend bool setFontVariationAxis(FreetypeHandle *library, FontHandle *font, const char *name, double coordinate);
     friend bool listFontVariationAxes(std::vector<FontVariationAxis> &axes, FreetypeHandle *library, FontHandle *font);
+#endif
 
     FT_Face face;
     bool ownership;
@@ -96,7 +100,7 @@ unsigned GlyphIndex::getIndex() const {
     return index;
 }
 
-FreetypeHandle * initializeFreetype() {
+FreetypeHandle *initializeFreetype() {
     FreetypeHandle *handle = new FreetypeHandle;
     FT_Error error = FT_Init_FreeType(&handle->library);
     if (error) {
@@ -111,7 +115,7 @@ void deinitializeFreetype(FreetypeHandle *library) {
     delete library;
 }
 
-FontHandle * adoptFreetypeFont(FT_Face ftFace) {
+FontHandle *adoptFreetypeFont(FT_Face ftFace) {
     FontHandle *handle = new FontHandle;
     handle->face = ftFace;
     handle->ownership = false;
@@ -136,7 +140,7 @@ FT_Error readFreetypeOutline(Shape &output, FT_Outline *outline) {
     return error;
 }
 
-FontHandle * loadFont(FreetypeHandle *library, const char *filename) {
+FontHandle *loadFont(FreetypeHandle *library, const char *filename) {
     if (!library)
         return NULL;
     FontHandle *handle = new FontHandle;
@@ -149,7 +153,7 @@ FontHandle * loadFont(FreetypeHandle *library, const char *filename) {
     return handle;
 }
 
-FontHandle * loadFontData(FreetypeHandle *library, const byte *data, int length) {
+FontHandle *loadFontData(FreetypeHandle *library, const byte *data, int length) {
     if (!library)
         return NULL;
     FontHandle *handle = new FontHandle;
@@ -257,12 +261,12 @@ bool listFontVariationAxes(std::vector<FontVariationAxis> &axes, FreetypeHandle 
         if (FT_Get_MM_Var(font->face, &master))
             return false;
         axes.resize(master->num_axis);
-        for (FT_UInt i = 0; i < master->num_axis; i++) {
+        for (FT_UInt i = 0; i < master->num_axis; ++i) {
             FontVariationAxis &axis = axes[i];
             axis.name = master->axis[i].name;
-            axis.minValue = master->axis[i].minimum;
-            axis.maxValue = master->axis[i].maximum;
-            axis.defaultValue = master->axis[i].def;
+            axis.minValue = F16DOT16_TO_DOUBLE(master->axis[i].minimum);
+            axis.maxValue = F16DOT16_TO_DOUBLE(master->axis[i].maximum);
+            axis.defaultValue = F16DOT16_TO_DOUBLE(master->axis[i].def);
         }
         FT_Done_MM_Var(library->library, master);
         return true;
