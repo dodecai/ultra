@@ -410,7 +410,7 @@ void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, cons
 
 void Renderer2D::DrawQuad(const glm::mat4 &transform, const glm::vec4 &color) {
     const float textureIndex = 0.0f; // White Texture
-    constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+    glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
     const float tilingFactor = 1.0f;
 
     if (sData.QuadVertexBufferData.size() * 6 >= RendererData::MaxQuadIndices) FlushAndReset();
@@ -434,7 +434,7 @@ void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, cons
 }
 
 void Renderer2D::DrawQuad(const glm::mat4 &transform, const Reference<Texture> &texture, const float tilingFactor, const glm::vec4 &color) {
-    constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+    glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 
     if (sData.QuadVertexBufferData.size() * 6 >= RendererData::MaxQuadIndices) FlushAndReset();
 
@@ -479,7 +479,7 @@ void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotatio
     // ToDo: rotation missing
     if (rotation > 0) {}
     const float textureIndex = 0.0f; // White Texture
-    constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+    glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
     const float tilingFactor = 1.0f;
 
     if (sData.QuadVertexBufferData.size() * 6 >= RendererData::MaxQuadIndices) FlushAndReset();
@@ -507,7 +507,7 @@ void Renderer2D::DrawRotatedQuad(const glm::vec3 &position, const glm::vec2 &siz
 void Renderer2D::DrawRotatedQuad(const glm::mat4 &transform, const float rotation, const Reference<Texture> &texture, const float tilingFactor, const glm::vec4 &color) {
     // ToDo: rotation missing
     if (rotation > 0) {}
-    constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+    glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 
     if (sData.QuadVertexBufferData.size() * 6 >= RendererData::MaxQuadIndices) FlushAndReset();
 

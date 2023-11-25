@@ -129,12 +129,8 @@ void GuiLayer::Attach() {
 
         // Upload Fonts
         {
-            vk::CommandBuffer commandBuffer =  context->GetDevice()->GetCommandBuffer(true);
-            ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-            context->GetDevice()->FlushCommandBuffer(commandBuffer);
-
+            ImGui_ImplVulkan_CreateFontsTexture();
             vkDeviceWaitIdle(context->GetDevice()->Call());
-            ImGui_ImplVulkan_DestroyFontUploadObjects();
         }
      }
 }
