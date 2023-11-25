@@ -1,7 +1,7 @@
 
 #include "Shape.h"
 
-#include <algorithm>
+#include <cstdlib>
 #include "arithmetics.hpp"
 
 namespace msdfgen {
@@ -18,7 +18,7 @@ void Shape::addContour(Contour &&contour) {
 }
 #endif
 
-Contour & Shape::addContour() {
+Contour &Shape::addContour() {
     contours.resize(contours.size()+1);
     return contours.back();
 }
