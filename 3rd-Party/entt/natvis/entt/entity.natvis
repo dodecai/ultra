@@ -37,6 +37,7 @@
 		<Expand>
 			<Item Name="[capacity]" ExcludeView="simple">packed.capacity()</Item>
 			<Item Name="[policy]">mode,en</Item>
+			<Item Name="[free_list]">head</Item>
 			<Synthetic Name="[sparse]">
 				<DisplayString>{ sparse.size() * traits_type::page_size }</DisplayString>
 				<Expand>
@@ -82,7 +83,6 @@
 		<Expand>
 			<Item Name="[capacity]" Optional="true" ExcludeView="simple">payload.capacity() * traits_type::page_size</Item>
 			<Item Name="[page size]" Optional="true" ExcludeView="simple">traits_type::page_size</Item>
-			<Item Name="[length]" Optional="true" ExcludeView="simple">length</Item>
 			<Item Name="[base]" ExcludeView="simple">(base_type*)this,nand</Item>
 			<Item Name="[base]" IncludeView="simple">(base_type*)this,view(simple)nand</Item>
 			<!-- having SFINAE-like techniques in natvis is priceless :) -->
@@ -100,10 +100,12 @@
 		</Expand>
 	</Type>
 	<Type Name="entt::basic_view&lt;*&gt;">
-		<DisplayString>{{ size_hint={ view->packed.size() } }}</DisplayString>
+		<DisplayString Condition="view != nullptr">{{ size_hint={ view->packed.size() } }}</DisplayString>
+		<DisplayString>{{ size_hint=0 }}</DisplayString>
 		<Expand>
-			<Item Name="[pools]">pools,na</Item>
-			<Item Name="[filter]">filter,na</Item>
+			<Item Name="[pools]" Optional="true">pools,na</Item>
+			<Item Name="[filter]" Optional="true">filter,na</Item>
+			<Item Name="[handle]" Condition="view != nullptr">view,na</Item>
 		</Expand>
 	</Type>
 	<Type Name="entt::basic_runtime_view&lt;*&gt;">
