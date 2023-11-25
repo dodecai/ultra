@@ -15,19 +15,10 @@
 #include "../common/config.h"
 #include "../common/throwing_allocator.hpp"
 #include "../common/tracked_memory_resource.hpp"
-
-struct transparent_equal_to {
-    using is_transparent = void;
-
-    template<typename Type, typename Other>
-    constexpr std::enable_if_t<std::is_convertible_v<Other, Type>, bool>
-    operator()(const Type &lhs, const Other &rhs) const {
-        return lhs == static_cast<Type>(rhs);
-    }
-};
+#include "../common/transparent_equal_to.h"
 
 TEST(DenseMap, Functionalities) {
-    entt::dense_map<int, int, entt::identity, transparent_equal_to> map;
+    entt::dense_map<int, int, entt::identity, test::transparent_equal_to> map;
     const auto &cmap = map;
 
     ASSERT_NO_FATAL_FAILURE([[maybe_unused]] auto alloc = map.get_allocator());
@@ -187,9 +178,9 @@ TEST(DenseMap, Move) {
 TEST(DenseMap, Iterator) {
     using iterator = typename entt::dense_map<int, int>::iterator;
 
-    static_assert(std::is_same_v<iterator::value_type, std::pair<const int &, int &>>);
-    static_assert(std::is_same_v<iterator::pointer, entt::input_iterator_pointer<std::pair<const int &, int &>>>);
-    static_assert(std::is_same_v<iterator::reference, std::pair<const int &, int &>>);
+    testing::StaticAssertTypeEq<iterator::value_type, std::pair<const int &, int &>>();
+    testing::StaticAssertTypeEq<iterator::pointer, entt::input_iterator_pointer<std::pair<const int &, int &>>>();
+    testing::StaticAssertTypeEq<iterator::reference, std::pair<const int &, int &>>();
 
     entt::dense_map<int, int> map;
     map.emplace(3, 42);
@@ -240,9 +231,9 @@ TEST(DenseMap, Iterator) {
 TEST(DenseMap, ConstIterator) {
     using iterator = typename entt::dense_map<int, int>::const_iterator;
 
-    static_assert(std::is_same_v<iterator::value_type, std::pair<const int &, const int &>>);
-    static_assert(std::is_same_v<iterator::pointer, entt::input_iterator_pointer<std::pair<const int &, const int &>>>);
-    static_assert(std::is_same_v<iterator::reference, std::pair<const int &, const int &>>);
+    testing::StaticAssertTypeEq<iterator::value_type, std::pair<const int &, const int &>>();
+    testing::StaticAssertTypeEq<iterator::pointer, entt::input_iterator_pointer<std::pair<const int &, const int &>>>();
+    testing::StaticAssertTypeEq<iterator::reference, std::pair<const int &, const int &>>();
 
     entt::dense_map<int, int> map;
     map.emplace(3, 42);
@@ -297,8 +288,8 @@ TEST(DenseMap, IteratorConversion) {
     typename entt::dense_map<int, int>::iterator it = map.begin();
     typename entt::dense_map<int, int>::const_iterator cit = it;
 
-    static_assert(std::is_same_v<decltype(*it), std::pair<const int &, int &>>);
-    static_assert(std::is_same_v<decltype(*cit), std::pair<const int &, const int &>>);
+    testing::StaticAssertTypeEq<decltype(*it), std::pair<const int &, int &>>();
+    testing::StaticAssertTypeEq<decltype(*cit), std::pair<const int &, const int &>>();
 
     ASSERT_EQ(it->first, 3);
     ASSERT_EQ((*it).second, 42);
@@ -927,7 +918,7 @@ TEST(DenseMap, Swap) {
 }
 
 TEST(DenseMap, EqualRange) {
-    entt::dense_map<int, int, entt::identity, transparent_equal_to> map;
+    entt::dense_map<int, int, entt::identity, test::transparent_equal_to> map;
     const auto &cmap = map;
 
     map.emplace(42, 3);
@@ -991,9 +982,9 @@ ENTT_DEBUG_TEST(DenseMapDeathTest, Indexing) {
 TEST(DenseMap, LocalIterator) {
     using iterator = typename entt::dense_map<std::size_t, std::size_t, entt::identity>::local_iterator;
 
-    static_assert(std::is_same_v<iterator::value_type, std::pair<const std::size_t &, std::size_t &>>);
-    static_assert(std::is_same_v<iterator::pointer, entt::input_iterator_pointer<std::pair<const std::size_t &, std::size_t &>>>);
-    static_assert(std::is_same_v<iterator::reference, std::pair<const std::size_t &, std::size_t &>>);
+    testing::StaticAssertTypeEq<iterator::value_type, std::pair<const std::size_t &, std::size_t &>>();
+    testing::StaticAssertTypeEq<iterator::pointer, entt::input_iterator_pointer<std::pair<const std::size_t &, std::size_t &>>>();
+    testing::StaticAssertTypeEq<iterator::reference, std::pair<const std::size_t &, std::size_t &>>();
 
     constexpr std::size_t minimum_bucket_count = 8u;
     entt::dense_map<std::size_t, std::size_t, entt::identity> map;
@@ -1019,9 +1010,9 @@ TEST(DenseMap, LocalIterator) {
 TEST(DenseMap, ConstLocalIterator) {
     using iterator = typename entt::dense_map<std::size_t, std::size_t, entt::identity>::const_local_iterator;
 
-    static_assert(std::is_same_v<iterator::value_type, std::pair<const std::size_t &, const std::size_t &>>);
-    static_assert(std::is_same_v<iterator::pointer, entt::input_iterator_pointer<std::pair<const std::size_t &, const std::size_t &>>>);
-    static_assert(std::is_same_v<iterator::reference, std::pair<const std::size_t &, const std::size_t &>>);
+    testing::StaticAssertTypeEq<iterator::value_type, std::pair<const std::size_t &, const std::size_t &>>();
+    testing::StaticAssertTypeEq<iterator::pointer, entt::input_iterator_pointer<std::pair<const std::size_t &, const std::size_t &>>>();
+    testing::StaticAssertTypeEq<iterator::reference, std::pair<const std::size_t &, const std::size_t &>>();
 
     constexpr std::size_t minimum_bucket_count = 8u;
     entt::dense_map<std::size_t, std::size_t, entt::identity> map;
@@ -1051,8 +1042,8 @@ TEST(DenseMap, LocalIteratorConversion) {
     typename entt::dense_map<int, int>::local_iterator it = map.begin(map.bucket(3));
     typename entt::dense_map<int, int>::const_local_iterator cit = it;
 
-    static_assert(std::is_same_v<decltype(*it), std::pair<const int &, int &>>);
-    static_assert(std::is_same_v<decltype(*cit), std::pair<const int &, const int &>>);
+    testing::StaticAssertTypeEq<decltype(*it), std::pair<const int &, int &>>();
+    testing::StaticAssertTypeEq<decltype(*cit), std::pair<const int &, const int &>>();
 
     ASSERT_EQ(it->first, 3);
     ASSERT_EQ((*it).second, 42);

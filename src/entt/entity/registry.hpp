@@ -259,7 +259,7 @@ class basic_registry {
                 using storage_type = storage_for_type<Type>;
                 using alloc_type = typename storage_type::allocator_type;
 
-                if constexpr(std::is_same_v<Type, void> && !std::is_constructible_v<alloc_type, allocator_type>) {
+                if constexpr(std::is_void_v<void> && !std::is_constructible_v<alloc_type, allocator_type>) {
                     // std::allocator<void> has no cross constructors (waiting for C++20)
                     cpool = std::allocate_shared<storage_type>(get_allocator(), alloc_type{});
                 } else {
@@ -462,7 +462,7 @@ public:
      * @return True if the identifier is valid, false otherwise.
      */
     [[nodiscard]] bool valid(const entity_type entt) const {
-        return entities.contains(entt) && (entities.index(entt) < entities.in_use());
+        return entities.contains(entt) && (entities.index(entt) < entities.free_list());
     }
 
     /**
@@ -830,7 +830,7 @@ public:
      * @return True if the entity is part of all the storage, false otherwise.
      */
     template<typename... Type>
-    [[nodiscard]] bool all_of(const entity_type entt) const {
+    [[nodiscard]] bool all_of([[maybe_unused]] const entity_type entt) const {
         if constexpr(sizeof...(Type) == 1u) {
             auto *cpool = assure<std::remove_const_t<Type>...>();
             return cpool && cpool->contains(entt);
@@ -847,7 +847,7 @@ public:
      * otherwise.
      */
     template<typename... Type>
-    [[nodiscard]] bool any_of(const entity_type entt) const {
+    [[nodiscard]] bool any_of([[maybe_unused]] const entity_type entt) const {
         return (all_of<Type>(entt) || ...);
     }
 
@@ -929,8 +929,7 @@ public:
     template<typename... Type>
     [[nodiscard]] auto try_get([[maybe_unused]] const entity_type entt) {
         if constexpr(sizeof...(Type) == 1u) {
-            auto &cpool = assure<std::remove_const_t<Type>...>();
-            return (static_cast<Type *>(cpool.contains(entt) ? std::addressof(cpool.get(entt)) : nullptr), ...);
+            return (const_cast<Type *>(std::as_const(*this).template try_get<Type>(entt)), ...);
         } else {
             return std::make_tuple(try_get<Type>(entt)...);
         }
@@ -1176,7 +1175,8 @@ public:
     template<typename To, typename From>
     void sort() {
         ENTT_ASSERT(!owned<To>(), "Cannot sort owned storage");
-        assure<To>().sort_as(assure<From>());
+        const base_type &cpool = assure<From>();
+        assure<To>().sort_as(cpool.begin(), cpool.end());
     }
 
     /**

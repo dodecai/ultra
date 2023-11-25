@@ -7,25 +7,17 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+#include <vector>
 #include <gtest/gtest.h>
 #include <entt/container/dense_set.hpp>
 #include <entt/core/memory.hpp>
 #include <entt/core/utility.hpp>
 #include "../common/throwing_allocator.hpp"
 #include "../common/tracked_memory_resource.hpp"
-
-struct transparent_equal_to {
-    using is_transparent = void;
-
-    template<typename Type, typename Other>
-    constexpr std::enable_if_t<std::is_convertible_v<Other, Type>, bool>
-    operator()(const Type &lhs, const Other &rhs) const {
-        return lhs == static_cast<Type>(rhs);
-    }
-};
+#include "../common/transparent_equal_to.h"
 
 TEST(DenseSet, Functionalities) {
-    entt::dense_set<int, entt::identity, transparent_equal_to> set;
+    entt::dense_set<int, entt::identity, test::transparent_equal_to> set;
     const auto &cset = set;
 
     ASSERT_NO_FATAL_FAILURE([[maybe_unused]] auto alloc = set.get_allocator());
@@ -177,9 +169,9 @@ TEST(DenseSet, Move) {
 TEST(DenseSet, Iterator) {
     using iterator = typename entt::dense_set<int>::iterator;
 
-    static_assert(std::is_same_v<iterator::value_type, int>);
-    static_assert(std::is_same_v<iterator::pointer, const int *>);
-    static_assert(std::is_same_v<iterator::reference, const int &>);
+    testing::StaticAssertTypeEq<iterator::value_type, int>();
+    testing::StaticAssertTypeEq<iterator::pointer, const int *>();
+    testing::StaticAssertTypeEq<iterator::reference, const int &>();
 
     entt::dense_set<int> set;
     set.emplace(3);
@@ -230,9 +222,9 @@ TEST(DenseSet, Iterator) {
 TEST(DenseSet, ConstIterator) {
     using iterator = typename entt::dense_set<int>::const_iterator;
 
-    static_assert(std::is_same_v<iterator::value_type, int>);
-    static_assert(std::is_same_v<iterator::pointer, const int *>);
-    static_assert(std::is_same_v<iterator::reference, const int &>);
+    testing::StaticAssertTypeEq<iterator::value_type, int>();
+    testing::StaticAssertTypeEq<iterator::pointer, const int *>();
+    testing::StaticAssertTypeEq<iterator::reference, const int &>();
 
     entt::dense_set<int> set;
     set.emplace(3);
@@ -283,9 +275,9 @@ TEST(DenseSet, ConstIterator) {
 TEST(DenseSet, ReverseIterator) {
     using iterator = typename entt::dense_set<int>::reverse_iterator;
 
-    static_assert(std::is_same_v<iterator::value_type, int>);
-    static_assert(std::is_same_v<iterator::pointer, const int *>);
-    static_assert(std::is_same_v<iterator::reference, const int &>);
+    testing::StaticAssertTypeEq<iterator::value_type, int>();
+    testing::StaticAssertTypeEq<iterator::pointer, const int *>();
+    testing::StaticAssertTypeEq<iterator::reference, const int &>();
 
     entt::dense_set<int> set;
     set.emplace(3);
@@ -336,9 +328,9 @@ TEST(DenseSet, ReverseIterator) {
 TEST(DenseSet, ConstReverseIterator) {
     using iterator = typename entt::dense_set<int>::const_reverse_iterator;
 
-    static_assert(std::is_same_v<iterator::value_type, int>);
-    static_assert(std::is_same_v<iterator::pointer, const int *>);
-    static_assert(std::is_same_v<iterator::reference, const int &>);
+    testing::StaticAssertTypeEq<iterator::value_type, int>();
+    testing::StaticAssertTypeEq<iterator::pointer, const int *>();
+    testing::StaticAssertTypeEq<iterator::reference, const int &>();
 
     entt::dense_set<int> set;
     set.emplace(3);
@@ -393,8 +385,8 @@ TEST(DenseSet, IteratorConversion) {
     typename entt::dense_set<int, int>::iterator it = set.begin();
     typename entt::dense_set<int, int>::const_iterator cit = it;
 
-    static_assert(std::is_same_v<decltype(*it), const int &>);
-    static_assert(std::is_same_v<decltype(*cit), const int &>);
+    testing::StaticAssertTypeEq<decltype(*it), const int &>();
+    testing::StaticAssertTypeEq<decltype(*cit), const int &>();
 
     ASSERT_EQ(*it, 3);
     ASSERT_EQ(*it.operator->(), 3);
@@ -786,7 +778,7 @@ TEST(DenseSet, Swap) {
 }
 
 TEST(DenseSet, EqualRange) {
-    entt::dense_set<int, entt::identity, transparent_equal_to> set;
+    entt::dense_set<int, entt::identity, test::transparent_equal_to> set;
     const auto &cset = set;
 
     set.emplace(42);
@@ -823,9 +815,9 @@ TEST(DenseSet, EqualRange) {
 TEST(DenseSet, LocalIterator) {
     using iterator = typename entt::dense_set<std::size_t, entt::identity>::local_iterator;
 
-    static_assert(std::is_same_v<iterator::value_type, std::size_t>);
-    static_assert(std::is_same_v<iterator::pointer, const std::size_t *>);
-    static_assert(std::is_same_v<iterator::reference, const std::size_t &>);
+    testing::StaticAssertTypeEq<iterator::value_type, std::size_t>();
+    testing::StaticAssertTypeEq<iterator::pointer, const std::size_t *>();
+    testing::StaticAssertTypeEq<iterator::reference, const std::size_t &>();
 
     constexpr std::size_t minimum_bucket_count = 8u;
     entt::dense_set<std::size_t, entt::identity> set;
@@ -851,9 +843,9 @@ TEST(DenseSet, LocalIterator) {
 TEST(DenseSet, ConstLocalIterator) {
     using iterator = typename entt::dense_set<std::size_t, entt::identity>::const_local_iterator;
 
-    static_assert(std::is_same_v<iterator::value_type, std::size_t>);
-    static_assert(std::is_same_v<iterator::pointer, const std::size_t *>);
-    static_assert(std::is_same_v<iterator::reference, const std::size_t &>);
+    testing::StaticAssertTypeEq<iterator::value_type, std::size_t>();
+    testing::StaticAssertTypeEq<iterator::pointer, const std::size_t *>();
+    testing::StaticAssertTypeEq<iterator::reference, const std::size_t &>();
 
     constexpr std::size_t minimum_bucket_count = 8u;
     entt::dense_set<std::size_t, entt::identity> set;
@@ -883,8 +875,8 @@ TEST(DenseSet, LocalIteratorConversion) {
     typename entt::dense_set<int>::local_iterator it = set.begin(set.bucket(3));
     typename entt::dense_set<int>::const_local_iterator cit = it;
 
-    static_assert(std::is_same_v<decltype(*it), const int &>);
-    static_assert(std::is_same_v<decltype(*cit), const int &>);
+    testing::StaticAssertTypeEq<decltype(*it), const int &>();
+    testing::StaticAssertTypeEq<decltype(*cit), const int &>();
 
     ASSERT_EQ(*it, 3);
     ASSERT_EQ(*it.operator->(), 3);

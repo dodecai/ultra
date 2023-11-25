@@ -13,12 +13,14 @@ TODO (high prio):
 * resource cache: avoid using shared ptr with loader and the others
 * further optimize exclusion lists in multi type views (no existence check)
 * doc: bump entities
-* view with entity storage: begin/end should return filtered iterators
 * update view doc: single vs multi type views are no longer a thing actually
-* meta container: add value type to resize
-* deprecate any::owner and meta_any::owner, use ::policy in the tests
-* deprecate meta_associative_container::key_only before dropping it (use mapped_type instead)
-* ===> TEST: review view tests after the last changes
+* further improve meta resolve function by id (bimap)
+* storage-based invoke helpers (update sigh mixin to also support storage based cbs)
+* make nth_argument use function types rather than pointers
+* use fixed_size_sequence_container_v to skip calls in meta.hpp, make funcs ret type void
+* review storage entity value_type and type passed to sparse set
+* storage entity tests for sort and sort_as (instead of pack)
+* ===> TEST: view (scoped begin) tests after the last changes
 
 WIP:
 * get rid of observers, storage based views made them pointless - document alternatives
@@ -27,5 +29,3 @@ WIP:
 * deprecate non-owning groups in favor of owning views and view packs, introduce lazy owning views
 * bring nested groups back in place (see bd34e7f)
 * work stealing job system (see #100) + mt scheduler based on const awareness for types
-* review/refine ENTT_ASSERT_CONSTEXPR usage
-* bump: tombstone aware and return version

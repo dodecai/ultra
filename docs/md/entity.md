@@ -583,7 +583,7 @@ There are two functions that respond to slightly different needs:
 * Components are sorted either directly:
 
   ```cpp
-  registry.sort<renderable>([](const auto &lhs, const auto &rhs) {
+  registry.sort<renderable>([](const renderable &lhs, const renderable &rhs) {
       return lhs.z < rhs.z;
   });
   ```
@@ -1549,7 +1549,7 @@ own API for them. However, there is still no limit to the possibilities of use:
 auto &&other = registry.storage<velocity>("other"_hs);
 
 registry.emplace<velocity>(entity);
-storage.push(entity);
+other.push(entity);
 ```
 
 Anything that can be done via the registry interface can also be done directly
@@ -1817,7 +1817,10 @@ However, it's possible to _enforce_ iteration of a view by given component order
 by means of the `use` function:
 
 ```cpp
-for(auto entity : registry.view<position, velocity>().use<position>()) {
+auto view = registry.view<position, velocity>();
+view.use<position>();
+
+for(auto entity: view) {
     // ...
 }
 ```

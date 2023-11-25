@@ -55,6 +55,7 @@ public:
     template<typename Type>
     void rebind(Type &instance) noexcept {
         value_type_node = &internal::resolve<typename Type::value_type>;
+        const_reference_node = &internal::resolve<std::remove_const_t<std::remove_reference_t<typename Type::const_reference>>>;
         size_fn = meta_sequence_container_traits<std::remove_const_t<Type>>::size;
         clear_fn = meta_sequence_container_traits<std::remove_const_t<Type>>::clear;
         reserve_fn = meta_sequence_container_traits<std::remove_const_t<Type>>::reserve;
@@ -81,14 +82,15 @@ public:
 private:
     const meta_ctx *ctx{};
     internal::meta_type_node (*value_type_node)(const internal::meta_context &){};
-    size_type (*size_fn)(const void *);
-    bool (*clear_fn)(void *);
-    bool (*reserve_fn)(void *, const size_type);
-    bool (*resize_fn)(void *, const size_type);
-    void (*begin_fn)(const void *, const bool, iterator &);
-    void (*end_fn)(const void *, const bool, iterator &);
-    bool (*insert_fn)(void *, meta_any &, iterator &);
-    bool (*erase_fn)(void *, iterator &);
+    internal::meta_type_node (*const_reference_node)(const internal::meta_context &){};
+    size_type (*size_fn)(const void *){};
+    bool (*clear_fn)(void *){};
+    bool (*reserve_fn)(void *, const size_type){};
+    bool (*resize_fn)(void *, const size_type){};
+    void (*begin_fn)(const void *, const bool, iterator &){};
+    void (*end_fn)(const void *, const bool, iterator &){};
+    bool (*insert_fn)(void *, const void *, const void *, iterator &){};
+    bool (*erase_fn)(void *, iterator &){};
     any storage{};
 };
 
@@ -157,14 +159,14 @@ private:
     internal::meta_type_node (*key_type_node)(const internal::meta_context &){};
     internal::meta_type_node (*mapped_type_node)(const internal::meta_context &){};
     internal::meta_type_node (*value_type_node)(const internal::meta_context &){};
-    size_type (*size_fn)(const void *);
-    bool (*clear_fn)(void *);
-    bool (*reserve_fn)(void *, const size_type);
-    void (*begin_fn)(const void *, const bool, iterator &);
-    void (*end_fn)(const void *, const bool, iterator &);
-    bool (*insert_fn)(void *, const void *, const void *);
-    size_type (*erase_fn)(void *, const void *);
-    void (*find_fn)(const void *, const bool, const void *, iterator &);
+    size_type (*size_fn)(const void *){};
+    bool (*clear_fn)(void *){};
+    bool (*reserve_fn)(void *, const size_type){};
+    void (*begin_fn)(const void *, const bool, iterator &){};
+    void (*end_fn)(const void *, const bool, iterator &){};
+    bool (*insert_fn)(void *, const void *, const void *){};
+    size_type (*erase_fn)(void *, const void *){};
+    void (*find_fn)(const void *, const bool, const void *, iterator &){};
     any storage{};
 };
 
@@ -181,7 +183,7 @@ class meta_any {
             if(req == internal::meta_traits::is_meta_pointer_like) {
                 if constexpr(std::is_function_v<typename std::pointer_traits<Type>::element_type>) {
                     static_cast<meta_any *>(other)->emplace<Type>(*static_cast<const Type *>(value));
-                } else if constexpr(!std::is_same_v<std::remove_const_t<typename std::pointer_traits<Type>::element_type>, void>) {
+                } else if constexpr(!std::is_void_v<std::remove_const_t<typename std::pointer_traits<Type>::element_type>>) {
                     using in_place_type = decltype(adl_meta_pointer_like<Type>::dereference(*static_cast<const Type *>(value)));
 
                     if constexpr(std::is_constructible_v<bool, Type>) {
@@ -499,7 +501,7 @@ public:
      * @return True if there exists a viable conversion, false otherwise.
      */
     template<typename Type>
-    bool allow_cast() {
+    [[nodiscard]] bool allow_cast() {
         auto other = internal::resolve<std::remove_cv_t<std::remove_reference_t<Type>>>(internal::meta_context::from(*ctx));
         return allow_cast(meta_type{*ctx, other}) && (!(std::is_reference_v<Type> && !std::is_const_v<std::remove_reference_t<Type>>) || storage.data() != nullptr);
     }
@@ -601,7 +603,7 @@ public:
     }
 
     /*! @copydoc any::owner */
-    [[nodiscard]] bool owner() const noexcept {
+    [[deprecated("use policy() and meta_any_policy instead")]] [[nodiscard]] bool owner() const noexcept {
         return (storage.policy() == any_policy::owner);
     }
 
@@ -1317,7 +1319,7 @@ public:
      */
     [[nodiscard]] bool can_cast(const meta_type &other) const noexcept {
         // casting this is UB in all cases but we aren't going to use the resulting pointer, so...
-        return internal::try_cast(internal::meta_context::from(*ctx), node, other.node, this);
+        return (internal::try_cast(internal::meta_context::from(*ctx), node, other.node, this) != nullptr);
     }
 
     /**
@@ -1326,7 +1328,7 @@ public:
      * @return True if the conversion is allowed, false otherwise.
      */
     [[nodiscard]] bool can_convert(const meta_type &other) const noexcept {
-        return internal::try_convert(internal::meta_context::from(*ctx), node, other.info(), other.is_arithmetic() || other.is_enum(), nullptr, [](const void *, auto &&...args) { return ((static_cast<void>(args), 1) + ... + 0u); });
+        return (internal::try_convert(internal::meta_context::from(*ctx), node, other.info(), other.is_arithmetic() || other.is_enum(), nullptr, [](const void *, auto &&...args) { return ((static_cast<void>(args), 1) + ... + 0u); }) != 0u);
     }
 
     /**
@@ -1573,7 +1575,7 @@ bool meta_any::set(const id_type id, Type &&value) {
 }
 
 [[nodiscard]] inline meta_any meta_any::allow_cast(const meta_type &type) const {
-    return internal::try_convert(internal::meta_context::from(*ctx), node, type.info(), type.is_arithmetic() || type.is_enum(), data(), [this, &type](const void *instance, auto &&...args) {
+    return internal::try_convert(internal::meta_context::from(*ctx), node, type.info(), type.is_arithmetic() || type.is_enum(), data(), [this, &type]([[maybe_unused]] const void *instance, auto &&...args) {
         if constexpr((std::is_same_v<std::remove_const_t<std::remove_reference_t<decltype(args)>>, internal::meta_type_node> || ...)) {
             return (args.from_void(*ctx, nullptr, instance), ...);
         } else if constexpr((std::is_same_v<std::remove_const_t<std::remove_reference_t<decltype(args)>>, internal::meta_conv_node> || ...)) {
@@ -1856,7 +1858,14 @@ inline bool meta_sequence_container::reserve(const size_type sz) {
  * @return A possibly invalid iterator to the inserted element.
  */
 inline meta_sequence_container::iterator meta_sequence_container::insert(iterator it, meta_any value) {
-    return ((storage.policy() != any_policy::cref) && insert_fn(storage.data(), value, it)) ? it : iterator{*ctx};
+    // this abomination is necessary because only on macos value_type and const_reference are different types for std::vector<bool>
+    if(const auto vtype = value_type_node(internal::meta_context::from(*ctx)); (storage.policy() != any_policy::cref) && (value.allow_cast({*ctx, vtype}) || value.allow_cast({*ctx, const_reference_node(internal::meta_context::from(*ctx))}))) {
+        if(const bool is_value_type = (value.type().info() == *vtype.info); insert_fn(storage.data(), is_value_type ? std::as_const(value).data() : nullptr, is_value_type ? nullptr : std::as_const(value).data(), it)) {
+            return it;
+        }
+    }
+
+    return iterator{*ctx};
 }
 
 /**
@@ -1892,7 +1901,7 @@ inline meta_sequence_container::iterator meta_sequence_container::erase(iterator
  * @brief Returns true if a container is also key-only, false otherwise.
  * @return True if the associative container is also key-only, false otherwise.
  */
-[[nodiscard]] inline bool meta_associative_container::key_only() const noexcept {
+[[deprecated("use mapped_type() instead")]] [[nodiscard]] inline bool meta_associative_container::key_only() const noexcept {
     return (mapped_type_node == nullptr);
 }
 

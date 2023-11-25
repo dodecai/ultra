@@ -66,7 +66,7 @@ class basic_any {
 
     template<typename Type>
     static const void *basic_vtable(const operation op, const basic_any &value, const void *other) {
-        static_assert(!std::is_same_v<Type, void> && std::is_same_v<std::remove_cv_t<std::remove_reference_t<Type>>, Type>, "Invalid type");
+        static_assert(!std::is_void_v<Type> && std::is_same_v<std::remove_cv_t<std::remove_reference_t<Type>>, Type>, "Invalid type");
         const Type *element = nullptr;
 
         if constexpr(in_situ<Type>) {
@@ -408,7 +408,7 @@ public:
      * @brief Returns true if a wrapper owns its object, false otherwise.
      * @return True if the wrapper owns its object, false otherwise.
      */
-    [[nodiscard]] bool owner() const noexcept {
+    [[deprecated("use policy() and any_policy instead")]] [[nodiscard]] bool owner() const noexcept {
         return (mode == any_policy::owner);
     }
 

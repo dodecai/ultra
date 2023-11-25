@@ -697,7 +697,7 @@ struct has_iterator_category<Type, std::void_t<typename std::iterator_traits<Typ
 
 /*! @copydoc is_iterator */
 template<typename Type>
-struct is_iterator<Type, std::enable_if_t<!std::is_same_v<std::remove_cv_t<std::remove_pointer_t<Type>>, void>>>
+struct is_iterator<Type, std::enable_if_t<!std::is_void_v<std::remove_cv_t<std::remove_pointer_t<Type>>>>>
     : internal::has_iterator_category<Type> {};
 
 /**
@@ -743,14 +743,6 @@ template<typename Type>
 inline constexpr bool is_transparent_v = is_transparent<Type>::value;
 
 /**
- * @brief Provides the member constant `value` to true if a given type is
- * equality comparable, false otherwise.
- * @tparam Type The type to test.
- */
-template<typename Type, typename = void>
-struct is_equality_comparable: std::false_type {};
-
-/**
  * @cond TURN_OFF_DOXYGEN
  * Internal details not to be documented.
  */
@@ -763,34 +755,53 @@ struct has_tuple_size_value: std::false_type {};
 template<typename Type>
 struct has_tuple_size_value<Type, std::void_t<decltype(std::tuple_size<const Type>::value)>>: std::true_type {};
 
+template<typename, typename = void>
+struct has_value_type: std::false_type {};
+
+template<typename Type>
+struct has_value_type<Type, std::void_t<typename Type::value_type>>: std::true_type {};
+
+template<typename>
+[[nodiscard]] constexpr bool dispatch_is_equality_comparable();
+
 template<typename Type, std::size_t... Index>
 [[nodiscard]] constexpr bool unpack_maybe_equality_comparable(std::index_sequence<Index...>) {
-    return (is_equality_comparable<std::tuple_element_t<Index, Type>>::value && ...);
+    return (dispatch_is_equality_comparable<std::tuple_element_t<Index, Type>>() && ...);
 }
 
 template<typename>
-[[nodiscard]] constexpr bool maybe_equality_comparable(choice_t<0>) {
+[[nodiscard]] constexpr bool maybe_equality_comparable(char) {
+    return false;
+}
+
+template<typename Type>
+[[nodiscard]] constexpr auto maybe_equality_comparable(int) -> decltype(std::declval<Type>() == std::declval<Type>()) {
     return true;
 }
 
 template<typename Type>
-[[nodiscard]] constexpr auto maybe_equality_comparable(choice_t<1>) -> decltype(std::declval<typename Type::value_type>(), bool{}) {
-    if constexpr(is_iterator_v<Type>) {
-        return true;
-    } else if constexpr(std::is_same_v<typename Type::value_type, Type>) {
-        return maybe_equality_comparable<Type>(choice<0>);
+[[nodiscard]] constexpr bool dispatch_is_equality_comparable() {
+    if constexpr(std::is_array_v<Type>) {
+        return false;
+    } else if constexpr(is_iterator_v<Type>) {
+        return maybe_equality_comparable<Type>(0);
+    } else if constexpr(has_value_type<Type>::value) {
+        if constexpr(std::is_same_v<typename Type::value_type, Type>) {
+            return maybe_equality_comparable<Type>(0);
+        } else if constexpr(dispatch_is_equality_comparable<typename Type::value_type>()) {
+            return maybe_equality_comparable<Type>(0);
+        } else {
+            return false;
+        }
+    } else if constexpr(is_complete_v<std::tuple_size<std::remove_cv_t<Type>>>) {
+        if constexpr(has_tuple_size_value<Type>::value) {
+            return maybe_equality_comparable<Type>(0) && unpack_maybe_equality_comparable<Type>(std::make_index_sequence<std::tuple_size<Type>::value>{});
     } else {
-        return is_equality_comparable<typename Type::value_type>::value;
+        return maybe_equality_comparable<Type>(0);
     }
+    } else {
+        return maybe_equality_comparable<Type>(0);
 }
-
-template<typename Type>
-[[nodiscard]] constexpr std::enable_if_t<is_complete_v<std::tuple_size<std::remove_cv_t<Type>>>, bool> maybe_equality_comparable(choice_t<2>) {
-    if constexpr(has_tuple_size_value<Type>::value) {
-        return unpack_maybe_equality_comparable<Type>(std::make_index_sequence<std::tuple_size<Type>::value>{});
-    } else {
-        return maybe_equality_comparable<Type>(choice<1>);
-    }
 }
 
 } // namespace internal
@@ -800,14 +811,17 @@ template<typename Type>
  * @endcond
  */
 
-/*! @copydoc is_equality_comparable */
+/**
+ * @brief Provides the member constant `value` to true if a given type is
+ * equality comparable, false otherwise.
+ * @tparam Type The type to test.
+ */
 template<typename Type>
-struct is_equality_comparable<Type, std::void_t<decltype(std::declval<Type>() == std::declval<Type>())>>
-    : std::bool_constant<internal::maybe_equality_comparable<Type>(choice<2>)> {};
+struct is_equality_comparable: std::bool_constant<internal::dispatch_is_equality_comparable<Type>()> {};
 
 /*! @copydoc is_equality_comparable */
-template<typename Type, auto N>
-struct is_equality_comparable<Type[N]>: std::false_type {};
+template<typename Type>
+struct is_equality_comparable<const Type>: is_equality_comparable<Type> {};
 
 /**
  * @brief Helper variable template.
