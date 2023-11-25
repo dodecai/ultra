@@ -9,6 +9,7 @@ git rm -f ".gitignore"
 git rm -f ".gitmodules"
 git rm -f "CHANGELOG.md"
 git rm -f "CMakeLists.txt"
+git rm -f "CMakePresets.json"
 git rm -f "icon.ico"
 git rm -f "vcpkg.json"
 
