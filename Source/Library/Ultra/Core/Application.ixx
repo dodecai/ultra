@@ -171,9 +171,9 @@ public:
             Update(deltaTime);
             if (mWindow->GetState(WindowState::Alive)) {
                 mListener->Update();
-                //pCoreLayer->Prepare();
-                //for (Layer *layer : mLayers) layer->GuiUpdate();
-                //pCoreLayer->Finish();
+                pCoreLayer->Prepare();
+                for (Layer *layer : mLayers) layer->GuiUpdate();
+                pCoreLayer->Finish();
             }
             mContext->SwapBuffers();
             mContext->Detach();

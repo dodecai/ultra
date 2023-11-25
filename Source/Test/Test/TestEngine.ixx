@@ -64,12 +64,6 @@ struct EntityData {
     glm::mat4 Transform = {};
 };
 
-struct CameraLight {
-    glm::mat4 Model = {};
-    glm::mat4 View = {};
-    glm::mat4 Projection = {};
-};
-
 struct Grid {
     unsigned int Indices[6] = { 0, 1, 3, 1, 2, 3 };
     float Vertices[12] = {
@@ -130,11 +124,6 @@ struct Transform {
     }
 };
 
-struct View {
-    glm::vec3 Position;
-};
-
-
 // Shapes
 struct Cube {
     int Components = 36;
@@ -165,18 +154,6 @@ struct Rectangle {
         1, 2, 3,    // Second Triangle
     };
     float Vertices[36] = {
-        // DrawArrays (specify every rectangle)
-        //// First Triangle
-        // 0.5f,  0.5f, 0.0f, // Top-Right
-        // 0.5f, -0.5f, 0.0f, // Bottom-ight
-        //-0.5f,  0.5f, 0.0f, // Top-Left
-
-        //// Second Triangle
-        // 0.5f, -0.5f, 0.0f, // Bottom-Right
-        //-0.5f, -0.5f, 0.0f, // Bottom-Left
-        //-0.5f,  0.5f, 0.0f, // Top-Left
-
-        // DrawIndex (specify only the vertices once)
         // Positions                // Colors           // Texture Coords
          0.5f,  0.5f, 0.0f, 1.0f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f, // Top-Right
          0.5f, -0.5f, 0.0f, 0.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f, // Bottom-Right
@@ -194,12 +171,6 @@ struct Skybox {
         1, 2, 6, 6, 5, 1,   // Right
         3, 2, 6, 6, 7, 3,   // Top
         0, 1, 5, 5, 4, 0,   // Bottom
-        //0,  1,  2,  2,  3,  0, // Front
-        //4,  5,  6,  6,  7,  4, // Back
-        //3,  2,  6,  6,  7,  3, // Top
-        //0,  1,  5,  5,  4,  0, // Bottom
-        //0,  3,  7,  7,  4,  0, // Left
-        //1,  2,  6,  6,  5,  1, // Right
     };
     float Vertices[24] = {
         -1.0f, -1.0f,  1.0f,
@@ -359,7 +330,7 @@ public:
 
         // Draw Models
         //DrawModel(backpack, { 7.0f, 2.0f, 9.0f }, { 0.2f, 0.2f, 0.2f });
-        DrawModel(nanosuit, { 7.0f, 0.0f, -5.0f }, { 0.2f, 0.2f, 0.2f });
+        DrawModel(nanosuit, { 7.0f, 0.0f, -8.0f }, { 0.2f, 0.2f, 0.2f });
         mMetalTexture->Bind(0);
         mMetalTexture->Bind(2);
         DrawModel(level, { 0.0f, 0.0f, 0.0f });
@@ -390,7 +361,7 @@ public:
 
         mWoodTexture->Bind(0);
         mWoodTexture->Bind(2);
-        DrawCube({ { 0.0f, -0.001f, 0.0f }, { 12, 0.002f, -12.0f } });
+        DrawCube({ { 0.0f, -0.001f, 0.0f }, { 12, 0.1f, -12.0f } });
         mMarbleTexture->Bind(0);
         mMarbleTexture->Bind(2);
         DrawCube({ { CubeAX, 10.0f, 0.0f } });
@@ -406,11 +377,11 @@ public:
         mWindowTexture->Bind(2);
         DrawCube({ { -1.0f, 1.0f, -8.0f }, { 1.0f, 1.0f, 0.2f } });
 
-        //mCommandBuffer->UpdateStencilBuffer();
+        mCommandBuffer->UpdateStencilBuffer();
         DrawCube({ { 0.0f, 1.0f, -9.0f }, { 1.0f, 1.0f, 0.2f } });
-        //mCommandBuffer->EnableStencilTest();
-        //DrawCube({ { 0.0f, 1.0f, 9.0f }, { 1.1f, 1.1f, 0.3f } }, true);
-        //mCommandBuffer->ResetStencilTest();
+        mCommandBuffer->EnableStencilTest();
+        DrawCube({ { 0.0f, 1.0f, 9.0f }, { 1.1f, 1.1f, 0.3f } }, true);
+        mCommandBuffer->ResetStencilTest();
     }
 
     void DrawCube(const Components::Transform &transform, bool stencil = false) {
@@ -491,8 +462,17 @@ public:
             .Linear = 0.14f,
             .Quadratic = 0.07f,
         };
-        // - Spot Light
         mLights.Light[2] = {
+            .Type = Components::LightType::Point,
+            .LightColor = { 1.0f, 1.0f, 1.0f },
+            .LightPosition = { 7.0f, 5.0f, -9.0f },
+
+            .Constant = 1.0f,
+            .Linear = 0.14f,
+            .Quadratic = 0.07f,
+        };
+        // - Spot Light
+        mLights.Light[3] = {
             .Type = Components::LightType::Spot,
             .LightColor = { 1.0f, 1.0f, 1.0f },
             .LightPosition = mDesignerCamera.GetPosition(),
@@ -505,7 +485,7 @@ public:
             .CutOffAngle = glm::cos(glm::radians(12.5f)),
         };
         // - Finish Light
-        mLights.Count = 3;
+        mLights.Count = 4;
 
         // Draw
 

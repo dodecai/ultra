@@ -101,7 +101,6 @@ void GLPipelineState::UpdateProperties() {
         case CullMode::BackAndFront:{ glEnable(GL_CULL_FACE); glCullFace(GL_FRONT_AND_BACK); glFrontFace(GL_CW); break; }
         case CullMode::None:        { glDisable(GL_CULL_FACE);  break; }
     }
-    //glFrontFace(GL_CCW);
 
     if (mProperties.DepthTest) {
         glEnable(GL_DEPTH_TEST);
