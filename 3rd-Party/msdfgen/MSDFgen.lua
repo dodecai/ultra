@@ -13,6 +13,7 @@
         "MSDFGEN_CORE_ONLY",
         "MSDFGEN_DISABLE_SVG",
 		"MSDFGEN_USE_CPP11",
+        "MSDFGEN_USE_OPENMP",
 	}
 
 	files {
@@ -25,7 +26,7 @@
 		"include",
 	    "%{Headers.FreeType}",
     }
-    
+
     links {
 		"freetype"
 	}
