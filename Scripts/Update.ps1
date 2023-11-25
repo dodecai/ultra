@@ -3,6 +3,7 @@
 	Set-Location "$PSScriptRoot\..\"
 	
 ### Update SubTree
+	git subtree pull --prefix=3rd-Party/assimp https://github.com/OmniVortexStudios/assimp.git master --squash
 	git subtree pull --prefix=3rd-Party/entt https://github.com/OmniVortexStudios/entt.git master --squash
 	git subtree pull --prefix=3rd-Party/freetype https://github.com/OmniVortexStudios/freetype.git master --squash
 	git subtree pull --prefix=3rd-Party/glm https://github.com/OmniVortexStudios/glm.git master --squash
