@@ -24,6 +24,8 @@ import Ultra.Renderer.Buffer;
 import Ultra.Renderer.DesignerCamera;
 import Ultra.Renderer.PipelineState;
 import Ultra.Renderer.Texture;
+import Ultra.UI.GUIBuilder;
+import Ultra.UI.GUILayer;
 import Ultra.System.Input;
 
 export namespace Ultra::Test {
@@ -206,7 +208,7 @@ struct Triangle {
 
 }
 
-class Engine {
+class Engine: public Ultra::Layer {
 public:
     Engine() {
         // Prepare
@@ -283,6 +285,21 @@ public:
         #if TEST_UI_RENDERER == 1
             TestUIRenderer(deltaTime);
         #endif
+    }
+
+    void GuiUpdate() override {
+        static bool active = true;
+        static float value = 1.0f;
+        static auto color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+        ImGui::Begin("Renderer");
+        UI::Property("Color", glm::value_ptr(color));
+        UI::Property("Distance", value);
+        UI::Property("Lights", active);
+        UI::Label("Lights Count: %d", 3);
+        UI::LabelX("Lights CountX: %d", 3);
+        UI::Property("State", "Count: % d", 3);
+        ImGui::End();
     }
 
     #pragma region Mesh Renderer

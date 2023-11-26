@@ -5,6 +5,8 @@
 #include <imgui/imgui_internal.h>
 #pragma warning(pop)
 
+//#include <Ultra/UI/ImGui/Styles/Styles.h>
+
 export module Ultra.UI.GUILayer;
 
 import <glad/gl.h>;
@@ -37,6 +39,7 @@ public:
 
 // Helpers
 namespace UI {
+
 
 // Labels
 template <typename ... Args>
@@ -81,10 +84,10 @@ inline void Property(const string &label, const string &format, const Args &...a
     ImGui::SetColumnWidth(0, 96.0f);
     ImGui::Text(label.c_str());
     ImGui::NextColumn();
-    //ImGui::TextColored(ImTextColorHighlightWarn, format.c_str(), arguments...);
+    ImGui::TextColored({1.0f, 0.0f, 0.0f, 1.0f}, format.c_str(), arguments...);
     //ImGui::PushStyleColor(ImGuiCol_Text, GetTextColorHighlight());
-    ImGui::Text(format.c_str(), arguments...);
-    ImGui::PopStyleColor();
+    //ImGui::Text(format.c_str(), arguments...);
+    //ImGui::PopStyleColor();
     ImGui::Columns(1);
 }
 

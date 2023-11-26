@@ -38,18 +38,14 @@ void GuiLayer::Attach() {
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO &io = ImGui::GetIO(); (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-    // ToDo: [Vulkan] Windows creation now works, but the swap chains are flickering
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-    //io.ConfigViewportsNoAutoMerge = true;
-    //io.ConfigViewportsNoTaskBarIcon = true;
-    io.ConfigDockingWithShift = true;
+	auto &io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    //io.ConfigDockingWithShift = true;
 
-	// ToDo: Works only as an memory leak, the question is why (otherwise ImGui uses old pointer where the data is gone) ...
+	// ToDo: Works only like this, the question is why (otherwise ImGui uses an old pointer where the data is gone) ...
 	string *dataTarget = new string("./Data/" + Application::GetProperties().Title + ".ini");
 	string *logTarget = new string("./Log/" + Application::GetProperties().Title + ".log");
 	io.IniFilename = dataTarget->c_str();
@@ -70,12 +66,12 @@ void GuiLayer::Attach() {
 	}
 
     // Load Fonts
+    io.Fonts->AddFontDefault();
     io.Fonts->AddFontFromFileTTF("./Assets/Fonts/Roboto/Roboto-Medium.ttf", FontSize, NULL, io.Fonts->GetGlyphRangesDefault());
     io.Fonts->AddFontFromFileTTF("./Assets/Fonts/Roboto/Roboto-Light.ttf", FontSize, NULL, io.Fonts->GetGlyphRangesDefault());
     io.Fonts->AddFontFromFileTTF("./Assets/Fonts/Roboto/Roboto-Bold.ttf", FontSize, NULL, io.Fonts->GetGlyphRangesDefault());
     io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/consola.ttf", FontSize, NULL, io.Fonts->GetGlyphRangesDefault());
     io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/segoeui.ttf", FontSize, NULL, io.Fonts->GetGlyphRangesDefault());
-    io.Fonts->AddFontDefault();
 
     if (Context::API == GraphicsAPI::OpenGL) {
         const char *glsl_version = "#version 450";
@@ -160,30 +156,28 @@ void GuiLayer::Prepare() {
     if (Context::API == GraphicsAPI::Vulkan) ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-    //ImGuizmo::BeginFrame();
 
 	// Properties
 	ImGuiIO& io = ImGui::GetIO();
 	static bool DockSpace = true;
 	static ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_PassthruCentralNode;
 	static ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;;
+    if (dockspaceFlags & ImGuiDockNodeFlags_PassthruCentralNode) windowFlags |= ImGuiWindowFlags_NoBackground;
+    windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+    windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
 	// Viewport
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
-	//ImGui::SetNextWindowPos(viewport->GetWorkPos());
-	//ImGui::SetNextWindowSize(viewport->GetWorkSize());
+	ImGui::SetNextWindowPos(viewport->Pos, 0);
+    ImGui::SetNextWindowSize(viewport->Size, 0);
 	ImGui::SetNextWindowViewport(viewport->ID);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-	windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-	windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-	if (dockspaceFlags & ImGuiDockNodeFlags_PassthruCentralNode) windowFlags |= ImGuiWindowFlags_NoBackground;
-
-	// DockSpace
-	ImGui::Begin("DockSpace", &DockSpace, windowFlags);
+	//// DockSpace
+    ImGui::Begin("DockSpace", &DockSpace, windowFlags);
     ImGuiStyle &style = ImGui::GetStyle();
     // ToDo: Window minimum size while docked
     style.WindowMinSize.x = 256.0f;
@@ -208,7 +202,6 @@ void GuiLayer::Finish() {
     io.DisplaySize = ImVec2((float)width, (float)height);
     
     if (Context::API == GraphicsAPI::OpenGL) {
-        Application::GetContext().Clear();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
     if (Context::API == GraphicsAPI::Vulkan) {
@@ -247,12 +240,20 @@ void GuiLayer::OnKeyboardEvent(KeyboardEventData &data, const EventListener::Eve
         case KeyboardAction::Null: {
 			switch (data.State) {
 				case KeyState::Press: {
+                    logger << data.Key << '\n';
                     if (data.Key == KeyCode::F1) ShowDemoWindow = !ShowDemoWindow;
-                    //io.AddKeyEvent((ImGuiKey)data.Key, true);
-                    //io.KeysDown[(ImGuiKey)data.Key] = true;
+                    if (data.Key == KeyCode::Shift) {
+                        io.AddKeyEvent(ImGuiKey_LeftShift, true);
+                        //io.KeysDown[ImGuiKey_LeftShift] = true;
+                        io.KeyShift = true;
+                    }
                     break;
 				}
 				case KeyState::Release: {
+                    if (data.Key == KeyCode::Shift) {
+                        io.AddKeyEvent(ImGuiKey_LeftShift, false);
+                        io.KeyShift = false;
+                    }
                     //io.AddKeyEvent((ImGuiKey)data.Key, false);
                     //io.KeysDown[(ImGuiKey)data.Key] = false;
 					break;

@@ -19,7 +19,8 @@ namespace Test {
 class App: public Application {
 public:
     // Constructors and Destructor
-    App(const ApplicationProperties &properties): Application(properties) {}
+    App(const ApplicationProperties &properties): Application(properties) {
+    }
     ~App() = default;
 
     // Methods
@@ -28,7 +29,9 @@ public:
             mCore = CreateReference<Test::Core>();
         #endif
         #ifdef ENGINE_TESTS
-            mEngine = CreateReference<Test::Engine>();
+            mEngine = new Test::Engine();
+            PushLayer(mEngine);
+            //mEngine = CreateReference<Test::Engine>();
         #endif
         #ifdef RESEARCH_TESTS
             mResearch = CreateReference<Test::Research>();
@@ -43,7 +46,7 @@ public:
 
 private:
     Reference<Test::Core> mCore;
-    Reference<Test::Engine> mEngine;
+    Test::Engine *mEngine;
     Reference<Test::Research> mResearch;
 };
 
