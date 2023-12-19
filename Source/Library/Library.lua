@@ -17,7 +17,7 @@
     warnings "Extra"
 
     debugdir "%{wks.location}/Build/%{cfg.buildcfg}"
-    files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx" }
+    files { "**.h", "**.cpp", "**.cppm", "**.cxx", "**.inl", "**.ixx", "**.natvis" }
     postbuildcommands {
         "copy /b /y \"%{Package.ShaderC}\" \"%{cfg.targetdir}/\"",
         "exit /b 0",
@@ -61,6 +61,9 @@
 
         "LibPHX",
     }
+
+    filter { "files: **.natvis "}
+        buildaction "Natvis"
 
     filter { "configurations:Debug" }
         defines { "_DEBUG" }

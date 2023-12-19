@@ -28,6 +28,28 @@ import Ultra.UI.GUIBuilder;
 import Ultra.UI.GUILayer;
 import Ultra.System.Input;
 
+namespace Ultra::NewAndTasty {
+
+template <typename T, size_t N>
+struct PositionBase {
+    array<T, N> Data {};
+};
+
+template <typename T = float>
+struct Position2D: PositionBase<T, 2> {
+    [[msvc::no_unique_address]] float &X = this->Data[0];
+    [[msvc::no_unique_address]] float &Y = this->Data[1];
+};
+
+template <typename T = float>
+struct Position3D: PositionBase<T, 3> {
+    [[msvc::no_unique_address]] float &X = this->Data[0];
+    [[msvc::no_unique_address]] float &Y = this->Data[1];
+    [[msvc::no_unique_address]] float &Z = this->Data[2];
+};
+
+}
+
 export namespace Ultra::Test {
 
 enum class UniformPosition {
@@ -211,6 +233,29 @@ struct Triangle {
 class Engine: public Ultra::Layer {
 public:
     Engine() {
+
+        ColorRGB colorRGB { 1.0f, 1.0f, 1.0f };
+        ColorRGBA colorRGBA { 1.0f, 1.0f, 1.0f, 1.0f };
+        Direction2D direction2D { 1.0f, 1.0f };
+        Direction3D direction3D { 1.0f, 1.0f, 1.0f };
+        Normal2D normal2D { 1.0f, 1.0f };
+        Normal3D normal3D { 1.0f, 1.0f, 1.0f };
+        Position2D position2D { 1.0f, 1.0f };
+        Position3D position3D { 1.0f, 1.0f, 1.0f };
+        //Rotation2D rotation2D { 1.0f };
+        Rotation3D rotation3D { 1.0f, 1.0f, 1.0f };
+        TextureCoord2D textureCoordinate2D { 1.0f, 1.0f };
+        TextureCoord3D textureCoordinate3D { 1.0f, 1.0f, 1.0f };
+
+        Matrix2 matrix2x2 { 1.0f, 1.0f, 1.0f, 1.0f };
+        Matrix3 matrix3x3 { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+        Matrix4 matrix4x4 { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+
+
+        Quaternion q0 { 1, 0, 0, 0 };
+
+        auto test = colorRGBA.As<double>();
+
         // Prepare
         AssetManager::Instance().Load();
         mRenderer = Renderer::Create();
@@ -256,7 +301,7 @@ public:
         mRenderer->RenderFrame();
 
         // Update Camera
-        mDesignerCamera.Update(deltaTime);
+        if (!mUIActive) mDesignerCamera.Update(deltaTime);
 
         mCamera.ViewProjection = mDesignerCamera.GetViewProjection();
         mCamera.Projection = mDesignerCamera.GetProjectionMatrix();
@@ -293,6 +338,8 @@ public:
         static auto color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
         ImGui::Begin("Renderer");
+
+        mUIActive = ImGui::IsWindowFocused();
         UI::Property("Color", glm::value_ptr(color));
         UI::Property("Distance", value);
         UI::Property("Lights", active);
@@ -627,6 +674,9 @@ public:
     #pragma endregion
 
 private:
+    // Properties
+    bool mUIActive = false;
+
     // Objects
     Scope<Renderer> mRenderer;
     CommandBuffer *mCommandBuffer;
