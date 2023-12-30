@@ -26,7 +26,7 @@
     }
     
     externalincludedirs {
-	    "%{Headers.ThirdParty}",
+	    "%{Headers.ThirdParty}"
     }
     includedirs {
         "%{Headers.Library}"

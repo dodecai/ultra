@@ -52,7 +52,7 @@ void GuiLayer::Attach() {
 	io.LogFilename = logTarget->c_str();
 	//io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 	//io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
-    auto size = app.GetWindow().GetContexttSize();
+    auto size = app.GetWindow().GetContextSize();
 	io.DisplaySize = ImVec2((float)size.Width, (float)size.Height);
 
 	// Setup Dear ImGui style
@@ -195,7 +195,7 @@ void GuiLayer::Finish() {
 
 	// Properties
     ImGuiIO& io = ImGui::GetIO();
-	auto [width, height] = Application::GetWindow().GetContexttSize();
+	auto &[width, height] = Application::GetWindow().GetContextSize();
 	
 	// Rendering
     ImGui::Render();
@@ -221,10 +221,8 @@ void GuiLayer::Finish() {
 void GuiLayer::OnControllerEvent(ControllerEventData &data, const EventListener::EventEmitter &emitter) {}
 
 void GuiLayer::OnKeyboardEvent(KeyboardEventData &data, const EventListener::EventEmitter &emitter) {
-	if (ImGui::GetCurrentContext() == NULL) return;
-
-	ImGuiIO &io = ImGui::GetIO();
-
+	if (ImGui::GetCurrentContext() == nullptr) return;
+    ImGuiIO &io = ImGui::GetIO();
     data.Handled = io.WantCaptureKeyboard;
     
 	io.KeyAlt = data.Modifier.Alt;
@@ -244,18 +242,13 @@ void GuiLayer::OnKeyboardEvent(KeyboardEventData &data, const EventListener::Eve
                     if (data.Key == KeyCode::F1) ShowDemoWindow = !ShowDemoWindow;
                     if (data.Key == KeyCode::Shift) {
                         io.AddKeyEvent(ImGuiKey_LeftShift, true);
-                        //io.KeysDown[ImGuiKey_LeftShift] = true;
-                        io.KeyShift = true;
                     }
                     break;
 				}
 				case KeyState::Release: {
                     if (data.Key == KeyCode::Shift) {
                         io.AddKeyEvent(ImGuiKey_LeftShift, false);
-                        io.KeyShift = false;
                     }
-                    //io.AddKeyEvent((ImGuiKey)data.Key, false);
-                    //io.KeysDown[(ImGuiKey)data.Key] = false;
 					break;
 				}
 
@@ -271,11 +264,10 @@ void GuiLayer::OnKeyboardEvent(KeyboardEventData &data, const EventListener::Eve
 }
 
 void GuiLayer::OnMouseEvent(MouseEventData &data, const EventListener::EventEmitter &emitter) {
-	if (ImGui::GetCurrentContext() == NULL) return;
+	if (ImGui::GetCurrentContext() == nullptr) return;
 	ImGuiIO &io = ImGui::GetIO();
     data.Handled = io.WantCaptureMouse;
     
-
 	io.KeyAlt = data.Modifier.Alt;
 	io.KeyCtrl = data.Modifier.Control;
 	io.KeyShift = data.Modifier.Shift;
@@ -284,14 +276,11 @@ void GuiLayer::OnMouseEvent(MouseEventData &data, const EventListener::EventEmit
 	switch (data.Action) {
 		case MouseAction::Move:	{
             io.AddMousePosEvent(static_cast<float>(data.X), static_cast<float>(data.Y));
-            //io.MousePos = ImVec2(static_cast<float>(data.X), static_cast<float>(data.Y));
             break;
         }
 
         case MouseAction::Wheel: {
             io.AddMouseWheelEvent(data.DeltaWheelX, data.DeltaWheelY);
-            //io.MouseWheel += data.DeltaWheelY;
-            //io.MouseWheelH += data.DeltaWheelX;
             break;
         }
 
@@ -324,6 +313,7 @@ void GuiLayer::OnMouseEvent(MouseEventData &data, const EventListener::EventEmit
 }
 
 void GuiLayer::OnTouchEvent(TouchEventData &data, const EventListener::EventEmitter &emitter) {}
+
 void GuiLayer::OnWindowEvent(WindowEventData &data, const EventListener::EventEmitter &emitter) {}
 
 }

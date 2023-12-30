@@ -598,8 +598,18 @@ struct VectorBase<bool, N, VectorAliases::None>: public VectorData<bool, N, Vect
 /// @brief Aliases
 ///
 
+using Vector2 = VectorBase<float, 2, VectorAliases::Coordinate>;
+using Vector3 = VectorBase<float, 3, VectorAliases::Coordinate>;
+using Vector4 = VectorBase<float, 4, VectorAliases::Coordinate>;
+
+using Acceleration2D = VectorBase<float, 2, VectorAliases::None>;
+using Acceleration3D = VectorBase<float, 3, VectorAliases::None>;
+
 using Direction2D = VectorBase<float, 2, VectorAliases::Coordinate>;
 using Direction3D = VectorBase<float, 3, VectorAliases::Coordinate>;
+
+using Force2D = VectorBase<float, 2, VectorAliases::None>;
+using Force3D = VectorBase<float, 3, VectorAliases::None>;
 
 using Normal2D = VectorBase<float, 2, VectorAliases::Normal>;
 using Normal3D = VectorBase<float, 3, VectorAliases::Normal>;
@@ -608,15 +618,17 @@ using Position2D = VectorBase<float, 2, VectorAliases::Coordinate>;
 using Position3D = VectorBase<float, 3, VectorAliases::Coordinate>;
 using Position4D = VectorBase<float, 4, VectorAliases::Coordinate>;
 
-//using Rotation2D = VectorBase<float, 1, VectorAliases::None>;
+using Rotation2D = VectorBase<float, 2, VectorAliases::None>; // ToDo: Are two components needed here?
 using Rotation3D = VectorBase<float, 3, VectorAliases::Rotation>;
+
+using Scale2D = VectorBase<float, 2, VectorAliases::None>;
+using Scale3D = VectorBase<float, 3, VectorAliases::None>;
 
 using TextureCoord2D = VectorBase<float, 2, VectorAliases::TextureCoordinate>;
 using TextureCoord3D = VectorBase<float, 3, VectorAliases::TextureCoordinate>;
 
-using Vector2 = VectorBase<float, 2, VectorAliases::Coordinate>;
-using Vector3 = VectorBase<float, 3, VectorAliases::Coordinate>;
-using Vector4 = VectorBase<float, 4, VectorAliases::Coordinate>;
+using Velocity2D = VectorBase<float, 2, VectorAliases::None>;
+using Velocity3D = VectorBase<float, 3, VectorAliases::None>;
 
 ///
 /// @brief Test Interface

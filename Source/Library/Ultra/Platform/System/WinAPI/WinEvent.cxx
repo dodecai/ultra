@@ -3,11 +3,11 @@
 import <Windows.h>;
 import <WindowsX.h>;
 
-#ifndef HID_USAGE_PAGE_GENERIC
-    #define HID_USAGE_PAGE_GENERIC         ((USHORT) 0x01)
-#endif
 #ifndef HID_USAGE_GENERIC_MOUSE
     #define HID_USAGE_GENERIC_MOUSE        ((USHORT) 0x02)
+#endif
+#ifndef HID_USAGE_PAGE_GENERIC
+    #define HID_USAGE_PAGE_GENERIC         ((USHORT) 0x01)
 #endif
 
 import Ultra.Platform.UI.WinAPI.Window;
@@ -18,11 +18,6 @@ namespace Ultra {
 
 // Properties
 RAWINPUTDEVICE RawInputDevice[1];
-
-// Default
-WinEventListener::WinEventListener() {}
-WinEventListener::~WinEventListener() {}
-
 
 // Events
 bool WinEventListener::Callback(void *event) {
@@ -41,10 +36,10 @@ intptr_t WinEventListener::Register(void *event) {
 	// Properties
 	LRESULT result = 1;
 	MSG &msg = *reinterpret_cast<MSG *>(event);
-    [[maybe_unused]] HWND &hWnd = msg.hwnd;
-    [[maybe_unused]] UINT &uMsg = msg.message;
-    [[maybe_unused]] WPARAM &wParam = msg.wParam;
-    [[maybe_unused]] LPARAM &lParam = msg.lParam;
+    HWND &hWnd = msg.hwnd;
+    UINT &uMsg = msg.message;
+    WPARAM &wParam = msg.wParam;
+    LPARAM &lParam = msg.lParam;
 
 	static bool Initialized = false;
 	if (!Initialized) {
@@ -56,16 +51,19 @@ intptr_t WinEventListener::Register(void *event) {
 		RegisterRawInputDevices(RawInputDevice, 1, sizeof(RawInputDevice[0]));
 	}
 
-	// Do the magic
-	// Sources:
-	// - Raw Input:			https://docs.microsoft.com/en-us/windows/win32/inputdev/raw-input-notifications
-	// - Keyboard Input:	https://docs.microsoft.com/en-us/windows/win32/inputdev/keyboard-input-notifications
-	// - Mouse Input:		https://docs.microsoft.com/en-us/windows/win32/inputdev/mouse-input-notifications
+    ///
+	/// Do the magic
+	/// Sources:
+	/// - Raw Input:			https://docs.microsoft.com/en-us/windows/win32/inputdev/raw-input-notifications
+	/// - Keyboard Input:	https://docs.microsoft.com/en-us/windows/win32/inputdev/keyboard-input-notifications
+	/// - Mouse Input:		https://docs.microsoft.com/en-us/windows/win32/inputdev/mouse-input-notifications
+    
 	// Pre-Flight-Test: Check if there are any observers in the groups, so the user gets only what he needs.
 	switch (uMsg) {
-		/**
-		 *	Input Events
-		*/
+		///
+		/// Input Events
+		///
+        
 		// Raw (must be requested by HighPrecision flag)
 		case WM_INPUT: {
 			//if (MouseEvent.Empty()) break; // || KeyboardEvent.Empty()
@@ -242,7 +240,6 @@ intptr_t WinEventListener::Register(void *event) {
 				}
 			}
 
-
 			// Get Modifiers
 			data.Modifier.Control	= GetKeyState(VK_CONTROL);
 			data.Modifier.Shift		= GetKeyState(VK_SHIFT);
@@ -377,7 +374,7 @@ intptr_t WinEventListener::Register(void *event) {
 			MouseEventData data;
 			data.Action = MouseAction::Wheel;
 
-			data.DeltaWheelY =(float) GET_WHEEL_DELTA_WPARAM(msg.wParam) / (float)WHEEL_DELTA;
+			data.DeltaWheelY = (float)GET_WHEEL_DELTA_WPARAM(msg.wParam) / (float)WHEEL_DELTA;
             
             Input::sMouseWheelDelta = data.DeltaWheelY;
 
@@ -421,9 +418,11 @@ intptr_t WinEventListener::Register(void *event) {
 			break;
 		}
 
-		/**
-		 *	Window Events (they serve only for notification purposes, the windows handle the events on their own)
-		*/
+		///
+		/// Window Events
+        /// They serve only for notification purposes, the windows handle the events on their own.
+		///
+        
 		// Information
 		case WM_DPICHANGED: {
 			WindowEventData data;
@@ -563,7 +562,10 @@ intptr_t WinEventListener::Register(void *event) {
 			}
 			break;
 		}
-		
+
+        ///
+        /// Nothing of interest
+        ///
 		default: {
 			break;
 		}

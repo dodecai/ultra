@@ -115,6 +115,10 @@ std::string GetLastErrorAsString() {
     return message;
 }
 
+// ToDo: New Properties
+static bool CustomTitleBar = false;
+
+
 
 // Default
 WinWindow::WinWindow(const WindowProperties &properties):
@@ -366,13 +370,14 @@ intptr_t WinWindow::Message(void *event) {
     [[maybe_unused]] WPARAM &wParam = msg.wParam;
     [[maybe_unused]] LPARAM &lParam = msg.lParam;
 
-    /**
-    * @brief	Window Messages
-    * @source	https://docs.microsoft.com/en-us/windows/win32/winmsg/window-messages
-    *			https://docs.microsoft.com/en-us/windows/win32/winmsg/window-notifications
-    *			https://docs.microsoft.com/en-us/windows/win32/inputdev/keyboard-input-notifications
-    *			https://docs.microsoft.com/en-us/windows/win32/gdi/painting-and-drawing-messages
-    */
+    ///
+    /// @brief	Window Messages
+    /// @source:
+    ///     https://docs.microsoft.com/en-us/windows/win32/winmsg/window-messages
+    ///		https://docs.microsoft.com/en-us/windows/win32/winmsg/window-notifications
+    ///		https://docs.microsoft.com/en-us/windows/win32/inputdev/keyboard-input-notifications
+    ///		https://docs.microsoft.com/en-us/windows/win32/gdi/painting-and-drawing-messages
+    ///
     // Process important window related events internally
     switch (msg.message) {
         // Pre-Check: Does this message belong to the current window?
@@ -391,6 +396,62 @@ intptr_t WinWindow::Message(void *event) {
             break;
         }
 
+        // Custom Title Bar
+        case WM_NCCALCSIZE: {
+            if (CustomTitleBar && lParam) {
+                const int borderX = GetSystemMetrics(SM_CXSIZEFRAME) / 2;
+                const int borderY = GetSystemMetrics(SM_CYSIZEFRAME) / 2;
+
+                auto hasThickFrame = GetWindowLongPtr(hWnd, GWL_STYLE) & WS_THICKFRAME;
+                if (!hasThickFrame) { break; }
+
+                auto *params = reinterpret_cast<NCCALCSIZE_PARAMS *>(lParam);
+                params->rgrc[0].left += borderX;
+                params->rgrc[0].top += borderY;
+                params->rgrc[0].right -= borderX;
+                params->rgrc[0].bottom -= borderY;
+
+                return WVR_ALIGNLEFT | WVR_ALIGNTOP | WVR_ALIGNBOTTOM | WVR_ALIGNRIGHT;
+            }
+        }
+        case WM_NCHITTEST: {
+            auto hasThickFrame = GetWindowLongPtr(hWnd, GWL_STYLE) & WS_THICKFRAME;
+            if (!CustomTitleBar || !hasThickFrame) break;
+            break;
+
+            // Test for custom frames
+            POINT cursorPosition = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+            ScreenToClient(hWnd, &cursorPosition);
+            if (!Data.Maximized) {
+                RECT clientRect;
+                GetClientRect(hWnd, &clientRect);
+
+                const int borderSizeVertical = GetSystemMetrics(SM_CYFRAME);
+                int hit = 0;
+                enum { left = 1, top = 2, right = 4, bottom = 8 };
+                
+                static RECT borderThickness { 4, 4, 4, 4 };
+                if (cursorPosition.x <= borderThickness.left) hit |= left;
+                if (cursorPosition.x >= clientRect.right - borderThickness.right) hit |= right;
+                if (cursorPosition.y <= borderThickness.top || cursorPosition.y < borderSizeVertical) hit |= top;
+                if (cursorPosition.y >= clientRect.bottom - borderThickness.bottom) hit |= bottom;
+                
+                if (hit & top && hit & left)        return HTTOPLEFT;
+                if (hit & top && hit & right)       return HTTOPRIGHT;
+                if (hit & bottom && hit & left)     return HTBOTTOMLEFT;
+                if (hit & bottom && hit & right)    return HTBOTTOMRIGHT;
+                if (hit & left)                     return HTLEFT;
+                if (hit & top)                      return HTTOP;
+                if (hit & right)                    return HTRIGHT;
+                if (hit & bottom)                   return HTBOTTOM;
+            }
+
+            auto testTitleBarHit = 0;
+            if (testTitleBarHit) {
+                return HTCAPTION;
+            };
+        }
+
         // Creation and Destruction
         case WM_CLOSE: {
             // Ensure that the Window gets destroyed and release the handle to it
@@ -405,8 +466,6 @@ intptr_t WinWindow::Message(void *event) {
         }
         case WM_CREATE: {
             Data.Alive = true;
-
-            //result = 0;
             break;
         }
         case WM_DESTROY: {
@@ -480,10 +539,9 @@ intptr_t WinWindow::Message(void *event) {
                     Data.Minimized = false;
                 }
             }
-            Properties.Size.Width = static_cast<uint32_t>((UINT64)msg.lParam & 0xFFFF);
-            Properties.Size.Height = static_cast<uint32_t>((UINT64)msg.lParam >> 16);
+            Properties.Size.Width = static_cast<uint32_t>(LOWORD(msg.lParam));
+            Properties.Size.Height = static_cast<uint32_t>(HIWORD(msg.lParam));
 
-            //result = 0;
             break;
         }
         case WM_SIZING: {
@@ -494,18 +552,13 @@ intptr_t WinWindow::Message(void *event) {
         // State
         case WM_ACTIVATE: {
             Data.Active = (bool)msg.wParam;
-
-            //result = 0;
             break;
         }
         case WM_CAPTURECHANGED: {
-            //result = 0;
             break;
         }
         case WM_KILLFOCUS: {
             Data.Focused = false;
-
-            //result = 0;
             break;
         }
         case WM_SETFOCUS: {
@@ -518,7 +571,6 @@ intptr_t WinWindow::Message(void *event) {
             //	//window->prevMouseY = static_cast<unsigned int>(position.y);
             //}
 
-            //result = 0;
             break;
         }
 
@@ -567,7 +619,7 @@ const WindowProperties &WinWindow::GetProperties() const {
 	return Properties;
 }
 
-const WindowSize WinWindow::GetContexttSize() const {
+const WindowSize WinWindow::GetContextSize() const {
 	RECT dimension;
 	GetClientRect(WindowHandle, &dimension);
 

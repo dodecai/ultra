@@ -18,7 +18,7 @@ public:
     // Accessors
     virtual void *GetNativeWindow() = 0;
     virtual const WindowProperties &GetProperties() const = 0;
-    virtual const WindowSize GetContexttSize() const = 0;
+    virtual const WindowSize GetContextSize() const = 0;
     virtual const WindowPosition GetDisplayPosition() const = 0;
     virtual const WindowSize GetDisplaySize() const = 0;
     virtual const WindowSize GetScreenSize() const = 0;

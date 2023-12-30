@@ -109,7 +109,7 @@ public:
         mContext = Context::Create(mWindow->GetNativeWindow());
         mContext->Attach();
         mContext->Load();
-        mContext->SetViewport(mWindow->GetContexttSize().Width, mWindow->GetContexttSize().Height);
+        mContext->SetViewport(mWindow->GetContextSize().Width, mWindow->GetContextSize().Height);
         mContext->SetVSync(true);
         mContext->Clear();
 
@@ -272,7 +272,7 @@ protected:
         context->Attach();
         context->Load();
 
-        auto &[width, height] = GetWindow().GetContexttSize();
+        auto &[width, height] = GetWindow().GetContextSize();
         context->SetViewport(width, height);
 
         for (auto *layer : layers) layer->Detach();
@@ -321,7 +321,7 @@ protected:
             }
 
             case WindowAction::Resize: {
-                mContext->SetViewport(mWindow->GetContexttSize().Width, mWindow->GetContexttSize().Height);
+                mContext->SetViewport(mWindow->GetContextSize().Width, mWindow->GetContextSize().Height);
                 break;
             }
 

@@ -3,15 +3,15 @@
 	Set-Location "$PSScriptRoot\..\"
 	
 ### Update SubTree
-	git subtree pull --prefix=3rd-Party/assimp https://github.com/OmniVortexStudios/assimp.git master --squash
-	git subtree pull --prefix=3rd-Party/entt https://github.com/OmniVortexStudios/entt.git master --squash
-	git subtree pull --prefix=3rd-Party/freetype https://github.com/OmniVortexStudios/freetype.git master --squash
-	git subtree pull --prefix=3rd-Party/glm https://github.com/OmniVortexStudios/glm.git master --squash
-	git subtree pull --prefix=3rd-Party/imgui https://github.com/OmniVortexStudios/imgui.git docking --squash
-	git subtree pull --prefix=3rd-Party/msdf-atlas-gen https://github.com/OmniVortexStudios/msdf-atlas-gen.git master --squash
-	git subtree pull --prefix=3rd-Party/msdfgen https://github.com/OmniVortexStudios/msdfgen.git master --squash
-	git subtree pull --prefix=3rd-Party/stb https://github.com/OmniVortexStudios/stb.git master --squash
-	git subtree pull --prefix=3rd-Party/yaml-cpp https://github.com/OmniVortexStudios/yaml-cpp.git master --squash
+	git subtree pull --prefix=3rd-Party/assimp https://github.com/vitx-studios/assimp.git master --squash
+	git subtree pull --prefix=3rd-Party/entt https://github.com/vitx-studios/entt.git master --squash
+	git subtree pull --prefix=3rd-Party/freetype https://github.com/vitx-studios/freetype.git master --squash
+	git subtree pull --prefix=3rd-Party/glm https://github.com/vitx-studios/glm.git master --squash
+	git subtree pull --prefix=3rd-Party/imgui https://github.com/vitx-studios/imgui.git docking --squash
+	git subtree pull --prefix=3rd-Party/msdf-atlas-gen https://github.com/vitx-studios/msdf-atlas-gen.git master --squash
+	git subtree pull --prefix=3rd-Party/msdfgen https://github.com/vitx-studios/msdfgen.git master --squash
+	git subtree pull --prefix=3rd-Party/stb https://github.com/vitx-studios/stb.git master --squash
+	git subtree pull --prefix=3rd-Party/yaml-cpp https://github.com/vitx-studios/yaml-cpp.git master --squash
 	
 ### Update MainTree
 	git pull origin master

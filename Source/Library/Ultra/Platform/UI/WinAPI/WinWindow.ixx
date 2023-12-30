@@ -47,7 +47,7 @@ public:
     // Accessors
     virtual void *GetNativeWindow() override;
     virtual const WindowProperties &GetProperties() const override;
-    virtual const WindowSize GetContexttSize() const override;
+    virtual const WindowSize GetContextSize() const override;
     virtual const WindowPosition GetDisplayPosition() const override;
     virtual const WindowSize GetDisplaySize() const override;
     virtual const WindowSize GetScreenSize() const override;
