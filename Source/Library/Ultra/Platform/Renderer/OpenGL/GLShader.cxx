@@ -165,19 +165,19 @@ void GLShader::UpdateUniform(const string &name, const Bool &data) {
 
 void GLShader::UpdateUniform(const string &name, const Bool2 &data) {
     auto location = FindUniformLocation(name);
-    auto converted = data.As<GLint>();
+    auto converted = data.ToArray<GLint>();
     glUniform2iv(location, 1, converted.data());
 }
 
 void GLShader::UpdateUniform(const string &name, const Bool3 &data) {
     auto location = FindUniformLocation(name);
-    auto converted = data.As<GLint>();
+    auto converted = data.ToArray<GLint>();
     glUniform3iv(location, 1, converted.data());
 }
 
 void GLShader::UpdateUniform(const string &name, const Bool4 &data) {
     auto location = FindUniformLocation(name);
-    auto converted = data.As<GLint>();
+    auto converted = data.ToArray<GLint>();
     glUniform4iv(location, 1, converted.data());
 }
 

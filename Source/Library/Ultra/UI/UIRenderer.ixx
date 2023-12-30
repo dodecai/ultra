@@ -22,53 +22,6 @@ import Ultra.Logger;
 import Ultra.Math;
 
 
-// Helpers
-namespace Ultra {
-
-inline uint32_t DecodeUtf8(string_view::iterator &begin, string_view::iterator end) {
-    unsigned char byte = *begin;
-    uint32_t codepoint = 0;
-    int additionalBytes = 0;
-
-    // 1-Byte Character (ASCII)
-    if (byte <= 0x7F) {
-        codepoint = byte;
-    // 2-Byte Character
-    } else if ((byte & 0xE0) == 0xC0) {
-        codepoint = byte & 0x1F;
-        additionalBytes = 1;
-    // 3-Byte Character
-    } else if ((byte & 0xF0) == 0xE0) {
-        codepoint = byte & 0x0F;
-        additionalBytes = 2;
-    // 4-Byte Character
-    } else if ((byte & 0xF8) == 0xF0) {
-        codepoint = byte & 0x07;
-        additionalBytes = 3;
-    // Invalid UTF-8 start byte
-    } else {
-        begin++;
-        return 0xFFFD; // Unicode replacement character
-    }
-
-    begin++;
-
-    while (additionalBytes > 0) {
-        if (begin == end || (*begin & 0xC0) != 0x80) {
-            // Premature end or invalid UTF-8 continuation byte
-            return 0xFFFD; // Unicode replacement character
-        }
-
-        codepoint = (codepoint << 6) | (*begin & 0x3F);
-        begin++;
-        additionalBytes--;
-    }
-
-    return codepoint;
-}
-
-}
-
 ///
 /// @brief UIRenderer: This is a simple ui renderer, nothing more, nothing less.
 ///

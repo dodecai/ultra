@@ -9,7 +9,7 @@ import Ultra.Core.Types;
 export namespace Ultra {
 
 ///
-/// @brief Concepts for Aritmetic Types
+/// @brief Concepts for Arithmetic Types
 ///
 
 // Detects: All Arithmetic Types
@@ -27,7 +27,7 @@ concept typename_floating_point = std::is_floating_point_v<T>;
 
 
 ///
-/// @brief Concepts for Hasable Types
+/// @brief Concepts for Hashable Types
 ///
 
 // All size_t convertible Types

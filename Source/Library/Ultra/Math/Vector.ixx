@@ -35,9 +35,8 @@ concept VectorSizeRange = (N >= 2 && N <= 4);
 /// @brief Enumerations
 ///
 
-// Vector Aliases: [None|Color|Coordinate|Normal|Rotation|TextureCoordinate]
+// Vector Aliases: [None|Coordinate|Normal|Rotation|TextureCoordinate]
 enum class VectorAliases {
-    Color,
     Coordinate,
     Normal,
     Rotation,
@@ -53,7 +52,7 @@ enum class VectorAliases {
 /// @brief Vector Data: Prototype
 /// @tparam T Vector Type: [bool|double|float|int32|uint32]
 /// @tparam N Vector Size: [2|3|4]
-/// @tparam A Vector Alias: [None|Color|Coordinate|Normal|Rotation|TextureCoordinate]
+/// @tparam A Vector Alias: [None|Coordinate|Normal|Rotation|TextureCoordinate]
 ///
 template<VectorNumerics T, size_t N, VectorAliases A = VectorAliases::None>
     requires VectorSizeRange<N>
@@ -65,29 +64,6 @@ struct VectorData;
 template<VectorNumerics T, size_t N>
 struct VectorData<T, N, VectorAliases::None> {
     std::array<T, N> Data;
-};
-
-///
-/// @brief Vector Data: Color Specialization with additional aliases [R|G|B|A]
-///
-template<VectorNumerics T, size_t N>
-struct VectorData<T, N, VectorAliases::Color> {
-    // Aliases
-    using T1 = typename std::conditional_t<N >= 1, T, std::monostate>;
-    using T2 = typename std::conditional_t<N >= 2, T, std::monostate>;
-    using T3 = typename std::conditional_t<N >= 3, T, std::monostate>;
-    using T4 = typename std::conditional_t<N >= 4, T, std::monostate>;
-
-    // Properties
-    union {
-        std::array<T, N> Data;
-        struct {
-            CPP_NO_UNIQUE_ADDRESS T1 R;
-            CPP_NO_UNIQUE_ADDRESS T2 G;
-            CPP_NO_UNIQUE_ADDRESS T3 B;
-            CPP_NO_UNIQUE_ADDRESS T4 A;
-        };
-    };
 };
 
 ///
@@ -161,12 +137,12 @@ struct VectorData<T, N, VectorAliases::Rotation> {
 /// @brief Vector Data: Texture Coordinates Specialization with additional aliases [U|V|W|Q]
 ///
 template<VectorNumerics T, size_t N>
+    requires (N >= 2 && N <= 3)
 struct VectorData<T, N, VectorAliases::TextureCoordinate> {
     // Aliases
     using T1 = typename std::conditional_t<N >= 1, T, std::monostate>;
     using T2 = typename std::conditional_t<N >= 2, T, std::monostate>;
     using T3 = typename std::conditional_t<N >= 3, T, std::monostate>;
-    using T4 = typename std::conditional_t<N >= 4, T, std::monostate>;
 
     // Properties
     union {
@@ -175,7 +151,6 @@ struct VectorData<T, N, VectorAliases::TextureCoordinate> {
             CPP_NO_UNIQUE_ADDRESS T1 U;
             CPP_NO_UNIQUE_ADDRESS T2 V;
             CPP_NO_UNIQUE_ADDRESS T3 W;
-            CPP_NO_UNIQUE_ADDRESS T3 Q;
         };
     };
 };
@@ -233,7 +208,7 @@ struct VectorBase: public VectorData<T, N, A> {
 
     // Conversion
     template <VectorNumerics U>
-    array<U, N> As() const {
+    array<U, N> ToArray() const {
         array<U, N> result;
         std::transform(Data.begin(), Data.end(), result.begin(), [](bool b) {
             return static_cast<U>(b);
@@ -548,22 +523,13 @@ struct VectorBase: public VectorData<T, N, A> {
         return result;
     }
 
-    // Returns the squared magnitude of this vector.
-    inline T SquaredMagnitude() const {
-        T sum = 0;
-        for (size_t i = 0; i < N; i++) {
-            sum += Data[i] * Data[i];
-        }
-        return sum;
-    }
-
     // Checks if the vector is a unit vector.
     inline bool UnitVector(T epsilon = std::numeric_limits<T>::epsilon()) const {
-        return std::abs(SquaredMagnitude() - 1) < epsilon;
+        return std::abs(SquaredLength() - 1) < epsilon;
     }
 
     // Resets the vector to zero.
-    void Zero() {
+    inline void Zero() {
         std::fill(Data.begin(), Data.end(), static_cast<T>(0));
     }
 };
@@ -606,7 +572,7 @@ struct VectorBase<bool, N, VectorAliases::None>: public VectorData<bool, N, Vect
 
     // Conversion
     template <VectorNumerics U>
-    array<U, N> As() const {
+    array<U, N> ToArray() const {
         array<U, N> result;
         std::transform(Data.begin(), Data.end(), result.begin(), [](bool b) {
             return static_cast<U>(b);
@@ -628,20 +594,23 @@ struct VectorBase<bool, N, VectorAliases::None>: public VectorData<bool, N, Vect
 
 #pragma endregion
 
-
 ///
 /// @brief Aliases
 ///
 
-using ColorRGB = VectorBase<float, 3, VectorAliases::Color>;
-using ColorRGBA = VectorBase<float, 4, VectorAliases::Color>;
 using Direction2D = VectorBase<float, 2, VectorAliases::Coordinate>;
 using Direction3D = VectorBase<float, 3, VectorAliases::Coordinate>;
+
 using Normal2D = VectorBase<float, 2, VectorAliases::Normal>;
 using Normal3D = VectorBase<float, 3, VectorAliases::Normal>;
+
 using Position2D = VectorBase<float, 2, VectorAliases::Coordinate>;
 using Position3D = VectorBase<float, 3, VectorAliases::Coordinate>;
+using Position4D = VectorBase<float, 4, VectorAliases::Coordinate>;
+
+//using Rotation2D = VectorBase<float, 1, VectorAliases::None>;
 using Rotation3D = VectorBase<float, 3, VectorAliases::Rotation>;
+
 using TextureCoord2D = VectorBase<float, 2, VectorAliases::TextureCoordinate>;
 using TextureCoord3D = VectorBase<float, 3, VectorAliases::TextureCoordinate>;
 
@@ -698,7 +667,9 @@ struct std::formatter<Ultra::VectorBase<T, N, A>> {
 
 }
 
-
+///
+/// @brief Tests
+///
 
 module: private;
 
@@ -724,9 +695,6 @@ void Compiler() {
     static_assert( 8 == sizeof(VectorBase<uint32_t,2>), "VectorBase<uint32>[2]: The type size should be 8 bytes(s)!");
     static_assert(12 == sizeof(VectorBase<uint32_t,3>), "VectorBase<uint32>[3]: The type size should be 12 bytes(s)!");
     static_assert(16 == sizeof(VectorBase<uint32_t,4>), "VectorBase<uint32>[4]: The type size should be 16 bytes(s)!");
-    static_assert( 8 == sizeof(VectorBase<float,   2>), "VectorBase<float>[2]:  The type size should be 8 byte(s)!");
-    static_assert(12 == sizeof(VectorBase<float,   3>), "VectorBase<float>[3]:  The type size should be 12 byte(s)!");
-    static_assert(16 == sizeof(VectorBase<float,   4>), "VectorBase<float>[4]:  The type size should be 16 byte(s)!");
 }
 
 ///
@@ -805,8 +773,8 @@ void VectorTests() {
     VectorBase<bool, 3> bool3 = { true, false, true };
     VectorBase<bool, 4> bool4 = { true, false, true, false };
 
-    ColorRGB rgb = { 0.5f, 0.5f, 0.5f };
-    ColorRGBA rgba = { 0.5f, 0.5f, 0.5f, 0.5f };
+    Position3D xyz = { 0.5f, 0.5f, 0.5f };
+    Position4D xyzw = { 0.5f, 0.5f, 0.5f, 0.5f };
 
     Direction2D dir2 = { 0.5f, 0.5f };
     Direction3D dir3 = { 0.5f, 0.5f, 0.5f };
@@ -820,12 +788,12 @@ void VectorTests() {
     TextureCoord2D uv = { 0.5f, 0.5f };
     TextureCoord3D uvw = { 0.5f, 0.5f, 0.5f };
 
-    auto converted = rgba.As<double>();
+    auto converted = xyzw.ToArray<double>();
 
     // Test basic properties
     AppAssert(bool2 == VectorBase<bool, 2> { true, false }, "Comparision test failed for boolean!");
-    rgba *= 0.25f * 2;
-    AppAssert(rgba == ColorRGBA { 0.25f, 0.25f, 0.25f, 0.25f }, "Comparision test failed for ColorRGBA!");
+    xyzw *= 0.25f * 2;
+    AppAssert(xyzw == Position4D { 0.25f, 0.25f, 0.25f, 0.25f }, "Comparision test failed for Position4D!");
 
     auto boom = start / 0;
     auto boomagain = end / 0.00000000f;
@@ -833,14 +801,14 @@ void VectorTests() {
     LogInfo("Bool1: {}", std::to_string(bool2));
     LogInfo("Bool2: {}", std::to_string(bool3));
     LogInfo("Bool3: {}", std::to_string(bool4));
-    LogInfo("ColorRGB:   {}", std::to_string(rgb));
-    LogInfo("ColorRGBA:  {}", std::to_string(rgba));
     LogInfo("Direction2D:{}", std::to_string(dir2));
     LogInfo("Direction3D:{}", std::to_string(dir3));
     LogInfo("Normal2D:   {}", std::to_string(norm2));
     LogInfo("Normal3D:   {}", std::to_string(norm3));
     LogInfo("Position2D: {}", std::to_string(start));
     LogInfo("Position3D: {}", std::to_string(end));
+    LogInfo("Position3D:  {}", std::to_string(xyz));
+    LogInfo("Position4D:  {}", std::to_string(xyzw));
     LogInfo("TextureCoord2D: {}", std::to_string(uv));
     LogInfo("TextureCoord3D: {}", std::to_string(uvw));
 

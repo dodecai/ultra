@@ -109,17 +109,22 @@
     <!--
         VectorBase Visualizer
     -->
-    <Type Name="Ultra::VectorBase&lt;*,*,*&gt;">
-        <Intrinsic Name="monostate" Expression="Data" />
-        <DisplayString>{{ R={R,g} | G={G,g} | B={B,g} | A={A,g} }</DisplayString>
+    <Type Name="Ultra::VectorBase&lt;*,2,*&gt;">
+        <DisplayString>{{ X={X,g} | Y={Y,g} }</DisplayString>
         <Expand>
-            <Item Name="R">R</Item>
-            <Item Name="G">G</Item>
-            <Item Name="B">B</Item>
-            <Item Name="A">A</Item>
+            <Item Name="X">X</Item>
+            <Item Name="Y">Y</Item>
         </Expand>
     </Type>
-    <Type Name="Ultra::VectorBase&lt;*,*,*&gt;">
+    <Type Name="Ultra::VectorBase&lt;*,3,*&gt;">
+        <DisplayString>{{ X={X,g} | Y={Y,g} | Z={Z,g} }</DisplayString>
+        <Expand>
+            <Item Name="X">X</Item>
+            <Item Name="Y">Y</Item>
+            <Item Name="Z">Z</Item>
+        </Expand>
+    </Type>
+    <Type Name="Ultra::VectorBase&lt;*,4,*&gt;">
         <DisplayString>{{ X={X,g} | Y={Y,g} | Z={Z,g} | W={W,g} }</DisplayString>
         <Expand>
             <Item Name="X">X</Item>
@@ -128,7 +133,14 @@
             <Item Name="W">W</Item>
         </Expand>
     </Type>
-    <Type Name="Ultra::VectorBase&lt;*,*,*&gt;">
+    <Type Name="Ultra::VectorBase&lt;*,2,*&gt;">
+        <DisplayString>{{ NX={NX,g} | NY={NY,g} }</DisplayString>
+        <Expand>
+            <Item Name="NX">NX</Item>
+            <Item Name="NY">NY</Item>
+        </Expand>
+    </Type>
+    <Type Name="Ultra::VectorBase&lt;*,3,*&gt;">
         <DisplayString>{{ NX={NX,g} | NY={NY,g} | NZ={NZ,g} }</DisplayString>
         <Expand>
             <Item Name="NX">NX</Item>
@@ -144,13 +156,19 @@
             <Item Name="Roll">Roll</Item>
         </Expand>
     </Type>
-    <Type Name="Ultra::VectorBase&lt;*,*,*&gt;">
-        <DisplayString>{{ U={U,g} | V={V,g} | W={W,g} | Q={Q,g} }</DisplayString>
+    <Type Name="Ultra::VectorBase&lt;*,2,*&gt;">
+        <DisplayString>{{ U={U,g} | V={V,g} } }</DisplayString>
+        <Expand>
+            <Item Name="U">U</Item>
+            <Item Name="V">V</Item>
+        </Expand>
+    </Type>
+    <Type Name="Ultra::VectorBase&lt;*,3,*&gt;">
+        <DisplayString>{{ U={U,g} | V={V,g} | W={W,g} }</DisplayString>
         <Expand>
             <Item Name="U">U</Item>
             <Item Name="V">V</Item>
             <Item Name="W">W</Item>
-            <Item Name="Q">W</Item>
         </Expand>
     </Type>
     
