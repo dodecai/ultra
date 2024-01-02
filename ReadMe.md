@@ -1,4 +1,4 @@
-﻿# <img src="https://github.com/OmniVortexStudios/ultra/blob/master/Assets/Images/Ultra%20Spectra.png" alt="Logo" width="64"/> Ultra Spectra #
+﻿# <img src="https://github.com/dodecai/ultra/blob/master/Assets/Images/Ultra%20Spectra.png" alt="Logo" width="64"/> Ultra Spectra #
 
 [Cpp-Badge]: https://img.shields.io/badge/C%2B%2B-23-blue
 [C-Badge]: https://img.shields.io/badge/C-17-blue
@@ -11,8 +11,8 @@
 [![Cpp-Badge]][Cpp-Url]
 [![C-Badge]][C-Url]
 [![License-Url][License-Badge]][License-Url]
-[![DevSkim](https://github.com/OmniVortexStudios/ultra/actions/workflows/devskim.yml/badge.svg)](https://github.com/larioteo/ultra/actions/workflows/devskim.yml)
-[![MSBuild](https://github.com/OmniVortexStudios/ultra/actions/workflows/msbuild.yml/badge.svg)](https://github.com/larioteo/ultra/actions/workflows/msbuild.yml)
+[![DevSkim](https://github.com/dodecai/ultra/actions/workflows/devskim.yml/badge.svg)](https://github.com/larioteo/ultra/actions/workflows/devskim.yml)
+[![MSBuild](https://github.com/dodecai/ultra/actions/workflows/msbuild.yml/badge.svg)](https://github.com/larioteo/ultra/actions/workflows/msbuild.yml)
 
 > **Attention:** Currently under construction, heavy development, and in an early stage.
 This project was restarted from scratch. Switch to the 'prototype' branch to get the most out of it.
